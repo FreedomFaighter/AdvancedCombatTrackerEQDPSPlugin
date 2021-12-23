@@ -6,10 +6,10 @@ using System.Runtime.InteropServices;
 // General Information about an assembly is controlled through the following 
 // set of attributes. Change these attribute values to modify the information
 // associated with an assembly.
-[assembly: AssemblyProduct("EverQuest Damage Per Second Plugin for ACT")]
-[assembly: AssemblyCopyright("Copyright © 2024")]
-[assembly: AssemblyTitle("ACT EverQuest Damage Per Second Parsing")]
-[assembly: AssemblyDescription("https://github.com/FreedomFaighter/AdvancedCombatTrackerEverQuest")]
+[assembly: AssemblyProduct("EQ Damage Per Second Plugin for ACT")]
+[assembly: AssemblyCopyright("John H. Freeman © 2025")]
+[assembly: AssemblyTitle("EQ Damage Per Second Parsing")]
+[assembly: AssemblyDescription("https://github.com/FreedomFaighter/AdvancedCombatTrackerEQDPSPlugin")]
 [assembly: AssemblyCulture("en-US")]
 [assembly: NeutralResourcesLanguage("en-US")]
 
@@ -25,5 +25,5 @@ using System.Runtime.InteropServices;
 //      Build Number
 //      Revision
 //
-[assembly: AssemblyVersion("2.0.1.*")]
+[assembly: AssemblyVersion("2.5.2.*")]
 [assembly: InternalsVisibleTo("EQDPSPluginUnitTests")]
