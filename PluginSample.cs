@@ -329,7 +329,7 @@ namespace ACT_Plugin
 
         private void PopulateRegexArray()
         {
-            regexArray = new Regex[14];
+            regexArray = new Regex[15];
             ActGlobals.oFormEncounterLogs.LogTypeToColorMapping.Clear();
             ActGlobals.oFormEncounterLogs.LogTypeToColorMapping.Add(0, Color.Gray);
             regexArray[0] = new Regex(logTimeStampRegexStr + @"(?<victim>.+?) (?:is|are) (?<oldcrit>(?:critically )?(?:hit|multi attack(?:ed)?)) by (?<skillType>.+?) for (?<crit>a .*?critical of )?(?<damageAndType>.+?) damage\.", RegexOptions.Compiled);
@@ -360,6 +360,12 @@ namespace ACT_Plugin
             ActGlobals.oFormEncounterLogs.LogTypeToColorMapping.Add(13, Color.Black);
             regexArray[13] = new Regex(logTimeStampRegexStr + @"(?<healer>.+?) reduces? the damage from (?<attacker>.+?) to (?<victim>.+) by (?<damage>[\d,\.KMBTQ]+)\.", RegexOptions.Compiled);
             ActGlobals.oFormEncounterLogs.LogTypeToColorMapping.Add(14, Color.Black);
+            regexArray[14] = new Regex(@"\b
+                ^\[(?<date>.+)\] You hit (?<victim>.+) for (?<damagePoints>[\d]+) (point[|s]) of (?<typeOfDamage>.+) damage by (?<damageEffect>.+).(\w\((?<specialAttacks>.+)\)){0,1}$
+                ^\[(?<date>.+)\](?<effectString>.+).$
+                ^\[(?<date>.+)\] You hit (?<victim>.+) for (?<damagePoints>[\d]+) (point[|s]) of (?<typeOfDamage>.+) damage by (?<damageEffect>.+).(\w\((?<specialAttacks>.+)\)){0,1}$
+                ^\[(?<date>.+)\](?<effectString>.+).$", RegexOptions.Compiled | RegexOptions.Multiline);
+            ActGlobals.oFormEncounterLogs.LogTypeToColorMapping.Add(15, Color.Black);
         }
         void oFormActMain_BeforeLogLineRead(bool isImport, LogLineEventArgs logInfo)
         {
