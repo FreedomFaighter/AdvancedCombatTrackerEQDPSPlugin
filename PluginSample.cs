@@ -183,7 +183,7 @@ namespace ACT_Plugin
         char[] chrApos = new char[] { '\'', '’' };
         char[] chrSpaceApos = new char[] { ' ', '\'', '’' };
         Regex[] regexArray;
-        const string logTimeStampRegexStr = @"\[(?<date>.+)\] ";
+        const string logTimeStampRegexStr = @"\[(?<dateTimeOfLogLine>.+)\] ";
         //DateTime lastWardTime = DateTime.MinValue;
         //long lastWardAmount = 0;
         //string lastWardedTarget = string.Empty;
@@ -194,7 +194,7 @@ namespace ACT_Plugin
         //Regex engKillSplit = new Regex("(?<mob>.+?) in .+", RegexOptions.Compiled);
         //Regex petSplit = new Regex(@"(?<petName>[A-z]* ?)<(?<attacker>[A-z]+)[’'의の](?<s>s?) (?<petClass>.+)>", RegexOptions.Compiled);
         const string attackTypes = @"gore|crush|slash|hit|kick|slam|bash|shoot|strike|bite";
-        private DateTime GetDateTime(String dt)
+        private DateTime GetDateTimeFromGroupMatch(String dt)
         {
             String eqDateTimeStampFormat = "ddd MMM dd HH:mm:ss yyyy";
             DateTime currentEQTimeStamp;
@@ -255,7 +255,8 @@ namespace ACT_Plugin
             DateTime time = ActGlobals.oFormActMain.LastKnownTime;
 
             int gts = ActGlobals.oFormActMain.GlobalTimeSorter;
-
+            if (reMatch.Groups["victim"].Success && reMatch.Groups["attacker"].Success)
+                ActGlobals.oFormActMain.SetEncounter(GetDateTimeFromGroupMatch(reMatch.Groups["dateTimeOfLogLine"].Value), reMatch.Groups["victim"].Value, reMatch.Groups["attacker"].Value);
             switch (logMatched)
             {
                /*
