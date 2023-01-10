@@ -145,9 +145,11 @@ namespace ACT_Plugin
                 optionsNode = ActGlobals.oFormActMain.OptionsTreeView.Nodes[dcIndex].Nodes.Add("EQ2 English Settings");
                 // Register our user control(this) to our newly create node path.  All controls added to the list will be laid out left to right, top to bottom
                 ActGlobals.oFormActMain.OptionsControlSets.Add(@"Data Correction\EQ2 English Settings", new List<Control> { this });
-                Label lblConfig = new Label();
-                lblConfig.AutoSize = true;
-                lblConfig.Text = "Find the applicable options in the Options tab, Data Correction section.";
+                Label lblConfig = new Label
+                {
+                    AutoSize = true,
+                    Text = "Find the applicable options in the Options tab, Data Correction section."
+                };
                 pluginScreenSpace.Controls.Add(lblConfig);
             }
 
@@ -183,7 +185,9 @@ namespace ACT_Plugin
         char[] chrApos = new char[] { '\'', '’' };
         char[] chrSpaceApos = new char[] { ' ', '\'', '’' };
         Regex[] regexArray;
+#pragma warning disable IDE0051 // Remove unused private members
         const string logTimeStampRegexStr = @"\[(?<dateTimeOfLogLine>.+)\] ";
+#pragma warning restore IDE0051 // Remove unused private members
         //DateTime lastWardTime = DateTime.MinValue;
         //long lastWardAmount = 0;
         //string lastWardedTarget = string.Empty;
@@ -193,7 +197,9 @@ namespace ACT_Plugin
         //string lastIntercepter = string.Empty;
         //Regex engKillSplit = new Regex("(?<mob>.+?) in .+", RegexOptions.Compiled);
         //Regex petSplit = new Regex(@"(?<petName>[A-z]* ?)<(?<attacker>[A-z]+)[’'의の](?<s>s?) (?<petClass>.+)>", RegexOptions.Compiled);
+#pragma warning disable IDE0051 // Remove unused private members
         const string attackTypes = @"gore|crush|slash|hit|kick|slam|bash|shoot|strike|bite";
+#pragma warning restore IDE0051 // Remove unused private members
         private DateTime GetDateTimeFromGroupMatch(String dt)
         {
             String eqDateTimeStampFormat = "ddd MMM dd HH:mm:ss yyyy";
@@ -203,7 +209,6 @@ namespace ACT_Plugin
         }
         private void PopulateRegexArray()
         {
-            regexArray = new Regex[15];
             List<Tuple<Color, Regex>> regexTupleList = new List<Tuple<Color, Regex>>();
             ActGlobals.oFormEncounterLogs.LogTypeToColorMapping.Clear();
             regexTupleList.Add(new Tuple<Color, Regex>(Color.Red, new Regex(@"{logTimeStampRegex}(?<attacker>(You|.+)) (?<attackType>({attackTypes})+) (?<victim>.+) for (?<damageAmount>[\d]+) (point[|s]) of damage.(?:\s\((?<damageSpecial>.+)\)){0,1}", RegexOptions.Compiled)));
@@ -248,7 +253,6 @@ namespace ACT_Plugin
         }
         private void LogExeEnglish(Match reMatch, int logMatched, string logLine, bool isImport)
         {
-            List<string> attackingTypes = new List<string>();
             List<string> damages = new List<string>();
             SwingTypeEnum swingType;
             String attacker, victim;
@@ -257,272 +261,332 @@ namespace ACT_Plugin
             int gts = ActGlobals.oFormActMain.GlobalTimeSorter;
             if (reMatch.Groups["victim"].Success && reMatch.Groups["attacker"].Success)
                 ActGlobals.oFormActMain.SetEncounter(GetDateTimeFromGroupMatch(reMatch.Groups["dateTimeOfLogLine"].Value), reMatch.Groups["victim"].Value, reMatch.Groups["attacker"].Value);
+
             switch (logMatched)
             {
-               /*
-               #region Case 1 [unsourced skill attacks]
-               case 1:
-                   if (reMatch.Groups[1].Value.Length > 60)
-                       break;
-                   if (ActGlobals.oFormActMain.InCombat)   // If in combat
-                   {
-                       victim = reMatch.Groups[1].Value;
-                       crit = reMatch.Groups[2].Value;
-                       skillType = reMatch.Groups[3].Value;
-                       critStr = reMatch.Groups[4].Value;
-                       damage = reMatch.Groups[5].Value;
-                       special = "None";
-                       critical = false;
-
-                       damageAndTypeArr = EngGetDamageAndTypeArr(damage);
-
-                       attacker = "Unknown";   // Unsourced melee hits show as "Unknown" attacking, so we do the same
-
-                       if (crit[0] == 'c') // Critical hit check
-                           critical = true;
-                       if (!String.IsNullOrWhiteSpace(critStr))
-                       {
-                           critical = true;
-                           critStr = critStr.Substring(2); // "a "
-                           critStr = critStr.Substring(0, critStr.Length - 4); // " of "
-                       }
-                       else
-                       {
-                           critStr = "None";
-                       }
-
-                       if (victim == "YOU")
-                           victim = ActGlobals.charName;
-                       if (crit.Contains("multi attack"))
-                           special = "multi";
-                       AddDamageAttack(attacker, victim, skillType, (int)SwingTypeEnum.NonMelee, critical, critStr, special, damageAndTypeArr, time, gts);
-                   }
-                   break;
-               #endregion
-               #region Case 2 [melee/non-melee attacks]
-               case 2:
-                   if (reMatch.Groups[1].Value.Length > 70)
-                       break;
-                   attacker = reMatch.Groups[1].Value; // Contains the attacker and possibly skillType
-                   crit = reMatch.Groups[2].Value;
-                   victim = reMatch.Groups[3].Value;
-                   critStr = reMatch.Groups[4].Value;
-                   damage = reMatch.Groups[5].Value;
-                   skillType = string.Empty;
-                   critical = false;
-
-                   if (damage.Contains("pain and suffering"))
-                       break;
-                   damageAndTypeArr = EngGetDamageAndTypeArr(damage);
-
-                   if (crit[0] == 'c')     // Check for critical hits
-                   {
-                       critical = true;
-                       special = crit.Substring(11);
-                   }
-                   else
-                   {
-                       special = crit;
-                   }
-                   if (!String.IsNullOrWhiteSpace(critStr))
-                   {
-                       critical = true;
-                       critStr = critStr.Substring(2); // "a "
-                       critStr = critStr.Substring(0, critStr.Length - 4); // " of "
-                   }
-                   else
-                   {
-                       critStr = "None";
-                   }
-
-                   special = special == "flurries" ? "flurry" : special;
-                   special = special.StartsWith("aoe attack") ? "aoe" : special;
-                   special = special.Contains("attack") ? special.Substring(0, special.LastIndexOf(' ')) : special;
-
-                   victim = EnglishPersonaReplace(victim);
-                   if (attacker == "YOU")  // You performing melee
-                   {
-                       attacker = ActGlobals.charName;
-                       if (attacker == victim)
-                           break;      // You don't get credit for attacking yourself or your own pet
-                       if (ActGlobals.oFormActMain.SetEncounter(time, attacker, victim))
-                       {
-                           AddDamageAttack(attacker, victim, string.Empty, (int)SwingTypeEnum.Melee, critical, critStr, special, damageAndTypeArr, time, gts);
-                       }
-                       break;
-                   }
-                   if (attacker.StartsWith("YOUR"))        // You attacking with a skill
-                   {
-                       skillType = attacker.Substring(5);
-                       attacker = ActGlobals.charName;
-                       if (skillType == "Traumatic Swipe")
-                           ActGlobals.oFormSpellTimers.ApplyTimerMod(attacker, victim, skillType, 0.5F, 30);
-                       if (ActGlobals.oFormActMain.SetEncounter(time, attacker, victim))
-                       {
-                           AddDamageAttack(attacker, victim, skillType, (int)SwingTypeEnum.NonMelee, critical, critStr, special, damageAndTypeArr, time, gts);
-                       }
-                       //NotifySpell(attacker, skillType, true, victim, true);
-                       break;
-                   }
-
-                   engNameSkillSplit = attacker.Split(chrApos);        // Split apart the attackerAndSkill string by apostrophes
-                   if (engNameSkillSplit.Length > 1)   // If there are any apostrophes present
-                   {
-
-                       SplitAttackerSkill(ref attacker, ref skillType, engNameSkillSplit);
-
-                       if (String.IsNullOrEmpty(skillType))    // If a skillType was not found, treat as melee
-                       {
-                           if (ActGlobals.oFormActMain.SetEncounter(time, attacker, victim))
-                           {
-                               AddDamageAttack(attacker, victim, string.Empty, (int)SwingTypeEnum.Melee, critical, critStr, special, damageAndTypeArr, time, gts);
-                           }
-                       }
-                       else
-                       {
-                           if (skillType == "Traumatic Swipe")
-                               ActGlobals.oFormSpellTimers.ApplyTimerMod(attacker, victim, skillType, 0.5F, 30);
-                           if (ActGlobals.oFormActMain.SetEncounter(time, attacker, victim))
-                           {
-                               AddDamageAttack(attacker, victim, skillType, (int)SwingTypeEnum.NonMelee, critical, critStr, special, damageAndTypeArr, time, gts);
-                           }
-                       }
-                       break;
-                   }
-                   // If its down to here, it was a normal melee attack with no special naming tricks
-                   if (attacker == victim)
-                       break;      // You don't get credit for attacking yourself or your own pet
-                   if (ActGlobals.oFormActMain.SetEncounter(time, attacker, victim))
-                   {
-                       AddDamageAttack(attacker, victim, string.Empty, (int)SwingTypeEnum.Melee, critical, critStr, special, damageAndTypeArr, time, gts);
-                   }
-                   break;
-               #endregion
-               #region Case 3 [healing]
-               case 3:
-                   if (!ActGlobals.oFormActMain.InCombat)
-                       break;
-                   if (reMatch.Groups[1].Value.Length > 60)
-                       break;
-                   attacker = reMatch.Groups[1].Value; // Contains the healer and skillType
-                   crit = reMatch.Groups[2].Value;
-                   victim = reMatch.Groups[3].Value;
-                   critStr = reMatch.Groups[4].Value;
-                   damage = reMatch.Groups[5].Value;
-                   skillType = string.Empty;
-                   critical = false;
-
-                   if (crit[0] == 'c')     // Check for critical hits
-                       critical = true;
-
-                   if (!String.IsNullOrWhiteSpace(critStr))
-                   {
-                       critical = true;
-                       critStr = critStr.Substring(2); // "a "
-                       critStr = critStr.Substring(0, critStr.Length - 4); // " of "
-                   }
-                   else
-                   {
-                       critStr = "None";
-                   }
-                   damage = ExpandDamageAmount(damage);
-
-                   victim = EnglishPersonaReplace(victim);
-                   if (attacker.StartsWith("YOUR"))        // You healing
-                   {
-                       skillType = attacker.Substring(5);
-                       attacker = ActGlobals.charName;
-                       MasterSwing ms = new MasterSwing((int)SwingTypeEnum.Healing, critical, "None", Int64.Parse(damage), time, gts, skillType, attacker, "Hitpoints", victim);
-                       ms.Tags["CriticalStr"] = critStr;
-                       ActGlobals.oFormActMain.AddCombatAction(ms);
-                       break;
-                   }
-
-                   engNameSkillSplit = attacker.Split(chrApos);        // Split apart the healerAndSkill string by apostrophes
-                   if (engNameSkillSplit.Length > 1)   // If there are any apostrophes present
-                   {
-                       SplitAttackerSkill(ref attacker, ref skillType, engNameSkillSplit);
-                       MasterSwing ms = new MasterSwing((int)SwingTypeEnum.Healing, critical, "None", Int64.Parse(damage), time, gts, skillType, attacker, "Hitpoints", victim);
-                       ms.Tags["CriticalStr"] = critStr;
-                       ActGlobals.oFormActMain.AddCombatAction(ms);
-                   }
-                   break;
-               #endregion
-               #region Case 4 [misses]
-               case 4:
-                   if (reMatch.Groups[1].Value.Length > 60)
-                       break;
-                   attacker = reMatch.Groups[1].Value;
-                   attackType = reMatch.Groups[2].Value;
-                   victim = reMatch.Groups[3].Value;       // Contains Victim and possibly skillType
-                   why = reMatch.Groups[4].Value;
-                   skillType = string.Empty;
-                   special = "None";
-
-                   attacker = EnglishPersonaReplace(attacker);
-                   swingType = SwingTypeEnum.Melee;
-                   int skillSplitPos = victim.IndexOf(" with ");   // If this contains "with", we know there's a skillType
-                   if (skillSplitPos > -1)
-                   {
-                       skillType = victim.Substring(skillSplitPos + 6);
-                       victim = victim.Substring(0, skillSplitPos);
-                       swingType = SwingTypeEnum.NonMelee;
-                   }
-                   failType = GetFailTypeEnglish(victim, why, ref special);        // Get the Dnum value for the type of fail we had
-                   if (victim == "YOU" || victim == "YOUR")
-                       victim = ActGlobals.charName;
-
-                   if (String.IsNullOrEmpty(skillType))
-                   {
-                       if (ActGlobals.oFormActMain.SetEncounter(time, attacker, victim))
-                       {
-                           ActGlobals.oFormActMain.AddCombatAction((int)swingType, false, special, attacker, attackType, failType, time, gts, victim, AtkToIng(attackType));
-                       }
-                   }
-                   else
-                   {
-                       if (ActGlobals.oFormActMain.SetEncounter(time, attacker, victim))
-                       {
-                           ActGlobals.oFormActMain.AddCombatAction((int)swingType, false, special, attacker, skillType, failType, time, gts, victim, AtkToIng(attackType));
-                       }
-                   }
-                   break;
-               #endregion
-               #region Case 5 [Twincast]
-               case 5:
-                   break;
-               #endregion
-            */
-                #region Case 6 [killing]
-                case 6:
-                    if (reMatch.Groups[1].Value.Length > 60)
-                        break;
-                    attacker = reMatch.Groups[1].Value;
-                    victim = reMatch.Groups[2].Value;
-
-                    victim = EnglishPersonaReplace(victim);
-
-                    swingType = SwingTypeEnum.NonMelee;
-
-                    ActGlobals.oFormSpellTimers.RemoveTimerMods(victim);
-                    ActGlobals.oFormSpellTimers.DispellTimerMods(victim);
-                    if (ActGlobals.oFormActMain.InCombat)
+                //Melee
+                case 1:
+                    if(ActGlobals.oFormActMain.InCombat)
                     {
-                        ActGlobals.oFormActMain.AddCombatAction((int)swingType, false, "None", attacker, "Killing", Dnum.Death, time, gts, victim, "Death");
+                        String damageSpecial;
+                        bool critical;
+                        if (reMatch.Groups["damageSpecial"].Success)
+                        {
+                            damageSpecial = reMatch.Groups["damageSpecial"].Value;
+                        }
+                        else
+                        {
+                            damageSpecial = String.Empty;
+                        }
 
-                        //if (cbKillEnd.Checked && ActGlobals.oFormActMain.ActiveZone.ActiveEncounter.GetAllies().IndexOf(new CombatantData(attacker, null)) > -1)
-                        //{
-                        //    EndCombat(true);
-                        //}
+                        critical = damageSpecial.Contains("Critical");
+                        ActGlobals.oFormActMain.AddCombatAction(
+                            SwingTypeEnum.Melee
+                            , critical
+                            , damageSpecial
+                            , EnglishPersonaReplace(reMatch.Groups["attacker"].Value)
+                            , reMatch.Groups["attackType"].Value
+                            , new Dnum(Int64.Parse(reMatch.Groups["damageAmount"].Value))
+                            , new DateTime(reMatch.Groups["dateTimeOfLogLine"].Value, DateTimeKind.Local)
+                            , gts
+                            , EnglishPersonaReplace(reMatch.Groups["victim"].Value)
+                            , "Melee");
                     }
                     break;
-                #endregion
-                default:
+                //Non-melee damage shield
+                case 2:
+                    if(ActGlobals.oFormActMain.InCombat)
+                    {
+                        ActGlobals.oFormActMain.AddCombatAction(SwingTypeEnum.NonMelee
+                            , false
+                            , String.Empty 
+                            , EnglishPersonaReplace(reMatch.Groups["attacker"].Value)
+                            , reMatch.Groups["damageShieldDamageType"].Value
+                            , new Dnum(Int64.Parse(reMatch.Groups["damagePoints"].Value)
+                            , new DateTime(reMatch.Groups["dateTimeOfLogLine"].Value
+                            , gts
+                            , EnglishPersonaReplace(reMatch.Groups["victim"].Value)
+                            , reMatch.Groups["damageShieldType"].Value)
+                    }
+                //Melee miss
+                case 3:
+                    if(ActGlobals.oFormActMain.InCombat)
+                    {
+                        ActGlobals.oFormActMain.AddCombatAction(SwingTypeEnum.Melee
+                            , false
+                            , string.Empty
+                            , EnglishPersonaReplace(reMatch.Groups["attacker"].Value)
+                            , reMatch.Groups["attackType"].Value
+                            , new Dnum(0)
+                            , new DateTime(reMatch.Groups["dateTimeOfLogLine"].Value)
+                            , gts
+                            , EnglishPersonaReplace(reMatch.Groups["victim"].Value), "Melee");
+                    }
                     break;
+                    /*
+                    #region Case 1 [unsourced skill attacks]
+                    case 1:
+                        if (reMatch.Groups[1].Value.Length > 60)
+                            break;
+                        if (ActGlobals.oFormActMain.InCombat)   // If in combat
+                        {
+                            victim = reMatch.Groups[1].Value;
+                            crit = reMatch.Groups[2].Value;
+                            skillType = reMatch.Groups[3].Value;
+                            critStr = reMatch.Groups[4].Value;
+                            damage = reMatch.Groups[5].Value;
+                            special = "None";
+                            critical = false;
 
+                            damageAndTypeArr = EngGetDamageAndTypeArr(damage);
+
+                            attacker = "Unknown";   // Unsourced melee hits show as "Unknown" attacking, so we do the same
+
+                            if (crit[0] == 'c') // Critical hit check
+                                critical = true;
+                            if (!String.IsNullOrWhiteSpace(critStr))
+                            {
+                                critical = true;
+                                critStr = critStr.Substring(2); // "a "
+                                critStr = critStr.Substring(0, critStr.Length - 4); // " of "
+                            }
+                            else
+                            {
+                                critStr = "None";
+                            }
+
+                            if (victim == "YOU")
+                                victim = ActGlobals.charName;
+                            if (crit.Contains("multi attack"))
+                                special = "multi";
+                            AddCombatAction(attacker, victim, skillType, (int)SwingTypeEnum.NonMelee, critical, critStr, special, damageAndTypeArr, time, gts);
+                        }
+                        break;
+                    #endregion
+                    #region Case 2 [melee/non-melee attacks]
+                    case 2:
+                        if (reMatch.Groups[1].Value.Length > 70)
+                            break;
+                        attacker = reMatch.Groups[1].Value; // Contains the attacker and possibly skillType
+                        crit = reMatch.Groups[2].Value;
+                        victim = reMatch.Groups[3].Value;
+                        critStr = reMatch.Groups[4].Value;
+                        damage = reMatch.Groups[5].Value;
+                        skillType = string.Empty;
+                        critical = false;
+
+                        if (damage.Contains("pain and suffering"))
+                            break;
+                        damageAndTypeArr = EngGetDamageAndTypeArr(damage);
+
+                        if (crit[0] == 'c')     // Check for critical hits
+                        {
+                            critical = true;
+                            special = crit.Substring(11);
+                        }
+                        else
+                        {
+                            special = crit;
+                        }
+                        if (!String.IsNullOrWhiteSpace(critStr))
+                        {
+                            critical = true;
+                            critStr = critStr.Substring(2); // "a "
+                            critStr = critStr.Substring(0, critStr.Length - 4); // " of "
+                        }
+                        else
+                        {
+                            critStr = "None";
+                        }
+
+                        special = special == "flurries" ? "flurry" : special;
+                        special = special.StartsWith("aoe attack") ? "aoe" : special;
+                        special = special.Contains("attack") ? special.Substring(0, special.LastIndexOf(' ')) : special;
+
+                        victim = EnglishPersonaReplace(victim);
+                        if (attacker == "YOU")  // You performing melee
+                        {
+                            attacker = ActGlobals.charName;
+                            if (attacker == victim)
+                                break;      // You don't get credit for attacking yourself or your own pet
+                            if (ActGlobals.oFormActMain.SetEncounter(time, attacker, victim))
+                            {
+                                AddDamageAttack(attacker, victim, string.Empty, (int)SwingTypeEnum.Melee, critical, critStr, special, damageAndTypeArr, time, gts);
+                            }
+                            break;
+                        }
+                        if (attacker.StartsWith("YOUR"))        // You attacking with a skill
+                        {
+                            skillType = attacker.Substring(5);
+                            attacker = ActGlobals.charName;
+                            if (skillType == "Traumatic Swipe")
+                                ActGlobals.oFormSpellTimers.ApplyTimerMod(attacker, victim, skillType, 0.5F, 30);
+                            if (ActGlobals.oFormActMain.SetEncounter(time, attacker, victim))
+                            {
+                                AddDamageAttack(attacker, victim, skillType, (int)SwingTypeEnum.NonMelee, critical, critStr, special, damageAndTypeArr, time, gts);
+                            }
+                            //NotifySpell(attacker, skillType, true, victim, true);
+                            break;
+                        }
+
+                        engNameSkillSplit = attacker.Split(chrApos);        // Split apart the attackerAndSkill string by apostrophes
+                        if (engNameSkillSplit.Length > 1)   // If there are any apostrophes present
+                        {
+
+                            SplitAttackerSkill(ref attacker, ref skillType, engNameSkillSplit);
+
+                            if (String.IsNullOrEmpty(skillType))    // If a skillType was not found, treat as melee
+                            {
+                                if (ActGlobals.oFormActMain.SetEncounter(time, attacker, victim))
+                                {
+                                    AddDamageAttack(attacker, victim, string.Empty, (int)SwingTypeEnum.Melee, critical, critStr, special, damageAndTypeArr, time, gts);
+                                }
+                            }
+                            else
+                            {
+                                if (skillType == "Traumatic Swipe")
+                                    ActGlobals.oFormSpellTimers.ApplyTimerMod(attacker, victim, skillType, 0.5F, 30);
+                                if (ActGlobals.oFormActMain.SetEncounter(time, attacker, victim))
+                                {
+                                    AddDamageAttack(attacker, victim, skillType, (int)SwingTypeEnum.NonMelee, critical, critStr, special, damageAndTypeArr, time, gts);
+                                }
+                            }
+                            break;
+                        }
+                        // If its down to here, it was a normal melee attack with no special naming tricks
+                        if (attacker == victim)
+                            break;      // You don't get credit for attacking yourself or your own pet
+                        if (ActGlobals.oFormActMain.SetEncounter(time, attacker, victim))
+                        {
+                            AddDamageAttack(attacker, victim, string.Empty, (int)SwingTypeEnum.Melee, critical, critStr, special, damageAndTypeArr, time, gts);
+                        }
+                        break;
+                    #endregion
+                    #region Case 3 [healing]
+                    case 3:
+                        if (!ActGlobals.oFormActMain.InCombat)
+                            break;
+                        if (reMatch.Groups[1].Value.Length > 60)
+                            break;
+                        attacker = reMatch.Groups[1].Value; // Contains the healer and skillType
+                        crit = reMatch.Groups[2].Value;
+                        victim = reMatch.Groups[3].Value;
+                        critStr = reMatch.Groups[4].Value;
+                        damage = reMatch.Groups[5].Value;
+                        skillType = string.Empty;
+                        critical = false;
+
+                        if (crit[0] == 'c')     // Check for critical hits
+                            critical = true;
+
+                        if (!String.IsNullOrWhiteSpace(critStr))
+                        {
+                            critical = true;
+                            critStr = critStr.Substring(2); // "a "
+                            critStr = critStr.Substring(0, critStr.Length - 4); // " of "
+                        }
+                        else
+                        {
+                            critStr = "None";
+                        }
+                        damage = ExpandDamageAmount(damage);
+
+                        victim = EnglishPersonaReplace(victim);
+                        if (attacker.StartsWith("YOUR"))        // You healing
+                        {
+                            skillType = attacker.Substring(5);
+                            attacker = ActGlobals.charName;
+                            MasterSwing ms = new MasterSwing((int)SwingTypeEnum.Healing, critical, "None", Int64.Parse(damage), time, gts, skillType, attacker, "Hitpoints", victim);
+                            ms.Tags["CriticalStr"] = critStr;
+                            ActGlobals.oFormActMain.AddCombatAction(ms);
+                            break;
+                        }
+
+                        engNameSkillSplit = attacker.Split(chrApos);        // Split apart the healerAndSkill string by apostrophes
+                        if (engNameSkillSplit.Length > 1)   // If there are any apostrophes present
+                        {
+                            SplitAttackerSkill(ref attacker, ref skillType, engNameSkillSplit);
+                            MasterSwing ms = new MasterSwing((int)SwingTypeEnum.Healing, critical, "None", Int64.Parse(damage), time, gts, skillType, attacker, "Hitpoints", victim);
+                            ms.Tags["CriticalStr"] = critStr;
+                            ActGlobals.oFormActMain.AddCombatAction(ms);
+                        }
+                        break;
+                    #endregion
+                    #region Case 4 [misses]
+                    case 4:
+                        if (reMatch.Groups[1].Value.Length > 60)
+                            break;
+                        attacker = reMatch.Groups[1].Value;
+                        attackType = reMatch.Groups[2].Value;
+                        victim = reMatch.Groups[3].Value;       // Contains Victim and possibly skillType
+                        why = reMatch.Groups[4].Value;
+                        skillType = string.Empty;
+                        special = "None";
+
+                        attacker = EnglishPersonaReplace(attacker);
+                        swingType = SwingTypeEnum.Melee;
+                        int skillSplitPos = victim.IndexOf(" with ");   // If this contains "with", we know there's a skillType
+                        if (skillSplitPos > -1)
+                        {
+                            skillType = victim.Substring(skillSplitPos + 6);
+                            victim = victim.Substring(0, skillSplitPos);
+                            swingType = SwingTypeEnum.NonMelee;
+                        }
+                        failType = GetFailTypeEnglish(victim, why, ref special);        // Get the Dnum value for the type of fail we had
+                        if (victim == "YOU" || victim == "YOUR")
+                            victim = ActGlobals.charName;
+
+                        if (String.IsNullOrEmpty(skillType))
+                        {
+                            if (ActGlobals.oFormActMain.SetEncounter(time, attacker, victim))
+                            {
+                                ActGlobals.oFormActMain.AddCombatAction((int)swingType, false, special, attacker, attackType, failType, time, gts, victim, AtkToIng(attackType));
+                            }
+                        }
+                        else
+                        {
+                            if (ActGlobals.oFormActMain.SetEncounter(time, attacker, victim))
+                            {
+                                ActGlobals.oFormActMain.AddCombatAction((int)swingType, false, special, attacker, skillType, failType, time, gts, victim, AtkToIng(attackType));
+                            }
+                        }
+                        break;
+                    #endregion
+                    #region Case 5 [Twincast]
+                    case 5:
+                        break;
+                    #endregion
+
+                     #region Case 6 [killing]
+                     case 6:
+                         if (reMatch.Groups[1].Value.Length > 60)
+                             break;
+                         attacker = reMatch.Groups[1].Value;
+                         victim = reMatch.Groups[2].Value;
+
+                         victim = EnglishPersonaReplace(victim);
+
+                         swingType = SwingTypeEnum.NonMelee;
+
+                         ActGlobals.oFormSpellTimers.RemoveTimerMods(victim);
+                         ActGlobals.oFormSpellTimers.DispellTimerMods(victim);
+                         if (ActGlobals.oFormActMain.InCombat)
+                         {
+                             ActGlobals.oFormActMain.AddCombatAction((int)swingType, false, "None", attacker, "Killing", Dnum.Death, time, gts, victim, "Death");
+
+                             //if (cbKillEnd.Checked && ActGlobals.oFormActMain.ActiveZone.ActiveEncounter.GetAllies().IndexOf(new CombatantData(attacker, null)) > -1)
+                             //{
+                             //    EndCombat(true);
+                             //}
+                         }
+                         break;
+                     #endregion
+                     default:
+                         break;*/
             }
         }
-        private static CultureInfo enUsCulture = new CultureInfo("en-US");
+
+        private readonly CultureInfo enUsCulture = CultureInfo.InstalledUICulture;
 
         private void SplitAttackerSkill(ref string attacker, ref string skillType, string[] engNameSkillSplit)
         {
@@ -563,10 +627,12 @@ namespace ACT_Plugin
             attacker = attacker.TrimStart(chrApos); // Remove the appostrophe at the begining of the string
             skillType = skillType.Trim();
         }
-        Regex selfCheck = new Regex(@"(YOU(?:(\b|R))(?:(\b|SELF)))", RegexOptions.None);
-        private string EnglishPersonaReplace(string input)
+
+        Regex selfCheck = new Regex(@"(You|(YOU(?:(\b|R))(?:(\b|SELF))))", RegexOptions.None);
+
+        private string EnglishPersonaReplace(string PersonaString)
         {
-            return selfCheck.Match(input).Success ? ActGlobals.charName : input;
+            return selfCheck.Match(PersonaString).Success ? ActGlobals.charName : PersonaString;
         }
 
         void LoadSettings()
@@ -1065,7 +1131,7 @@ namespace ACT_Plugin
             MasterSwing.ColumnDefs.Add("DamageNum", new MasterSwing.ColumnDef("DamageNum", false, "BIGINT", "Damage", (Data) => { return ((long)Data.Damage).ToString(); }, (Data) => { return ((long)Data.Damage).ToString(); }, (Left, Right) => { return Left.Damage.CompareTo(Right.Damage); }));
             MasterSwing.ColumnDefs.Add("Damage", new MasterSwing.ColumnDef("Damage", true, "VARCHAR(128)", "DamageString", (Data) => { return Data.Damage.ToString(); }, (Data) => { return Data.Damage.ToString(); }, (Left, Right) => { return Left.Damage.CompareTo(Right.Damage); }));
             MasterSwing.ColumnDefs.Add("Critical", new MasterSwing.ColumnDef("Critical", false, "CHAR(1)", "Critical", (Data) => { return Data.Critical.ToString(); }, (Data) => { return Data.Critical.ToString(usCulture)[0].ToString(); }, (Left, Right) => { return Left.Critical.CompareTo(Right.Critical); }));
-
+            MasterSwing.ColumnDefs.Add("Twinproc", new MasterSwing.ColumnDef("Twinproc", true, "BOOLEAN", "Twinproc", (Data) => { return Data.Tags["Twinproc"]; }, (Data) => { return Data.Tags["Twinproc"]; }, (Left, Right) => { return Left.Tags["Twinproc"].CompareTo(Right.Tags["Twinproc"]); }));
             MasterSwing.ColumnDefs.Add("CriticalStr", new MasterSwing.ColumnDef("CriticalStr", true, "VARCHAR(32)", "CriticalStr", (Data) =>
             {
                 if (Data.Tags.ContainsKey("CriticalStr"))
