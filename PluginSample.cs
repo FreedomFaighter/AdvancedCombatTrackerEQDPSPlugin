@@ -20,6 +20,7 @@ using System.Xml;
 [assembly: AssemblyDescription("Plugin for EverQuest DPS Parsing")]
 [assembly: AssemblyCompany("Blurrysticks")]
 [assembly: AssemblyVersion("0.0.0.1")]
+[assembly: AssemblyCopyright("2022")]
 
 namespace ACT_Plugin
 {
