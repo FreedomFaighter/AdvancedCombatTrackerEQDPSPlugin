@@ -125,7 +125,7 @@ namespace ACT_Plugin
 
         TreeNode optionsNode = null;
         Label lblStatus;    // The status label that appears in ACT's Plugin tab
-        string settingsFile = Path.Combine(ActGlobals.oFormActMain.AppDataFolder.FullName, "Config\\ACT_English_Parser.config.xml");
+        string settingsFile = Path.Combine(ActGlobals.oFormActMain.AppDataFolder.FullName, "Config\\ACT_EverQuest_English_Parser.config.xml");
         SettingsSerializer xmlSettings;
 
         public void InitPlugin(TabPage pluginScreenSpace, Label pluginStatusText)
@@ -143,7 +143,7 @@ namespace ACT_Plugin
             if (dcIndex != -1)
             {
                 // Add our own node to the Data Correction node
-                optionsNode = ActGlobals.oFormActMain.OptionsTreeView.Nodes[dcIndex].Nodes.Add("EQ2 English Settings");
+                optionsNode = ActGlobals.oFormActMain.OptionsTreeView.Nodes[dcIndex].Nodes.Add("EverQuest English Settings");
                 // Register our user control(this) to our newly create node path.  All controls added to the list will be laid out left to right, top to bottom
                 ActGlobals.oFormActMain.OptionsControlSets.Add(@"Data Correction\EQ2 English Settings", new List<Control> { this });
                 Label lblConfig = new Label
@@ -165,7 +165,7 @@ namespace ACT_Plugin
                 new Thread(new ThreadStart(oFormActMain_UpdateCheckClicked)).Start();   // If we don't put this on a separate thread, web latency will delay the plugin init phase
             ActGlobals.oFormActMain.CharacterFileNameRegex = new Regex(@"(?:.+)\/eqlog_(?<characterName>\S+)_(?<server>.+).txt");
             ActGlobals.oFormActMain.ZoneChangeRegex = new Regex(@"{logTimeStampRegexStr}(?:(?=You have entered)(You have entered (the Drunken Monkey stance adequately|(?<zoneName>.+)))).");
-            lblStatus.Text = "Plugin Started";
+            lblStatus.Text = EverQuestDPSParse.PluginName + " Plugin Started";
         }
 
         public void DeInitPlugin()
@@ -180,15 +180,12 @@ namespace ACT_Plugin
             }
 
             SaveSettings();
-            lblStatus.Text = "Plugin Exited";
+            lblStatus.Text = EverQuestDPSParse.PluginName + " Plugin Exited";
         }
 
         char[] chrApos = new char[] { '\'', '’' };
         char[] chrSpaceApos = new char[] { ' ', '\'', '’' };
         Regex[] regexArray;
-#pragma warning disable IDE0051 // Remove unused private members
-        const string logTimeStampRegexStr = @"\[(?<dateTimeOfLogLine>.+)\] ";
-#pragma warning restore IDE0051 // Remove unused private members
         //DateTime lastWardTime = DateTime.MinValue;
         //long lastWardAmount = 0;
         //string lastWardedTarget = string.Empty;
@@ -212,15 +209,15 @@ namespace ACT_Plugin
         {
             List<Tuple<Color, Regex>> regexTupleList = new List<Tuple<Color, Regex>>();
             ActGlobals.oFormEncounterLogs.LogTypeToColorMapping.Clear();
-            regexTupleList.Add(new Tuple<Color, Regex>(Color.Red, new Regex(@"{logTimeStampRegex}(?<attacker>(You|.+)) (?<attackType>({attackTypes})+) (?<victim>.+) for (?<damageAmount>[\d]+) (point[|s]) of damage.(?:\s\((?<damageSpecial>.+)\)){0,1}", RegexOptions.Compiled)));
+            regexTupleList.Add(new Tuple<Color, Regex>(Color.Red, new Regex(EverQuestDPSParse.MeleeAttack, RegexOptions.Compiled)));
             ActGlobals.oFormEncounterLogs.LogTypeToColorMapping.Add(regexTupleList.Count - 1, regexTupleList[regexTupleList.Count - 1].Item1);
-            regexTupleList.Add(new Tuple<Color, Regex>(Color.Red, new Regex(@"{logTimeStampRegex}(?<attacker>(You|.+)) is (?<damageShieldDamageType>\S+) by (?<victim>(YOUR|.+)) (?<damageShieldType>\S+) for (?<damagePoints>[\d]+) points of non-melee damage.", RegexOptions.Compiled)));
+            regexTupleList.Add(new Tuple<Color, Regex>(Color.Red, new Regex(EverQuestDPSParse.DamageShield, RegexOptions.Compiled)));
             ActGlobals.oFormEncounterLogs.LogTypeToColorMapping.Add(regexTupleList.Count - 1, regexTupleList[regexTupleList.Count - 1].Item1);
-            regexTupleList.Add(new Tuple<Color, Regex>(Color.Gray, new Regex(@"{logTimeStampRegex}(?<attacker>.+) (?:tr(ies|y)) to (?<attackType>({attackTypes})+) (?<victim>.+), but (?:miss(|es))!", RegexOptions.Compiled)));
+            regexTupleList.Add(new Tuple<Color, Regex>(Color.Gray, new Regex(EverQuestDPSParse.MissedMeleeAttack, RegexOptions.Compiled)));
             ActGlobals.oFormEncounterLogs.LogTypeToColorMapping.Add(regexTupleList.Count - 1, regexTupleList[regexTupleList.Count - 1].Item1);
-            regexTupleList.Add(new Tuple<Color, Regex>(Color.Goldenrod, new Regex(@"{logTimeStampRegex}(?:.slain.)!", RegexOptions.Compiled)));
+            regexTupleList.Add(new Tuple<Color, Regex>(Color.Goldenrod, new Regex(EverQuestDPSParse.SlainMessage, RegexOptions.Compiled)));
             ActGlobals.oFormEncounterLogs.LogTypeToColorMapping.Add(regexTupleList.Count - 1, regexTupleList[regexTupleList.Count - 1].Item1);
-            regexTupleList.Add(new Tuple<Color, Regex>(Color.GhostWhite, new Regex(@"{logTimeStampRegex}You hit (?<victim1>.+) for (?<damagePoints1>[\d]+) (point[|s]) of (?<typeOfDamage1>.+) damage by ((?<damageEffect1>.+).)(?:\(((?:(?<specialAttack>.+)\s)Twincast)\))", RegexOptions.Compiled)));
+            regexTupleList.Add(new Tuple<Color, Regex>(Color.GhostWhite, new Regex(EverQuestDPSParse.TwinCast, RegexOptions.Compiled)));
             ActGlobals.oFormEncounterLogs.LogTypeToColorMapping.Add(regexTupleList.Count - 1, regexTupleList[regexTupleList.Count - 1].Item1);
         }
  
