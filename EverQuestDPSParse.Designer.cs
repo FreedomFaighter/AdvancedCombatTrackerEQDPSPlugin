@@ -61,6 +61,15 @@ namespace ACT_Plugin {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to gore|crush|slash|hit|kick|slam|bash|shoot|strike|bite.
+        /// </summary>
+        internal static string attackTypes {
+            get {
+                return ResourceManager.GetString("attackTypes", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to {EverQuestDPSParse.TimeStamp}(?&lt;attacker&gt;(You|.+)) is (?&lt;damageShieldDamageType&gt;\S+) by (?&lt;victim&gt;(YOUR|.+)) (?&lt;damageShieldType&gt;\S+) for (?&lt;damagePoints&gt;[\d]+) points of non-melee damage..
         /// </summary>
         internal static string DamageShield {
@@ -106,6 +115,15 @@ namespace ACT_Plugin {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to {EverQuestDPSParse.TimeStamp}You hit (?&lt;victim&gt;.+) for (?&lt;damagePoints1&gt;[\d]+) (point[|s]) of (?&lt;typeOfDamage&gt;.+) damage by ((?&lt;damageEffect&gt;.+).)(?:\(((?:(?&lt;specialAttack&gt;.+)\s))\)).
+        /// </summary>
+        internal static string SpellDamage {
+            get {
+                return ResourceManager.GetString("SpellDamage", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to \[(?&lt;dateTimeOfLogLine&gt;.+)\].
         /// </summary>
         internal static string TimeStamp {
@@ -115,7 +133,7 @@ namespace ACT_Plugin {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to {EverQuestDPSParse.TimeStamp}You hit (?&lt;victim1&gt;.+) for (?&lt;damagePoints1&gt;[\d]+) (point[|s]) of (?&lt;typeOfDamage1&gt;.+) damage by ((?&lt;damageEffect1&gt;.+).)(?:\(((?:(?&lt;specialAttack&gt;.+)\s)Twincast)\)).
+        ///   Looks up a localized string similar to {EverQuestDPSParse.TimeStamp}You hit (?&lt;victim&gt;.+) for (?&lt;damagePoints1&gt;[\d]+) (point[|s]) of (?&lt;typeOfDamage&gt;.+) damage by ((?&lt;damageEffect&gt;.+).)(?:\(((?:(?&lt;specialAttack&gt;.+)\s)Twincast)\)).
         /// </summary>
         internal static string TwinCast {
             get {

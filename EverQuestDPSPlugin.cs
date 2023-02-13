@@ -185,19 +185,7 @@ namespace ACT_Plugin
 
         char[] chrApos = new char[] { '\'', '’' };
         char[] chrSpaceApos = new char[] { ' ', '\'', '’' };
-        Regex[] regexArray;
-        //DateTime lastWardTime = DateTime.MinValue;
-        //long lastWardAmount = 0;
-        //string lastWardedTarget = string.Empty;
-        //DateTime lastInterceptTime = DateTime.MinValue;
-        //long lastInterceptAmount = 0;
-        //string lastInterceptTarget = string.Empty;
-        //string lastIntercepter = string.Empty;
-        //Regex engKillSplit = new Regex("(?<mob>.+?) in .+", RegexOptions.Compiled);
-        //Regex petSplit = new Regex(@"(?<petName>[A-z]* ?)<(?<attacker>[A-z]+)[’'의の](?<s>s?) (?<petClass>.+)>", RegexOptions.Compiled);
-#pragma warning disable IDE0051 // Remove unused private members
-        const string attackTypes = @"gore|crush|slash|hit|kick|slam|bash|shoot|strike|bite";
-#pragma warning restore IDE0051 // Remove unused private members
+        List<Tuple<Color, Regex>> regexTupleList = new List<Tuple<Color, Regex>>();
         private DateTime GetDateTimeFromGroupMatch(String dt)
         {
             String eqDateTimeStampFormat = "ddd MMM dd HH:mm:ss yyyy";
@@ -207,7 +195,6 @@ namespace ACT_Plugin
         }
         private void PopulateRegexArray()
         {
-            List<Tuple<Color, Regex>> regexTupleList = new List<Tuple<Color, Regex>>();
             ActGlobals.oFormEncounterLogs.LogTypeToColorMapping.Clear();
             regexTupleList.Add(new Tuple<Color, Regex>(Color.Red, new Regex(EverQuestDPSParse.MeleeAttack, RegexOptions.Compiled)));
             ActGlobals.oFormEncounterLogs.LogTypeToColorMapping.Add(regexTupleList.Count - 1, regexTupleList[regexTupleList.Count - 1].Item1);
@@ -219,13 +206,13 @@ namespace ACT_Plugin
             ActGlobals.oFormEncounterLogs.LogTypeToColorMapping.Add(regexTupleList.Count - 1, regexTupleList[regexTupleList.Count - 1].Item1);
             regexTupleList.Add(new Tuple<Color, Regex>(Color.GhostWhite, new Regex(EverQuestDPSParse.TwinCast, RegexOptions.Compiled)));
             ActGlobals.oFormEncounterLogs.LogTypeToColorMapping.Add(regexTupleList.Count - 1, regexTupleList[regexTupleList.Count - 1].Item1);
+            regexTupleList.Add(new Tuple<Color, Regex>(Color.Red, new Regex(EverQuestDPSParse.SpellDamage, RegexOptions.Compiled)));
         }
  
         void oFormActMain_BeforeLogLineRead(bool isImport, LogLineEventArgs logInfo)
         {
-            if (NotQuickFail(logInfo))
-            {
-                for (int i = 0; i < regexArray.Length; i++)
+
+                for (int i = 0; i < regexTupleList.Length; i++)
                 {
                     Match reMatch = regexArray[i].Match(logInfo.logLine);
                     if (reMatch.Success)
@@ -235,10 +222,10 @@ namespace ACT_Plugin
                         break;
                     }
                 }
-            }
+            
         }
 
-        string[] matchKeywords = new string[] { "damage", "point", ", but", "killed", "command", "entered", "hate", "dispel", "relieve", "reduces" };
+        /*string[] matchKeywords = new string[] { "damage", "point", ", but", "killed", "command", "entered", "hate", "dispel", "relieve", "reduces" };
         private bool NotQuickFail(LogLineEventArgs logInfo)
         {
             for (int i = 0; i < matchKeywords.Length; i++)
@@ -248,8 +235,8 @@ namespace ACT_Plugin
             }
 
             return false;
-        }
-        private void LogExeEnglish(Match reMatch, int logMatched, string logLine, bool isImport)
+        }*/
+        private void ParseEverQuestLogLine(Match reMatch, int logMatched, string logLine, bool isImport)
         {
             List<string> damages = new List<string>();
             SwingTypeEnum swingType;
