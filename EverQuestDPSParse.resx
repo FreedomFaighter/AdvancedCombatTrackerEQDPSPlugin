@@ -132,6 +132,12 @@
   <data name="PluginName" xml:space="preserve">
     <value>EverQuest DPS Parse</value>
   </data>
+  <data name="PluginSettingsFileName" xml:space="preserve">
+    <value>Config\ACT_EverQuest_English_Parser.config.xml</value>
+  </data>
+  <data name="PluginSettingsSectionName" xml:space="preserve">
+    <value>Data Correction\EQ English Settings</value>
+  </data>
   <data name="SlainMessage" xml:space="preserve">
     <value>{EverQuestDPSParse.TimeStamp}(?:.slain.)!</value>
   </data>
