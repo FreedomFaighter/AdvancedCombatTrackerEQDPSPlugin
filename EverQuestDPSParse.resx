@@ -132,10 +132,13 @@
   <data name="SlainMessage" xml:space="preserve">
     <value>{EverQuestDPSParse.TimeStamp}(?:.slain.)!</value>
   </data>
+  <data name="SpellDamage" xml:space="preserve">
+    <value>{EverQuestDPSParse.TimeStamp}You hit (?&lt;victim&gt;.+) for (?&lt;damagePoints1&gt;[\d]+) (point[|s]) of (?&lt;typeOfDamage&gt;.+) damage by ((?&lt;damageEffect&gt;.+).)(?:\(((?:(?&lt;specialAttack&gt;.+)\s))\))</value>
+  </data>
   <data name="TimeStamp" xml:space="preserve">
     <value>\[(?&lt;dateTimeOfLogLine&gt;.+)\]</value>
   </data>
   <data name="TwinCast" xml:space="preserve">
-    <value>{EverQuestDPSParse.TimeStamp}You hit (?&lt;victim1&gt;.+) for (?&lt;damagePoints1&gt;[\d]+) (point[|s]) of (?&lt;typeOfDamage1&gt;.+) damage by ((?&lt;damageEffect1&gt;.+).)(?:\(((?:(?&lt;specialAttack&gt;.+)\s)Twincast)\))</value>
+    <value>{EverQuestDPSParse.TimeStamp}You hit (?&lt;victim&gt;.+) for (?&lt;damagePoints1&gt;[\d]+) (point[|s]) of (?&lt;typeOfDamage&gt;.+) damage by ((?&lt;damageEffect&gt;.+).)(?:\(((?:(?&lt;specialAttack&gt;.+)\s)Twincast)\))</value>
   </data>
 </root>
