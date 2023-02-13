@@ -207,22 +207,21 @@ namespace ACT_Plugin
             regexTupleList.Add(new Tuple<Color, Regex>(Color.GhostWhite, new Regex(EverQuestDPSParse.TwinCast, RegexOptions.Compiled)));
             ActGlobals.oFormEncounterLogs.LogTypeToColorMapping.Add(regexTupleList.Count - 1, regexTupleList[regexTupleList.Count - 1].Item1);
             regexTupleList.Add(new Tuple<Color, Regex>(Color.Red, new Regex(EverQuestDPSParse.SpellDamage, RegexOptions.Compiled)));
+            ActGlobals.oFormEncounterLogs.LogTypeToColorMapping.Add(regexTupleList.Count - 1, regexTupleList[regexTupleList.Count - 1].Item1);
         }
- 
+
         void oFormActMain_BeforeLogLineRead(bool isImport, LogLineEventArgs logInfo)
         {
-
-                for (int i = 0; i < regexTupleList.Length; i++)
+            for (int i = 0; i < regexTupleList.Count; i++)
+            {
+                Match reMatch = regexTupleList[i].Item2.Match(logInfo.logLine);
+                if (reMatch.Success)
                 {
-                    Match reMatch = regexArray[i].Match(logInfo.logLine);
-                    if (reMatch.Success)
-                    {
-                        logInfo.detectedType = i + 1;
-                        LogExeEnglish(reMatch, i + 1, logInfo.logLine, isImport);
-                        break;
-                    }
+                    logInfo.detectedType = i + 1;
+                    ParseEverQuestLogLine(reMatch, i, logInfo.logLine, isImport);
+                    break;
                 }
-            
+            }
         }
 
         /*string[] matchKeywords = new string[] { "damage", "point", ", but", "killed", "command", "entered", "hate", "dispel", "relieve", "reduces" };
@@ -250,8 +249,8 @@ namespace ACT_Plugin
             switch (logMatched)
             {
                 //Melee
-                case 1:
-                    if(ActGlobals.oFormActMain.InCombat)
+                case 0:
+                    if (ActGlobals.oFormActMain.InCombat)
                     {
                         String damageSpecial;
                         bool critical;
@@ -266,46 +265,73 @@ namespace ACT_Plugin
 
                         critical = damageSpecial.Contains("Critical");
                         ActGlobals.oFormActMain.AddCombatAction(
-                            SwingTypeEnum.Melee
+                            (int)SwingTypeEnum.Melee
                             , critical
                             , damageSpecial
                             , EnglishPersonaReplace(reMatch.Groups["attacker"].Value)
                             , reMatch.Groups["attackType"].Value
                             , new Dnum(Int64.Parse(reMatch.Groups["damageAmount"].Value))
-                            , new DateTime(reMatch.Groups["dateTimeOfLogLine"].Value, DateTimeKind.Local)
+                            , GetDateTimeFromGroupMatch(reMatch.Groups["dateTimeOfLogLine"].Value)
                             , gts
                             , EnglishPersonaReplace(reMatch.Groups["victim"].Value)
                             , "Melee");
                     }
                     break;
                 //Non-melee damage shield
-                case 2:
-                    if(ActGlobals.oFormActMain.InCombat)
+                case 1:
+                    if (ActGlobals.oFormActMain.InCombat)
                     {
-                        ActGlobals.oFormActMain.AddCombatAction(SwingTypeEnum.NonMelee
+                        ActGlobals.oFormActMain.AddCombatAction((int)SwingTypeEnum.NonMelee
                             , false
-                            , String.Empty 
+                            , String.Empty
                             , EnglishPersonaReplace(reMatch.Groups["attacker"].Value)
                             , reMatch.Groups["damageShieldDamageType"].Value
-                            , new Dnum(Int64.Parse(reMatch.Groups["damagePoints"].Value)
-                            , new DateTime(reMatch.Groups["dateTimeOfLogLine"].Value
+                            , new Dnum(Int64.Parse(reMatch.Groups["damagePoints"].Value))
+                            , GetDateTimeFromGroupMatch(reMatch.Groups["dateTimeOfLogLine"].Value)
                             , gts
                             , EnglishPersonaReplace(reMatch.Groups["victim"].Value)
-                            , reMatch.Groups["damageShieldType"].Value)
+                            , reMatch.Groups["damageShieldType"].Value);
                     }
-                //Melee miss
-                case 3:
-                    if(ActGlobals.oFormActMain.InCombat)
+                    break;
+                //Missed melee
+                case 2:
+                    if (ActGlobals.oFormActMain.InCombat)
                     {
-                        ActGlobals.oFormActMain.AddCombatAction(SwingTypeEnum.Melee
+                        ActGlobals.oFormActMain.AddCombatAction((int)SwingTypeEnum.Melee
                             , false
                             , string.Empty
                             , EnglishPersonaReplace(reMatch.Groups["attacker"].Value)
                             , reMatch.Groups["attackType"].Value
                             , new Dnum(0)
-                            , new DateTime(reMatch.Groups["dateTimeOfLogLine"].Value)
+                            , GetDateTimeFromGroupMatch(reMatch.Groups["dateTimeOfLogLine"].Value)
                             , gts
-                            , EnglishPersonaReplace(reMatch.Groups["victim"].Value), "Melee");
+                            , EnglishPersonaReplace(reMatch.Groups["victim"].Value)
+                            , reMatch.Groups["victim"].Value);
+                    }
+                    break;
+                 //Twincast
+                case 4:
+                    if (ActGlobals.oFormActMain.InCombat)
+                    {
+                        String damageSpecial;
+                        if (reMatch.Groups["damageSpecial"].Success)
+                        {
+                            damageSpecial = reMatch.Groups["damageSpecial"].Value + " Twincast";
+                        }
+                        else
+                        {
+                            damageSpecial = String.Empty;
+                        }
+                        ActGlobals.oFormActMain.AddCombatAction((int)SwingTypeEnum.NonMelee
+                            , false
+                            , damageSpecial
+                            , EnglishPersonaReplace(reMatch.Groups["attacker"].Value)
+                            , reMatch.Groups["attackType"].Value
+                            , new Dnum(0)
+                            , GetDateTimeFromGroupMatch(reMatch.Groups["specialAttack"].Value)
+                            , gts
+                            , EnglishPersonaReplace(reMatch.Groups["victim"].Value)
+                            , reMatch.Groups["typeOfDamage"].Value);
                     }
                     break;
                     /*
@@ -729,7 +755,7 @@ namespace ACT_Plugin
                     else
                         e.attacker += "'s ";
                     e.attacker += right;
-                    e.theAttackType =e.theDamageType.ToString();
+                    e.theAttackType = e.theDamageType.ToString();
                     return true;
                 }
                 if (e.theAttackType.StartsWith(right + "'"))
@@ -1047,7 +1073,7 @@ namespace ACT_Plugin
             CombatantData.ExportVariables.Clear();
             CombatantData.ExportVariables.Add("n", new CombatantData.TextExportFormatter("n", "New Line", "Formatting after this element will appear on a new line.", (Data, Extra) => { return "\n"; }));
             CombatantData.ExportVariables.Add("t", new CombatantData.TextExportFormatter("t", "Tab Character", "Formatting after this element will appear in a relative column arrangement.  (The formatting example cannot display this properly)", (Data, Extra) => { return "\t"; }));
-           
+
             DamageTypeData.ColumnDefs.Clear();
             DamageTypeData.ColumnDefs.Add("EncId", new DamageTypeData.ColumnDef("EncId", false, "CHAR(8)", "EncId", (Data) => { return string.Empty; }, (Data) => { return Data.Parent.Parent.EncId; }));
             DamageTypeData.ColumnDefs.Add("Combatant", new DamageTypeData.ColumnDef("Combatant", false, "VARCHAR(64)", "Combatant", (Data) => { return Data.Parent.Name; }, (Data) => { return Data.Parent.Name; }));
