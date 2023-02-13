@@ -121,13 +121,13 @@
     <value>gore|crush|slash|hit|kick|slam|bash|shoot|strike|bite</value>
   </data>
   <data name="DamageShield" xml:space="preserve">
-    <value>{EverQuestDPSParse.TimeStamp}(?&lt;attacker&gt;(You|.+)) is (?&lt;damageShieldDamageType&gt;\S+) by (?&lt;victim&gt;(YOUR|.+)) (?&lt;damageShieldType&gt;\S+) for (?&lt;damagePoints&gt;[\d]+) points of non-melee damage.</value>
+    <value>{EverQuestDPSParse.TimeStamp} (?&lt;attacker&gt;(You|.+)) is (?&lt;damageShieldDamageType&gt;\S+) by (?&lt;victim&gt;(YOUR|.+)) (?&lt;damageShieldType&gt;\S+) for (?&lt;damagePoints&gt;[\d]+) points of non-melee damage.</value>
   </data>
   <data name="MeleeAttack" xml:space="preserve">
-    <value>{EverQuestDPSParse.TimeStamp}(?&lt;attacker&gt;(You|.+)) (?&lt;attackType&gt;({attackTypes})+) (?&lt;victim&gt;.+) for (?&lt;damageAmount&gt;[\d]+) (point[|s]) of damage.(?:\s\((?&lt;damageSpecial&gt;.+)\)){0,1}</value>
+    <value>{EverQuestDPSParse.TimeStamp} (?&lt;attacker&gt;(You|.+)) (?&lt;attackType&gt;({attackTypes})+) (?&lt;victim&gt;.+) for (?&lt;damageAmount&gt;[\d]+) (point[|s]) of damage.(?:\s\((?&lt;damageSpecial&gt;.+)\)){0,1}</value>
   </data>
   <data name="MissedMeleeAttack" xml:space="preserve">
-    <value>{EverQuestDPSParse.TimeStamp}(?&lt;attacker&gt;.+) (?:tr(ies|y)) to (?&lt;attackType&gt;({attackTypes})+) (?&lt;victim&gt;.+), but (?:miss(|es))!</value>
+    <value>{EverQuestDPSParse.TimeStamp} (?&lt;attacker&gt;.+) (?:tr(ies|y)) to (?&lt;attackType&gt;({attackTypes})+) (?&lt;victim&gt;.+), but (?:miss(|es))!</value>
   </data>
   <data name="PluginName" xml:space="preserve">
     <value>EverQuest DPS Parse</value>
@@ -139,15 +139,15 @@
     <value>Data Correction\EQ English Settings</value>
   </data>
   <data name="SlainMessage" xml:space="preserve">
-    <value>{EverQuestDPSParse.TimeStamp}(?:.slain.)!</value>
+    <value>{EverQuestDPSParse.TimeStamp} (?:.slain.)!</value>
   </data>
   <data name="SpellDamage" xml:space="preserve">
-    <value>{EverQuestDPSParse.TimeStamp}You hit (?&lt;victim&gt;.+) for (?&lt;damagePoints&gt;[\d]+) (point[|s]) of (?&lt;typeOfDamage&gt;.+) damage by ((?&lt;damageEffect&gt;.+).)(?:\(((?:(?&lt;specialAttack&gt;.+)\s))\))</value>
+    <value>{EverQuestDPSParse.TimeStamp} You hit (?&lt;victim&gt;.+) for (?&lt;damagePoints&gt;[\d]+) (point[|s]) of (?&lt;typeOfDamage&gt;.+) damage by ((?&lt;damageEffect&gt;.+).)(?:\(((?:(?&lt;specialAttack&gt;.+)\s))\))</value>
   </data>
   <data name="TimeStamp" xml:space="preserve">
     <value>\[(?&lt;dateTimeOfLogLine&gt;.+)\]</value>
   </data>
   <data name="TwinCast" xml:space="preserve">
-    <value>{EverQuestDPSParse.TimeStamp}You hit (?&lt;victim&gt;.+) for (?&lt;damagePoints&gt;[\d]+) (point[|s]) of (?&lt;typeOfDamage&gt;.+) damage by ((?&lt;damageEffect&gt;.+).)(?:\(((?:(?&lt;specialAttack&gt;.+)\s)Twincast)\))</value>
+    <value>{EverQuestDPSParse.TimeStamp} You hit (?&lt;victim&gt;.+) for (?&lt;damagePoints&gt;[\d]+) (point[|s]) of (?&lt;typeOfDamage&gt;.+) damage by ((?&lt;damageEffect&gt;.+).)(?:\(((?:(?&lt;specialAttack&gt;.+)\s)Twincast)\))</value>
   </data>
 </root>

@@ -145,7 +145,7 @@ namespace ACT_Plugin
                 // Add our own node to the Data Correction node
                 optionsNode = ActGlobals.oFormActMain.OptionsTreeView.Nodes[dcIndex].Nodes.Add("EverQuest English Settings");
                 // Register our user control(this) to our newly create node path.  All controls added to the list will be laid out left to right, top to bottom
-                ActGlobals.oFormActMain.OptionsControlSets.Add(@"{EverQuestDPSParse.PluginSettingsSectionName}", new List<Control> { this });
+                ActGlobals.oFormActMain.OptionsControlSets.Add($@"{EverQuestDPSParse.PluginSettingsSectionName}", new List<Control> { this });
                 Label lblConfig = new Label
                 {
                     AutoSize = true,
@@ -163,8 +163,8 @@ namespace ACT_Plugin
             ActGlobals.oFormActMain.UpdateCheckClicked += new FormActMain.NullDelegate(oFormActMain_UpdateCheckClicked);
             if (ActGlobals.oFormActMain.GetAutomaticUpdatesAllowed())   // If ACT is set to automatically check for updates, check for updates to the plugin
                 new Thread(new ThreadStart(oFormActMain_UpdateCheckClicked)).Start();   // If we don't put this on a separate thread, web latency will delay the plugin init phase
-            ActGlobals.oFormActMain.CharacterFileNameRegex = new Regex(@"(?:.+)\/eqlog_(?<characterName>\S+)_(?<server>.+).txt");
-            ActGlobals.oFormActMain.ZoneChangeRegex = new Regex(@"{logTimeStampRegexStr}(?:(?=You have entered)(You have entered (the Drunken Monkey stance adequately|(?<zoneName>.+)))).");
+            ActGlobals.oFormActMain.CharacterFileNameRegex = new Regex($@"(?:.+)\/eqlog_(?<characterName>\S+)_(?<server>.+).txt", RegexOptions.Compiled);
+            ActGlobals.oFormActMain.ZoneChangeRegex = new Regex($@"{EverQuestDPSParse.TimeStamp} (?:(?=You have entered)(You have entered (the Drunken Monkey stance adequately|(?<zoneName>.+)))).", RegexOptions.Compiled);
             lblStatus.Text = @"{EverQuestDPSParse.PluginName} Plugin Started";
         }
 
@@ -176,11 +176,11 @@ namespace ACT_Plugin
             if (optionsNode != null)    // If we added our user control to the Options tab, remove it
             {
                 optionsNode.Remove();
-                ActGlobals.oFormActMain.OptionsControlSets.Remove(@"{EverQuestDPSParse.PluginSettingsSectionName}");
+                ActGlobals.oFormActMain.OptionsControlSets.Remove($@"{EverQuestDPSParse.PluginSettingsSectionName}");
             }
 
             SaveSettings();
-            lblStatus.Text =  @"{EverQuestDPSParse.PluginName} Plugin Exited";
+            lblStatus.Text =  $@"{EverQuestDPSParse.PluginName} Plugin Exited";
         }
 
         char[] chrApos = new char[] { '\'', '’' };
@@ -661,9 +661,13 @@ namespace ACT_Plugin
                             }
                         }
                     }
+                    catch(ArgumentNullException ex)
+                    {
+                        lblStatus.Text = "Argument Null for " + ex.ParamName + " with message: " + ex.Message;
+                    }
                     catch (Exception ex)
                     {
-                        lblStatus.Text = "Error loading settings: " + ex.Message;
+                        lblStatus.Text = "With message: " + ex.Message;
                     }
                 }
             }
