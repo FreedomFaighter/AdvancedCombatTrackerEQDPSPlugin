@@ -115,7 +115,7 @@ namespace ACT_Plugin {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to {EverQuestDPSParse.TimeStamp}You hit (?&lt;victim&gt;.+) for (?&lt;damagePoints1&gt;[\d]+) (point[|s]) of (?&lt;typeOfDamage&gt;.+) damage by ((?&lt;damageEffect&gt;.+).)(?:\(((?:(?&lt;specialAttack&gt;.+)\s))\)).
+        ///   Looks up a localized string similar to {EverQuestDPSParse.TimeStamp}You hit (?&lt;victim&gt;.+) for (?&lt;damagePoints&gt;[\d]+) (point[|s]) of (?&lt;typeOfDamage&gt;.+) damage by ((?&lt;damageEffect&gt;.+).)(?:\(((?:(?&lt;specialAttack&gt;.+)\s))\)).
         /// </summary>
         internal static string SpellDamage {
             get {
@@ -133,7 +133,7 @@ namespace ACT_Plugin {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to {EverQuestDPSParse.TimeStamp}You hit (?&lt;victim&gt;.+) for (?&lt;damagePoints1&gt;[\d]+) (point[|s]) of (?&lt;typeOfDamage&gt;.+) damage by ((?&lt;damageEffect&gt;.+).)(?:\(((?:(?&lt;specialAttack&gt;.+)\s)Twincast)\)).
+        ///   Looks up a localized string similar to {EverQuestDPSParse.TimeStamp}You hit (?&lt;victim&gt;.+) for (?&lt;damagePoints&gt;[\d]+) (point[|s]) of (?&lt;typeOfDamage&gt;.+) damage by ((?&lt;damageEffect&gt;.+).)(?:\(((?:(?&lt;specialAttack&gt;.+)\s)Twincast)\)).
         /// </summary>
         internal static string TwinCast {
             get {

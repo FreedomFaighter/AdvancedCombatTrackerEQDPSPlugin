@@ -306,7 +306,7 @@ namespace ACT_Plugin
                             , GetDateTimeFromGroupMatch(reMatch.Groups["dateTimeOfLogLine"].Value)
                             , gts
                             , EnglishPersonaReplace(reMatch.Groups["victim"].Value)
-                            , reMatch.Groups["victim"].Value);
+                            , "Melee");
                     }
                     break;
                  //Twincast
@@ -326,8 +326,8 @@ namespace ACT_Plugin
                             , false
                             , damageSpecial
                             , EnglishPersonaReplace(reMatch.Groups["attacker"].Value)
-                            , reMatch.Groups["attackType"].Value
-                            , new Dnum(0)
+                            , reMatch.Groups["damageEffect"].Value
+                            , new Dnum(Int64.Parse(reMatch.Groups["damagePoints"].Value))
                             , GetDateTimeFromGroupMatch(reMatch.Groups["specialAttack"].Value)
                             , gts
                             , EnglishPersonaReplace(reMatch.Groups["victim"].Value)
