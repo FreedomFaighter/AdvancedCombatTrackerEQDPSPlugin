@@ -16,11 +16,11 @@ using System.Xml;
  * Description: Missing from the arsenal of the plugin based Advanced Combat Tracker to track EverQuest's current combat messages.  Ignores chat as that is displayed in game.
  */
 
-[assembly: AssemblyTitle("EverQuest DPS Parsing")]
-[assembly: AssemblyDescription("Plugin for EverQuest DPS Parsing")]
-[assembly: AssemblyCompany("Blurrysticks")]
+[assembly: AssemblyTitle("ACT EverQuest Damage Per Second Parsing")]
+[assembly: AssemblyDescription("Worked based on EQAditu's EQ2 English DPS Parser, Plugin for ACT EverQuest Damage Per Second Parsing")]
+[assembly: AssemblyCompany("Egot")]
 [assembly: AssemblyVersion("0.0.0.1")]
-[assembly: AssemblyCopyright("2022")]
+[assembly: AssemblyCopyright("2023")]
 
 namespace ACT_Plugin
 {
@@ -125,7 +125,7 @@ namespace ACT_Plugin
 
         TreeNode optionsNode = null;
         Label lblStatus;    // The status label that appears in ACT's Plugin tab
-        string settingsFile = Path.Combine(ActGlobals.oFormActMain.AppDataFolder.FullName, @"{EverQuestDPSParse.PluginSettingsFileName}");
+        readonly string settingsFile = Path.Combine(ActGlobals.oFormActMain.AppDataFolder.FullName, @"{EverQuestDPSParse.PluginSettingsFileName}");
         SettingsSerializer xmlSettings;
 
         public void InitPlugin(TabPage pluginScreenSpace, Label pluginStatusText)
