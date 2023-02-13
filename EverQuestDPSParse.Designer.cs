@@ -106,6 +106,24 @@ namespace ACT_Plugin {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Config\ACT_EverQuest_English_Parser.config.xml.
+        /// </summary>
+        internal static string PluginSettingsFileName {
+            get {
+                return ResourceManager.GetString("PluginSettingsFileName", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Data Correction\EQ English Settings.
+        /// </summary>
+        internal static string PluginSettingsSectionName {
+            get {
+                return ResourceManager.GetString("PluginSettingsSectionName", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to {EverQuestDPSParse.TimeStamp}(?:.slain.)!.
         /// </summary>
         internal static string SlainMessage {

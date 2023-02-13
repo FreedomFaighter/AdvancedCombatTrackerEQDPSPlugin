@@ -125,7 +125,7 @@ namespace ACT_Plugin
 
         TreeNode optionsNode = null;
         Label lblStatus;    // The status label that appears in ACT's Plugin tab
-        string settingsFile = Path.Combine(ActGlobals.oFormActMain.AppDataFolder.FullName, "Config\\ACT_EverQuest_English_Parser.config.xml");
+        string settingsFile = Path.Combine(ActGlobals.oFormActMain.AppDataFolder.FullName, @"{EverQuestDPSParse.PluginSettingsFileName}");
         SettingsSerializer xmlSettings;
 
         public void InitPlugin(TabPage pluginScreenSpace, Label pluginStatusText)
@@ -145,7 +145,7 @@ namespace ACT_Plugin
                 // Add our own node to the Data Correction node
                 optionsNode = ActGlobals.oFormActMain.OptionsTreeView.Nodes[dcIndex].Nodes.Add("EverQuest English Settings");
                 // Register our user control(this) to our newly create node path.  All controls added to the list will be laid out left to right, top to bottom
-                ActGlobals.oFormActMain.OptionsControlSets.Add(@"Data Correction\EQ English Settings", new List<Control> { this });
+                ActGlobals.oFormActMain.OptionsControlSets.Add(@"{EverQuestDPSParse.PluginSettingsSectionName}", new List<Control> { this });
                 Label lblConfig = new Label
                 {
                     AutoSize = true,
@@ -165,7 +165,7 @@ namespace ACT_Plugin
                 new Thread(new ThreadStart(oFormActMain_UpdateCheckClicked)).Start();   // If we don't put this on a separate thread, web latency will delay the plugin init phase
             ActGlobals.oFormActMain.CharacterFileNameRegex = new Regex(@"(?:.+)\/eqlog_(?<characterName>\S+)_(?<server>.+).txt");
             ActGlobals.oFormActMain.ZoneChangeRegex = new Regex(@"{logTimeStampRegexStr}(?:(?=You have entered)(You have entered (the Drunken Monkey stance adequately|(?<zoneName>.+)))).");
-            lblStatus.Text = EverQuestDPSParse.PluginName + " Plugin Started";
+            lblStatus.Text = @"{EverQuestDPSParse.PluginName} Plugin Started";
         }
 
         public void DeInitPlugin()
@@ -176,11 +176,11 @@ namespace ACT_Plugin
             if (optionsNode != null)    // If we added our user control to the Options tab, remove it
             {
                 optionsNode.Remove();
-                ActGlobals.oFormActMain.OptionsControlSets.Remove(@"Data Correction\EQ English Settings");
+                ActGlobals.oFormActMain.OptionsControlSets.Remove(@"{EverQuestDPSParse.PluginSettingsSectionName}");
             }
 
             SaveSettings();
-            lblStatus.Text = EverQuestDPSParse.PluginName + " Plugin Exited";
+            lblStatus.Text =  @"{EverQuestDPSParse.PluginName} Plugin Exited";
         }
 
         char[] chrApos = new char[] { '\'', '’' };
