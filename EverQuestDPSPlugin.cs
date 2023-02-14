@@ -208,6 +208,8 @@ namespace ACT_Plugin
             ActGlobals.oFormEncounterLogs.LogTypeToColorMapping.Add(regexTupleList.Count - 1, regexTupleList[regexTupleList.Count - 1].Item1);
             regexTupleList.Add(new Tuple<Color, Regex>(Color.Red, new Regex(EverQuestDPSParse.SpellDamage, RegexOptions.Compiled)));
             ActGlobals.oFormEncounterLogs.LogTypeToColorMapping.Add(regexTupleList.Count - 1, regexTupleList[regexTupleList.Count - 1].Item1);
+            regexTupleList.Add(new Tuple<Color, Regex>(Color.Green, new Regex(EverQuestDPSParse.Healing, RegexOptions.Compiled)));
+            ActGlobals.oFormEncounterLogs.LogTypeToColorMapping.Add(regexTupleList.Count - 1, regexTupleList[regexTupleList.Count - 1].Item1);
         }
 
         void oFormActMain_BeforeLogLineRead(bool isImport, LogLineEventArgs logInfo)
@@ -320,6 +322,10 @@ namespace ACT_Plugin
                             , EnglishPersonaReplace(reMatch.Groups["victim"].Value)
                             , reMatch.Groups["typeOfDamage"].Value);
                     }
+                    break;
+                case 5:
+
+
                     break;
                     /*
                     #region Case 1 [unsourced skill attacks]
