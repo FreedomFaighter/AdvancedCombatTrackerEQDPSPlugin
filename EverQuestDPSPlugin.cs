@@ -317,15 +317,36 @@ namespace ACT_Plugin
                             , EnglishPersonaReplace(reMatch.Groups["attacker"].Value)
                             , reMatch.Groups["damageEffect"].Value
                             , new Dnum(Int64.Parse(reMatch.Groups["damagePoints"].Value))
-                            , GetDateTimeFromGroupMatch(reMatch.Groups["specialAttack"].Value)
+                            , GetDateTimeFromGroupMatch(reMatch.Groups["dateTimeOfLogLine"].Value)
                             , gts
                             , EnglishPersonaReplace(reMatch.Groups["victim"].Value)
                             , reMatch.Groups["typeOfDamage"].Value);
                     }
                     break;
                 case 5:
-
-
+                    if(ActGlobals.oFormActMain.InCombat)
+                    {
+                        String healingSpecial;
+                        if (reMatch.Groups["healingSpecial"].Success)
+                        {
+                            healingSpecial = reMatch.Groups["healingSpecial"].Value;
+                        }
+                        else
+                        {
+                            healingSpecial = String.Empty;
+                        }
+                        ActGlobals.oFormActMain.AddCombatAction((int)SwingTypeEnum.Healing
+                        , healingSpecial.Contains("Critical")
+                        , healingSpecial
+                        , reMatch.Groups["healer"].Value
+                        , reMatch.Groups["healingSpecial"].Value
+                        , new Dnum(Int64.Parse(reMatch.Groups["healingPoints"].Value), reMatch.Groups["overHealPoints"].Value)
+                        , GetDateTimeFromGroupMatch(reMatch.Groups["dateTimeOfLogLine"].Value)
+                        , gts
+                        , EnglishPersonaReplace(reMatch.Groups["healingTarget"].Value)
+                        , String.Empty
+                        );
+                    }
                     break;
                     /*
                     #region Case 1 [unsourced skill attacks]
