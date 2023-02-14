@@ -123,6 +123,9 @@
   <data name="DamageShield" xml:space="preserve">
     <value>{EverQuestDPSParse.TimeStamp} (?&lt;attacker&gt;(You|.+)) is (?&lt;damageShieldDamageType&gt;\S+) by (?&lt;victim&gt;(YOUR|.+)) (?&lt;damageShieldType&gt;\S+) for (?&lt;damagePoints&gt;[\d]+) points of non-melee damage.</value>
   </data>
+  <data name="Healing" xml:space="preserve">
+    <value>(?&lt;healer&gt;.+) healed (?&lt;target&gt;.+) over time for (?&lt;healingPoints&gt;[\d]+) ((?&lt;overHealPoints&gt;[\d]+)) hit points by (&lt;spell&gt;.+).(?:\((?&lt;damageSpecial&gt;.+)\)){0,1}</value>
+  </data>
   <data name="MeleeAttack" xml:space="preserve">
     <value>{EverQuestDPSParse.TimeStamp} (?&lt;attacker&gt;(You|.+)) (?&lt;attackType&gt;({attackTypes})+) (?&lt;victim&gt;.+) for (?&lt;damageAmount&gt;[\d]+) (point[|s]) of damage.(?:\s\((?&lt;damageSpecial&gt;.+)\)){0,1}</value>
   </data>

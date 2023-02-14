@@ -79,6 +79,15 @@ namespace ACT_Plugin {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to (?&lt;healer&gt;.+) healed (?&lt;target&gt;.+) over time for (?&lt;healingPoints&gt;[\d]+) ((?&lt;overHealPoints&gt;[\d]+)) hit points by (&lt;spell&gt;.+).(?:\((?&lt;damageSpecial&gt;.+)\)){0,1}.
+        /// </summary>
+        internal static string Healing {
+            get {
+                return ResourceManager.GetString("Healing", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to {EverQuestDPSParse.TimeStamp} (?&lt;attacker&gt;(You|.+)) (?&lt;attackType&gt;({attackTypes})+) (?&lt;victim&gt;.+) for (?&lt;damageAmount&gt;[\d]+) (point[|s]) of damage.(?:\s\((?&lt;damageSpecial&gt;.+)\)){0,1}.
         /// </summary>
         internal static string MeleeAttack {
