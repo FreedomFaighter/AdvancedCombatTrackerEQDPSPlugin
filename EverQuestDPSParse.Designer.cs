@@ -79,7 +79,7 @@ namespace ACT_Plugin {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to (?&lt;healer&gt;.+) healed (?&lt;target&gt;.+) over time for (?&lt;healingPoints&gt;[\d]+) ((?&lt;overHealPoints&gt;[\d]+)) hit points by (&lt;spell&gt;.+).(?:\((?&lt;damageSpecial&gt;.+)\)){0,1}.
+        ///   Looks up a localized string similar to (?&lt;healer&gt;.+) healed (?&lt;healingTarget&gt;.+) over time for (?&lt;healingPoints&gt;[\d]+) ((?&lt;overHealPoints&gt;[\d]+)) hit points by (&lt;healingSpell&gt;.+).(?:\((?&lt;healingSpecial&gt;.+)\)){0,1}.
         /// </summary>
         internal static string Healing {
             get {
