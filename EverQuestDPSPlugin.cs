@@ -181,7 +181,7 @@ namespace ACT_Plugin
             }
 
             SaveSettings();
-            lblStatus.Text =  $@"{EverQuestDPSParse.PluginName} Plugin Exited";
+            lblStatus.Text = $@"{EverQuestDPSParse.PluginName} Plugin Exited";
         }
 
         char[] chrApos = new char[] { '\'', '’' };
@@ -198,13 +198,14 @@ namespace ACT_Plugin
         private void PopulateRegexArray()
         {
             ActGlobals.oFormEncounterLogs.LogTypeToColorMapping.Clear();
-            
-            String stringWithattackTypes = $@"(?<attacker>(You|.+))(?<attackType>(" +attackTypes+@")+) (?<victim>.+) for (?<damageAmount>[\d]+) (point[|s]) of damage.(?:\s\((?<damageSpecial>.+)\)){0,1}";
+
+            String stringWithattackTypes = $@"(?<attacker>(You|.+))(?<attackType>(" + attackTypes + @")+) (?<victim>.+) for (?<damageAmount>[\d]+) (point[|s]) of damage.(?:\s\((?<damageSpecial>.+)\)){0,1}";
             regexTupleList.Add(new Tuple<Color, Regex>(Color.Red, new Regex($@"{EverQuestDPSParse.TimeStamp} {stringWithattackTypes}", RegexOptions.Compiled)));
             ActGlobals.oFormEncounterLogs.LogTypeToColorMapping.Add(regexTupleList.Count - 1, regexTupleList[regexTupleList.Count - 1].Item1);
             regexTupleList.Add(new Tuple<Color, Regex>(Color.Red, new Regex($@"{EverQuestDPSParse.TimeStamp} {EverQuestDPSParse.DamageShield}", RegexOptions.Compiled)));
             ActGlobals.oFormEncounterLogs.LogTypeToColorMapping.Add(regexTupleList.Count - 1, regexTupleList[regexTupleList.Count - 1].Item1);
-            regexTupleList.Add(new Tuple<Color, Regex>(Color.Gray, new Regex($@"{EverQuestDPSParse.TimeStamp} {EverQuestDPSParse.MissedMeleeAttack}", RegexOptions.Compiled)));
+            //String missedMelee = @"(?<attacker>.+) (?:(tr(ies|y))) to (?<attackType>(" + attackTypes + @")+) (?<victim>.+), but (?:miss(|es))!";
+            regexTupleList.Add(new Tuple<Color, Regex>(Color.Gray, new Regex($@"{EverQuestDPSParse.TimeStamp} (?<attacker>.+) (?:(tr(ies|y))) to (?<attackType>(" + attackTypes + @")+) (?<victim>.+), but (?:miss(|es))!", RegexOptions.Compiled)));
             ActGlobals.oFormEncounterLogs.LogTypeToColorMapping.Add(regexTupleList.Count - 1, regexTupleList[regexTupleList.Count - 1].Item1);
             regexTupleList.Add(new Tuple<Color, Regex>(Color.Goldenrod, new Regex($@"{EverQuestDPSParse.TimeStamp} {EverQuestDPSParse.SlainMessage}", RegexOptions.Compiled)));
             ActGlobals.oFormEncounterLogs.LogTypeToColorMapping.Add(regexTupleList.Count - 1, regexTupleList[regexTupleList.Count - 1].Item1);
@@ -295,14 +296,14 @@ namespace ACT_Plugin
                             , string.Empty
                             , EnglishPersonaReplace(reMatch.Groups["attacker"].Value)
                             , reMatch.Groups["attackType"].Value
-                            , new Dnum(0)
+                            , Dnum.Miss
                             , GetDateTimeFromGroupMatch(reMatch.Groups["dateTimeOfLogLine"].Value)
                             , gts
                             , EnglishPersonaReplace(reMatch.Groups["victim"].Value)
                             , "Melee");
                     }
                     break;
-                 //Twincast
+                //Twincast
                 case 4:
                     if (ActGlobals.oFormActMain.InCombat)
                     {
@@ -328,7 +329,7 @@ namespace ACT_Plugin
                     }
                     break;
                 case 5:
-                    if(ActGlobals.oFormActMain.InCombat)
+                    if (ActGlobals.oFormActMain.InCombat)
                     {
                         String healingSpecial;
                         if (reMatch.Groups["healingSpecial"].Success)
@@ -692,7 +693,7 @@ namespace ACT_Plugin
                             }
                         }
                     }
-                    catch(ArgumentNullException ex)
+                    catch (ArgumentNullException ex)
                     {
                         lblStatus.Text = "Argument Null for " + ex.ParamName + " with message: " + ex.Message;
                     }
