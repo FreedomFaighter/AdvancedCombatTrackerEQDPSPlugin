@@ -70,7 +70,7 @@ namespace ACT_Plugin {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to {EverQuestDPSParse.TimeStamp} (?&lt;attacker&gt;(You|.+)) is (?&lt;damageShieldDamageType&gt;\S+) by (?&lt;victim&gt;(YOUR|.+)) (?&lt;damageShieldType&gt;\S+) for (?&lt;damagePoints&gt;[\d]+) points of non-melee damage..
+        ///   Looks up a localized string similar to (?&lt;attacker&gt;(You|.+)) is (?&lt;damageShieldDamageType&gt;\S+) by (?&lt;victim&gt;(YOUR|.+)) (?&lt;damageShieldType&gt;\S+) for (?&lt;damagePoints&gt;[\d]+) points of non-melee damage..
         /// </summary>
         internal static string DamageShield {
             get {
@@ -133,7 +133,7 @@ namespace ACT_Plugin {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to {EverQuestDPSParse.TimeStamp} (?:.slain.)!.
+        ///   Looks up a localized string similar to (?&lt;attacker&gt;.+) have slain (?&lt;victim&gt;.+)!.
         /// </summary>
         internal static string SlainMessage {
             get {
@@ -142,7 +142,7 @@ namespace ACT_Plugin {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to {EverQuestDPSParse.TimeStamp} You hit (?&lt;victim&gt;.+) for (?&lt;damagePoints&gt;[\d]+) (point[|s]) of (?&lt;typeOfDamage&gt;.+) damage by ((?&lt;damageEffect&gt;.+).)(?:\(((?:(?&lt;specialAttack&gt;.+)\s))\)).
+        ///   Looks up a localized string similar to You hit (?&lt;victim&gt;.+) for (?&lt;damagePoints&gt;[\d]+) (point[|s]) of (?&lt;typeOfDamage&gt;.+) damage by ((?&lt;damageEffect&gt;.+).)(?:\(((?:(?&lt;specialAttack&gt;.+)\s))\)).
         /// </summary>
         internal static string SpellDamage {
             get {
@@ -160,7 +160,7 @@ namespace ACT_Plugin {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to {EverQuestDPSParse.TimeStamp} You hit (?&lt;victim&gt;.+) for (?&lt;damagePoints&gt;[\d]+) (point[|s]) of (?&lt;typeOfDamage&gt;.+) damage by ((?&lt;damageEffect&gt;.+).)(?:\(((?:(?&lt;specialAttack&gt;.+)\s)Twincast)\)).
+        ///   Looks up a localized string similar to You hit (?&lt;victim&gt;.+) for (?&lt;damagePoints&gt;[\d]+) (point[|s]) of (?&lt;typeOfDamage&gt;.+) damage by ((?&lt;damageEffect&gt;.+).)(?:\(((?:(?&lt;specialAttack&gt;.+)\s)Twincast)\)).
         /// </summary>
         internal static string TwinCast {
             get {

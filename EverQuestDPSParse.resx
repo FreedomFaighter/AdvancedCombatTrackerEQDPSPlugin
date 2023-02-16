@@ -121,7 +121,7 @@
     <value>gore|crush|slash|hit|kick|slam|bash|shoot|strike|bite</value>
   </data>
   <data name="DamageShield" xml:space="preserve">
-    <value>{EverQuestDPSParse.TimeStamp} (?&lt;attacker&gt;(You|.+)) is (?&lt;damageShieldDamageType&gt;\S+) by (?&lt;victim&gt;(YOUR|.+)) (?&lt;damageShieldType&gt;\S+) for (?&lt;damagePoints&gt;[\d]+) points of non-melee damage.</value>
+    <value>(?&lt;attacker&gt;(You|.+)) is (?&lt;damageShieldDamageType&gt;\S+) by (?&lt;victim&gt;(YOUR|.+)) (?&lt;damageShieldType&gt;\S+) for (?&lt;damagePoints&gt;[\d]+) points of non-melee damage.</value>
   </data>
   <data name="Healing" xml:space="preserve">
     <value>(?&lt;healer&gt;.+) healed (?&lt;healingTarget&gt;.+) over time for (?&lt;healingPoints&gt;[\d]+) ((?&lt;overHealPoints&gt;[\d]+)) hit points by (&lt;healingSpell&gt;.+).(?:\((?&lt;healingSpecial&gt;.+)\)){0,1}</value>
@@ -142,15 +142,15 @@
     <value>Data Correction\EQ English Settings</value>
   </data>
   <data name="SlainMessage" xml:space="preserve">
-    <value>{EverQuestDPSParse.TimeStamp} (?:.slain.)!</value>
+    <value>(?&lt;attacker&gt;.+) have slain (?&lt;victim&gt;.+)!</value>
   </data>
   <data name="SpellDamage" xml:space="preserve">
-    <value>{EverQuestDPSParse.TimeStamp} You hit (?&lt;victim&gt;.+) for (?&lt;damagePoints&gt;[\d]+) (point[|s]) of (?&lt;typeOfDamage&gt;.+) damage by ((?&lt;damageEffect&gt;.+).)(?:\(((?:(?&lt;specialAttack&gt;.+)\s))\))</value>
+    <value>You hit (?&lt;victim&gt;.+) for (?&lt;damagePoints&gt;[\d]+) (point[|s]) of (?&lt;typeOfDamage&gt;.+) damage by ((?&lt;damageEffect&gt;.+).)(?:\(((?:(?&lt;specialAttack&gt;.+)\s))\))</value>
   </data>
   <data name="TimeStamp" xml:space="preserve">
     <value>\[(?&lt;dateTimeOfLogLine&gt;.+)\]</value>
   </data>
   <data name="TwinCast" xml:space="preserve">
-    <value>{EverQuestDPSParse.TimeStamp} You hit (?&lt;victim&gt;.+) for (?&lt;damagePoints&gt;[\d]+) (point[|s]) of (?&lt;typeOfDamage&gt;.+) damage by ((?&lt;damageEffect&gt;.+).)(?:\(((?:(?&lt;specialAttack&gt;.+)\s)Twincast)\))</value>
+    <value>You hit (?&lt;victim&gt;.+) for (?&lt;damagePoints&gt;[\d]+) (point[|s]) of (?&lt;typeOfDamage&gt;.+) damage by ((?&lt;damageEffect&gt;.+).)(?:\(((?:(?&lt;specialAttack&gt;.+)\s)Twincast)\))</value>
   </data>
 </root>
