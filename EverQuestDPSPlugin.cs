@@ -187,7 +187,7 @@ namespace ACT_Plugin
         char[] chrApos = new char[] { '\'', '’' };
         char[] chrSpaceApos = new char[] { ' ', '\'', '’' };
         List<Tuple<Color, Regex>> regexTupleList = new List<Tuple<Color, Regex>>();
-        String attackTypes = "gore|crush|slash|hit|kick|slam|bash|shoot|strike|bite";
+        String attackTypes = "pierce|gore|crush|slash|hit|kick|slam|bash|shoot|strike|bite";
         private DateTime GetDateTimeFromGroupMatch(String dt)
         {
             String eqDateTimeStampFormat = "ddd MMM dd HH:mm:ss yyyy";
@@ -214,6 +214,9 @@ namespace ACT_Plugin
             regexTupleList.Add(new Tuple<Color, Regex>(Color.Red, new Regex($@"{EverQuestDPSParse.TimeStamp} {EverQuestDPSParse.SpellDamage}", RegexOptions.Compiled)));
             ActGlobals.oFormEncounterLogs.LogTypeToColorMapping.Add(regexTupleList.Count - 1, regexTupleList[regexTupleList.Count - 1].Item1);
             regexTupleList.Add(new Tuple<Color, Regex>(Color.Green, new Regex($@"{EverQuestDPSParse.TimeStamp} {EverQuestDPSParse.Healing}", RegexOptions.Compiled)));
+            ActGlobals.oFormEncounterLogs.LogTypeToColorMapping.Add(regexTupleList.Count - 1, regexTupleList[regexTupleList.Count - 1].Item1);
+            String othersAttack = $@"(?<attacker>.+) (?:(?<attackType>({attackTypes})+)s) (?<victim>.+) for (?<pointsOfDamage>[\d]+).(?:\s\((?<damageSpecial>.+)\)){0,1}";
+            regexTupleList.Add(new Tuple<Color, Regex>(Color.Red, new Regex($@"{EverQuestDPSParse.TimeStamp} {othersAttack}", RegexOptions.Compiled)));
             ActGlobals.oFormEncounterLogs.LogTypeToColorMapping.Add(regexTupleList.Count - 1, regexTupleList[regexTupleList.Count - 1].Item1);
         }
 
