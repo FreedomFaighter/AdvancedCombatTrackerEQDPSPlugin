@@ -118,7 +118,7 @@
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
   <data name="attackTypes" xml:space="preserve">
-    <value>gore|crush|slash|hit|kick|slam|bash|shoot|strike|bite</value>
+    <value>pierce|gore|crush|slash|hit|kick|slam|bash|shoot|strike|bite</value>
   </data>
   <data name="DamageShield" xml:space="preserve">
     <value>(?&lt;attacker&gt;(You|.+)) is (?&lt;damageShieldDamageType&gt;\S+) by (?&lt;victim&gt;(YOUR|.+)) (?&lt;damageShieldType&gt;\S+) for (?&lt;damagePoints&gt;[\d]+) points of non-melee damage.</value>
@@ -145,12 +145,9 @@
     <value>(?&lt;attacker&gt;.+) have slain (?&lt;victim&gt;.+)!</value>
   </data>
   <data name="SpellDamage" xml:space="preserve">
-    <value>You hit (?&lt;victim&gt;.+) for (?&lt;damagePoints&gt;[\d]+) (point[|s]) of (?&lt;typeOfDamage&gt;.+) damage by ((?&lt;damageEffect&gt;.+).)(?:\(((?:(?&lt;specialAttack&gt;.+)\s))\))</value>
+    <value>(?&lt;attacker&gt;.+) hit (?&lt;victim&gt;.+) for (?&lt;damagePoints&gt;[\d]+) (?:point[|s]) of (?&lt;typeOfDamage&gt;.+) damage by (?:(?&lt;damageEffect&gt;.+).)(?:\s\((?&lt;spellSpeicals&gt;.+)\))</value>
   </data>
   <data name="TimeStamp" xml:space="preserve">
     <value>\[(?&lt;dateTimeOfLogLine&gt;.+)\]</value>
-  </data>
-  <data name="TwinCast" xml:space="preserve">
-    <value>You hit (?&lt;victim&gt;.+) for (?&lt;damagePoints&gt;[\d]+) (point[|s]) of (?&lt;typeOfDamage&gt;.+) damage by ((?&lt;damageEffect&gt;.+).)(?:\(((?:(?&lt;specialAttack&gt;.+)\s)Twincast)\))</value>
   </data>
 </root>

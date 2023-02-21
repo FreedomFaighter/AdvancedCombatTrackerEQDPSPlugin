@@ -61,7 +61,7 @@ namespace ACT_Plugin {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to gore|crush|slash|hit|kick|slam|bash|shoot|strike|bite.
+        ///   Looks up a localized string similar to pierce|gore|crush|slash|hit|kick|slam|bash|shoot|strike|bite.
         /// </summary>
         internal static string attackTypes {
             get {
@@ -142,7 +142,7 @@ namespace ACT_Plugin {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to You hit (?&lt;victim&gt;.+) for (?&lt;damagePoints&gt;[\d]+) (point[|s]) of (?&lt;typeOfDamage&gt;.+) damage by ((?&lt;damageEffect&gt;.+).)(?:\(((?:(?&lt;specialAttack&gt;.+)\s))\)).
+        ///   Looks up a localized string similar to (?&lt;attacker&gt;.+) hit (?&lt;victim&gt;.+) for (?&lt;damagePoints&gt;[\d]+) (?:point[|s]) of (?&lt;typeOfDamage&gt;.+) damage by (?:(?&lt;damageEffect&gt;.+).)(?:\s\((?&lt;spellSpeicals&gt;.+)\)).
         /// </summary>
         internal static string SpellDamage {
             get {
@@ -156,15 +156,6 @@ namespace ACT_Plugin {
         internal static string TimeStamp {
             get {
                 return ResourceManager.GetString("TimeStamp", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to You hit (?&lt;victim&gt;.+) for (?&lt;damagePoints&gt;[\d]+) (point[|s]) of (?&lt;typeOfDamage&gt;.+) damage by ((?&lt;damageEffect&gt;.+).)(?:\(((?:(?&lt;specialAttack&gt;.+)\s)Twincast)\)).
-        /// </summary>
-        internal static string TwinCast {
-            get {
-                return ResourceManager.GetString("TwinCast", resourceCulture);
             }
         }
     }

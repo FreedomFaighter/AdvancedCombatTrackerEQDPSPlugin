@@ -187,7 +187,6 @@ namespace ACT_Plugin
         char[] chrApos = new char[] { '\'', '’' };
         char[] chrSpaceApos = new char[] { ' ', '\'', '’' };
         List<Tuple<Color, Regex>> regexTupleList = new List<Tuple<Color, Regex>>();
-        String attackTypes = "pierce|gore|crush|slash|hit|kick|slam|bash|shoot|strike|bite";
         private DateTime GetDateTimeFromGroupMatch(String dt)
         {
             String eqDateTimeStampFormat = "ddd MMM dd HH:mm:ss yyyy";
@@ -198,17 +197,15 @@ namespace ACT_Plugin
         private void PopulateRegexArray()
         {
             ActGlobals.oFormEncounterLogs.LogTypeToColorMapping.Clear();
-            String stringWithattackTypes = @"(?<attacker>.+) (?:(?<attackType>(" + attackTypes + @"))(|s|es)) (?<victim>.+) for (?<damageAmount>[\d]+) (point[|s]) of damage.(?:\s\((?<damageSpecial>.+)\)){0,1}";
+            String stringWithattackTypes = @"(?<attacker>.+) (?:(?<attackType>(" + EverQuestDPSParse.attackTypes + @"))(|s|es)) (?<victim>.+) for (?<damageAmount>[\d]+) (point[|s]) of damage.(?:\s\((?<damageSpecial>.+)\)){0,1}";
             regexTupleList.Add(new Tuple<Color, Regex>(Color.Red, new Regex($@"{EverQuestDPSParse.TimeStamp} {stringWithattackTypes}", RegexOptions.Compiled)));
             ActGlobals.oFormEncounterLogs.LogTypeToColorMapping.Add(regexTupleList.Count - 1, regexTupleList[regexTupleList.Count - 1].Item1);
             regexTupleList.Add(new Tuple<Color, Regex>(Color.Red, new Regex($@"{EverQuestDPSParse.TimeStamp} {EverQuestDPSParse.DamageShield}", RegexOptions.Compiled)));
             ActGlobals.oFormEncounterLogs.LogTypeToColorMapping.Add(regexTupleList.Count - 1, regexTupleList[regexTupleList.Count - 1].Item1);
             //String missedMelee = @"(?<attacker>.+) (?:(tr(ies|y))) to (?<attackType>(" + attackTypes + @")+) (?<victim>.+), but (?:miss(|es))!";
-            regexTupleList.Add(new Tuple<Color, Regex>(Color.Gray, new Regex($@"{EverQuestDPSParse.TimeStamp} (?<attacker>.+) (?:(tr(ies|y))) to (?<attackType>(" + attackTypes + @")+) (?<victim>.+), but (?:miss(|es))!", RegexOptions.Compiled)));
+            regexTupleList.Add(new Tuple<Color, Regex>(Color.Gray, new Regex($@"{EverQuestDPSParse.TimeStamp} (?<attacker>.+) (?:(tr(ies|y))) to (?<attackType>(" + EverQuestDPSParse.attackTypes + @")+) (?<victim>.+), but (?:miss(|es))!", RegexOptions.Compiled)));
             ActGlobals.oFormEncounterLogs.LogTypeToColorMapping.Add(regexTupleList.Count - 1, regexTupleList[regexTupleList.Count - 1].Item1);
             regexTupleList.Add(new Tuple<Color, Regex>(Color.Goldenrod, new Regex($@"{EverQuestDPSParse.TimeStamp} {EverQuestDPSParse.SlainMessage}", RegexOptions.Compiled)));
-            ActGlobals.oFormEncounterLogs.LogTypeToColorMapping.Add(regexTupleList.Count - 1, regexTupleList[regexTupleList.Count - 1].Item1);
-            regexTupleList.Add(new Tuple<Color, Regex>(Color.GhostWhite, new Regex($@"{EverQuestDPSParse.TimeStamp} {EverQuestDPSParse.TwinCast}", RegexOptions.Compiled)));
             ActGlobals.oFormEncounterLogs.LogTypeToColorMapping.Add(regexTupleList.Count - 1, regexTupleList[regexTupleList.Count - 1].Item1);
             regexTupleList.Add(new Tuple<Color, Regex>(Color.Red, new Regex($@"{EverQuestDPSParse.TimeStamp} {EverQuestDPSParse.SpellDamage}", RegexOptions.Compiled)));
             ActGlobals.oFormEncounterLogs.LogTypeToColorMapping.Add(regexTupleList.Count - 1, regexTupleList[regexTupleList.Count - 1].Item1);
@@ -266,7 +263,7 @@ namespace ACT_Plugin
                             , new Dnum(Int64.Parse(reMatch.Groups["damageAmount"].Value))
                             , GetDateTimeFromGroupMatch(reMatch.Groups["dateTimeOfLogLine"].Value)
                             , gts
-                            , reMatch.Groups["victim"].Value
+                            , EnglishPersonaReplace(reMatch.Groups["victim"].Value)
                             , "Melee");
                     }
                     break;
@@ -282,7 +279,7 @@ namespace ACT_Plugin
                             , new Dnum(Int64.Parse(reMatch.Groups["damagePoints"].Value))
                             , GetDateTimeFromGroupMatch(reMatch.Groups["dateTimeOfLogLine"].Value)
                             , gts
-                            , reMatch.Groups["victim"].Value
+                            , EnglishPersonaReplace(reMatch.Groups["victim"].Value)
                             , reMatch.Groups["damageShieldType"].Value);
                     }
                     break;
@@ -298,56 +295,41 @@ namespace ACT_Plugin
                             , Dnum.Miss
                             , GetDateTimeFromGroupMatch(reMatch.Groups["dateTimeOfLogLine"].Value)
                             , gts
-                            , reMatch.Groups["victim"].Value
+                            , EnglishPersonaReplace(reMatch.Groups["victim"].Value)
                             , "Melee");
                     }
                     break;
-                //Twincast
+                //Spell Cast
                 case 4:
                     if (ActGlobals.oFormActMain.InCombat)
                     {
-                        String damageSpecial;
-                        if (reMatch.Groups["damageSpecial"].Success)
+                        if (ActGlobals.oFormActMain.InCombat)
                         {
-                            damageSpecial = reMatch.Groups["damageSpecial"].Value + " Twincast";
+                            ActGlobals.oFormActMain.AddCombatAction((int)SwingTypeEnum.NonMelee
+                                , false
+                                , reMatch.Groups["spellSpeicals"].Value
+                                , EnglishPersonaReplace(reMatch.Groups["attacker"].Value)
+                                , reMatch.Groups["damageEffect"].Value
+                                , new Dnum(Int64.Parse(reMatch.Groups["damagePoints"].Value))
+                                , GetDateTimeFromGroupMatch(reMatch.Groups["dateTimeOfLogLine"].Value)
+                                , gts
+                                , EnglishPersonaReplace(reMatch.Groups["victim"].Value)
+                                , reMatch.Groups["typeOfDamage"].Value);
                         }
-                        else
-                        {
-                            damageSpecial = String.Empty;
-                        }
-                        ActGlobals.oFormActMain.AddCombatAction((int)SwingTypeEnum.NonMelee
-                            , false
-                            , damageSpecial
-                            , reMatch.Groups["attacker"].Value
-                            , reMatch.Groups["damageEffect"].Value
-                            , new Dnum(Int64.Parse(reMatch.Groups["damagePoints"].Value))
-                            , GetDateTimeFromGroupMatch(reMatch.Groups["dateTimeOfLogLine"].Value)
-                            , gts
-                            , reMatch.Groups["victim"].Value
-                            , reMatch.Groups["typeOfDamage"].Value);
                     }
                     break;
                 case 5:
                     if (ActGlobals.oFormActMain.InCombat)
                     {
-                        String healingSpecial;
-                        if (reMatch.Groups["healingSpecial"].Success)
-                        {
-                            healingSpecial = reMatch.Groups["healingSpecial"].Value;
-                        }
-                        else
-                        {
-                            healingSpecial = String.Empty;
-                        }
                         ActGlobals.oFormActMain.AddCombatAction((int)SwingTypeEnum.Healing
-                        , healingSpecial.Contains("Critical")
-                        , healingSpecial
-                        , reMatch.Groups["healer"].Value
+                        , reMatch.Groups["healingSpecial"].Value.Contains("Critical")
+                        , reMatch.Groups["healingSpecial"].Value
+                        , EnglishPersonaReplace(reMatch.Groups["healer"].Value)
                         , reMatch.Groups["healingSpecial"].Value
                         , new Dnum(Int64.Parse(reMatch.Groups["healingPoints"].Value), reMatch.Groups["overHealPoints"].Value)
                         , GetDateTimeFromGroupMatch(reMatch.Groups["dateTimeOfLogLine"].Value)
                         , gts
-                        , reMatch.Groups["healingTarget"].Value
+                        , EnglishPersonaReplace(reMatch.Groups["healingTarget"].Value)
                         , String.Empty
                         );
                     }
