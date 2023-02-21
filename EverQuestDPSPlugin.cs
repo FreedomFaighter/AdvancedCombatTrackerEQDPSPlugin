@@ -164,7 +164,7 @@ namespace ACT_Plugin
             ActGlobals.oFormActMain.UpdateCheckClicked += new FormActMain.NullDelegate(oFormActMain_UpdateCheckClicked);
             if (ActGlobals.oFormActMain.GetAutomaticUpdatesAllowed())   // If ACT is set to automatically check for updates, check for updates to the plugin
                 new Thread(new ThreadStart(oFormActMain_UpdateCheckClicked)).Start();   // If we don't put this on a separate thread, web latency will delay the plugin init phase
-            ActGlobals.oFormActMain.CharacterFileNameRegex = new Regex($@"(?:.+)\/eqlog_(?<characterName>\S+)_(?<server>.+).txt", RegexOptions.Compiled);
+            ActGlobals.oFormActMain.CharacterFileNameRegex = new Regex($@"(?:.+)[\\]eqlog_(?<characterName>\S+)_(?<server>.+).txt", RegexOptions.Compiled);
             ActGlobals.oFormActMain.ZoneChangeRegex = new Regex($@"{EverQuestDPSParse.TimeStamp} (?:(?=You have entered)(You have entered (the Drunken Monkey stance adequately|(?<zoneName>.+)))).", RegexOptions.Compiled);
             lblStatus.Text = @"{EverQuestDPSParse.PluginName} Plugin Started";
         }
@@ -198,8 +198,7 @@ namespace ACT_Plugin
         private void PopulateRegexArray()
         {
             ActGlobals.oFormEncounterLogs.LogTypeToColorMapping.Clear();
-            String stringWithattackTypes = @"(?<attacker>.+) (?:(?<attackType>("+attackTypes+@"))(|s|es)) (?<victim>.+) for (?<damageAmount>[\d]+) (point[|s]) of damage.(?:\s\((?<damageSpecial>.+)\)){0,1}";
-            //(?<attacker>.+) (?:(?<attackType>("+attackTypes+"))(|s|es)) (?<victim>.+) for (?<damageAmount>[\d]+) (point[|s]) of damage.(?:\s\((?<damageSpecial>.+)\)){0,1}
+            String stringWithattackTypes = @"(?<attacker>.+) (?:(?<attackType>(" + attackTypes + @"))(|s|es)) (?<victim>.+) for (?<damageAmount>[\d]+) (point[|s]) of damage.(?:\s\((?<damageSpecial>.+)\)){0,1}";
             regexTupleList.Add(new Tuple<Color, Regex>(Color.Red, new Regex($@"{EverQuestDPSParse.TimeStamp} {stringWithattackTypes}", RegexOptions.Compiled)));
             ActGlobals.oFormEncounterLogs.LogTypeToColorMapping.Add(regexTupleList.Count - 1, regexTupleList[regexTupleList.Count - 1].Item1);
             regexTupleList.Add(new Tuple<Color, Regex>(Color.Red, new Regex($@"{EverQuestDPSParse.TimeStamp} {EverQuestDPSParse.DamageShield}", RegexOptions.Compiled)));
@@ -215,9 +214,6 @@ namespace ACT_Plugin
             ActGlobals.oFormEncounterLogs.LogTypeToColorMapping.Add(regexTupleList.Count - 1, regexTupleList[regexTupleList.Count - 1].Item1);
             regexTupleList.Add(new Tuple<Color, Regex>(Color.Green, new Regex($@"{EverQuestDPSParse.TimeStamp} {EverQuestDPSParse.Healing}", RegexOptions.Compiled)));
             ActGlobals.oFormEncounterLogs.LogTypeToColorMapping.Add(regexTupleList.Count - 1, regexTupleList[regexTupleList.Count - 1].Item1);
-            //String othersAttack = $@"(?<attacker>.+) (?:(?<attackType>({attackTypes})+)s) (?<victim>.+) for (?<pointsOfDamage>[\d]+).(?:\s\((?<damageSpecial>.+)\)){0,1}";
-            //regexTupleList.Add(new Tuple<Color, Regex>(Color.Red, new Regex($@"{EverQuestDPSParse.TimeStamp} {othersAttack}", RegexOptions.Compiled)));
-            //ActGlobals.oFormEncounterLogs.LogTypeToColorMapping.Add(regexTupleList.Count - 1, regexTupleList[regexTupleList.Count - 1].Item1);
         }
 
         void oFormActMain_BeforeLogLineRead(bool isImport, LogLineEventArgs logInfo)
@@ -281,7 +277,7 @@ namespace ACT_Plugin
                         ActGlobals.oFormActMain.AddCombatAction((int)SwingTypeEnum.NonMelee
                             , false
                             , String.Empty
-                            , reMatch.Groups["attacker"].Value
+                            , EnglishPersonaReplace(reMatch.Groups["attacker"].Value)
                             , reMatch.Groups["damageShieldDamageType"].Value
                             , new Dnum(Int64.Parse(reMatch.Groups["damagePoints"].Value))
                             , GetDateTimeFromGroupMatch(reMatch.Groups["dateTimeOfLogLine"].Value)
@@ -297,7 +293,7 @@ namespace ACT_Plugin
                         ActGlobals.oFormActMain.AddCombatAction((int)SwingTypeEnum.Melee
                             , false
                             , string.Empty
-                            , reMatch.Groups["attacker"].Value
+                            , EnglishPersonaReplace(reMatch.Groups["attacker"].Value)
                             , reMatch.Groups["attackType"].Value
                             , Dnum.Miss
                             , GetDateTimeFromGroupMatch(reMatch.Groups["dateTimeOfLogLine"].Value)
