@@ -165,7 +165,7 @@ namespace ACT_Plugin
             if (ActGlobals.oFormActMain.GetAutomaticUpdatesAllowed())   // If ACT is set to automatically check for updates, check for updates to the plugin
                 new Thread(new ThreadStart(oFormActMain_UpdateCheckClicked)).Start();   // If we don't put this on a separate thread, web latency will delay the plugin init phase
             ActGlobals.oFormActMain.CharacterFileNameRegex = new Regex($@"(?:.+)[\\]eqlog_(?<characterName>\S+)_(?<server>.+).txt", RegexOptions.Compiled);
-            ActGlobals.oFormActMain.ZoneChangeRegex = new Regex($@"{EverQuestDPSParse.TimeStamp} (?:(?=You have entered)(You have entered (the Drunken Monkey stance adequately|(?<zoneName>.+)))).", RegexOptions.Compiled);
+            ActGlobals.oFormActMain.ZoneChangeRegex = new Regex($@"{EverQuestDPSParse.TimeStamp} (?:(?=You have entered)(^(You have entered (the Drunken Monkey stance adequately)|(?<zoneName>.+)))).", RegexOptions.Compiled);
             lblStatus.Text = @"{EverQuestDPSParse.PluginName} Plugin Started";
         }
 
@@ -236,7 +236,7 @@ namespace ACT_Plugin
 
             int gts = ActGlobals.oFormActMain.GlobalTimeSorter;
             if (reMatch.Groups["victim"].Success && reMatch.Groups["attacker"].Success)
-                ActGlobals.oFormActMain.SetEncounter(GetDateTimeFromGroupMatch(reMatch.Groups["dateTimeOfLogLine"].Value), reMatch.Groups["victim"].Value, reMatch.Groups["attacker"].Value);
+                ActGlobals.oFormActMain.SetEncounter(GetDateTimeFromGroupMatch(reMatch.Groups["dateTimeOfLogLine"].Value), reMatch.Groups["attacker"].Value, reMatch.Groups["victim"].Value);
 
             switch (logMatched)
             {
@@ -256,22 +256,6 @@ namespace ACT_Plugin
                         }
                         
                         critical = damageSpecial.Contains("Critical");
-                        Match petMatch = regexTupleList[6].Item2.Match(reMatch.Groups["attacker"].Value);
-                        if (petMatch.Success)
-                        {
-                            ActGlobals.oFormActMain.AddCombatAction(
-                            (int)SwingTypeEnum.Melee
-                            , critical
-                            , damageSpecial
-                            , EnglishPersonaReplace(petMatch.Groups["attacker"].Value)
-                            , reMatch.Groups["attackType"].Value
-                            , new Dnum(Int64.Parse(reMatch.Groups["damageAmount"].Value))
-                            , GetDateTimeFromGroupMatch(reMatch.Groups["dateTimeOfLogLine"].Value)
-                            , gts
-                            , EnglishPersonaReplace(reMatch.Groups["victim"].Value)
-                            , "Pet");
-                            return;
-                        }
                         ActGlobals.oFormActMain.AddCombatAction(
                             (int)SwingTypeEnum.Melee
                             , critical
