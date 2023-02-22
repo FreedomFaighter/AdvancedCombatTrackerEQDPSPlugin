@@ -147,6 +147,9 @@
   <data name="SlainMessage" xml:space="preserve">
     <value>(?&lt;attacker&gt;.+) have slain (?&lt;victim&gt;.+)!</value>
   </data>
+  <data name="SpecialLocked" xml:space="preserve">
+    <value>Locked</value>
+  </data>
   <data name="SpellDamage" xml:space="preserve">
     <value>(?&lt;attacker&gt;.+) hit (?&lt;victim&gt;.+) for (?&lt;damagePoints&gt;[\d]+) (?:point[|s]) of (?&lt;typeOfDamage&gt;.+) damage by (?:(?&lt;damageEffect&gt;.+).)(?:\s\((?&lt;spellSpeicals&gt;.+)\))</value>
   </data>
