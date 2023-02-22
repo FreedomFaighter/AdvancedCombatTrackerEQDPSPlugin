@@ -211,6 +211,8 @@ namespace ACT_Plugin
             ActGlobals.oFormEncounterLogs.LogTypeToColorMapping.Add(regexTupleList.Count - 1, regexTupleList[regexTupleList.Count - 1].Item1);
             regexTupleList.Add(new Tuple<Color, Regex>(Color.Green, new Regex($@"{EverQuestDPSParse.TimeStamp} {EverQuestDPSParse.Healing}", RegexOptions.Compiled)));
             ActGlobals.oFormEncounterLogs.LogTypeToColorMapping.Add(regexTupleList.Count - 1, regexTupleList[regexTupleList.Count - 1].Item1);
+            regexTupleList.Add(new Tuple<Color, Regex>(Color.Maroon, new Regex($@"{EverQuestDPSParse.TimeStamp} {EverQuestDPSParse.PetMelee}", RegexOptions.Compiled)));
+            ActGlobals.oFormEncounterLogs.LogTypeToColorMapping.Add(regexTupleList.Count - 1, regexTupleList[regexTupleList.Count - 1].Item1);
         }
 
         void oFormActMain_BeforeLogLineRead(bool isImport, LogLineEventArgs logInfo)
@@ -254,6 +256,22 @@ namespace ACT_Plugin
                         }
                         
                         critical = damageSpecial.Contains("Critical");
+                        Match petMatch = regexTupleList[6].Item2.Match(reMatch.Groups["attacker"].Value);
+                        if (petMatch.Success)
+                        {
+                            ActGlobals.oFormActMain.AddCombatAction(
+                            (int)SwingTypeEnum.Melee
+                            , critical
+                            , damageSpecial
+                            , EnglishPersonaReplace(petMatch.Groups["attacker"].Value)
+                            , reMatch.Groups["attackType"].Value
+                            , new Dnum(Int64.Parse(reMatch.Groups["damageAmount"].Value))
+                            , GetDateTimeFromGroupMatch(reMatch.Groups["dateTimeOfLogLine"].Value)
+                            , gts
+                            , EnglishPersonaReplace(reMatch.Groups["victim"].Value)
+                            , "Pet");
+                            return;
+                        }
                         ActGlobals.oFormActMain.AddCombatAction(
                             (int)SwingTypeEnum.Melee
                             , critical

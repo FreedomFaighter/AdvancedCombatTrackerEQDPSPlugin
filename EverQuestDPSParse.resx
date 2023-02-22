@@ -132,6 +132,9 @@
   <data name="MissedMeleeAttack" xml:space="preserve">
     <value>{EverQuestDPSParse.TimeStamp} (?&lt;attacker&gt;.+) (?:tr(ies|y)) to (?&lt;attackType&gt;({attackTypes})+) (?&lt;victim&gt;.+), but (?:miss(|es))!</value>
   </data>
+  <data name="PetMelee" xml:space="preserve">
+    <value>(?:(?&lt;attacker&gt;\S+)(`s pet))</value>
+  </data>
   <data name="PluginName" xml:space="preserve">
     <value>EverQuest DPS Parse</value>
   </data>
