@@ -254,7 +254,7 @@ namespace ACT_Plugin
                         {
                             damageSpecial = String.Empty;
                         }
-                        
+
                         critical = damageSpecial.Contains("Critical");
                         ActGlobals.oFormActMain.AddCombatAction(
                             (int)SwingTypeEnum.Melee
