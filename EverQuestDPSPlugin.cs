@@ -165,7 +165,7 @@ namespace ACT_Plugin
             if (ActGlobals.oFormActMain.GetAutomaticUpdatesAllowed())   // If ACT is set to automatically check for updates, check for updates to the plugin
                 new Thread(new ThreadStart(oFormActMain_UpdateCheckClicked)).Start();   // If we don't put this on a separate thread, web latency will delay the plugin init phase
             ActGlobals.oFormActMain.CharacterFileNameRegex = new Regex($@"(?:.+)[\\]eqlog_(?<characterName>\S+)_(?<server>.+).txt", RegexOptions.Compiled);
-            ActGlobals.oFormActMain.ZoneChangeRegex = new Regex($@"\[(?:.+)\] You have entered (?:the Drunken Monkey stance adequately|(?<zoneName>.+)).", RegexOptions.Compiled);
+            ActGlobals.oFormActMain.ZoneChangeRegex = new Regex(@"\[(?:.+)\] You have entered (?:[^(?:the Drunken Monkey stance adequately)]|(?<zoneName>.+)).", RegexOptions.None);
             lblStatus.Text = @"{EverQuestDPSParse.PluginName} Plugin Started";
         }
 
@@ -1294,27 +1294,9 @@ namespace ACT_Plugin
             MasterSwing.ColumnDefs.Add("Victim", new MasterSwing.ColumnDef("Victim", true, "VARCHAR(64)", "Victim", (Data) => { return Data.Victim; }, (Data) => { return Data.Victim; }, (Left, Right) => { return Left.Victim.CompareTo(Right.Victim); }));
             MasterSwing.ColumnDefs.Add("DamageNum", new MasterSwing.ColumnDef("DamageNum", false, "BIGINT", "Damage", (Data) => { return ((long)Data.Damage).ToString(); }, (Data) => { return ((long)Data.Damage).ToString(); }, (Left, Right) => { return Left.Damage.CompareTo(Right.Damage); }));
             MasterSwing.ColumnDefs.Add("Damage", new MasterSwing.ColumnDef("Damage", true, "VARCHAR(128)", "DamageString", (Data) => { return Data.Damage.ToString(); }, (Data) => { return Data.Damage.ToString(); }, (Left, Right) => { return Left.Damage.CompareTo(Right.Damage); }));
-            MasterSwing.ColumnDefs.Add("Critical", new MasterSwing.ColumnDef("Critical", false, "CHAR(1)", "Critical", (Data) => { return Data.Critical.ToString(); }, (Data) => { return Data.Critical.ToString(usCulture)[0].ToString(); }, (Left, Right) => { return Left.Critical.CompareTo(Right.Critical); }));
-
-            MasterSwing.ColumnDefs.Add("CriticalStr", new MasterSwing.ColumnDef("CriticalStr", true, "VARCHAR(32)", "CriticalStr", (Data) =>
-            {
-                if (Data.Tags.ContainsKey("CriticalStr"))
-                    return (string)Data.Tags["CriticalStr"];
-                else
-                    return "None";
-            }, (Data) =>
-            {
-                if (Data.Tags.ContainsKey("CriticalStr"))
-                    return (string)Data.Tags["CriticalStr"];
-                else
-                    return "None";
-            }, (Left, Right) =>
-            {
-                string left = Left.Tags.ContainsKey("CriticalStr") ? (string)Left.Tags["CriticalStr"] : "None";
-                string right = Right.Tags.ContainsKey("CriticalStr") ? (string)Right.Tags["CriticalStr"] : "None";
-                return left.CompareTo(right);
-            }));
-            MasterSwing.ColumnDefs.Add("Special", new MasterSwing.ColumnDef("Special", true, "VARCHAR(64)", "Special", (Data) => { return Data.Special; }, (Data) => { return Data.Special; }, (Left, Right) => { return Left.Special.CompareTo(Right.Special); }));
+            MasterSwing.ColumnDefs.Add("Critical", new MasterSwing.ColumnDef("Critical", false, "BOOLEAN", "Critical", (Data) => { return Data.Special.Contains("Critical").ToString(); }, (Data) => { return Data.Special.Contains("Critical").ToString(); }, (Left, Right) => { return Left.Special.Contains("Critical").CompareTo(Right.Special.Contains("Critical")); }));
+            MasterSwing.ColumnDefs.Add("Special", new MasterSwing.ColumnDef("Special", true, "VARCHAR(128)", "Special", (Data) => { return Data.Special; }, (Data) => { return Data.Special; }, (Left, Right) => { return Left.Special.CompareTo(Right.Special); }));
+            MasterSwing.ColumnDefs.Add(EverQuestDPSParse.SpecialLocked, new MasterSwing.ColumnDef(EverQuestDPSParse.SpecialLocked, false, "BOOLEAN", EverQuestDPSParse.SpecialLocked, (Data) => { return Data.Special.Contains(EverQuestDPSParse.SpecialLocked).ToString(); }, (Data) => { return Data.Special.Contains(EverQuestDPSParse.SpecialLocked).ToString(); }, (Left, Right) => { return Left.Special.Contains(EverQuestDPSParse.SpecialLocked).CompareTo(Right.Special.Contains(EverQuestDPSParse.SpecialLocked)); }));
 
             foreach (KeyValuePair<string, MasterSwing.ColumnDef> pair in MasterSwing.ColumnDefs)
                 pair.Value.GetCellForeColor = (Data) => { return GetSwingTypeColor(Data.SwingType); };
