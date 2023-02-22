@@ -106,6 +106,15 @@ namespace ACT_Plugin {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to (?:(?&lt;attacker&gt;\S+)(`s pet)).
+        /// </summary>
+        internal static string PetMelee {
+            get {
+                return ResourceManager.GetString("PetMelee", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to EverQuest DPS Parse.
         /// </summary>
         internal static string PluginName {
