@@ -165,7 +165,7 @@ namespace ACT_Plugin
             if (ActGlobals.oFormActMain.GetAutomaticUpdatesAllowed())   // If ACT is set to automatically check for updates, check for updates to the plugin
                 new Thread(new ThreadStart(oFormActMain_UpdateCheckClicked)).Start();   // If we don't put this on a separate thread, web latency will delay the plugin init phase
             ActGlobals.oFormActMain.CharacterFileNameRegex = new Regex($@"(?:.+)[\\]eqlog_(?<characterName>\S+)_(?<server>.+).txt", RegexOptions.Compiled);
-            ActGlobals.oFormActMain.ZoneChangeRegex = new Regex($@"{EverQuestDPSParse.TimeStamp} (?:(?=You have entered)(^(You have entered (the Drunken Monkey stance adequately)|(?<zoneName>.+)))).", RegexOptions.Compiled);
+            ActGlobals.oFormActMain.ZoneChangeRegex = new Regex($@"\[(?:.+)\] You have entered (?:the Drunken Monkey stance adequately|(?<zoneName>.+)).", RegexOptions.Compiled);
             lblStatus.Text = @"{EverQuestDPSParse.PluginName} Plugin Started";
         }
 

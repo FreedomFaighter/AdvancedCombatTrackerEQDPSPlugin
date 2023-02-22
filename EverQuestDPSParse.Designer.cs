@@ -167,5 +167,14 @@ namespace ACT_Plugin {
                 return ResourceManager.GetString("TimeStamp", resourceCulture);
             }
         }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to You have entered (?:the Drunken Monkey stance adequately|(?&lt;zoneName&gt;.+))..
+        /// </summary>
+        internal static string ZoneChange {
+            get {
+                return ResourceManager.GetString("ZoneChange", resourceCulture);
+            }
+        }
     }
 }

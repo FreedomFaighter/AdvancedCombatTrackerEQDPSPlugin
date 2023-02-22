@@ -153,4 +153,7 @@
   <data name="TimeStamp" xml:space="preserve">
     <value>\[(?&lt;dateTimeOfLogLine&gt;.+)\]</value>
   </data>
+  <data name="ZoneChange" xml:space="preserve">
+    <value>You have entered (?:the Drunken Monkey stance adequately|(?&lt;zoneName&gt;.+)).</value>
+  </data>
 </root>
