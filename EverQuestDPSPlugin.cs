@@ -165,7 +165,7 @@ namespace ACT_Plugin
             if (ActGlobals.oFormActMain.GetAutomaticUpdatesAllowed())   // If ACT is set to automatically check for updates, check for updates to the plugin
                 new Thread(new ThreadStart(oFormActMain_UpdateCheckClicked)).Start();   // If we don't put this on a separate thread, web latency will delay the plugin init phase
             ActGlobals.oFormActMain.CharacterFileNameRegex = new Regex($@"(?:.+)[\\]eqlog_(?<characterName>\S+)_(?<server>.+).txt", RegexOptions.Compiled);
-            ActGlobals.oFormActMain.ZoneChangeRegex = new Regex(@"\[(?:.+)\] You have entered (?:[^(?:the Drunken Monkey stance adequately)]|(?<zoneName>.+)).", RegexOptions.None);
+            ActGlobals.oFormActMain.ZoneChangeRegex = new Regex(@"You have entered (?!the Drunken Monkey stance adequately)(?<zoneInfo>.+).", RegexOptions.Compiled);
             lblStatus.Text = @"{EverQuestDPSParse.PluginName} Plugin Started";
         }
 
@@ -187,13 +187,13 @@ namespace ACT_Plugin
         char[] chrApos = new char[] { '\'', '’' };
         char[] chrSpaceApos = new char[] { ' ', '\'', '’' };
         List<Tuple<Color, Regex>> regexTupleList = new List<Tuple<Color, Regex>>();
-        private DateTime GetDateTimeFromGroupMatch(String dt)
-        {
-            String eqDateTimeStampFormat = "ddd MMM dd HH:mm:ss yyyy";
-            DateTime currentEQTimeStamp;
-            DateTime.TryParseExact(dt, eqDateTimeStampFormat, DateTimeFormatInfo.InvariantInfo, DateTimeStyles.AssumeLocal, out currentEQTimeStamp);
-            return currentEQTimeStamp;
-        }
+        //private DateTime GetDateTimeFromGroupMatch(String dt)
+        //{
+        //    String eqDateTimeStampFormat = "ddd MMM dd HH:mm:ss yyyy";
+        //    DateTime currentEQTimeStamp;
+        //    DateTime.TryParseExact(dt, eqDateTimeStampFormat, DateTimeFormatInfo.InvariantInfo, DateTimeStyles.AssumeLocal, out currentEQTimeStamp);
+        //    return currentEQTimeStamp;
+        //}
         private void PopulateRegexArray()
         {
             ActGlobals.oFormEncounterLogs.LogTypeToColorMapping.Clear();
@@ -213,6 +213,8 @@ namespace ACT_Plugin
             ActGlobals.oFormEncounterLogs.LogTypeToColorMapping.Add(regexTupleList.Count - 1, regexTupleList[regexTupleList.Count - 1].Item1);
             regexTupleList.Add(new Tuple<Color, Regex>(Color.Maroon, new Regex($@"{EverQuestDPSParse.TimeStamp} {EverQuestDPSParse.PetMelee}", RegexOptions.Compiled)));
             ActGlobals.oFormEncounterLogs.LogTypeToColorMapping.Add(regexTupleList.Count - 1, regexTupleList[regexTupleList.Count - 1].Item1);
+            regexTupleList.Add(new Tuple<Color, Regex>(Color.DarkBlue, new Regex($@"{EverQuestDPSParse.TimeStamp} You have entered (?!the Drunken Monkey stance adequately)(?<zoneInfo>.+).", RegexOptions.Compiled)));
+            ActGlobals.oFormEncounterLogs.LogTypeToColorMapping.Add(regexTupleList.Count - 1, regexTupleList[regexTupleList.Count - 1].Item1);
         }
 
         void oFormActMain_BeforeLogLineRead(bool isImport, LogLineEventArgs logInfo)
@@ -229,8 +231,12 @@ namespace ACT_Plugin
             }
         }
 
+        FormActMain.DateTimeLogParser GetDateTimeFromGroupMatch;
+
         private void ParseEverQuestLogLine(Match reMatch, int logMatched, string logLine, bool isImport)
         {
+            
+
             List<string> damages = new List<string>();
             DateTime time = ActGlobals.oFormActMain.LastKnownTime;
 
@@ -335,6 +341,9 @@ namespace ACT_Plugin
                         , String.Empty
                         );
                     }
+                    break;
+                case 7:
+                    ActGlobals.oFormActMain.ChangeZone(reMatch.Groups["zoneInfo"].Value);
                     break;
                     /*
                     #region Case 1 [unsourced skill attacks]
