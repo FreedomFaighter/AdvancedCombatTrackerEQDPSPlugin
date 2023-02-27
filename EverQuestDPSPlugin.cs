@@ -187,13 +187,7 @@ namespace ACT_Plugin
         char[] chrApos = new char[] { '\'', '’' };
         char[] chrSpaceApos = new char[] { ' ', '\'', '’' };
         List<Tuple<Color, Regex>> regexTupleList = new List<Tuple<Color, Regex>>();
-        //private DateTime GetDateTimeFromGroupMatch(String dt)
-        //{
-        //    String eqDateTimeStampFormat = "ddd MMM dd HH:mm:ss yyyy";
-        //    DateTime currentEQTimeStamp;
-        //    DateTime.TryParseExact(dt, eqDateTimeStampFormat, DateTimeFormatInfo.InvariantInfo, DateTimeStyles.AssumeLocal, out currentEQTimeStamp);
-        //    return currentEQTimeStamp;
-        //}
+
         private void PopulateRegexArray()
         {
             ActGlobals.oFormEncounterLogs.LogTypeToColorMapping.Clear();
@@ -231,7 +225,13 @@ namespace ACT_Plugin
             }
         }
 
-        FormActMain.DateTimeLogParser GetDateTimeFromGroupMatch;
+        private DateTime GetDateTimeFromGroupMatch(String dt)
+        {
+            String eqDateTimeStampFormat = "ddd MMM dd HH:mm:ss yyyy";
+            DateTime currentEQTimeStamp;
+            DateTime.TryParseExact(dt, eqDateTimeStampFormat, DateTimeFormatInfo.InvariantInfo, DateTimeStyles.AssumeLocal, out currentEQTimeStamp);
+            return currentEQTimeStamp;
+        }
 
         private void ParseEverQuestLogLine(Match reMatch, int logMatched, string logLine, bool isImport)
         {
