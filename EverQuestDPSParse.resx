@@ -135,6 +135,9 @@
   <data name="PetMelee" xml:space="preserve">
     <value>(?:(?&lt;attacker&gt;\S+)(`s pet))</value>
   </data>
+  <data name="pluginId" xml:space="preserve">
+    <value>96</value>
+  </data>
   <data name="PluginName" xml:space="preserve">
     <value>EverQuest DPS Parse</value>
   </data>
@@ -147,8 +150,29 @@
   <data name="SlainMessage" xml:space="preserve">
     <value>(?&lt;attacker&gt;.+) have slain (?&lt;victim&gt;.+)!</value>
   </data>
+  <data name="SpecialCripplingBlow" xml:space="preserve">
+    <value>Crippling Blow</value>
+  </data>
+  <data name="SpecialCritical" xml:space="preserve">
+    <value>Critical</value>
+  </data>
+  <data name="SpecialDoubleBowShot" xml:space="preserve">
+    <value>Double Bow Shot</value>
+  </data>
+  <data name="SpecialFlurry" xml:space="preserve">
+    <value>Flurry</value>
+  </data>
   <data name="SpecialLocked" xml:space="preserve">
     <value>Locked</value>
+  </data>
+  <data name="SpecialLucky" xml:space="preserve">
+    <value>Lucky</value>
+  </data>
+  <data name="SpecialRiposte" xml:space="preserve">
+    <value>Riposte</value>
+  </data>
+  <data name="SpecialStrikethrough" xml:space="preserve">
+    <value>Strikethrough</value>
   </data>
   <data name="SpellDamage" xml:space="preserve">
     <value>(?&lt;attacker&gt;.+) hit (?&lt;victim&gt;.+) for (?&lt;damagePoints&gt;[\d]+) (?:point[|s]) of (?&lt;typeOfDamage&gt;.+) damage by (?:(?&lt;damageEffect&gt;.+).)(?:\s\((?&lt;spellSpeicals&gt;.+)\))</value>

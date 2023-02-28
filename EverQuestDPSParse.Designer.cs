@@ -115,6 +115,15 @@ namespace ACT_Plugin {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to 96.
+        /// </summary>
+        internal static string pluginId {
+            get {
+                return ResourceManager.GetString("pluginId", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to EverQuest DPS Parse.
         /// </summary>
         internal static string PluginName {
@@ -151,11 +160,74 @@ namespace ACT_Plugin {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Crippling Blow.
+        /// </summary>
+        internal static string SpecialCripplingBlow {
+            get {
+                return ResourceManager.GetString("SpecialCripplingBlow", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Critical.
+        /// </summary>
+        internal static string SpecialCritical {
+            get {
+                return ResourceManager.GetString("SpecialCritical", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Double Bow Shot.
+        /// </summary>
+        internal static string SpecialDoubleBowShot {
+            get {
+                return ResourceManager.GetString("SpecialDoubleBowShot", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Flurry.
+        /// </summary>
+        internal static string SpecialFlurry {
+            get {
+                return ResourceManager.GetString("SpecialFlurry", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Locked.
         /// </summary>
         internal static string SpecialLocked {
             get {
                 return ResourceManager.GetString("SpecialLocked", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Lucky.
+        /// </summary>
+        internal static string SpecialLucky {
+            get {
+                return ResourceManager.GetString("SpecialLucky", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Riposte.
+        /// </summary>
+        internal static string SpecialRiposte {
+            get {
+                return ResourceManager.GetString("SpecialRiposte", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Strikethrough.
+        /// </summary>
+        internal static string SpecialStrikethrough {
+            get {
+                return ResourceManager.GetString("SpecialStrikethrough", resourceCulture);
             }
         }
         

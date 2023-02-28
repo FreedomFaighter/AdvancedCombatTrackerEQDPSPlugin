@@ -872,14 +872,15 @@ namespace ACT_Plugin
 
         void oFormActMain_UpdateCheckClicked()
         {
-            int pluginId = 46;
+            int pluginId = 96;
             try
             {
                 DateTime localDate = ActGlobals.oFormActMain.PluginGetSelfDateUtc(this);
                 DateTime remoteDate = ActGlobals.oFormActMain.PluginGetRemoteDateUtc(pluginId);
+                ActGlobals.oFormActMain.PluginGetGithubApi(pluginId);
                 if (localDate.AddHours(2) < remoteDate)
                 {
-                    DialogResult result = MessageBox.Show("There is an updated version of the EQ2 English Parsing Plugin.  Update it now?\n\n(If there is an update to ACT, you should click No and update ACT first.)", "New Version", MessageBoxButtons.YesNo, MessageBoxIcon.Question);
+                    DialogResult result = MessageBox.Show("There is an updated version of the EverQuest English Parsing Plugin.  Update it now?\n\n(If there is an update to ACT, you should click No and update ACT first.)", "New Version", MessageBoxButtons.YesNo, MessageBoxIcon.Question);
                     if (result == DialogResult.Yes)
                     {
                         FileInfo updatedFile = ActGlobals.oFormActMain.PluginDownload(pluginId);
@@ -1285,9 +1286,7 @@ namespace ACT_Plugin
             AttackType.ColumnDefs.Add("Swings", new AttackType.ColumnDef("Swings", true, "INT", "Swings", (Data) => { return Data.Swings.ToString(GetIntCommas()); }, (Data) => { return Data.Swings.ToString(); }, (Left, Right) => { return Left.Swings.CompareTo(Right.Swings); }));
             AttackType.ColumnDefs.Add("ToHit", new AttackType.ColumnDef("ToHit", true, "FLOAT", "ToHit", (Data) => { return Data.ToHit.ToString(GetFloatCommas()); }, (Data) => { return Data.ToHit.ToString(usCulture); }, (Left, Right) => { return Left.ToHit.CompareTo(Right.ToHit); }));
             AttackType.ColumnDefs.Add("AvgDelay", new AttackType.ColumnDef("AvgDelay", false, "FLOAT", "AverageDelay", (Data) => { return Data.AverageDelay.ToString(GetFloatCommas()); }, (Data) => { return Data.AverageDelay.ToString(usCulture); }, (Left, Right) => { return Left.AverageDelay.CompareTo(Right.AverageDelay); }));
-            AttackType.ColumnDefs.Add("Crit%", new AttackType.ColumnDef("Crit%", true, "VARCHAR(8)", "CritPerc", (Data) => { return Data.CritPerc.ToString("0'%"); }, (Data) => { return Data.CritPerc.ToString("0'%"); }, (Left, Right) => { return Left.CritPerc.CompareTo(Right.CritPerc); }));
-            AttackType.ColumnDefs.Add("CritTypes", new AttackType.ColumnDef("CritTypes", true, "VARCHAR(32)", "CritTypes", AttackTypeGetCritTypes, AttackTypeGetCritTypes, (Left, Right) => { return AttackTypeGetCritTypes(Left).CompareTo(AttackTypeGetCritTypes(Right)); }));
-
+            AttackType.ColumnDefs.Add("CritTypes", new AttackType.ColumnDef("Attack Modifiers", true, "VARCHAR(32)", "CritTypes", AttackTypeGetCritTypes, AttackTypeGetCritTypes, (Left, Right) => { return AttackTypeGetCritTypes(Left).CompareTo(AttackTypeGetCritTypes(Right)); }));
 
             MasterSwing.ColumnDefs.Clear();
             MasterSwing.ColumnDefs.Add("EncId", new MasterSwing.ColumnDef("EncId", false, "CHAR(8)", "EncId", (Data) => { return string.Empty; }, (Data) => { return Data.ParentEncounter.EncId; }, (Left, Right) => { return 0; }));
@@ -1300,10 +1299,8 @@ namespace ACT_Plugin
             MasterSwing.ColumnDefs.Add("Victim", new MasterSwing.ColumnDef("Victim", true, "VARCHAR(64)", "Victim", (Data) => { return Data.Victim; }, (Data) => { return Data.Victim; }, (Left, Right) => { return Left.Victim.CompareTo(Right.Victim); }));
             MasterSwing.ColumnDefs.Add("DamageNum", new MasterSwing.ColumnDef("DamageNum", false, "BIGINT", "Damage", (Data) => { return ((long)Data.Damage).ToString(); }, (Data) => { return ((long)Data.Damage).ToString(); }, (Left, Right) => { return Left.Damage.CompareTo(Right.Damage); }));
             MasterSwing.ColumnDefs.Add("Damage", new MasterSwing.ColumnDef("Damage", true, "VARCHAR(128)", "DamageString", (Data) => { return Data.Damage.ToString(); }, (Data) => { return Data.Damage.ToString(); }, (Left, Right) => { return Left.Damage.CompareTo(Right.Damage); }));
-            MasterSwing.ColumnDefs.Add("Critical", new MasterSwing.ColumnDef("Critical", false, "BOOLEAN", "Critical", (Data) => { return Data.Special.Contains("Critical").ToString(); }, (Data) => { return Data.Special.Contains("Critical").ToString(); }, (Left, Right) => { return Left.Special.Contains("Critical").CompareTo(Right.Special.Contains("Critical")); }));
-            MasterSwing.ColumnDefs.Add("Special", new MasterSwing.ColumnDef("Special", true, "VARCHAR(128)", "Special", (Data) => { return Data.Special; }, (Data) => { return Data.Special; }, (Left, Right) => { return Left.Special.CompareTo(Right.Special); }));
-            MasterSwing.ColumnDefs.Add(EverQuestDPSParse.SpecialLocked, new MasterSwing.ColumnDef(EverQuestDPSParse.SpecialLocked, false, "BOOLEAN", EverQuestDPSParse.SpecialLocked, (Data) => { return Data.Special.Contains(EverQuestDPSParse.SpecialLocked).ToString(); }, (Data) => { return Data.Special.Contains(EverQuestDPSParse.SpecialLocked).ToString(); }, (Left, Right) => { return Left.Special.Contains(EverQuestDPSParse.SpecialLocked).CompareTo(Right.Special.Contains(EverQuestDPSParse.SpecialLocked)); }));
-
+            MasterSwing.ColumnDefs.Add("Special", new MasterSwing.ColumnDef("Special", true, "VARCHAR(90)", "Special", (Data) => { return Data.Special; }, (Data) => { return Data.Special; }, (Left, Right) => { return Left.Special.CompareTo(Right.Special); }));
+            
             foreach (KeyValuePair<string, MasterSwing.ColumnDef> pair in MasterSwing.ColumnDefs)
                 pair.Value.GetCellForeColor = (Data) => { return GetSwingTypeColor(Data.SwingType); };
 
@@ -1332,41 +1329,102 @@ namespace ACT_Plugin
         }
         private string AttackTypeGetCritTypes(AttackType Data)
         {
-            int crit = 0;
-            int lCrit = 0;
-            int fCrit = 0;
-            int mCrit = 0;
+            int special = 0;
+            int specialCripplingBlow = 0;
+            int specialLocked = 0;
+            int specialCritical = 0;
+            int specialStrikethrough = 0;
+            int specialRiposte = 0;
+            int specialNonDefined = 0;
+            int specialFlurry = 0;
+            int speicalLucky = 0;
+            int specialDoubleBowShot = 0;
+
+            bool? specialFound;
             for (int i = 0; i < Data.Items.Count; i++)
             {
+                specialFound = null;
                 MasterSwing ms = Data.Items[i];
-                if (ms.Critical)
+                if (ms.Special.Length > 0 && ms.Special != "None")
                 {
-                    crit++;
-                    if (!ms.Tags.ContainsKey("CriticalStr"))
-                        continue;
-                    if (((string)ms.Tags["CriticalStr"]).Contains("Legendary"))
+                    special++;
+                    if (ms.Special.Contains("Crippling Blow"))
                     {
-                        lCrit++;
+                        specialCripplingBlow++;
+                        if (specialFound == null)
+                            specialFound = true;
                         continue;
                     }
-                    if (((string)ms.Tags["CriticalStr"]).Contains("Fabled"))
+                    if (ms.Special.Contains("Locked"))
                     {
-                        fCrit++;
+                        specialLocked++;
+                        if (specialFound == null || specialFound != true)
+                            specialFound = true;
                         continue;
                     }
-                    if (((string)ms.Tags["CriticalStr"]).Contains("Mythical"))
+                    if (ms.Special.Contains("Critical"))
                     {
-                        mCrit++;
+                        specialCritical++;
+                        if (specialFound == null || specialFound != true)
+                            specialFound = true;
                         continue;
                     }
+                    if (ms.Special.Contains("Strikethrough"))
+                    {
+                        specialStrikethrough++;
+                        if (specialFound == null || specialFound != true)
+                            specialFound = true;
+                        continue;
+                    }
+                    if (ms.Special.Contains("Riposte"))
+                    {
+                        specialRiposte++;
+                        if (specialFound == null || specialFound != true)
+                            specialFound = true;
+                        continue;
+                    }
+                    if(ms.Special.Contains("Flurry"))
+                    {
+                        specialFlurry++;
+                        if (specialFound == null || specialFound != true)
+                            specialFound = true;
+                        continue;
+                    }
+                    if (ms.Special.Contains("Lucky"))
+                    {
+                        speicalLucky++;
+                        if (specialFound == null || specialFound != true)
+                            specialFound = true;
+                        continue;
+                    }
+                    if (ms.Special.Contains("Double Bow Shot"))
+                    {
+                        specialDoubleBowShot++;
+                        if (specialFound == null || specialFound != true)
+                            specialFound = true;
+                        continue;
+                    }
+                    
+                    if (specialFound == null || !(bool)specialFound)
+                        break;
+                    specialNonDefined++;
                 }
             }
-            float lCritPerc = ((float)lCrit / (float)crit) * 100f;
-            float fCritPerc = ((float)fCrit / (float)crit) * 100f;
-            float mCritPerc = ((float)mCrit / (float)crit) * 100f;
-            if (crit == 0)
+
+            float specialCripplingBlowPerc = ((float)specialCripplingBlow / (float)Data.Items.Count) * 100f;
+            float specialLockedPerc = ((float)specialLocked / (float)Data.Items.Count) * 100f;
+            float specialCriticalPerc = ((float)specialCritical / (float)Data.Items.Count) * 100f;
+            float specialNonDefinedPerc = ((float)specialNonDefined / (float)Data.Items.Count) * 100f;
+            float specialStrikethroughPerc = ((float)specialStrikethrough / (float)Data.Items.Count) * 100f;
+            float specialRipostePerc = ((float)specialRiposte / (float)Data.Items.Count) * 100f;
+            float specialFlurryPerc = ((float)specialFlurry / (float)Data.Items.Count) * 100f;
+            float speicalLuckyPerc = ((float)speicalLucky / (float)Data.Items.Count) * 100f;
+            float specialDoubleBowShotPerc = ((float)specialDoubleBowShot / (float)Data.Items.Count) * 100f;
+
+            if (special == 0)
                 return "-";
-            return String.Format("{0:0.0}%L - {1:0.0}%F - {2:0.0}%M", lCritPerc, fCritPerc, mCritPerc);
+
+            return $"{specialCripplingBlowPerc:0.0}%CB - {specialLockedPerc:0.0}%Locked - {specialCriticalPerc:0.0}%C - {specialStrikethroughPerc:0.0}%S - {specialRipostePerc:0.0}%R - {specialNonDefinedPerc:0.0}%ND - {specialFlurryPerc:0.0}%F - {speicalLuckyPerc:0.0}%Lucky - {specialDoubleBowShotPerc:0.0}%DB";
         }
 
         private Color GetSwingTypeColor(int SwingType)
