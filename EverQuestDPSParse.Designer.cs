@@ -70,7 +70,7 @@ namespace ACT_Plugin {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to (?&lt;attacker&gt;(You|.+)) is (?&lt;damageShieldDamageType&gt;\S+) by (?&lt;victim&gt;(YOUR|.+)) (?&lt;damageShieldType&gt;\S+) for (?&lt;damagePoints&gt;[\d]+) points of non-melee damage..
+        ///   Looks up a localized string similar to (?&lt;victim&gt;(You|.+)) is (?&lt;damageShieldDamageType&gt;\S+) by (?&lt;attacker&gt;(YOUR|.+)) (?&lt;damageShieldType&gt;\S+) for (?&lt;damagePoints&gt;[\d]+) points of non-melee damage..
         /// </summary>
         internal static string DamageShield {
             get {
