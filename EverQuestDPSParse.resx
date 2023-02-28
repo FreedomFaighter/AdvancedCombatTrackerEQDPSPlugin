@@ -121,7 +121,7 @@
     <value>pierce|gore|crush|slash|hit|kick|slam|bash|shoot|strike|bite</value>
   </data>
   <data name="DamageShield" xml:space="preserve">
-    <value>(?&lt;attacker&gt;(You|.+)) is (?&lt;damageShieldDamageType&gt;\S+) by (?&lt;victim&gt;(YOUR|.+)) (?&lt;damageShieldType&gt;\S+) for (?&lt;damagePoints&gt;[\d]+) points of non-melee damage.</value>
+    <value>(?&lt;victim&gt;(You|.+)) is (?&lt;damageShieldDamageType&gt;\S+) by (?&lt;attacker&gt;(YOUR|.+)) (?&lt;damageShieldType&gt;\S+) for (?&lt;damagePoints&gt;[\d]+) points of non-melee damage.</value>
   </data>
   <data name="Healing" xml:space="preserve">
     <value>(?&lt;healer&gt;.+) healed (?&lt;healingTarget&gt;.+) over time for (?&lt;healingPoints&gt;[\d]+) ((?&lt;overHealPoints&gt;[\d]+)) hit points by (&lt;healingSpell&gt;.+).(?:\((?&lt;healingSpecial&gt;.+)\)){0,1}</value>
