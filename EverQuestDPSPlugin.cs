@@ -196,7 +196,6 @@ namespace ACT_Plugin
             ActGlobals.oFormEncounterLogs.LogTypeToColorMapping.Add(regexTupleList.Count - 1, regexTupleList[regexTupleList.Count - 1].Item1);
             regexTupleList.Add(new Tuple<Color, Regex>(Color.Red, new Regex($@"{EverQuestDPSParse.TimeStamp} {EverQuestDPSParse.DamageShield}", RegexOptions.Compiled)));
             ActGlobals.oFormEncounterLogs.LogTypeToColorMapping.Add(regexTupleList.Count - 1, regexTupleList[regexTupleList.Count - 1].Item1);
-            //String missedMelee = @"(?<attacker>.+) (?:(tr(ies|y))) to (?<attackType>(" + attackTypes + @")+) (?<victim>.+), but (?:miss(|es))!";
             regexTupleList.Add(new Tuple<Color, Regex>(Color.Gray, new Regex($@"{EverQuestDPSParse.TimeStamp} (?<attacker>.+) (?:(tr(ies|y))) to (?<attackType>(" + EverQuestDPSParse.attackTypes + @")+) (?<victim>.+), but (?:miss(|es))!", RegexOptions.Compiled)));
             ActGlobals.oFormEncounterLogs.LogTypeToColorMapping.Add(regexTupleList.Count - 1, regexTupleList[regexTupleList.Count - 1].Item1);
             regexTupleList.Add(new Tuple<Color, Regex>(Color.Goldenrod, new Regex($@"{EverQuestDPSParse.TimeStamp} {EverQuestDPSParse.SlainMessage}", RegexOptions.Compiled)));
