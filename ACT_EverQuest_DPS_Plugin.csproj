@@ -78,5 +78,11 @@
       <Generator>ResXFileCodeGenerator</Generator>
       <LastGenOutput>EverQuestDPSParse.Designer.cs</LastGenOutput>
     </EmbeddedResource>
+    <EmbeddedResource Include="EverQuestDPSPlugin.resx">
+      <DependentUpon>EverQuestDPSPlugin.cs</DependentUpon>
+    </EmbeddedResource>
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="Source\" />
   </ItemGroup>
 </Project>

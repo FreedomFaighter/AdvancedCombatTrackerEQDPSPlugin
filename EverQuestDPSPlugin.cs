@@ -69,6 +69,69 @@ namespace ACT_Plugin
             this.cbIncludeInterceptFocus = new System.Windows.Forms.CheckBox();
             this.SuspendLayout();
             // 
+            // cbMultiDamageIsOne
+            // 
+            this.cbMultiDamageIsOne.Location = new System.Drawing.Point(0, 0);
+            this.cbMultiDamageIsOne.Name = "cbMultiDamageIsOne";
+            this.cbMultiDamageIsOne.Size = new System.Drawing.Size(104, 24);
+            this.cbMultiDamageIsOne.TabIndex = 17;
+            // 
+            // cbRecalcWardedHits
+            // 
+            this.cbRecalcWardedHits.Location = new System.Drawing.Point(0, 0);
+            this.cbRecalcWardedHits.Name = "cbRecalcWardedHits";
+            this.cbRecalcWardedHits.Size = new System.Drawing.Size(104, 24);
+            this.cbRecalcWardedHits.TabIndex = 18;
+            // 
+            // tbFixAncestralSentry
+            // 
+            this.tbFixAncestralSentry.Location = new System.Drawing.Point(0, 0);
+            this.tbFixAncestralSentry.Name = "tbFixAncestralSentry";
+            this.tbFixAncestralSentry.Size = new System.Drawing.Size(100, 20);
+            this.tbFixAncestralSentry.TabIndex = 15;
+            // 
+            // lblAncestralSentry
+            // 
+            this.lblAncestralSentry.Location = new System.Drawing.Point(0, 0);
+            this.lblAncestralSentry.Name = "lblAncestralSentry";
+            this.lblAncestralSentry.Size = new System.Drawing.Size(100, 23);
+            this.lblAncestralSentry.TabIndex = 16;
+            // 
+            // btnAposNameRemove
+            // 
+            this.btnAposNameRemove.Location = new System.Drawing.Point(222, 58);
+            this.btnAposNameRemove.Name = "btnAposNameRemove";
+            this.btnAposNameRemove.Size = new System.Drawing.Size(75, 23);
+            this.btnAposNameRemove.TabIndex = 1;
+            // 
+            // btnAposNameAdd
+            // 
+            this.btnAposNameAdd.Location = new System.Drawing.Point(327, 30);
+            this.btnAposNameAdd.Name = "btnAposNameAdd";
+            this.btnAposNameAdd.Size = new System.Drawing.Size(75, 23);
+            this.btnAposNameAdd.TabIndex = 2;
+            // 
+            // tbAposNameR
+            // 
+            this.tbAposNameR.Location = new System.Drawing.Point(231, 4);
+            this.tbAposNameR.Name = "tbAposNameR";
+            this.tbAposNameR.Size = new System.Drawing.Size(100, 20);
+            this.tbAposNameR.TabIndex = 3;
+            // 
+            // tbAposNameL
+            // 
+            this.tbAposNameL.Location = new System.Drawing.Point(52, 115);
+            this.tbAposNameL.Name = "tbAposNameL";
+            this.tbAposNameL.Size = new System.Drawing.Size(100, 20);
+            this.tbAposNameL.TabIndex = 4;
+            // 
+            // tbAposName
+            // 
+            this.tbAposName.Location = new System.Drawing.Point(152, 33);
+            this.tbAposName.Name = "tbAposName";
+            this.tbAposName.Size = new System.Drawing.Size(100, 20);
+            this.tbAposName.TabIndex = 5;
+            // 
             // label16
             // 
             this.label16.AutoSize = true;
@@ -77,6 +140,27 @@ namespace ACT_Plugin
             this.label16.Size = new System.Drawing.Size(142, 13);
             this.label16.TabIndex = 13;
             this.label16.Text = "Apostrophe name to be fixed";
+            // 
+            // clbAposName
+            // 
+            this.clbAposName.Location = new System.Drawing.Point(0, 0);
+            this.clbAposName.Name = "clbAposName";
+            this.clbAposName.Size = new System.Drawing.Size(120, 94);
+            this.clbAposName.TabIndex = 14;
+            // 
+            // cbSParseConsider
+            // 
+            this.cbSParseConsider.Location = new System.Drawing.Point(0, 0);
+            this.cbSParseConsider.Name = "cbSParseConsider";
+            this.cbSParseConsider.Size = new System.Drawing.Size(104, 24);
+            this.cbSParseConsider.TabIndex = 19;
+            // 
+            // cbIncludeInterceptFocus
+            // 
+            this.cbIncludeInterceptFocus.Location = new System.Drawing.Point(177, 117);
+            this.cbIncludeInterceptFocus.Name = "cbIncludeInterceptFocus";
+            this.cbIncludeInterceptFocus.Size = new System.Drawing.Size(104, 24);
+            this.cbIncludeInterceptFocus.TabIndex = 0;
             // 
             // ACT_English_Parser
             // 
@@ -98,7 +182,7 @@ namespace ACT_Plugin
             this.Controls.Add(this.cbRecalcWardedHits);
             this.Controls.Add(this.cbSParseConsider);
             this.Name = "ACT_English_Parser";
-            this.Size = new System.Drawing.Size(688, 241);
+            this.Size = new System.Drawing.Size(432, 144);
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -1079,7 +1163,7 @@ namespace ACT_Plugin
             CombatantData.ColumnDefs.Add("CritDam%", new CombatantData.ColumnDef("CritDam%", false, "VARCHAR(8)", "CritDamPerc", (Data) => { return Data.CritDamPerc.ToString("0'%"); }, (Data) => { return Data.CritDamPerc.ToString("0'%"); }, (Left, Right) => { return Left.CritDamPerc.CompareTo(Right.CritDamPerc); }));
             CombatantData.ColumnDefs.Add("CritHeal%", new CombatantData.ColumnDef("CritHeal%", false, "VARCHAR(8)", "CritHealPerc", (Data) => { return Data.CritHealPerc.ToString("0'%"); }, (Data) => { return Data.CritHealPerc.ToString("0'%"); }, (Left, Right) => { return Left.CritHealPerc.CompareTo(Right.CritHealPerc); }));
 
-            CombatantData.ColumnDefs.Add("CritTypes", new CombatantData.ColumnDef("CritTypes", true, "VARCHAR(32)", "CritTypes", CombatantDataGetCritTypes, CombatantDataGetCritTypes, (Left, Right) => { return CombatantDataGetCritTypes(Left).CompareTo(CombatantDataGetCritTypes(Right)); }));
+            CombatantData.ColumnDefs.Add("Specials", new CombatantData.ColumnDef("Specials", true, "VARCHAR(32)", "Specials", CombatantDataGetCritTypes, CombatantDataGetCritTypes, (Left, Right) => { return CombatantDataGetCritTypes(Left).CompareTo(CombatantDataGetCritTypes(Right)); }));
 
             CombatantData.ColumnDefs["Damage"].GetCellForeColor = (Data) => { return Color.DarkRed; };
             CombatantData.ColumnDefs["Damage%"].GetCellForeColor = (Data) => { return Color.DarkRed; };
@@ -1258,7 +1342,7 @@ namespace ACT_Plugin
             DamageTypeData.ColumnDefs.Add("ToHit", new DamageTypeData.ColumnDef("ToHit", false, "FLOAT", "ToHit", (Data) => { return Data.ToHit.ToString(GetFloatCommas()); }, (Data) => { return Data.ToHit.ToString(); }));
             DamageTypeData.ColumnDefs.Add("AvgDelay", new DamageTypeData.ColumnDef("AvgDelay", false, "FLOAT", "AverageDelay", (Data) => { return Data.AverageDelay.ToString(GetFloatCommas()); }, (Data) => { return Data.AverageDelay.ToString(usCulture); }));
             DamageTypeData.ColumnDefs.Add("Crit%", new DamageTypeData.ColumnDef("Crit%", false, "VARCHAR(8)", "CritPerc", (Data) => { return Data.CritPerc.ToString("0'%"); }, (Data) => { return Data.CritPerc.ToString("0'%"); }));
-            DamageTypeData.ColumnDefs.Add("CritTypes", new DamageTypeData.ColumnDef("CritTypes", true, "VARCHAR(32)", "CritTypes", DamageTypeDataGetCritTypes, DamageTypeDataGetCritTypes));
+            DamageTypeData.ColumnDefs.Add("Specials", new DamageTypeData.ColumnDef("Specials", true, "VARCHAR(32)", "Specials", DamageTypeDataGetCritTypes, DamageTypeDataGetCritTypes));
 
 
             AttackType.ColumnDefs.Clear();
@@ -1286,7 +1370,7 @@ namespace ACT_Plugin
             AttackType.ColumnDefs.Add("Swings", new AttackType.ColumnDef("Swings", true, "INT", "Swings", (Data) => { return Data.Swings.ToString(GetIntCommas()); }, (Data) => { return Data.Swings.ToString(); }, (Left, Right) => { return Left.Swings.CompareTo(Right.Swings); }));
             AttackType.ColumnDefs.Add("ToHit", new AttackType.ColumnDef("ToHit", true, "FLOAT", "ToHit", (Data) => { return Data.ToHit.ToString(GetFloatCommas()); }, (Data) => { return Data.ToHit.ToString(usCulture); }, (Left, Right) => { return Left.ToHit.CompareTo(Right.ToHit); }));
             AttackType.ColumnDefs.Add("AvgDelay", new AttackType.ColumnDef("AvgDelay", false, "FLOAT", "AverageDelay", (Data) => { return Data.AverageDelay.ToString(GetFloatCommas()); }, (Data) => { return Data.AverageDelay.ToString(usCulture); }, (Left, Right) => { return Left.AverageDelay.CompareTo(Right.AverageDelay); }));
-            AttackType.ColumnDefs.Add("CritTypes", new AttackType.ColumnDef("Attack Modifiers", true, "VARCHAR(32)", "CritTypes", AttackTypeGetCritTypes, AttackTypeGetCritTypes, (Left, Right) => { return AttackTypeGetCritTypes(Left).CompareTo(AttackTypeGetCritTypes(Right)); }));
+            AttackType.ColumnDefs.Add("Specials", new AttackType.ColumnDef("Specials", true, "VARCHAR(32)", "Specials", AttackTypeGetCritTypes, AttackTypeGetCritTypes, (Left, Right) => { return AttackTypeGetCritTypes(Left).CompareTo(AttackTypeGetCritTypes(Right)); }));
 
             MasterSwing.ColumnDefs.Clear();
             MasterSwing.ColumnDefs.Add("EncId", new MasterSwing.ColumnDef("EncId", false, "CHAR(8)", "EncId", (Data) => { return string.Empty; }, (Data) => { return Data.ParentEncounter.EncId; }, (Left, Right) => { return 0; }));
