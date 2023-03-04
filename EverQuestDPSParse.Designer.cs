@@ -79,11 +79,11 @@ namespace ACT_Plugin {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to (?&lt;healer&gt;.+) healed (?&lt;healingTarget&gt;.+) over time for (?&lt;healingPoints&gt;[\d]+) ((?&lt;overHealPoints&gt;[\d]+)) hit points by (&lt;healingSpell&gt;.+).(?:\((?&lt;healingSpecial&gt;.+)\)){0,1}.
+        ///   Looks up a localized string similar to (?&lt;healer&gt;.+) healed (?&lt;healingTarget&gt;.+) over time for (?&lt;healingPoints&gt;[\d]+) (?:[\s\(](?&lt;overHealPoints&gt;[\d]+)[\)]){0,1} hit points by (?&lt;healingSpell&gt;.*\.)(?:[\s][\(](?&lt;healingSpecial&gt;.+)[\)]){0,1}.
         /// </summary>
-        internal static string Healing {
+        internal static string HealingOverTime {
             get {
-                return ResourceManager.GetString("Healing", resourceCulture);
+                return ResourceManager.GetString("HealingOverTime", resourceCulture);
             }
         }
         
