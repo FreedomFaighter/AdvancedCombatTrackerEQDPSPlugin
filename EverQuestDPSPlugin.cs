@@ -19,7 +19,7 @@ using System.Xml;
 [assembly: AssemblyTitle("ACT EverQuest Damage Per Second Parsing")]
 [assembly: AssemblyDescription("Worked based on EQAditu's EQ2 English DPS Parser, Plugin for ACT EverQuest Damage Per Second Parsing")]
 [assembly: AssemblyCompany("Egot")]
-[assembly: AssemblyVersion("0.0.0.1")]
+[assembly: AssemblyVersion("0.0.0.2")]
 [assembly: AssemblyCopyright("2023")]
 
 namespace ACT_Plugin
@@ -428,9 +428,11 @@ namespace ACT_Plugin
                         );
                     }
                     break;
+                //Zone change
                 case 7:
                     ActGlobals.oFormActMain.ChangeZone(reMatch.Groups["zoneInfo"].Value);
                     break;
+                //Instant heals
                 case 8:
                     if (ActGlobals.oFormActMain.InCombat)
                     {
@@ -885,10 +887,6 @@ namespace ACT_Plugin
             EncounterData.ExportVariables.Add("damagetaken-*", new EncounterData.TextExportFormatter("damagetaken-*", "Damage Received w/suffix", "Damage Received divided by 1/K/M/B/T/Q", (Data, SelectiveAllies, Extra) => { return EncounterFormatSwitch(Data, SelectiveAllies, "damagetaken-*", Extra); }));
             EncounterData.ExportVariables.Add("healstaken", new EncounterData.TextExportFormatter("healstaken", "Healing Received", "The total amount of healing this combatant received.", (Data, SelectiveAllies, Extra) => { return EncounterFormatSwitch(Data, SelectiveAllies, "healstaken", Extra); }));
             EncounterData.ExportVariables.Add("healstaken-*", new EncounterData.TextExportFormatter("healstaken-*", "Healing Received w/suffix", "Healing Received divided by 1/K/M/B/T/Q", (Data, SelectiveAllies, Extra) => { return EncounterFormatSwitch(Data, SelectiveAllies, "healstaken-*", Extra); }));
-            EncounterData.ExportVariables.Add("powerdrain", new EncounterData.TextExportFormatter("powerdrain", "Power Drain", "The amount of power this combatant drained from others.", (Data, SelectiveAllies, Extra) => { return EncounterFormatSwitch(Data, SelectiveAllies, "powerdrain", Extra); }));
-            EncounterData.ExportVariables.Add("powerdrain-*", new EncounterData.TextExportFormatter("powerdrain-*", "Power Drain w/suffix", "Power Drain divided by 1/K/M/B/T/Q", (Data, SelectiveAllies, Extra) => { return EncounterFormatSwitch(Data, SelectiveAllies, "powerdrain-*", Extra); }));
-            EncounterData.ExportVariables.Add("powerheal", new EncounterData.TextExportFormatter("powerheal", "Power Replenish", "The amount of power this combatant replenished to others.", (Data, SelectiveAllies, Extra) => { return EncounterFormatSwitch(Data, SelectiveAllies, "powerheal", Extra); }));
-            EncounterData.ExportVariables.Add("powerheal-*", new EncounterData.TextExportFormatter("powerheal-*", "Power Replenish w/suffix", "Power Replenish divided by 1/K/M/B/T/Q", (Data, SelectiveAllies, Extra) => { return EncounterFormatSwitch(Data, SelectiveAllies, "powerheal-*", Extra); }));
             EncounterData.ExportVariables.Add("kills", new EncounterData.TextExportFormatter("kills", "Killing Blows", "The total number of times this character landed a killing blow.", (Data, SelectiveAllies, Extra) => { return EncounterFormatSwitch(Data, SelectiveAllies, "kills", Extra); }));
             EncounterData.ExportVariables.Add("deaths", new EncounterData.TextExportFormatter("deaths", "Deaths", "The total number of times this character was killed by another.", (Data, SelectiveAllies, Extra) => { return EncounterFormatSwitch(Data, SelectiveAllies, "deaths", Extra); }));
 
@@ -930,7 +928,6 @@ namespace ACT_Plugin
             CombatantData.ColumnDefs["Damage%"].GetCellForeColor = (Data) => { return Color.DarkRed; };
             CombatantData.ColumnDefs["Healed"].GetCellForeColor = (Data) => { return Color.DarkBlue; };
             CombatantData.ColumnDefs["Healed%"].GetCellForeColor = (Data) => { return Color.DarkBlue; };
-            CombatantData.ColumnDefs["PowerDrain"].GetCellForeColor = (Data) => { return Color.DarkMagenta; };
             CombatantData.ColumnDefs["DPS"].GetCellForeColor = (Data) => { return Color.DarkRed; };
             CombatantData.ColumnDefs["EncDPS"].GetCellForeColor = (Data) => { return Color.DarkRed; };
             CombatantData.ColumnDefs["EncHPS"].GetCellForeColor = (Data) => { return Color.DarkBlue; };
@@ -942,20 +939,14 @@ namespace ACT_Plugin
             {"Skill/Ability (Out)", new CombatantData.DamageTypeDef("Skill/Ability (Out)", -1, Color.DarkOrange)},
             {"Outgoing Damage", new CombatantData.DamageTypeDef("Outgoing Damage", 0, Color.Orange)},
             {"Healed (Out)", new CombatantData.DamageTypeDef("Healed (Out)", 1, Color.Blue)},
-            {"Power Drain (Out)", new CombatantData.DamageTypeDef("Power Drain (Out)", -1, Color.Purple)},
-            {"Power Replenish (Out)", new CombatantData.DamageTypeDef("Power Replenish (Out)", 1, Color.Violet)},
             {"Cure/Dispel (Out)", new CombatantData.DamageTypeDef("Cure/Dispel (Out)", 0, Color.Wheat)},
-            {"Threat (Out)", new CombatantData.DamageTypeDef("Threat (Out)", -1, Color.Yellow)},
             {"All Outgoing (Ref)", new CombatantData.DamageTypeDef("All Outgoing (Ref)", 0, Color.Black)}
         };
             CombatantData.IncomingDamageTypeDataObjects = new Dictionary<string, CombatantData.DamageTypeDef>
         {
             {"Incoming Damage", new CombatantData.DamageTypeDef("Incoming Damage", -1, Color.Red)},
             {"Healed (Inc)",new CombatantData.DamageTypeDef("Healed (Inc)", 1, Color.LimeGreen)},
-            {"Power Drain (Inc)",new CombatantData.DamageTypeDef("Power Drain (Inc)", -1, Color.Magenta)},
-            {"Power Replenish (Inc)",new CombatantData.DamageTypeDef("Power Replenish (Inc)", 1, Color.MediumPurple)},
             {"Cure/Dispel (Inc)", new CombatantData.DamageTypeDef("Cure/Dispel (Inc)", 0, Color.Wheat)},
-            {"Threat (Inc)",new CombatantData.DamageTypeDef("Threat (Inc)", -1, Color.Yellow)},
             {"All Incoming (Ref)",new CombatantData.DamageTypeDef("All Incoming (Ref)", 0, Color.Black)}
         };
             CombatantData.SwingTypeToDamageTypeDataLinksOutgoing = new SortedDictionary<int, List<string>>
@@ -963,20 +954,13 @@ namespace ACT_Plugin
             {1, new List<string> { "Auto-Attack (Out)", "Outgoing Damage" } },
             {2, new List<string> { "Skill/Ability (Out)", "Outgoing Damage" } },
             {3, new List<string> { "Healed (Out)" } },
-            {10, new List<string> { "Power Drain (Out)" } },
-            {13, new List<string> { "Power Replenish (Out)" } },
             {20, new List<string> { "Cure/Dispel (Out)" } },
-            {16, new List<string> { "Threat (Out)" } }
         };
             CombatantData.SwingTypeToDamageTypeDataLinksIncoming = new SortedDictionary<int, List<string>>
         {
             {1, new List<string> { "Incoming Damage" } },
             {2, new List<string> { "Incoming Damage" } },
-            {3, new List<string> { "Healed (Inc)" } },
-            {10, new List<string> { "Power Drain (Inc)" } },
-            {13, new List<string> { "Power Replenish (Inc)" } },
-            {20, new List<string> { "Cure/Dispel (Inc)" } },
-            {16, new List<string> { "Threat (Inc)" } }
+            {3, new List<string> { "Healed (Inc)" } }
         };
 
             CombatantData.DamageSwingTypes = new List<int> { 1, 2 };
@@ -987,9 +971,6 @@ namespace ACT_Plugin
             CombatantData.DamageTypeDataOutgoingHealing = "Healed (Out)";
             CombatantData.DamageTypeDataIncomingDamage = "Incoming Damage";
             CombatantData.DamageTypeDataIncomingHealing = "Healed (Inc)";
-            CombatantData.DamageTypeDataOutgoingPowerReplenish = "Power Replenish (Out)";
-            CombatantData.DamageTypeDataOutgoingPowerDamage = "Power Drain (Out)";
-            CombatantData.DamageTypeDataOutgoingCures = "Cure/Dispel (Out)";
 
             CombatantData.ExportVariables.Clear();
             CombatantData.ExportVariables.Add("n", new CombatantData.TextExportFormatter("n", "New Line", "Formatting after this element will appear on a new line.", (Data, Extra) => { return "\n"; }));
@@ -1056,14 +1037,8 @@ namespace ACT_Plugin
             CombatantData.ExportVariables.Add("damagetaken-*", new CombatantData.TextExportFormatter("damagetaken-*", "Damage Received w/suffix", "Damage Received divided by 1/K/M/B/T/Q", (Data, Extra) => { return CombatantFormatSwitch(Data, "damagetaken-*", Extra); }));
             CombatantData.ExportVariables.Add("healstaken", new CombatantData.TextExportFormatter("healstaken", "Healing Received", "The total amount of healing this combatant received.", (Data, Extra) => { return CombatantFormatSwitch(Data, "healstaken", Extra); }));
             CombatantData.ExportVariables.Add("healstaken-*", new CombatantData.TextExportFormatter("healstaken-*", "Healing Received w/suffix", "Healing Received divided by 1/K/M/B/T/Q", (Data, Extra) => { return CombatantFormatSwitch(Data, "healstaken-*", Extra); }));
-            CombatantData.ExportVariables.Add("powerdrain", new CombatantData.TextExportFormatter("powerdrain", "Power Drain", "The amount of power this combatant drained from others.", (Data, Extra) => { return CombatantFormatSwitch(Data, "powerdrain", Extra); }));
-            CombatantData.ExportVariables.Add("powerdrain-*", new CombatantData.TextExportFormatter("powerdrain-*", "Power Drain w/suffix", "Power Drain divided by 1/K/M/B/T/Q", (Data, Extra) => { return CombatantFormatSwitch(Data, "powerdrain-*", Extra); }));
-            CombatantData.ExportVariables.Add("powerheal", new CombatantData.TextExportFormatter("powerheal", "Power Replenish", "The amount of power this combatant replenished to others.", (Data, Extra) => { return CombatantFormatSwitch(Data, "powerheal", Extra); }));
-            CombatantData.ExportVariables.Add("powerheal-*", new CombatantData.TextExportFormatter("powerheal-*", "Power Replenish w/suffix", "Power Replenish divided by 1/K/M/B/T/Q", (Data, Extra) => { return CombatantFormatSwitch(Data, "powerheal-*", Extra); }));
             CombatantData.ExportVariables.Add("kills", new CombatantData.TextExportFormatter("kills", "Killing Blows", "The total number of times this character landed a killing blow.", (Data, Extra) => { return CombatantFormatSwitch(Data, "kills", Extra); }));
             CombatantData.ExportVariables.Add("deaths", new CombatantData.TextExportFormatter("deaths", "Deaths", "The total number of times this character was killed by another.", (Data, Extra) => { return CombatantFormatSwitch(Data, "deaths", Extra); }));
-            CombatantData.ExportVariables.Add("threatstr", new CombatantData.TextExportFormatter("threatstr", "Threat Increase/Decrease", "The amount of direct threat output that was increased/decreased.", (Data, Extra) => { return CombatantFormatSwitch(Data, "threatstr", Extra); }));
-            CombatantData.ExportVariables.Add("threatdelta", new CombatantData.TextExportFormatter("threatdelta", "Threat Delta", "The amount of direct threat output relative to zero.", (Data, Extra) => { return CombatantFormatSwitch(Data, "threatdelta", Extra); }));
             CombatantData.ExportVariables.Add("NAME3", new CombatantData.TextExportFormatter("NAME3", "Name (3 chars)", "The combatant's name, up to 3 characters will be displayed.", (Data, Extra) => { return CombatantFormatSwitch(Data, "NAME3", Extra); }));
             CombatantData.ExportVariables.Add("NAME4", new CombatantData.TextExportFormatter("NAME4", "Name (4 chars)", "The combatant's name, up to 4 characters will be displayed.", (Data, Extra) => { return CombatantFormatSwitch(Data, "NAME4", Extra); }));
             CombatantData.ExportVariables.Add("NAME5", new CombatantData.TextExportFormatter("NAME5", "Name (5 chars)", "The combatant's name, up to 5 characters will be displayed.", (Data, Extra) => { return CombatantFormatSwitch(Data, "NAME5", Extra); }));
@@ -1311,8 +1286,6 @@ namespace ACT_Plugin
             double hps = 0;
             long healstaken = 0;
             long damagetaken = 0;
-            long powerdrain = 0;
-            long powerheal = 0;
             int kills = 0;
             int deaths = 0;
 
@@ -1586,22 +1559,6 @@ namespace ACT_Plugin
                     foreach (CombatantData cd in SelectiveAllies)
                         damagetaken += cd.DamageTaken;
                     return ActGlobals.oFormActMain.CreateDamageString(damagetaken, true, true);
-                case "powerdrain":
-                    foreach (CombatantData cd in SelectiveAllies)
-                        powerdrain += cd.PowerDamage;
-                    return powerdrain.ToString();
-                case "powerdrain-*":
-                    foreach (CombatantData cd in SelectiveAllies)
-                        powerdrain += cd.PowerDamage;
-                    return ActGlobals.oFormActMain.CreateDamageString(powerdrain, true, true);
-                case "powerheal":
-                    foreach (CombatantData cd in SelectiveAllies)
-                        powerheal += cd.PowerReplenish;
-                    return powerheal.ToString();
-                case "powerheal-*":
-                    foreach (CombatantData cd in SelectiveAllies)
-                        powerheal += cd.PowerReplenish;
-                    return ActGlobals.oFormActMain.CreateDamageString(powerheal, true, true);
                 case "kills":
                     foreach (CombatantData cd in SelectiveAllies)
                         kills += cd.Kills;
@@ -1796,14 +1753,6 @@ namespace ACT_Plugin
                     return Data.DamageTaken.ToString();
                 case "damagetaken-*":
                     return ActGlobals.oFormActMain.CreateDamageString((long)Data.DamageTaken, true, true);
-                case "powerdrain":
-                    return Data.PowerDamage.ToString();
-                case "powerdrain-*":
-                    return ActGlobals.oFormActMain.CreateDamageString((long)Data.PowerDamage, true, true);
-                case "powerheal":
-                    return Data.PowerReplenish.ToString();
-                case "powerheal-*":
-                    return ActGlobals.oFormActMain.CreateDamageString((long)Data.PowerReplenish, true, true);
                 case "kills":
                     return Data.Kills.ToString();
                 case "deaths":
@@ -1812,10 +1761,6 @@ namespace ACT_Plugin
                     return Data.DamagePercent;
                 case "healed%":
                     return Data.HealedPercent;
-                case "threatstr":
-                    return Data.GetThreatStr("Threat (Out)");
-                case "threatdelta":
-                    return Data.GetThreatDelta("Threat (Out)").ToString();
                 case "n":
                     return "\n";
                 case "t":
