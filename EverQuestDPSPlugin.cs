@@ -408,19 +408,21 @@ namespace ACT_Plugin
                         }
                     }
                     break;
+                //Instant heal
                 case 5:
                     if (ActGlobals.oFormActMain.InCombat)
                     {
+                        String healer = EnglishPersonaReplace(reMatch.Groups["healer"].Value);
                         ActGlobals.oFormActMain.AddCombatAction((int)SwingTypeEnum.Healing
                         , reMatch.Groups["healingSpecial"].Value.Contains("Critical")
                         , reMatch.Groups["healingSpecial"].Value
-                        , EnglishPersonaReplace(reMatch.Groups["healer"].Value)
-                        , reMatch.Groups["healingSpecial"].Value
+                        , healer
+                        , string.Empty
                         , new Dnum(Int64.Parse(reMatch.Groups["healingPoints"].Value), reMatch.Groups["overHealPoints"].Value)
                         , GetDateTimeFromGroupMatch(reMatch.Groups["dateTimeOfLogLine"].Value)
                         , gts
-                        , EnglishPersonaReplace(reMatch.Groups["healingTarget"].Value)
-                        , String.Empty
+                        , reMatch.Groups["healingTarget"].Value.Contains("self") ? healer : EnglishPersonaReplace(reMatch.Groups["healingTarget"].Value)
+                        , EverQuestDPSParse.HitpointsHeal
                         );
                     }
                     break;

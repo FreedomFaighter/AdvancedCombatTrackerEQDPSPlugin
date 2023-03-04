@@ -88,6 +88,15 @@ namespace ACT_Plugin {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Hit Points Healing.
+        /// </summary>
+        internal static string HitpointsHeal {
+            get {
+                return ResourceManager.GetString("HitpointsHeal", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to (?&lt;attacker&gt;(You|.+)) (?&lt;attackType&gt;({0})+) (?&lt;victim&gt;.+) for (?&lt;damageAmount&gt;[\d]+) (point[|s]) of damage.(?:\s\((?&lt;damageSpecial&gt;.+)\)){0,1}.
         /// </summary>
         internal static string MeleeAttack {

@@ -126,6 +126,9 @@
   <data name="Healing" xml:space="preserve">
     <value>(?&lt;healer&gt;.+) healed (?&lt;healingTarget&gt;.+) over time for (?&lt;healingPoints&gt;[\d]+) ((?&lt;overHealPoints&gt;[\d]+)) hit points by (&lt;healingSpell&gt;.+).(?:\((?&lt;healingSpecial&gt;.+)\)){0,1}</value>
   </data>
+  <data name="HitpointsHeal" xml:space="preserve">
+    <value>Hit Points Healing</value>
+  </data>
   <data name="MeleeAttack" xml:space="preserve">
     <value>(?&lt;attacker&gt;(You|.+)) (?&lt;attackType&gt;({0})+) (?&lt;victim&gt;.+) for (?&lt;damageAmount&gt;[\d]+) (point[|s]) of damage.(?:\s\((?&lt;damageSpecial&gt;.+)\)){0,1}</value>
   </data>
