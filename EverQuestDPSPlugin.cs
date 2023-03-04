@@ -291,7 +291,7 @@ namespace ACT_Plugin
             ActGlobals.oFormEncounterLogs.LogTypeToColorMapping.Add(regexTupleList.Count - 1, regexTupleList[regexTupleList.Count - 1].Item1);
             regexTupleList.Add(new Tuple<Color, Regex>(Color.DarkBlue, new Regex($@"{EverQuestDPSParse.TimeStamp} You have entered (?!the Drunken Monkey stance adequately)(?<zoneInfo>.+).", RegexOptions.Compiled)));
             ActGlobals.oFormEncounterLogs.LogTypeToColorMapping.Add(regexTupleList.Count - 1, regexTupleList[regexTupleList.Count - 1].Item1);
-            regexTupleList.Add(new Tuple<Color, Regex>(Color.BlueViolet, new Regex($@"{EverQuestDPSParse.TimeStamp} {}", RegexOptions.Compiled)));
+            regexTupleList.Add(new Tuple<Color, Regex>(Color.BlueViolet, new Regex($@"{EverQuestDPSParse.TimeStamp} {EverQuestDPSParse.InstantHeal}", RegexOptions.Compiled)));
             ActGlobals.oFormEncounterLogs.LogTypeToColorMapping.Add(regexTupleList.Count - 1, regexTupleList[regexTupleList.Count - 1].Item1);
         }
 
@@ -419,17 +419,34 @@ namespace ACT_Plugin
                         , reMatch.Groups["healingSpecial"].Value.Contains("Critical")
                         , reMatch.Groups["healingSpecial"].Value
                         , healer
-                        , string.Empty
+                        , reMatch.Groups["healingSpell"].Value
                         , new Dnum(Int64.Parse(reMatch.Groups["healingPoints"].Value), reMatch.Groups["overHealPoints"].Value)
                         , GetDateTimeFromGroupMatch(reMatch.Groups["dateTimeOfLogLine"].Value)
                         , gts
                         , reMatch.Groups["healingTarget"].Value.Contains("self") ? healer : EnglishPersonaReplace(reMatch.Groups["healingTarget"].Value)
-                        , EverQuestDPSParse.HitpointsHeal
+                        , EverQuestDPSParse.HitpointsHealingOverTime
                         );
                     }
                     break;
                 case 7:
                     ActGlobals.oFormActMain.ChangeZone(reMatch.Groups["zoneInfo"].Value);
+                    break;
+                case 8:
+                    if (ActGlobals.oFormActMain.InCombat)
+                    {
+                        String healer = EnglishPersonaReplace(reMatch.Groups["healer"].Value);
+                        ActGlobals.oFormActMain.AddCombatAction((int)SwingTypeEnum.Healing
+                        , reMatch.Groups["healingSpecial"].Value.Contains("Critical")
+                        , reMatch.Groups["healingSpecial"].Value
+                        , healer
+                        , reMatch.Groups["healingSpell"].Value
+                        , new Dnum(Int64.Parse(reMatch.Groups["healingPoints"].Value), reMatch.Groups["overHealPoints"].Value)
+                        , GetDateTimeFromGroupMatch(reMatch.Groups["dateTimeOfLogLine"].Value)
+                        , gts
+                        , reMatch.Groups["healingTarget"].Value.Contains("self") ? healer : EnglishPersonaReplace(reMatch.Groups["healingTarget"].Value)
+                        , EverQuestDPSParse.InstantHeal
+                        );
+                    }
                     break;
                 default:
                     break;

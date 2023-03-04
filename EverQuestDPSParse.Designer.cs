@@ -79,7 +79,7 @@ namespace ACT_Plugin {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to (?&lt;healer&gt;.+) healed (?&lt;healingTarget&gt;.+) over time for (?&lt;healingPoints&gt;[\d]+) (?:[\s\(](?&lt;overHealPoints&gt;[\d]+)[\)]){0,1} hit points by (?&lt;healingSpell&gt;.*\.)(?:[\s][\(](?&lt;healingSpecial&gt;.+)[\)]){0,1}.
+        ///   Looks up a localized string similar to (?&lt;healer&gt;.+) healed (?&lt;healingTarget&gt;.+) over time for (?&lt;healingPoints&gt;[\d]+)(?:[\s\(](?&lt;overHealPoints&gt;[\d]+)[\)]){0,1} hit points by (?&lt;healingSpell&gt;.*\.)(?:[\s][\(](?&lt;healingSpecial&gt;.+)[\)]){0,1}.
         /// </summary>
         internal static string HealingOverTime {
             get {
@@ -88,11 +88,20 @@ namespace ACT_Plugin {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Hit Points Healing.
+        ///   Looks up a localized string similar to Hit Points Healing Over Time.
         /// </summary>
-        internal static string HitpointsHeal {
+        internal static string HitpointsHealingOverTime {
             get {
-                return ResourceManager.GetString("HitpointsHeal", resourceCulture);
+                return ResourceManager.GetString("HitpointsHealingOverTime", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to (?&lt;healer&gt;.+) healed (?&lt;healingTarget&gt;.+) for (?&lt;healingPoints&gt;[\d]+)(?:[\s\(](?&lt;overHealPoints&gt;[\d]+)[\)]){0,1} hit points by (?&lt;healingSpell&gt;.*\.)(?:[\s][\(](?&lt;healingSpecial&gt;.+)[\)]){0,1}.
+        /// </summary>
+        internal static string InstantHeal {
+            get {
+                return ResourceManager.GetString("InstantHeal", resourceCulture);
             }
         }
         
