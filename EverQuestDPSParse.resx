@@ -123,8 +123,8 @@
   <data name="DamageShield" xml:space="preserve">
     <value>(?&lt;victim&gt;(You|.+)) is (?&lt;damageShieldDamageType&gt;\S+) by (?&lt;attacker&gt;(YOUR|.+)) (?&lt;damageShieldType&gt;\S+) for (?&lt;damagePoints&gt;[\d]+) points of non-melee damage.</value>
   </data>
-  <data name="Healing" xml:space="preserve">
-    <value>(?&lt;healer&gt;.+) healed (?&lt;healingTarget&gt;.+) over time for (?&lt;healingPoints&gt;[\d]+) ((?&lt;overHealPoints&gt;[\d]+)) hit points by (&lt;healingSpell&gt;.+).(?:\((?&lt;healingSpecial&gt;.+)\)){0,1}</value>
+  <data name="HealingOverTime" xml:space="preserve">
+    <value>(?&lt;healer&gt;.+) healed (?&lt;healingTarget&gt;.+) over time for (?&lt;healingPoints&gt;[\d]+) (?:[\s\(](?&lt;overHealPoints&gt;[\d]+)[\)]){0,1} hit points by (?&lt;healingSpell&gt;.*\.)(?:[\s][\(](?&lt;healingSpecial&gt;.+)[\)]){0,1}</value>
   </data>
   <data name="HitpointsHeal" xml:space="preserve">
     <value>Hit Points Healing</value>

@@ -285,11 +285,13 @@ namespace ACT_Plugin
             ActGlobals.oFormEncounterLogs.LogTypeToColorMapping.Add(regexTupleList.Count - 1, regexTupleList[regexTupleList.Count - 1].Item1);
             regexTupleList.Add(new Tuple<Color, Regex>(Color.Red, new Regex($@"{EverQuestDPSParse.TimeStamp} {EverQuestDPSParse.SpellDamage}", RegexOptions.Compiled)));
             ActGlobals.oFormEncounterLogs.LogTypeToColorMapping.Add(regexTupleList.Count - 1, regexTupleList[regexTupleList.Count - 1].Item1);
-            regexTupleList.Add(new Tuple<Color, Regex>(Color.Green, new Regex($@"{EverQuestDPSParse.TimeStamp} {EverQuestDPSParse.Healing}", RegexOptions.Compiled)));
+            regexTupleList.Add(new Tuple<Color, Regex>(Color.Green, new Regex($@"{EverQuestDPSParse.TimeStamp} {EverQuestDPSParse.HealingOverTime}", RegexOptions.Compiled)));
             ActGlobals.oFormEncounterLogs.LogTypeToColorMapping.Add(regexTupleList.Count - 1, regexTupleList[regexTupleList.Count - 1].Item1);
             regexTupleList.Add(new Tuple<Color, Regex>(Color.Maroon, new Regex($@"{EverQuestDPSParse.TimeStamp} {EverQuestDPSParse.PetMelee}", RegexOptions.Compiled)));
             ActGlobals.oFormEncounterLogs.LogTypeToColorMapping.Add(regexTupleList.Count - 1, regexTupleList[regexTupleList.Count - 1].Item1);
             regexTupleList.Add(new Tuple<Color, Regex>(Color.DarkBlue, new Regex($@"{EverQuestDPSParse.TimeStamp} You have entered (?!the Drunken Monkey stance adequately)(?<zoneInfo>.+).", RegexOptions.Compiled)));
+            ActGlobals.oFormEncounterLogs.LogTypeToColorMapping.Add(regexTupleList.Count - 1, regexTupleList[regexTupleList.Count - 1].Item1);
+            regexTupleList.Add(new Tuple<Color, Regex>(Color.BlueViolet, new Regex($@"{EverQuestDPSParse.TimeStamp} {}", RegexOptions.Compiled)));
             ActGlobals.oFormEncounterLogs.LogTypeToColorMapping.Add(regexTupleList.Count - 1, regexTupleList[regexTupleList.Count - 1].Item1);
         }
 
@@ -408,7 +410,7 @@ namespace ACT_Plugin
                         }
                     }
                     break;
-                //Instant heal
+                //Heal Over Time heal
                 case 5:
                     if (ActGlobals.oFormActMain.InCombat)
                     {
