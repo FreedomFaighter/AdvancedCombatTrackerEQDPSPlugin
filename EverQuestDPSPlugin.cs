@@ -260,7 +260,7 @@ namespace ACT_Plugin
 
         TreeNode optionsNode = null;
         Label lblStatus;    // The status label that appears in ACT's Plugin tab
-        readonly string settingsFile = Path.Combine(ActGlobals.oFormActMain.AppDataFolder.FullName, $"{EverQuestDPSParse.PluginSettingsFileName}");
+        readonly string settingsFile = Path.Combine(ActGlobals.oFormActMain.AppDataFolder.FullName, $"{EverQuestDPSPlugin.PluginSettingsFileName}");
         SettingsSerializer xmlSettings;
 
         public void InitPlugin(TabPage pluginScreenSpace, Label pluginStatusText)
@@ -278,9 +278,9 @@ namespace ACT_Plugin
             if (dcIndex != -1)
             {
                 // Add our own node to the Data Correction node
-                optionsNode = ActGlobals.oFormActMain.OptionsTreeView.Nodes[dcIndex].Nodes.Add($"{EverQuestDPSParse.PluginName} Settings");
+                optionsNode = ActGlobals.oFormActMain.OptionsTreeView.Nodes[dcIndex].Nodes.Add($"{EverQuestDPSPlugin.PluginName} Settings");
                 // Register our user control(this) to our newly create node path.  All controls added to the list will be laid out left to right, top to bottom
-                ActGlobals.oFormActMain.OptionsControlSets.Add($@"{EverQuestDPSParse.PluginSettingsSectionName}", new List<Control> { this });
+                ActGlobals.oFormActMain.OptionsControlSets.Add($@"{EverQuestDPSPlugin.PluginSettingsSectionName}", new List<Control> { this });
                 Label lblConfig = new Label
                 {
                     AutoSize = true,
@@ -300,7 +300,7 @@ namespace ACT_Plugin
                 new Thread(new ThreadStart(oFormActMain_UpdateCheckClicked)).Start();   // If we don't put this on a separate thread, web latency will delay the plugin init phase
             ActGlobals.oFormActMain.CharacterFileNameRegex = new Regex(@"(?:.+)[\\]eqlog_(?<characterName>\S+)_(?<server>.+).txt", RegexOptions.Compiled);
             ActGlobals.oFormActMain.ZoneChangeRegex = new Regex(@"You have entered (?!the Drunken Monkey stance adequately)(?<zoneInfo>.+).", RegexOptions.Compiled);
-            lblStatus.Text = $"{EverQuestDPSParse.PluginName} Plugin Started";
+            lblStatus.Text = $"{EverQuestDPSPlugin.PluginName} Plugin Started";
         }
 
         public void DeInitPlugin()
@@ -311,11 +311,11 @@ namespace ACT_Plugin
             if (optionsNode != null)    // If we added our user control to the Options tab, remove it
             {
                 optionsNode.Remove();
-                ActGlobals.oFormActMain.OptionsControlSets.Remove($@"{EverQuestDPSParse.PluginSettingsSectionName}");
+                ActGlobals.oFormActMain.OptionsControlSets.Remove($@"{EverQuestDPSPlugin.PluginSettingsSectionName}");
             }
 
             SaveSettings();
-            lblStatus.Text = $@"{EverQuestDPSParse.PluginName} Plugin Exited";
+            lblStatus.Text = $@"{EverQuestDPSPlugin.PluginName} Plugin Exited";
         }
 
         char[] chrApos = new char[] { '\'', '’' };
@@ -325,30 +325,30 @@ namespace ACT_Plugin
         private void PopulateRegexArray()
         {
             ActGlobals.oFormEncounterLogs.LogTypeToColorMapping.Clear();
-            String stringWithattackTypes = @"(?<attacker>.+) (?:(?<attackType>(" + EverQuestDPSParse.attackTypes + @"))(|s|es|bed)) (?<victim>.+) for (?<damageAmount>[\d]+) (point[|s]) of damage.(?:\s\((?<damageSpecial>.+)\)){0,1}";
-            regexTupleList.Add(new Tuple<Color, Regex>(Color.Red, new Regex($@"{EverQuestDPSParse.TimeStamp} {stringWithattackTypes}", RegexOptions.Compiled)));
+            String stringWithattackTypes = @"(?<attacker>.+) (?:(?<attackType>(" + EverQuestDPSPlugin.attackTypes + @"))(|s|es|bed)) (?<victim>.+) for (?<damageAmount>[\d]+) (point[|s]) of damage.(?:\s\((?<damageSpecial>.+)\)){0,1}";
+            regexTupleList.Add(new Tuple<Color, Regex>(Color.Red, new Regex($@"{EverQuestDPSPlugin.TimeStamp} {stringWithattackTypes}", RegexOptions.Compiled)));
             ActGlobals.oFormEncounterLogs.LogTypeToColorMapping.Add(regexTupleList.Count - 1, regexTupleList[regexTupleList.Count - 1].Item1);
-            regexTupleList.Add(new Tuple<Color, Regex>(Color.Red, new Regex($@"{EverQuestDPSParse.TimeStamp} {EverQuestDPSParse.DamageShield}", RegexOptions.Compiled)));
+            regexTupleList.Add(new Tuple<Color, Regex>(Color.Red, new Regex($@"{EverQuestDPSPlugin.TimeStamp} {EverQuestDPSPlugin.DamageShield}", RegexOptions.Compiled)));
             ActGlobals.oFormEncounterLogs.LogTypeToColorMapping.Add(regexTupleList.Count - 1, regexTupleList[regexTupleList.Count - 1].Item1);
-            regexTupleList.Add(new Tuple<Color, Regex>(Color.Gray, new Regex($@"{EverQuestDPSParse.TimeStamp} (?<attacker>.+) (?:(tr(ies|y))) to (?<attackType>(" + EverQuestDPSParse.attackTypes + @")+) (?<victim>.+), but (?:miss(|es))!", RegexOptions.Compiled)));
+            regexTupleList.Add(new Tuple<Color, Regex>(Color.Gray, new Regex($@"{EverQuestDPSPlugin.TimeStamp} (?<attacker>.+) (?:(tr(ies|y))) to (?<attackType>(" + EverQuestDPSPlugin.attackTypes + @")+) (?<victim>.+), but (?:miss(|es))!", RegexOptions.Compiled)));
             ActGlobals.oFormEncounterLogs.LogTypeToColorMapping.Add(regexTupleList.Count - 1, regexTupleList[regexTupleList.Count - 1].Item1);
-            regexTupleList.Add(new Tuple<Color, Regex>(Color.Goldenrod, new Regex($@"{EverQuestDPSParse.TimeStamp} {EverQuestDPSParse.SlainMessage}", RegexOptions.Compiled)));
+            regexTupleList.Add(new Tuple<Color, Regex>(Color.Goldenrod, new Regex($@"{EverQuestDPSPlugin.TimeStamp} {EverQuestDPSPlugin.SlainMessage}", RegexOptions.Compiled)));
             ActGlobals.oFormEncounterLogs.LogTypeToColorMapping.Add(regexTupleList.Count - 1, regexTupleList[regexTupleList.Count - 1].Item1);
-            regexTupleList.Add(new Tuple<Color, Regex>(Color.Red, new Regex($@"{EverQuestDPSParse.TimeStamp} {EverQuestDPSParse.SpellDamage}", RegexOptions.Compiled)));
+            regexTupleList.Add(new Tuple<Color, Regex>(Color.Red, new Regex($@"{EverQuestDPSPlugin.TimeStamp} {EverQuestDPSPlugin.SpellDamage}", RegexOptions.Compiled)));
             ActGlobals.oFormEncounterLogs.LogTypeToColorMapping.Add(regexTupleList.Count - 1, regexTupleList[regexTupleList.Count - 1].Item1);
-            regexTupleList.Add(new Tuple<Color, Regex>(Color.Green, new Regex($@"{EverQuestDPSParse.TimeStamp} {EverQuestDPSParse.HealingOverTime}", RegexOptions.Compiled)));
+            regexTupleList.Add(new Tuple<Color, Regex>(Color.Green, new Regex($@"{EverQuestDPSPlugin.TimeStamp} {EverQuestDPSPlugin.HealingOverTime}", RegexOptions.Compiled)));
             ActGlobals.oFormEncounterLogs.LogTypeToColorMapping.Add(regexTupleList.Count - 1, regexTupleList[regexTupleList.Count - 1].Item1);
-            regexTupleList.Add(new Tuple<Color, Regex>(Color.Maroon, new Regex($@"{EverQuestDPSParse.TimeStamp} {EverQuestDPSParse.PetMelee}", RegexOptions.Compiled)));
+            regexTupleList.Add(new Tuple<Color, Regex>(Color.Maroon, new Regex($@"{EverQuestDPSPlugin.TimeStamp} {EverQuestDPSPlugin.PetMelee}", RegexOptions.Compiled)));
             ActGlobals.oFormEncounterLogs.LogTypeToColorMapping.Add(regexTupleList.Count - 1, regexTupleList[regexTupleList.Count - 1].Item1);
-            regexTupleList.Add(new Tuple<Color, Regex>(Color.DarkBlue, new Regex($@"{EverQuestDPSParse.TimeStamp} You have entered (?!the Drunken Monkey stance adequately)(?<zoneInfo>.+).", RegexOptions.Compiled)));
+            regexTupleList.Add(new Tuple<Color, Regex>(Color.DarkBlue, new Regex($@"{EverQuestDPSPlugin.TimeStamp} You have entered (?!the Drunken Monkey stance adequately)(?<zoneInfo>.+).", RegexOptions.Compiled)));
             ActGlobals.oFormEncounterLogs.LogTypeToColorMapping.Add(regexTupleList.Count - 1, regexTupleList[regexTupleList.Count - 1].Item1);
-            regexTupleList.Add(new Tuple<Color, Regex>(Color.BlueViolet, new Regex($@"{EverQuestDPSParse.TimeStamp} {EverQuestDPSParse.InstantHeal}", RegexOptions.Compiled)));
+            regexTupleList.Add(new Tuple<Color, Regex>(Color.BlueViolet, new Regex($@"{EverQuestDPSPlugin.TimeStamp} {EverQuestDPSPlugin.InstantHeal}", RegexOptions.Compiled)));
             ActGlobals.oFormEncounterLogs.LogTypeToColorMapping.Add(regexTupleList.Count - 1, regexTupleList[regexTupleList.Count - 1].Item1);
-            regexTupleList.Add(new Tuple<Color, Regex>(Color.AliceBlue, new Regex($@"{EverQuestDPSParse.TimeStamp} {EverQuestDPSParse.LootedCorpse}")));
+            regexTupleList.Add(new Tuple<Color, Regex>(Color.AliceBlue, new Regex($@"{EverQuestDPSPlugin.TimeStamp} {EverQuestDPSPlugin.LootedCorpse}")));
             ActGlobals.oFormEncounterLogs.LogTypeToColorMapping.Add(regexTupleList.Count-1, regexTupleList[regexTupleList.Count-1].Item1);
-            regexTupleList.Add(new Tuple<Color, Regex>(Color.AliceBlue, new Regex($@"{EverQuestDPSParse.TimeStamp} {EverQuestDPSParse.AlcoholConsumption}")));
+            regexTupleList.Add(new Tuple<Color, Regex>(Color.AliceBlue, new Regex($@"{EverQuestDPSPlugin.TimeStamp} {EverQuestDPSPlugin.AlcoholConsumption}")));
             ActGlobals.oFormEncounterLogs.LogTypeToColorMapping.Add(regexTupleList.Count - 1, regexTupleList[regexTupleList.Count - 1].Item1);
-            regexTupleList.Add(new Tuple<Color, Regex>(Color.AliceBlue, new Regex($@"{EverQuestDPSParse.TimeStamp} {EverQuestDPSParse.DrinkConsumption}")));
+            regexTupleList.Add(new Tuple<Color, Regex>(Color.AliceBlue, new Regex($@"{EverQuestDPSPlugin.TimeStamp} {EverQuestDPSPlugin.DrinkConsumption}")));
             ActGlobals.oFormEncounterLogs.LogTypeToColorMapping.Add(regexTupleList.Count - 1, regexTupleList[regexTupleList.Count - 1].Item1);
         }
 
@@ -369,7 +369,7 @@ namespace ACT_Plugin
         private DateTime GetDateTimeFromGroupMatch(String dt)
         {
             DateTime currentEQTimeStamp;
-            DateTime.TryParseExact(dt, EverQuestDPSParse.eqDateTimeStampFormat, DateTimeFormatInfo.InvariantInfo, DateTimeStyles.AssumeLocal, out currentEQTimeStamp);
+            DateTime.TryParseExact(dt, EverQuestDPSPlugin.eqDateTimeStampFormat, DateTimeFormatInfo.InvariantInfo, DateTimeStyles.AssumeLocal, out currentEQTimeStamp);
             return currentEQTimeStamp;
         }
 
@@ -478,7 +478,7 @@ namespace ACT_Plugin
                         , GetDateTimeFromGroupMatch(reMatch.Groups["dateTimeOfLogLine"].Value)
                         , gts
                         , reMatch.Groups["healingTarget"].Value.Contains("self") ? healer : CharacterNamePersonaReplace(reMatch.Groups["healingTarget"].Value)
-                        , EverQuestDPSParse.HitpointsHealingOverTime
+                        , EverQuestDPSPlugin.HitpointsHealingOverTime
                         );
                     }
                     break;
@@ -500,7 +500,7 @@ namespace ACT_Plugin
                         , GetDateTimeFromGroupMatch(reMatch.Groups["dateTimeOfLogLine"].Value)
                         , gts
                         , reMatch.Groups["healingTarget"].Value.Contains("self") ? healer : CharacterNamePersonaReplace(reMatch.Groups["healingTarget"].Value)
-                        , EverQuestDPSParse.InstantHeal
+                        , EverQuestDPSPlugin.InstantHeal
                         );
                     }
                     break;
@@ -794,7 +794,7 @@ namespace ACT_Plugin
                 ActGlobals.oFormActMain.PluginGetGithubApi(pluginId);
                 if (localDate.AddHours(2) < remoteDate)
                 {
-                    DialogResult result = MessageBox.Show($"There is an updated version of the {EverQuestDPSParse.PluginName} .  Update it now?\n\n(If there is an update to ACT, you should click No and update ACT first.)", "New Version", MessageBoxButtons.YesNo, MessageBoxIcon.Question);
+                    DialogResult result = MessageBox.Show($"There is an updated version of the {EverQuestDPSPlugin.PluginName} .  Update it now?\n\n(If there is an update to ACT, you should click No and update ACT first.)", "New Version", MessageBoxButtons.YesNo, MessageBoxIcon.Question);
                     if (result == DialogResult.Yes)
                     {
                         FileInfo updatedFile = ActGlobals.oFormActMain.PluginDownload(pluginId);
