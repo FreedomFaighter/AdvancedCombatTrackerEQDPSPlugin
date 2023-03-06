@@ -209,7 +209,7 @@ namespace ACT_Plugin
 
         TreeNode optionsNode = null;
         Label lblStatus;    // The status label that appears in ACT's Plugin tab
-        readonly string settingsFile = Path.Combine(ActGlobals.oFormActMain.AppDataFolder.FullName, @"{EverQuestDPSParse.PluginSettingsFileName}");
+        readonly string settingsFile = Path.Combine(ActGlobals.oFormActMain.AppDataFolder.FullName, $"{EverQuestDPSParse.PluginSettingsFileName}");
         SettingsSerializer xmlSettings;
 
         public void InitPlugin(TabPage pluginScreenSpace, Label pluginStatusText)
@@ -227,7 +227,7 @@ namespace ACT_Plugin
             if (dcIndex != -1)
             {
                 // Add our own node to the Data Correction node
-                optionsNode = ActGlobals.oFormActMain.OptionsTreeView.Nodes[dcIndex].Nodes.Add("EverQuest English Settings");
+                optionsNode = ActGlobals.oFormActMain.OptionsTreeView.Nodes[dcIndex].Nodes.Add($"{EverQuestDPSParse.PluginName} Settings");
                 // Register our user control(this) to our newly create node path.  All controls added to the list will be laid out left to right, top to bottom
                 ActGlobals.oFormActMain.OptionsControlSets.Add($@"{EverQuestDPSParse.PluginSettingsSectionName}", new List<Control> { this });
                 Label lblConfig = new Label
@@ -247,7 +247,7 @@ namespace ACT_Plugin
             ActGlobals.oFormActMain.UpdateCheckClicked += new FormActMain.NullDelegate(oFormActMain_UpdateCheckClicked);
             if (ActGlobals.oFormActMain.GetAutomaticUpdatesAllowed())   // If ACT is set to automatically check for updates, check for updates to the plugin
                 new Thread(new ThreadStart(oFormActMain_UpdateCheckClicked)).Start();   // If we don't put this on a separate thread, web latency will delay the plugin init phase
-            ActGlobals.oFormActMain.CharacterFileNameRegex = new Regex($@"(?:.+)[\\]eqlog_(?<characterName>\S+)_(?<server>.+).txt", RegexOptions.Compiled);
+            ActGlobals.oFormActMain.CharacterFileNameRegex = new Regex(@"(?:.+)[\\]eqlog_(?<characterName>\S+)_(?<server>.+).txt", RegexOptions.Compiled);
             ActGlobals.oFormActMain.ZoneChangeRegex = new Regex(@"You have entered (?!the Drunken Monkey stance adequately)(?<zoneInfo>.+).", RegexOptions.Compiled);
             lblStatus.Text = $"{EverQuestDPSParse.PluginName} Plugin Started";
         }
