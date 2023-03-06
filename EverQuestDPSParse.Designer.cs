@@ -106,7 +106,7 @@ namespace ACT_Plugin {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to --You have looted a Steel Ingot from Lieutenant Dagarok&apos;s corpse.--.
+        ///   Looks up a localized string similar to --(?&lt;looter&gt;.+) have looted a (?&lt;loot&gt;.+) from (?&lt;victim&gt;.+)&apos;s corpse.--.
         /// </summary>
         internal static string LootedCorpse {
             get {
