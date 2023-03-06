@@ -346,6 +346,10 @@ namespace ACT_Plugin
             ActGlobals.oFormEncounterLogs.LogTypeToColorMapping.Add(regexTupleList.Count - 1, regexTupleList[regexTupleList.Count - 1].Item1);
             regexTupleList.Add(new Tuple<Color, Regex>(Color.AliceBlue, new Regex($@"{EverQuestDPSParse.TimeStamp} {EverQuestDPSParse.LootedCorpse}")));
             ActGlobals.oFormEncounterLogs.LogTypeToColorMapping.Add(regexTupleList.Count-1, regexTupleList[regexTupleList.Count-1].Item1);
+            regexTupleList.Add(new Tuple<Color, Regex>(Color.AliceBlue, new Regex($@"{EverQuestDPSParse.TimeStamp} {EverQuestDPSParse.AlcoholConsumption}")));
+            ActGlobals.oFormEncounterLogs.LogTypeToColorMapping.Add(regexTupleList.Count - 1, regexTupleList[regexTupleList.Count - 1].Item1);
+            regexTupleList.Add(new Tuple<Color, Regex>(Color.AliceBlue, new Regex($@"{EverQuestDPSParse.TimeStamp} {EverQuestDPSParse.DrinkConsumption}")));
+            ActGlobals.oFormEncounterLogs.LogTypeToColorMapping.Add(regexTupleList.Count - 1, regexTupleList[regexTupleList.Count - 1].Item1);
         }
 
         void oFormActMain_BeforeLogLineRead(bool isImport, LogLineEventArgs logInfo)
@@ -364,16 +368,13 @@ namespace ACT_Plugin
 
         private DateTime GetDateTimeFromGroupMatch(String dt)
         {
-            String eqDateTimeStampFormat = "ddd MMM dd HH:mm:ss yyyy";
             DateTime currentEQTimeStamp;
-            DateTime.TryParseExact(dt, eqDateTimeStampFormat, DateTimeFormatInfo.InvariantInfo, DateTimeStyles.AssumeLocal, out currentEQTimeStamp);
+            DateTime.TryParseExact(dt, EverQuestDPSParse.eqDateTimeStampFormat, DateTimeFormatInfo.InvariantInfo, DateTimeStyles.AssumeLocal, out currentEQTimeStamp);
             return currentEQTimeStamp;
         }
 
         private void ParseEverQuestLogLine(Match reMatch, int logMatched, string logLine, bool isImport)
         {
-            
-
             //List<string> damages = new List<string>();
             //DateTime time = ActGlobals.oFormActMain.LastKnownTime;
 
@@ -508,6 +509,14 @@ namespace ACT_Plugin
                     String looter = EnglishPersonaReplace(reMatch.Groups["looter"].Value);
                     String loot = reMatch.Groups["loot"].Value;
                     String victim = reMatch.Groups["victim"].Value;
+                    break;
+                case 10:
+                    String alcoholDrinker = EnglishPersonaReplace(reMatch.Groups["drinker"].Value);
+                    String typeOfAlcohol = reMatch.Groups["typeOfAlcohol"].Value;
+                    break;
+                case 11:
+                    String drinkDrinker = EnglishPersonaReplace(reMatch.Groups["drinker"].Value);
+                    String typeOfDrink = reMatch.Groups["typeOfDrink"].Value;
                     break;
                 default:
                     break;
