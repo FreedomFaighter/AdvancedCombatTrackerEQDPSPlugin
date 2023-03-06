@@ -145,7 +145,7 @@
     <value>96</value>
   </data>
   <data name="PluginName" xml:space="preserve">
-    <value>EverQuest DPS Parse</value>
+    <value>EverQuest English Parsing Plugin</value>
   </data>
   <data name="PluginSettingsFileName" xml:space="preserve">
     <value>Config\ACT_EverQuest_English_Parser.config.xml</value>
