@@ -274,7 +274,7 @@ namespace ACT_Plugin
         private void PopulateRegexArray()
         {
             ActGlobals.oFormEncounterLogs.LogTypeToColorMapping.Clear();
-            String stringWithattackTypes = @"(?<attacker>.+) (?:(?<attackType>(" + EverQuestDPSParse.attackTypes + @"))(|s|es)) (?<victim>.+) for (?<damageAmount>[\d]+) (point[|s]) of damage.(?:\s\((?<damageSpecial>.+)\)){0,1}";
+            String stringWithattackTypes = @"(?<attacker>.+) (?:(?<attackType>(" + EverQuestDPSParse.attackTypes + @"))(|s|es|bed)) (?<victim>.+) for (?<damageAmount>[\d]+) (point[|s]) of damage.(?:\s\((?<damageSpecial>.+)\)){0,1}";
             regexTupleList.Add(new Tuple<Color, Regex>(Color.Red, new Regex($@"{EverQuestDPSParse.TimeStamp} {stringWithattackTypes}", RegexOptions.Compiled)));
             ActGlobals.oFormEncounterLogs.LogTypeToColorMapping.Add(regexTupleList.Count - 1, regexTupleList[regexTupleList.Count - 1].Item1);
             regexTupleList.Add(new Tuple<Color, Regex>(Color.Red, new Regex($@"{EverQuestDPSParse.TimeStamp} {EverQuestDPSParse.DamageShield}", RegexOptions.Compiled)));
