@@ -404,12 +404,12 @@ namespace ACT_Plugin
                             (int)SwingTypeEnum.Melee
                             , critical
                             , damageSpecial
-                            , EnglishPersonaReplace(reMatch.Groups["attacker"].Value)
+                            , CharacterNamePersonaReplace(reMatch.Groups["attacker"].Value)
                             , reMatch.Groups["attackType"].Value
                             , new Dnum(Int64.Parse(reMatch.Groups["damageAmount"].Value))
                             , GetDateTimeFromGroupMatch(reMatch.Groups["dateTimeOfLogLine"].Value)
                             , gts
-                            , EnglishPersonaReplace(reMatch.Groups["victim"].Value)
+                            , CharacterNamePersonaReplace(reMatch.Groups["victim"].Value)
                             , "Melee");
                     }
                     break;
@@ -420,12 +420,12 @@ namespace ACT_Plugin
                         ActGlobals.oFormActMain.AddCombatAction((int)SwingTypeEnum.NonMelee
                             , false
                             , String.Empty
-                            , EnglishPersonaReplace(reMatch.Groups["attacker"].Value)
+                            , CharacterNamePersonaReplace(reMatch.Groups["attacker"].Value)
                             , reMatch.Groups["damageShieldDamageType"].Value
                             , new Dnum(Int64.Parse(reMatch.Groups["damagePoints"].Value))
                             , GetDateTimeFromGroupMatch(reMatch.Groups["dateTimeOfLogLine"].Value)
                             , gts
-                            , EnglishPersonaReplace(reMatch.Groups["victim"].Value)
+                            , CharacterNamePersonaReplace(reMatch.Groups["victim"].Value)
                             , reMatch.Groups["damageShieldType"].Value);
                     }
                     break;
@@ -436,12 +436,12 @@ namespace ACT_Plugin
                         ActGlobals.oFormActMain.AddCombatAction((int)SwingTypeEnum.Melee
                             , false
                             , string.Empty
-                            , EnglishPersonaReplace(reMatch.Groups["attacker"].Value)
+                            , CharacterNamePersonaReplace(reMatch.Groups["attacker"].Value)
                             , reMatch.Groups["attackType"].Value
                             , Dnum.Miss
                             , GetDateTimeFromGroupMatch(reMatch.Groups["dateTimeOfLogLine"].Value)
                             , gts
-                            , EnglishPersonaReplace(reMatch.Groups["victim"].Value)
+                            , CharacterNamePersonaReplace(reMatch.Groups["victim"].Value)
                             , "Melee");
                     }
                     break;
@@ -454,12 +454,12 @@ namespace ACT_Plugin
                             ActGlobals.oFormActMain.AddCombatAction((int)SwingTypeEnum.NonMelee
                                 , false
                                 , reMatch.Groups["spellSpeicals"].Value
-                                , EnglishPersonaReplace(reMatch.Groups["attacker"].Value)
+                                , CharacterNamePersonaReplace(reMatch.Groups["attacker"].Value)
                                 , reMatch.Groups["damageEffect"].Value
                                 , new Dnum(Int64.Parse(reMatch.Groups["damagePoints"].Value))
                                 , GetDateTimeFromGroupMatch(reMatch.Groups["dateTimeOfLogLine"].Value)
                                 , gts
-                                , EnglishPersonaReplace(reMatch.Groups["victim"].Value)
+                                , CharacterNamePersonaReplace(reMatch.Groups["victim"].Value)
                                 , reMatch.Groups["typeOfDamage"].Value);
                         }
                     }
@@ -468,7 +468,7 @@ namespace ACT_Plugin
                 case 5:
                     if (ActGlobals.oFormActMain.InCombat)
                     {
-                        String healer = EnglishPersonaReplace(reMatch.Groups["healer"].Value);
+                        String healer = CharacterNamePersonaReplace(reMatch.Groups["healer"].Value);
                         ActGlobals.oFormActMain.AddCombatAction((int)SwingTypeEnum.Healing
                         , reMatch.Groups["healingSpecial"].Value.Contains("Critical")
                         , reMatch.Groups["healingSpecial"].Value
@@ -477,7 +477,7 @@ namespace ACT_Plugin
                         , new Dnum(Int64.Parse(reMatch.Groups["healingPoints"].Value), reMatch.Groups["overHealPoints"].Value)
                         , GetDateTimeFromGroupMatch(reMatch.Groups["dateTimeOfLogLine"].Value)
                         , gts
-                        , reMatch.Groups["healingTarget"].Value.Contains("self") ? healer : EnglishPersonaReplace(reMatch.Groups["healingTarget"].Value)
+                        , reMatch.Groups["healingTarget"].Value.Contains("self") ? healer : CharacterNamePersonaReplace(reMatch.Groups["healingTarget"].Value)
                         , EverQuestDPSParse.HitpointsHealingOverTime
                         );
                     }
@@ -490,7 +490,7 @@ namespace ACT_Plugin
                 case 8:
                     if (ActGlobals.oFormActMain.InCombat)
                     {
-                        String healer = EnglishPersonaReplace(reMatch.Groups["healer"].Value);
+                        String healer = CharacterNamePersonaReplace(reMatch.Groups["healer"].Value);
                         ActGlobals.oFormActMain.AddCombatAction((int)SwingTypeEnum.Healing
                         , reMatch.Groups["healingSpecial"].Value.Contains("Critical")
                         , reMatch.Groups["healingSpecial"].Value
@@ -499,23 +499,23 @@ namespace ACT_Plugin
                         , new Dnum(Int64.Parse(reMatch.Groups["healingPoints"].Value), reMatch.Groups["overHealPoints"].Value)
                         , GetDateTimeFromGroupMatch(reMatch.Groups["dateTimeOfLogLine"].Value)
                         , gts
-                        , reMatch.Groups["healingTarget"].Value.Contains("self") ? healer : EnglishPersonaReplace(reMatch.Groups["healingTarget"].Value)
+                        , reMatch.Groups["healingTarget"].Value.Contains("self") ? healer : CharacterNamePersonaReplace(reMatch.Groups["healingTarget"].Value)
                         , EverQuestDPSParse.InstantHeal
                         );
                     }
                     break;
                 //Loot line for future use
                 case 9:
-                    String looter = EnglishPersonaReplace(reMatch.Groups["looter"].Value);
+                    String looter = CharacterNamePersonaReplace(reMatch.Groups["looter"].Value);
                     String loot = reMatch.Groups["loot"].Value;
                     String victim = reMatch.Groups["victim"].Value;
                     break;
                 case 10:
-                    String alcoholDrinker = EnglishPersonaReplace(reMatch.Groups["drinker"].Value);
+                    String alcoholDrinker = CharacterNamePersonaReplace(reMatch.Groups["drinker"].Value);
                     String typeOfAlcohol = reMatch.Groups["typeOfAlcohol"].Value;
                     break;
                 case 11:
-                    String drinkDrinker = EnglishPersonaReplace(reMatch.Groups["drinker"].Value);
+                    String drinkDrinker = CharacterNamePersonaReplace(reMatch.Groups["drinker"].Value);
                     String typeOfDrink = reMatch.Groups["typeOfDrink"].Value;
                     break;
                 default:
@@ -565,7 +565,7 @@ namespace ACT_Plugin
 
         Regex selfCheck = new Regex(@"(You|(YOU(?:(\b|R))(?:(\b|SELF))))", RegexOptions.Compiled);
 
-        private string EnglishPersonaReplace(string PersonaString)
+        private string CharacterNamePersonaReplace(string PersonaString)
         {
             return selfCheck.Match(PersonaString).Success ? ActGlobals.charName : PersonaString;
         }
