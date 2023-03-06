@@ -61,7 +61,7 @@ namespace ACT_Plugin {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to pierce|gore|crush|slash|hit|kick|slam|bash|shoot|strike|bite.
+        ///   Looks up a localized string similar to pierce|gore|crush|slash|hit|kick|slam|bash|shoot|strike|bite|grab.
         /// </summary>
         internal static string attackTypes {
             get {
