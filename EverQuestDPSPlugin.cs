@@ -70,66 +70,99 @@ namespace ACT_Plugin
             // 
             // cbMultiDamageIsOne
             // 
-            this.cbMultiDamageIsOne.Location = new System.Drawing.Point(0, 0);
+            this.cbMultiDamageIsOne.AutoSize = true;
+            this.cbMultiDamageIsOne.Checked = true;
+            this.cbMultiDamageIsOne.CheckState = System.Windows.Forms.CheckState.Checked;
+            this.cbMultiDamageIsOne.Location = new System.Drawing.Point(3, 3);
+            this.cbMultiDamageIsOne.Margin = new System.Windows.Forms.Padding(3, 1, 3, 1);
             this.cbMultiDamageIsOne.Name = "cbMultiDamageIsOne";
-            this.cbMultiDamageIsOne.Size = new System.Drawing.Size(104, 24);
-            this.cbMultiDamageIsOne.TabIndex = 17;
+            this.cbMultiDamageIsOne.Size = new System.Drawing.Size(362, 17);
+            this.cbMultiDamageIsOne.TabIndex = 5;
+            this.cbMultiDamageIsOne.Text = "Record a hit with multiple damage types as a single hit. (Not retroactive)";
+            this.cbMultiDamageIsOne.MouseHover += new System.EventHandler(this.cbMultiDamageIsOne_MouseHover);
             // 
             // cbRecalcWardedHits
             // 
-            this.cbRecalcWardedHits.Location = new System.Drawing.Point(0, 0);
+            this.cbRecalcWardedHits.AutoSize = true;
+            this.cbRecalcWardedHits.Checked = true;
+            this.cbRecalcWardedHits.CheckState = System.Windows.Forms.CheckState.Checked;
+            this.cbRecalcWardedHits.Location = new System.Drawing.Point(3, 22);
+            this.cbRecalcWardedHits.Margin = new System.Windows.Forms.Padding(3, 1, 3, 1);
             this.cbRecalcWardedHits.Name = "cbRecalcWardedHits";
-            this.cbRecalcWardedHits.Size = new System.Drawing.Size(104, 24);
-            this.cbRecalcWardedHits.TabIndex = 18;
+            this.cbRecalcWardedHits.Size = new System.Drawing.Size(368, 17);
+            this.cbRecalcWardedHits.TabIndex = 7;
+            this.cbRecalcWardedHits.Text = "Recalculate warded/intercepted hits to their true value.  (Not retroactive)";
+            this.cbRecalcWardedHits.MouseHover += new System.EventHandler(this.cbRecalcWardedHits_MouseHover);
             // 
             // tbFixAncestralSentry
             // 
-            this.tbFixAncestralSentry.Location = new System.Drawing.Point(0, 0);
+            this.tbFixAncestralSentry.Location = new System.Drawing.Point(488, 38);
             this.tbFixAncestralSentry.Name = "tbFixAncestralSentry";
-            this.tbFixAncestralSentry.Size = new System.Drawing.Size(100, 20);
-            this.tbFixAncestralSentry.TabIndex = 15;
+            this.tbFixAncestralSentry.Size = new System.Drawing.Size(161, 20);
+            this.tbFixAncestralSentry.TabIndex = 10;
+            this.tbFixAncestralSentry.Text = "Ancestral Sentry";
+            this.tbFixAncestralSentry.MouseHover += new System.EventHandler(this.lblAncestralSentry_MouseHover);
             // 
             // lblAncestralSentry
             // 
-            this.lblAncestralSentry.Location = new System.Drawing.Point(0, 0);
+            this.lblAncestralSentry.AutoSize = true;
+            this.lblAncestralSentry.Location = new System.Drawing.Point(3, 41);
+            this.lblAncestralSentry.Margin = new System.Windows.Forms.Padding(3, 1, 3, 1);
             this.lblAncestralSentry.Name = "lblAncestralSentry";
-            this.lblAncestralSentry.Size = new System.Drawing.Size(100, 23);
-            this.lblAncestralSentry.TabIndex = 16;
+            this.lblAncestralSentry.Size = new System.Drawing.Size(388, 13);
+            this.lblAncestralSentry.TabIndex = 9;
+            this.lblAncestralSentry.Text = "\"Ancestral Sentry\" interceding players will appear as a heal under the combatant:" +
+    "";
+            this.lblAncestralSentry.MouseHover += new System.EventHandler(this.lblAncestralSentry_MouseHover);
             // 
             // btnAposNameRemove
             // 
-            this.btnAposNameRemove.Location = new System.Drawing.Point(222, 58);
+            this.btnAposNameRemove.Location = new System.Drawing.Point(559, 215);
             this.btnAposNameRemove.Name = "btnAposNameRemove";
-            this.btnAposNameRemove.Size = new System.Drawing.Size(75, 23);
-            this.btnAposNameRemove.TabIndex = 1;
+            this.btnAposNameRemove.Size = new System.Drawing.Size(126, 23);
+            this.btnAposNameRemove.TabIndex = 17;
+            this.btnAposNameRemove.Text = "Remove Correction";
+            this.btnAposNameRemove.UseVisualStyleBackColor = true;
+            this.btnAposNameRemove.Click += new System.EventHandler(this.btnAposNameRemove_Click);
+            this.btnAposNameRemove.MouseHover += new System.EventHandler(this.AposName_MouseHover);
             // 
             // btnAposNameAdd
             // 
-            this.btnAposNameAdd.Location = new System.Drawing.Point(327, 30);
+            this.btnAposNameAdd.Location = new System.Drawing.Point(559, 190);
             this.btnAposNameAdd.Name = "btnAposNameAdd";
-            this.btnAposNameAdd.Size = new System.Drawing.Size(75, 23);
-            this.btnAposNameAdd.TabIndex = 2;
+            this.btnAposNameAdd.Size = new System.Drawing.Size(126, 23);
+            this.btnAposNameAdd.TabIndex = 16;
+            this.btnAposNameAdd.Text = "Add Correction";
+            this.btnAposNameAdd.UseVisualStyleBackColor = true;
+            this.btnAposNameAdd.Click += new System.EventHandler(this.btnAposNameAdd_Click);
+            this.btnAposNameAdd.MouseHover += new System.EventHandler(this.AposName_MouseHover);
             // 
             // tbAposNameR
             // 
-            this.tbAposNameR.Location = new System.Drawing.Point(231, 4);
+            this.tbAposNameR.Enabled = false;
+            this.tbAposNameR.Location = new System.Drawing.Point(499, 138);
             this.tbAposNameR.Name = "tbAposNameR";
-            this.tbAposNameR.Size = new System.Drawing.Size(100, 20);
-            this.tbAposNameR.TabIndex = 3;
+            this.tbAposNameR.Size = new System.Drawing.Size(186, 20);
+            this.tbAposNameR.TabIndex = 14;
+            this.tbAposNameR.MouseHover += new System.EventHandler(this.AposName_MouseHover);
             // 
             // tbAposNameL
             // 
-            this.tbAposNameL.Location = new System.Drawing.Point(52, 115);
+            this.tbAposNameL.Enabled = false;
+            this.tbAposNameL.Location = new System.Drawing.Point(290, 138);
             this.tbAposNameL.Name = "tbAposNameL";
-            this.tbAposNameL.Size = new System.Drawing.Size(100, 20);
-            this.tbAposNameL.TabIndex = 4;
+            this.tbAposNameL.Size = new System.Drawing.Size(186, 20);
+            this.tbAposNameL.TabIndex = 12;
+            this.tbAposNameL.MouseHover += new System.EventHandler(this.AposName_MouseHover);
             // 
             // tbAposName
             // 
-            this.tbAposName.Location = new System.Drawing.Point(152, 33);
+            this.tbAposName.Location = new System.Drawing.Point(290, 164);
             this.tbAposName.Name = "tbAposName";
-            this.tbAposName.Size = new System.Drawing.Size(100, 20);
-            this.tbAposName.TabIndex = 5;
+            this.tbAposName.Size = new System.Drawing.Size(395, 20);
+            this.tbAposName.TabIndex = 15;
+            this.tbAposName.TextChanged += new System.EventHandler(this.tbAposName_TextChanged);
+            this.tbAposName.MouseHover += new System.EventHandler(this.AposName_MouseHover);
             // 
             // label16
             // 
@@ -142,24 +175,42 @@ namespace ACT_Plugin
             // 
             // clbAposName
             // 
-            this.clbAposName.Location = new System.Drawing.Point(0, 0);
+            this.clbAposName.FormattingEnabled = true;
+            this.clbAposName.IntegralHeight = false;
+            this.clbAposName.Location = new System.Drawing.Point(3, 122);
             this.clbAposName.Name = "clbAposName";
-            this.clbAposName.Size = new System.Drawing.Size(120, 94);
-            this.clbAposName.TabIndex = 14;
+            this.clbAposName.Size = new System.Drawing.Size(278, 116);
+            this.clbAposName.Sorted = true;
+            this.clbAposName.TabIndex = 11;
+            this.clbAposName.ItemCheck += new System.Windows.Forms.ItemCheckEventHandler(this.clbAposName_ItemCheck);
+            this.clbAposName.SelectedIndexChanged += new System.EventHandler(this.clbAposName_SelectedIndexChanged);
+            this.clbAposName.MouseHover += new System.EventHandler(this.AposName_MouseHover);
             // 
             // cbSParseConsider
             // 
-            this.cbSParseConsider.Location = new System.Drawing.Point(0, 0);
+            this.cbSParseConsider.AutoSize = true;
+            this.cbSParseConsider.Checked = true;
+            this.cbSParseConsider.CheckState = System.Windows.Forms.CheckState.Checked;
+            this.cbSParseConsider.Location = new System.Drawing.Point(3, 56);
+            this.cbSParseConsider.Margin = new System.Windows.Forms.Padding(3, 1, 3, 1);
             this.cbSParseConsider.Name = "cbSParseConsider";
-            this.cbSParseConsider.Size = new System.Drawing.Size(104, 24);
-            this.cbSParseConsider.TabIndex = 19;
+            this.cbSParseConsider.Size = new System.Drawing.Size(479, 17);
+            this.cbSParseConsider.TabIndex = 7;
+            this.cbSParseConsider.Text = "Add characters marked by the /con, /whogroup, /whoraid command to the Selective P" +
+    "arsing list";
+            this.cbSParseConsider.MouseHover += new System.EventHandler(this.cbSParseConsider_MouseHover);
             // 
             // cbIncludeInterceptFocus
             // 
-            this.cbIncludeInterceptFocus.Location = new System.Drawing.Point(177, 117);
+            this.cbIncludeInterceptFocus.AutoSize = true;
+            this.cbIncludeInterceptFocus.Location = new System.Drawing.Point(3, 75);
+            this.cbIncludeInterceptFocus.Margin = new System.Windows.Forms.Padding(3, 1, 3, 1);
             this.cbIncludeInterceptFocus.Name = "cbIncludeInterceptFocus";
-            this.cbIncludeInterceptFocus.Size = new System.Drawing.Size(104, 24);
-            this.cbIncludeInterceptFocus.TabIndex = 0;
+            this.cbIncludeInterceptFocus.Size = new System.Drawing.Size(466, 17);
+            this.cbIncludeInterceptFocus.TabIndex = 18;
+            this.cbIncludeInterceptFocus.Text = "Parse focus damage done to channeler pets. (Skews attacker DPS/ToHit%, Not Retroa" +
+    "ctive)";
+            this.cbIncludeInterceptFocus.MouseHover += new System.EventHandler(this.cbIncludeInterceptFocus_MouseHover);
             // 
             // ACT_English_Parser
             // 
@@ -181,7 +232,7 @@ namespace ACT_Plugin
             this.Controls.Add(this.cbRecalcWardedHits);
             this.Controls.Add(this.cbSParseConsider);
             this.Name = "ACT_English_Parser";
-            this.Size = new System.Drawing.Size(432, 144);
+            this.Size = new System.Drawing.Size(688, 241);
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -323,8 +374,8 @@ namespace ACT_Plugin
         {
             
 
-            List<string> damages = new List<string>();
-            DateTime time = ActGlobals.oFormActMain.LastKnownTime;
+            //List<string> damages = new List<string>();
+            //DateTime time = ActGlobals.oFormActMain.LastKnownTime;
 
             int gts = ActGlobals.oFormActMain.GlobalTimeSorter;
             if (reMatch.Groups["victim"].Success && reMatch.Groups["attacker"].Success)
@@ -463,8 +514,6 @@ namespace ACT_Plugin
             }
         }
 
-        private readonly CultureInfo enUsCulture = CultureInfo.InstalledUICulture;
-
         private void SplitAttackerSkill(ref string attacker, ref string skillType, string[] engNameSkillSplit)
         {
             attacker = string.Empty;    // It wasn't a pet
@@ -505,7 +554,7 @@ namespace ACT_Plugin
             skillType = skillType.Trim();
         }
 
-        Regex selfCheck = new Regex(@"(You|(YOU(?:(\b|R))(?:(\b|SELF))))", RegexOptions.None);
+        Regex selfCheck = new Regex(@"(You|(YOU(?:(\b|R))(?:(\b|SELF))))", RegexOptions.Compiled);
 
         private string EnglishPersonaReplace(string PersonaString)
         {
@@ -551,6 +600,7 @@ namespace ACT_Plugin
                 }
             }
         }
+
         SortedList<string, AposNameFix> aposNameList = new SortedList<string, AposNameFix>();
         internal class AposNameFix : IEquatable<AposNameFix>
         {
@@ -752,6 +802,31 @@ namespace ACT_Plugin
             {
                 ActGlobals.oFormActMain.WriteExceptionLog(ex, "Plugin Update Check");
             }
+        }
+
+        private void cbRecalcWardedHits_MouseHover(object sender, EventArgs e)
+        {
+            ActGlobals.oFormActMain.SetOptionsHelpText("If enabled, no-damage hits or reduced damage hits immediately following a ward absorbtion will be increased by the absorption amount.  Stoneskin's no-damage hits cannot be recalculated.");
+        }
+        private void cbMultiDamageIsOne_MouseHover(object sender, EventArgs e)
+        {
+            ActGlobals.oFormActMain.SetOptionsHelpText("When enabled, an attack that has multiple damage types, such as \"300 crushing, 5 poison and 5 disease damage\" will show up as one total attack: 300/5/5 crushing/poison/disease, internally seen as 310.  If disabled, each damage type will show up as an individual swing, IE three attacks: 300 crushing; 5 poison; 5 disease.  Having a single attack show up as multiple will have consequences when calculating ToHit%.");
+        }
+        private void lblAncestralSentry_MouseHover(object sender, EventArgs e)
+        {
+            ActGlobals.oFormActMain.SetOptionsHelpText("The Mystic ability, Ancestral Sentry, will attempt to intercede players near it in a static manner.");
+        }
+        private void cbSParseConsider_MouseHover(object sender, EventArgs e)
+        {
+            ActGlobals.oFormActMain.SetOptionsHelpText("The /con command simply adds some text to the log about your target's con-level.  The /whogroup and /whoraid commands will list the members of your group/raid respectively.  Using this option will allow you to quickly add players to the Selective Parsing list.");
+        }
+        private void AposName_MouseHover(object sender, EventArgs e)
+        {
+            ActGlobals.oFormActMain.SetOptionsHelpText("Certain mob names with apostrophes in their name will cause the English parser to incorrectly split a combatant name from an ability name.  Use this section to add a full combatant name that should not be split apart.");
+        }
+        private void cbIncludeInterceptFocus_MouseHover(object sender, EventArgs e)
+        {
+            ActGlobals.oFormActMain.SetOptionsHelpText("When a channeler per intercepts damage, it receives an attack as focus damage.  Normally this focus damage is ignored and instead parsed as a heal for the channeler.  Enabling this option will also parse the damage done to the pet.");
         }
 
         private void clbAposName_ItemCheck(object sender, ItemCheckEventArgs e)
@@ -977,8 +1052,9 @@ namespace ACT_Plugin
             CombatantData.DamageTypeDataOutgoingHealing = "Healed (Out)";
             CombatantData.DamageTypeDataIncomingDamage = "Incoming Damage";
             CombatantData.DamageTypeDataIncomingHealing = "Healed (Inc)";
-
+            
             CombatantData.ExportVariables.Clear();
+            /*
             CombatantData.ExportVariables.Add("n", new CombatantData.TextExportFormatter("n", "New Line", "Formatting after this element will appear on a new line.", (Data, Extra) => { return "\n"; }));
             CombatantData.ExportVariables.Add("t", new CombatantData.TextExportFormatter("t", "Tab Character", "Formatting after this element will appear in a relative column arrangement.  (The formatting example cannot display this properly)", (Data, Extra) => { return "\t"; }));
             CombatantData.ExportVariables.Add("name", new CombatantData.TextExportFormatter("name", "Name", "The combatant's name.", (Data, Extra) => { return CombatantFormatSwitch(Data, "name", Extra); }));
@@ -1058,7 +1134,7 @@ namespace ACT_Plugin
             CombatantData.ExportVariables.Add("NAME13", new CombatantData.TextExportFormatter("NAME13", "Name (13 chars)", "The combatant's name, up to 13 characters will be displayed.", (Data, Extra) => { return CombatantFormatSwitch(Data, "NAME13", Extra); }));
             CombatantData.ExportVariables.Add("NAME14", new CombatantData.TextExportFormatter("NAME14", "Name (14 chars)", "The combatant's name, up to 14 characters will be displayed.", (Data, Extra) => { return CombatantFormatSwitch(Data, "NAME14", Extra); }));
             CombatantData.ExportVariables.Add("NAME15", new CombatantData.TextExportFormatter("NAME15", "Name (15 chars)", "The combatant's name, up to 15 characters will be displayed.", (Data, Extra) => { return CombatantFormatSwitch(Data, "NAME15", Extra); }));
-
+            */
 
             DamageTypeData.ColumnDefs.Clear();
             DamageTypeData.ColumnDefs.Add("EncId", new DamageTypeData.ColumnDef("EncId", false, "CHAR(8)", "EncId", (Data) => { return string.Empty; }, (Data) => { return Data.Parent.Parent.EncId; }));
@@ -1166,10 +1242,10 @@ namespace ACT_Plugin
             int speicalLucky = 0;
             int specialDoubleBowShot = 0;
 
-            bool? specialFound;
+            bool specialFound;
             for (int i = 0; i < Data.Items.Count; i++)
             {
-                specialFound = null;
+                specialFound = false;
                 MasterSwing ms = Data.Items[i];
                 if (ms.Special.Length > 0 && ms.Special != "None")
                 {
@@ -1177,61 +1253,61 @@ namespace ACT_Plugin
                     if (ms.Special.Contains("Crippling Blow"))
                     {
                         specialCripplingBlow++;
-                        if (specialFound == null)
+                        if(!specialFound)
                             specialFound = true;
                         continue;
                     }
                     if (ms.Special.Contains("Locked"))
                     {
                         specialLocked++;
-                        if (specialFound == null || specialFound != true)
+                        if (!specialFound)
                             specialFound = true;
                         continue;
                     }
                     if (ms.Special.Contains("Critical"))
                     {
                         specialCritical++;
-                        if (specialFound == null || specialFound != true)
+                        if (!specialFound)
                             specialFound = true;
                         continue;
                     }
                     if (ms.Special.Contains("Strikethrough"))
                     {
                         specialStrikethrough++;
-                        if (specialFound == null || specialFound != true)
+                        if (!specialFound)
                             specialFound = true;
                         continue;
                     }
                     if (ms.Special.Contains("Riposte"))
                     {
                         specialRiposte++;
-                        if (specialFound == null || specialFound != true)
+                        if (!specialFound)
                             specialFound = true;
                         continue;
                     }
                     if(ms.Special.Contains("Flurry"))
                     {
                         specialFlurry++;
-                        if (specialFound == null || specialFound != true)
+                        if (!specialFound)
                             specialFound = true;
                         continue;
                     }
                     if (ms.Special.Contains("Lucky"))
                     {
                         speicalLucky++;
-                        if (specialFound == null || specialFound != true)
+                        if (!specialFound)
                             specialFound = true;
                         continue;
                     }
                     if (ms.Special.Contains("Double Bow Shot"))
                     {
                         specialDoubleBowShot++;
-                        if (specialFound == null || specialFound != true)
+                        if (!specialFound)
                             specialFound = true;
                         continue;
                     }
                     
-                    if (specialFound == null || !(bool)specialFound)
+                    if (specialFound)
                         break;
                     specialNonDefined++;
                 }

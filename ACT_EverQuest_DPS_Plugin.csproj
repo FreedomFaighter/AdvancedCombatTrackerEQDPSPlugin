@@ -82,7 +82,5 @@
       <DependentUpon>EverQuestDPSPlugin.cs</DependentUpon>
     </EmbeddedResource>
   </ItemGroup>
-  <ItemGroup>
-    <Folder Include="Source\" />
-  </ItemGroup>
+  <ItemGroup />
 </Project>
