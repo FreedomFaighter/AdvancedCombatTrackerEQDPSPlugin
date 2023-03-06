@@ -132,6 +132,9 @@
   <data name="InstantHeal" xml:space="preserve">
     <value>(?&lt;healer&gt;.+) healed (?&lt;healingTarget&gt;.+) for (?&lt;healingPoints&gt;[\d]+)(?:[\s\(](?&lt;overHealPoints&gt;[\d]+)[\)]){0,1} hit points by (?&lt;healingSpell&gt;.*\.)(?:[\s][\(](?&lt;healingSpecial&gt;.+)[\)]){0,1}</value>
   </data>
+  <data name="LootedCorpse" xml:space="preserve">
+    <value>--You have looted a Steel Ingot from Lieutenant Dagarok's corpse.--</value>
+  </data>
   <data name="MeleeAttack" xml:space="preserve">
     <value>(?&lt;attacker&gt;(You|.+)) (?&lt;attackType&gt;({0})+) (?&lt;victim&gt;.+) for (?&lt;damageAmount&gt;[\d]+) (point[|s]) of damage.(?:\s\((?&lt;damageSpecial&gt;.+)\)){0,1}</value>
   </data>

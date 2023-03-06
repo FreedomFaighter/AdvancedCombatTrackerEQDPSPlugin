@@ -293,6 +293,8 @@ namespace ACT_Plugin
             ActGlobals.oFormEncounterLogs.LogTypeToColorMapping.Add(regexTupleList.Count - 1, regexTupleList[regexTupleList.Count - 1].Item1);
             regexTupleList.Add(new Tuple<Color, Regex>(Color.BlueViolet, new Regex($@"{EverQuestDPSParse.TimeStamp} {EverQuestDPSParse.InstantHeal}", RegexOptions.Compiled)));
             ActGlobals.oFormEncounterLogs.LogTypeToColorMapping.Add(regexTupleList.Count - 1, regexTupleList[regexTupleList.Count - 1].Item1);
+            regexTupleList.Add(new Tuple<Color, Regex>(Color.AliceBlue, new Regex($@"{EverQuestDPSParse.TimeStamp} {EverQuestDPSParse.LootedCorpse} ")));
+            ActGlobals.oFormEncounterLogs.LogTypeToColorMapping.Add(regexTupleList.Count-1, regexTupleList[regexTupleList.Count-1].Item1);
         }
 
         void oFormActMain_BeforeLogLineRead(bool isImport, LogLineEventArgs logInfo)
