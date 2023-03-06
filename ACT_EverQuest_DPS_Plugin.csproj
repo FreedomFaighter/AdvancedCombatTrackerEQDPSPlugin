@@ -64,22 +64,20 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="EverQuestDPSParse.Designer.cs">
-      <AutoGen>True</AutoGen>
-      <DesignTime>True</DesignTime>
-      <DependentUpon>EverQuestDPSParse.resx</DependentUpon>
-    </Compile>
     <Compile Include="EverQuestDPSPlugin.cs">
       <SubType>UserControl</SubType>
     </Compile>
+    <Compile Include="EverQuestDPSPlugin.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>EverQuestDPSPlugin.resx</DependentUpon>
+    </Compile>
   </ItemGroup>
   <ItemGroup>
-    <EmbeddedResource Include="EverQuestDPSParse.resx">
-      <Generator>ResXFileCodeGenerator</Generator>
-      <LastGenOutput>EverQuestDPSParse.Designer.cs</LastGenOutput>
-    </EmbeddedResource>
     <EmbeddedResource Include="EverQuestDPSPlugin.resx">
       <DependentUpon>EverQuestDPSPlugin.cs</DependentUpon>
+      <Generator>ResXFileCodeGenerator</Generator>
+      <LastGenOutput>EverQuestDPSPlugin.Designer.cs</LastGenOutput>
     </EmbeddedResource>
   </ItemGroup>
   <ItemGroup />
