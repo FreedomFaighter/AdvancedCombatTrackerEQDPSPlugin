@@ -142,7 +142,7 @@ namespace ACT_Plugin {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to EverQuest DPS Parse.
+        ///   Looks up a localized string similar to EverQuest English Parsing Plugin.
         /// </summary>
         internal static string PluginName {
             get {

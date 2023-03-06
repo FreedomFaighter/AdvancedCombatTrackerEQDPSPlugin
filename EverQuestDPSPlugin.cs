@@ -249,7 +249,7 @@ namespace ACT_Plugin
                 new Thread(new ThreadStart(oFormActMain_UpdateCheckClicked)).Start();   // If we don't put this on a separate thread, web latency will delay the plugin init phase
             ActGlobals.oFormActMain.CharacterFileNameRegex = new Regex($@"(?:.+)[\\]eqlog_(?<characterName>\S+)_(?<server>.+).txt", RegexOptions.Compiled);
             ActGlobals.oFormActMain.ZoneChangeRegex = new Regex(@"You have entered (?!the Drunken Monkey stance adequately)(?<zoneInfo>.+).", RegexOptions.Compiled);
-            lblStatus.Text = @"{EverQuestDPSParse.PluginName} Plugin Started";
+            lblStatus.Text = $"{EverQuestDPSParse.PluginName} Plugin Started";
         }
 
         public void DeInitPlugin()
@@ -727,7 +727,7 @@ namespace ACT_Plugin
                 ActGlobals.oFormActMain.PluginGetGithubApi(pluginId);
                 if (localDate.AddHours(2) < remoteDate)
                 {
-                    DialogResult result = MessageBox.Show("There is an updated version of the EverQuest English Parsing Plugin.  Update it now?\n\n(If there is an update to ACT, you should click No and update ACT first.)", "New Version", MessageBoxButtons.YesNo, MessageBoxIcon.Question);
+                    DialogResult result = MessageBox.Show($"There is an updated version of the {EverQuestDPSParse.PluginName} .  Update it now?\n\n(If there is an update to ACT, you should click No and update ACT first.)", "New Version", MessageBoxButtons.YesNo, MessageBoxIcon.Question);
                     if (result == DialogResult.Yes)
                     {
                         FileInfo updatedFile = ActGlobals.oFormActMain.PluginDownload(pluginId);
