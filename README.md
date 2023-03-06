@@ -1,4 +1,8 @@
-## Plugins
-### ACT_Plugin_Sample
-Sample C# code of a mostly blank plugin.  Provides an example on making a plugin based off a UserControl thus visually editable by Visual Studio and an example of using ACT's SettingsSerializer.  
-Presuming you have ACT installed, Visual Studio can start it for debugging the plugin, once ACT loads it.
+## ACT Plugin
+### ACT_EQ_DPS_Plugin
+
+Partially developed ACT plugin for parsing EverQuest log files as they are generated.
+
+Uses ACT's plugin capabilities to load the parsing plugin into the application and generate parsed data from the character's log file
+
+Requires [Advanced Combat Tracker](https://advancedcombattracker.com/) to be installed in
