@@ -61,6 +61,15 @@ namespace ACT_Plugin {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Glug, glug, glug...  (?&lt;drinker&gt;.+) take a swig of (?&lt;typeOfAlcohol&gt;.+)..
+        /// </summary>
+        internal static string AlcoholConsumption {
+            get {
+                return ResourceManager.GetString("AlcoholConsumption", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to pierce|gore|crush|slash|hit|kick|slam|bash|shoot|strike|bite|grab.
         /// </summary>
         internal static string attackTypes {
@@ -75,6 +84,24 @@ namespace ACT_Plugin {
         internal static string DamageShield {
             get {
                 return ResourceManager.GetString("DamageShield", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to (?&lt;drinker&gt;.+) take a drink from your (?&lt;typeOfDrink&gt;.+)..
+        /// </summary>
+        internal static string DrinkConsumption {
+            get {
+                return ResourceManager.GetString("DrinkConsumption", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to ddd MMM dd HH:mm:ss yyyy.
+        /// </summary>
+        internal static string eqDateTimeStampFormat {
+            get {
+                return ResourceManager.GetString("eqDateTimeStampFormat", resourceCulture);
             }
         }
         

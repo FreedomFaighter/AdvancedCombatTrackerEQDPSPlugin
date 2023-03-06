@@ -117,11 +117,20 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
+  <data name="AlcoholConsumption" xml:space="preserve">
+    <value>Glug, glug, glug...  (?&lt;drinker&gt;.+) take a swig of (?&lt;typeOfAlcohol&gt;.+).</value>
+  </data>
   <data name="attackTypes" xml:space="preserve">
     <value>pierce|gore|crush|slash|hit|kick|slam|bash|shoot|strike|bite|grab</value>
   </data>
   <data name="DamageShield" xml:space="preserve">
     <value>(?&lt;victim&gt;(You|.+)) is (?&lt;damageShieldDamageType&gt;\S+) by (?&lt;attacker&gt;(YOUR|.+)) (?&lt;damageShieldType&gt;\S+) for (?&lt;damagePoints&gt;[\d]+) points of non-melee damage.</value>
+  </data>
+  <data name="DrinkConsumption" xml:space="preserve">
+    <value>(?&lt;drinker&gt;.+) take a drink from your (?&lt;typeOfDrink&gt;.+).</value>
+  </data>
+  <data name="eqDateTimeStampFormat" xml:space="preserve">
+    <value>ddd MMM dd HH:mm:ss yyyy</value>
   </data>
   <data name="HealingOverTime" xml:space="preserve">
     <value>(?&lt;healer&gt;.+) healed (?&lt;healingTarget&gt;.+) over time for (?&lt;healingPoints&gt;[\d]+)(?:[\s\(](?&lt;overHealPoints&gt;[\d]+)[\)]){0,1} hit points by (?&lt;healingSpell&gt;.*\.)(?:[\s][\(](?&lt;healingSpecial&gt;.+)[\)]){0,1}</value>
