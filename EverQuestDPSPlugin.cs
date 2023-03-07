@@ -287,6 +287,7 @@ namespace ACT_EverQuest_DPS_Plugin
         String SpellDamage = @"(?<attacker>.+) hit (?< victim >.+) for (?< damagePoints >[\d] +) (?: point[| s]) of(?< typeOfDamage >.+) damage by(?:(?< damageEffect >.+).)(?:\s\((?<spellSpeicals>.+)\))";
         String TimeStamp = @"\[(?< dateTimeOfLogLine >.+)\]";
         String ZoneChange = @"You have entered (?:the Drunken Monkey stance adequately|(?<zoneName>.+)).";
+        Regex selfCheck = new Regex(@"(You|(YOU(?:(\b|R))(?:(\b|SELF))))", RegexOptions.Compiled);
         #endregion
 
         public EverQuestDPSPlugin()
@@ -593,8 +594,6 @@ namespace ACT_EverQuest_DPS_Plugin
             attacker = attacker.TrimStart(chrApos); // Remove the appostrophe at the begining of the string
             skillType = skillType.Trim();
         }
-
-        Regex selfCheck = new Regex(@"(You|(YOU(?:(\b|R))(?:(\b|SELF))))", RegexOptions.Compiled);
 
         private string CharacterNamePersonaReplace(string PersonaString)
         {
@@ -937,7 +936,7 @@ namespace ACT_EverQuest_DPS_Plugin
             CultureInfo usCulture = new CultureInfo("en-US");   // This is for SQL syntax; do not change
 
             EncounterData.ColumnDefs.Clear();
-            //                                                                                      Do not change the SqlDataName while doing localization
+            //Do not change the SqlDataName while doing localization
             EncounterData.ColumnDefs.Add("EncId", new EncounterData.ColumnDef("EncId", false, "CHAR(8)", "EncId", (Data) => { return string.Empty; }, (Data) => { return Data.EncId; }));
             EncounterData.ColumnDefs.Add("Title", new EncounterData.ColumnDef("Title", true, "VARCHAR(64)", "Title", (Data) => { return Data.Title; }, (Data) => { return Data.Title; }));
             EncounterData.ColumnDefs.Add("StartTime", new EncounterData.ColumnDef("StartTime", true, "TIMESTAMP", "StartTime", (Data) => { return Data.StartTime == DateTime.MaxValue ? "--:--:--" : String.Format("{0} {1}", Data.StartTime.ToShortDateString(), Data.StartTime.ToLongTimeString()); }, (Data) => { return Data.StartTime == DateTime.MaxValue ? "0000-00-00 00:00:00" : Data.StartTime.ToString("u").TrimEnd(new char[] { 'Z' }); }));
@@ -1278,7 +1277,7 @@ namespace ACT_EverQuest_DPS_Plugin
             int specialRiposte = 0;
             int specialNonDefined = 0;
             int specialFlurry = 0;
-            int speicalLucky = 0;
+            int specialLucky = 0;
             int specialDoubleBowShot = 0;
 
             bool specialFound;
@@ -1289,56 +1288,56 @@ namespace ACT_EverQuest_DPS_Plugin
                 if (ms.Special.Length > 0 && ms.Special != "None")
                 {
                     special++;
-                    if (ms.Special.Contains("Crippling Blow"))
+                    if (ms.Special.Contains(SpecialCripplingBlow))
                     {
                         specialCripplingBlow++;
                         if(!specialFound)
                             specialFound = true;
                         continue;
                     }
-                    if (ms.Special.Contains("Locked"))
+                    if (ms.Special.Contains(SpecialLocked))
                     {
                         specialLocked++;
                         if (!specialFound)
                             specialFound = true;
                         continue;
                     }
-                    if (ms.Special.Contains("Critical"))
+                    if (ms.Special.Contains(SpecialCritical))
                     {
                         specialCritical++;
                         if (!specialFound)
                             specialFound = true;
                         continue;
                     }
-                    if (ms.Special.Contains("Strikethrough"))
+                    if (ms.Special.Contains(SpecialStrikethrough))
                     {
                         specialStrikethrough++;
                         if (!specialFound)
                             specialFound = true;
                         continue;
                     }
-                    if (ms.Special.Contains("Riposte"))
+                    if (ms.Special.Contains(SpecialRiposte))
                     {
                         specialRiposte++;
                         if (!specialFound)
                             specialFound = true;
                         continue;
                     }
-                    if(ms.Special.Contains("Flurry"))
+                    if(ms.Special.Contains(SpecialFlurry))
                     {
                         specialFlurry++;
                         if (!specialFound)
                             specialFound = true;
                         continue;
                     }
-                    if (ms.Special.Contains("Lucky"))
+                    if (ms.Special.Contains(SpecialLucky))
                     {
-                        speicalLucky++;
+                        specialLucky++;
                         if (!specialFound)
                             specialFound = true;
                         continue;
                     }
-                    if (ms.Special.Contains("Double Bow Shot"))
+                    if (ms.Special.Contains(SpecialDoubleBowShot))
                     {
                         specialDoubleBowShot++;
                         if (!specialFound)
@@ -1359,7 +1358,7 @@ namespace ACT_EverQuest_DPS_Plugin
             float specialStrikethroughPerc = ((float)specialStrikethrough / (float)Data.Items.Count) * 100f;
             float specialRipostePerc = ((float)specialRiposte / (float)Data.Items.Count) * 100f;
             float specialFlurryPerc = ((float)specialFlurry / (float)Data.Items.Count) * 100f;
-            float speicalLuckyPerc = ((float)speicalLucky / (float)Data.Items.Count) * 100f;
+            float speicalLuckyPerc = ((float)specialLucky / (float)Data.Items.Count) * 100f;
             float specialDoubleBowShotPerc = ((float)specialDoubleBowShot / (float)Data.Items.Count) * 100f;
 
             if (special == 0)
@@ -1695,202 +1694,7 @@ namespace ACT_EverQuest_DPS_Plugin
                     return VarName;
             }
         }
-        private string CombatantFormatSwitch(CombatantData Data, string VarName, string Extra)
-        {
-            int len = 0;
-            switch (VarName)
-            {
-                case "name":
-                    return Data.Name;
-                case "NAME":
-                    len = Int32.Parse(Extra);
-                    return Data.Name.Length - len > 0 ? Data.Name.Remove(len, Data.Name.Length - len).Trim() : Data.Name;
-                case "NAME3":
-                    len = 3;
-                    return Data.Name.Length - len > 0 ? Data.Name.Remove(len, Data.Name.Length - len).Trim() : Data.Name;
-                case "NAME4":
-                    len = 4;
-                    return Data.Name.Length - len > 0 ? Data.Name.Remove(len, Data.Name.Length - len).Trim() : Data.Name;
-                case "NAME5":
-                    len = 5;
-                    return Data.Name.Length - len > 0 ? Data.Name.Remove(len, Data.Name.Length - len).Trim() : Data.Name;
-                case "NAME6":
-                    len = 6;
-                    return Data.Name.Length - len > 0 ? Data.Name.Remove(len, Data.Name.Length - len).Trim() : Data.Name;
-                case "NAME7":
-                    len = 7;
-                    return Data.Name.Length - len > 0 ? Data.Name.Remove(len, Data.Name.Length - len).Trim() : Data.Name;
-                case "NAME8":
-                    len = 8;
-                    return Data.Name.Length - len > 0 ? Data.Name.Remove(len, Data.Name.Length - len).Trim() : Data.Name;
-                case "NAME9":
-                    len = 9;
-                    return Data.Name.Length - len > 0 ? Data.Name.Remove(len, Data.Name.Length - len).Trim() : Data.Name;
-                case "NAME10":
-                    len = 10;
-                    return Data.Name.Length - len > 0 ? Data.Name.Remove(len, Data.Name.Length - len).Trim() : Data.Name;
-                case "NAME11":
-                    len = 11;
-                    return Data.Name.Length - len > 0 ? Data.Name.Remove(len, Data.Name.Length - len).Trim() : Data.Name;
-                case "NAME12":
-                    len = 12;
-                    return Data.Name.Length - len > 0 ? Data.Name.Remove(len, Data.Name.Length - len).Trim() : Data.Name;
-                case "NAME13":
-                    len = 13;
-                    return Data.Name.Length - len > 0 ? Data.Name.Remove(len, Data.Name.Length - len).Trim() : Data.Name;
-                case "NAME14":
-                    len = 14;
-                    return Data.Name.Length - len > 0 ? Data.Name.Remove(len, Data.Name.Length - len).Trim() : Data.Name;
-                case "NAME15":
-                    len = 15;
-                    return Data.Name.Length - len > 0 ? Data.Name.Remove(len, Data.Name.Length - len).Trim() : Data.Name;
-                case "DURATION":
-                    return Data.Duration.TotalSeconds.ToString("0");
-                case "duration":
-                    return Data.DurationS;
-                case "maxhit":
-                    return Data.GetMaxHit(true, false);
-                case "MAXHIT":
-                    return Data.GetMaxHit(false, false);
-                case "maxhit-*":
-                    return Data.GetMaxHit(true, true);
-                case "MAXHIT-*":
-                    return Data.GetMaxHit(false, true);
-                case "maxheal":
-                    return Data.GetMaxHeal(true, false, false);
-                case "MAXHEAL":
-                    return Data.GetMaxHeal(false, false, false);
-                case "maxheal-*":
-                    return Data.GetMaxHeal(true, false, true);
-                case "MAXHEAL-*":
-                    return Data.GetMaxHeal(false, false, true);
-                case "maxhealward":
-                    return Data.GetMaxHeal(true, true, false);
-                case "MAXHEALWARD":
-                    return Data.GetMaxHeal(false, true, false);
-                case "maxhealward-*":
-                    return Data.GetMaxHeal(true, true, true);
-                case "MAXHEALWARD-*":
-                    return Data.GetMaxHeal(false, true, true);
-                case "damage":
-                    return Data.Damage.ToString();
-                case "damage-k":
-                    return (Data.Damage / 1000.0).ToString("0.00");
-                case "damage-m":
-                    return (Data.Damage / 1000000.0).ToString("0.00");
-                case "damage-b":
-                    return (Data.Damage / 1000000000.0).ToString("0.00");
-                case "damage-*":
-                    return ActGlobals.oFormActMain.CreateDamageString(Data.Damage, true, true);
-                case "DAMAGE-k":
-                    return (Data.Damage / 1000.0).ToString("0");
-                case "DAMAGE-m":
-                    return (Data.Damage / 1000000.0).ToString("0");
-                case "DAMAGE-b":
-                    return (Data.Damage / 1000000000.0).ToString("0");
-                case "DAMAGE-*":
-                    return ActGlobals.oFormActMain.CreateDamageString(Data.Damage, true, false);
-                case "healed":
-                    return Data.Healed.ToString();
-                case "healed-*":
-                    return ActGlobals.oFormActMain.CreateDamageString(Data.Healed, true, true);
-                case "swings":
-                    return Data.Swings.ToString();
-                case "hits":
-                    return Data.Hits.ToString();
-                case "crithits":
-                    return Data.CritHits.ToString();
-                case "critheals":
-                    return Data.CritHeals.ToString();
-                case "crittypes":
-                    return CombatantDataGetCritTypes(Data);
-                case "crithit%":
-                    return Data.CritDamPerc.ToString("0'%");
-                case "critheal%":
-                    return Data.CritHealPerc.ToString("0'%");
-                case "heals":
-                    return Data.Heals.ToString();
-                case "cures":
-                    return Data.CureDispels.ToString();
-                case "misses":
-                    return Data.Misses.ToString();
-                case "hitfailed":
-                    return Data.Blocked.ToString();
-                case "TOHIT":
-                    return Data.ToHit.ToString("0");
-                case "DPS":
-                    return Data.DPS.ToString("0");
-                case "DPS-k":
-                    return (Data.DPS / 1000.0).ToString("0");
-                case "DPS-m":
-                    return (Data.DPS / 1000000.0).ToString("0");
-                case "DPS-*":
-                    return ActGlobals.oFormActMain.CreateDamageString((long)Data.DPS, true, false);
-                case "ENCDPS":
-                    return Data.EncDPS.ToString("0");
-                case "ENCDPS-k":
-                    return (Data.EncDPS / 1000.0).ToString("0");
-                case "ENCDPS-m":
-                    return (Data.EncDPS / 1000000.0).ToString("0");
-                case "ENCDPS-*":
-                    return ActGlobals.oFormActMain.CreateDamageString((long)Data.EncDPS, true, false);
-                case "ENCHPS":
-                    return Data.EncHPS.ToString("0");
-                case "ENCHPS-k":
-                    return (Data.EncHPS / 1000.0).ToString("0");
-                case "ENCHPS-m":
-                    return (Data.EncHPS / 1000000.0).ToString("0");
-                case "ENCHPS-*":
-                    return ActGlobals.oFormActMain.CreateDamageString((long)Data.EncHPS, true, false);
-                case "tohit":
-                    return Data.ToHit.ToString("F");
-                case "dps":
-                    return Data.DPS.ToString("F");
-                case "dps-k":
-                    return (Data.DPS / 1000.0).ToString("F");
-                case "dps-*":
-                    return ActGlobals.oFormActMain.CreateDamageString((long)Data.DPS, true, true);
-                case "encdps":
-                    return Data.EncDPS.ToString("F");
-                case "encdps-k":
-                    return (Data.EncDPS / 1000.0).ToString("F");
-                case "encdps-m":
-                    return (Data.EncDPS / 1000000.0).ToString("F");
-                case "encdps-*":
-                    return ActGlobals.oFormActMain.CreateDamageString((long)Data.EncDPS, true, true);
-                case "enchps":
-                    return Data.EncHPS.ToString("F");
-                case "enchps-k":
-                    return (Data.EncHPS / 1000.0).ToString("F");
-                case "enchps-m":
-                    return (Data.EncHPS / 1000000.0).ToString("F");
-                case "enchps-*":
-                    return ActGlobals.oFormActMain.CreateDamageString((long)Data.EncHPS, true, true);
-                case "healstaken":
-                    return Data.HealsTaken.ToString();
-                case "healstaken-*":
-                    return ActGlobals.oFormActMain.CreateDamageString((long)Data.HealsTaken, true, true);
-                case "damagetaken":
-                    return Data.DamageTaken.ToString();
-                case "damagetaken-*":
-                    return ActGlobals.oFormActMain.CreateDamageString((long)Data.DamageTaken, true, true);
-                case "kills":
-                    return Data.Kills.ToString();
-                case "deaths":
-                    return Data.Deaths.ToString();
-                case "damage%":
-                    return Data.DamagePercent;
-                case "healed%":
-                    return Data.HealedPercent;
-                case "n":
-                    return "\n";
-                case "t":
-                    return "\t";
-
-                default:
-                    return VarName;
-            }
-        }
+        
         private string GetAttackTypeSwingType(AttackType Data)
         {
             int swingType = 100;
