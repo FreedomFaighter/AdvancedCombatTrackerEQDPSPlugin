@@ -273,7 +273,7 @@ namespace ACT_EverQuest_DPS_Plugin
         readonly String PluginName = @"EverQuest English Parsing Plugin";
         readonly static String PluginSettingsFileName = @"Config\ACT_EverQuest_English_Parser.config.xml";
         readonly String PluginSettingsSectionName = @"Data Correction\EQ English Settings";
-        readonly String SlainMessage = @"(?<attacker>.+) have slain(?<victim>.+)!";
+        readonly String SlainMessage = @"(?<attacker>.+) have slain (?<victim>.+)!";
         readonly String SpecialCripplingBlow = @"Crippling Blow";
         readonly String SpecialCritical = @"Critical";
         readonly String SpecialDoubleBowShot = @"Double Bow Shot";
@@ -1024,7 +1024,6 @@ namespace ACT_EverQuest_DPS_Plugin
             CombatantData.ColumnDefs.Add("ToHit%", new CombatantData.ColumnDef("ToHit%", false, "FLOAT", "ToHit", (Data) => { return Data.ToHit.ToString(); }, (Data) => { return Data.ToHit.ToString(usCulture); }, (Left, Right) => { return Left.ToHit.CompareTo(Right.ToHit); }));
             CombatantData.ColumnDefs.Add("CritDam%", new CombatantData.ColumnDef("CritDam%", false, "VARCHAR(8)", "CritDamPerc", (Data) => { return Data.CritDamPerc.ToString("0'%"); }, (Data) => { return Data.CritDamPerc.ToString("0'%"); }, (Left, Right) => { return Left.CritDamPerc.CompareTo(Right.CritDamPerc); }));
             CombatantData.ColumnDefs.Add("CritHeal%", new CombatantData.ColumnDef("CritHeal%", false, "VARCHAR(8)", "CritHealPerc", (Data) => { return Data.CritHealPerc.ToString("0'%"); }, (Data) => { return Data.CritHealPerc.ToString("0'%"); }, (Left, Right) => { return Left.CritHealPerc.CompareTo(Right.CritHealPerc); }));
-
             CombatantData.ColumnDefs.Add("Specials", new CombatantData.ColumnDef("Specials", true, "VARCHAR(32)", "Specials", CombatantDataGetCritTypes, CombatantDataGetCritTypes, (Left, Right) => { return CombatantDataGetCritTypes(Left).CompareTo(CombatantDataGetCritTypes(Right)); }));
 
             CombatantData.ColumnDefs["Damage"].GetCellForeColor = (Data) => { return Color.DarkRed; };
@@ -1043,7 +1042,10 @@ namespace ACT_EverQuest_DPS_Plugin
             {"Outgoing Damage", new CombatantData.DamageTypeDef("Outgoing Damage", 0, Color.Orange)},
             {"Healed (Out)", new CombatantData.DamageTypeDef("Healed (Out)", 1, Color.Blue)},
             {"Cure/Dispel (Out)", new CombatantData.DamageTypeDef("Cure/Dispel (Out)", 0, Color.Wheat)},
-            {"All Outgoing (Ref)", new CombatantData.DamageTypeDef("All Outgoing (Ref)", 0, Color.Black)}
+            {"All Outgoing (Ref)", new CombatantData.DamageTypeDef("All Outgoing (Ref)", 0, Color.Black)},
+                {"Pet Melee (Out)", new CombatantData.DamageTypeDef("Pet Melee", 0, Color.Green) },
+                {"Pet Spell (Out)", new CombatantData.DamageTypeDef("Pet Spell", 0, Color.Purple) }
+
         };
             CombatantData.IncomingDamageTypeDataObjects = new Dictionary<string, CombatantData.DamageTypeDef>
         {
