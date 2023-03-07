@@ -268,7 +268,7 @@ namespace ACT_EverQuest_DPS_Plugin
         String HitpointsHealingOverTime = @"Hit Points Healing Over Time";
         String InstantHeal = @"(?<healer>.+) healed(?<healingTarget>.+) for (?<healingPoints>[\d]+)(?:[\s\(](?<overHealPoints>[\d]+)[\)]){0,1} hit points by(?<healingSpell>.*\.)(?:[\s][\(](?<healingSpecial>.+)[\)]){0,1}";
         String LootedCorpse = @"--(?<looter>.+) have looted a(?<loot>.+) from(?<victim>.+)'s corpse.--";
-        //String MeleeAttack = @"(?<attacker>(You|.+)) (?<attackType>({0})+) (?<victim>.+) for (?<damageAmount>[\d]+) (point[| s]) of damage.(?:\s\((?<damageSpecial>.+)\)){0,1}";
+        String MeleeAttack = @"(?:(?<attackType>("" + attackTypes + @""))(|s|es|bed|ped)) (?<victim>.+) for (?<damageAmount>[\d]+) (point[|s]) of damage.(?:\s\((?<damageSpecial>.+)\)){0,1}";
         //String MissedMeleeAttack = @"{EverQuestDPSParse.TimeStamp} (?< attacker >.+)(?:tr(ies | y)) to(?< attackType > ({ attackTypes})+) (?< victim >.+), but(?:miss(| es))!";
         String PetMelee = @"(?:(?< attacker >\S +)(`s pet))";
         int pluginId = 96;
@@ -357,8 +357,7 @@ namespace ACT_EverQuest_DPS_Plugin
         private void PopulateRegexArray()
         {
             ActGlobals.oFormEncounterLogs.LogTypeToColorMapping.Clear();
-            String stringWithattackTypes = @"(?<attacker>.+) (?:(?<attackType>(" + attackTypes + @"))(|s|es|bed|ped)) (?<victim>.+) for (?<damageAmount>[\d]+) (point[|s]) of damage.(?:\s\((?<damageSpecial>.+)\)){0,1}";
-            regexTupleList.Add(new Tuple<Color, Regex>(Color.Red, new Regex($@"{TimeStamp} {stringWithattackTypes}", RegexOptions.Compiled)));
+            regexTupleList.Add(new Tuple<Color, Regex>(Color.Red, new Regex($@"{TimeStamp} {MeleeAttack}", RegexOptions.Compiled)));
             ActGlobals.oFormEncounterLogs.LogTypeToColorMapping.Add(regexTupleList.Count - 1, regexTupleList[regexTupleList.Count - 1].Item1);
             regexTupleList.Add(new Tuple<Color, Regex>(Color.Red, new Regex($@"{TimeStamp} {DamageShield}", RegexOptions.Compiled)));
             ActGlobals.oFormEncounterLogs.LogTypeToColorMapping.Add(regexTupleList.Count - 1, regexTupleList[regexTupleList.Count - 1].Item1);
