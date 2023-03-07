@@ -7,8 +7,8 @@
     <SchemaVersion>2.0</SchemaVersion>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>ACT_Plugin</RootNamespace>
-    <AssemblyName>ACT_Plugin</AssemblyName>
+    <RootNamespace>EverQuestDPSPlugin</RootNamespace>
+    <AssemblyName>EverQuestDPSPlugin</AssemblyName>
     <TargetFrameworkVersion>v4.8</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <StartupObject>
@@ -67,18 +67,6 @@
     <Compile Include="EverQuestDPSPlugin.cs">
       <SubType>UserControl</SubType>
     </Compile>
-    <Compile Include="EverQuestDPSPlugin.Designer.cs">
-      <AutoGen>True</AutoGen>
-      <DesignTime>True</DesignTime>
-      <DependentUpon>EverQuestDPSPlugin.resx</DependentUpon>
-    </Compile>
-  </ItemGroup>
-  <ItemGroup>
-    <EmbeddedResource Include="EverQuestDPSPlugin.resx">
-      <DependentUpon>EverQuestDPSPlugin.cs</DependentUpon>
-      <Generator>ResXFileCodeGenerator</Generator>
-      <LastGenOutput>EverQuestDPSPlugin.Designer.cs</LastGenOutput>
-    </EmbeddedResource>
   </ItemGroup>
   <ItemGroup />
 </Project>
