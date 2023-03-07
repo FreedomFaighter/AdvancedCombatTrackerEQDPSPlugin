@@ -559,7 +559,7 @@ namespace ACT_EverQuest_DPS_Plugin
                         throw new Exception($"Possesive persona of action doesn't match drinker.  'They made me do it' {reMatch.Groups["drinker"].Value} != {reMatch.Groups["possesivePersona"].Value}.");
                 //
                 case 12:
-                    ActGlobals.oFormActMain.ZoneDatabase[this.lastKnownZoneChange].EndTime = GetDateTimeFromGroupMatch(reMatch.Groups["dateTimeOfLogLine"].Value);
+                    //ActGlobals.oFormActMain.ZoneDatabase[this.lastKnownZoneChange].EndTime = GetDateTimeFromGroupMatch(reMatch.Groups["dateTimeOfLogLine"].Value);
                     break;
                 default:
                     break;
