@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Drawing;
 using System.Globalization;
 using System.IO;
+using System.Linq;
 using System.Reflection;
 using System.Text;
 using System.Text.RegularExpressions;
@@ -283,14 +284,16 @@ namespace ACT_EverQuest_DPS_Plugin
         readonly String SpecialRiposte = @"Riposte";
         readonly String SpecialStrikethrough = @"Strikethrough";
         readonly String SpellDamage = @"(?<attacker>.+) hit (?<victim>.+) for (?<damagePoints>[\d]+) (?:point[|s]) of(?<typeOfDamage>.+) damage by(?:(?<damageEffect>.+).)(?:\s\((?<spellSpeicals>.+)\))";
-        readonly String TimeStamp = @"\[(?< dateTimeOfLogLine >.+)\]";
+        readonly String TimeStamp = @"\[(?<dateTimeOfLogLine>.+)\]";
         readonly String ZoneChange = @"You have entered (?:the Drunken Monkey stance adequately|(?<zoneName>.+)).";
+        readonly String LoadingPleaseWait = @"LOADING, PLEASE WAIT...";
         Regex selfCheck = new Regex(@"(You|(YOU(?:(\b|R))(?:(\b|SELF))))", RegexOptions.Compiled);
         SortedList<string, AposNameFix> aposNameList = new SortedList<string, AposNameFix>();
         TreeNode optionsNode = null;
         Label lblStatus;    // The status label that appears in ACT's Plugin tab
         readonly string settingsFile = Path.Combine(ActGlobals.oFormActMain.AppDataFolder.FullName, PluginSettingsFileName);
         SettingsSerializer xmlSettings;
+        DateTime lastKnownZoneChange;
         #endregion
         public EverQuestDPSPlugin()
         {
@@ -376,6 +379,8 @@ namespace ACT_EverQuest_DPS_Plugin
             ActGlobals.oFormEncounterLogs.LogTypeToColorMapping.Add(regexTupleList.Count - 1, regexTupleList[regexTupleList.Count - 1].Item1);
             regexTupleList.Add(new Tuple<Color, Regex>(Color.AliceBlue, new Regex($@"{TimeStamp} {DrinkConsumption}", RegexOptions.Compiled)));
             ActGlobals.oFormEncounterLogs.LogTypeToColorMapping.Add(regexTupleList.Count - 1, regexTupleList[regexTupleList.Count - 1].Item1);
+            regexTupleList.Add(new Tuple<Color, Regex>(Color.Azure, new Regex($@"{TimeStamp} {LoadingPleaseWait}", RegexOptions.Compiled)));
+            ActGlobals.oFormEncounterLogs.LogTypeToColorMapping.Add(regexTupleList.Count - 1, regexTupleList[regexTupleList.Count - 1].Item1);
         }
         void oFormActMain_BeforeLogLineRead(bool isImport, LogLineEventArgs logInfo)
         {
@@ -389,6 +394,7 @@ namespace ACT_EverQuest_DPS_Plugin
                     break;
                 }
             }
+            
         }
         private DateTime GetDateTimeFromGroupMatch(String dt)
         {
@@ -507,7 +513,11 @@ namespace ACT_EverQuest_DPS_Plugin
                     break;
                 //Zone change
                 case 7:
-                    ActGlobals.oFormActMain.ChangeZone(reMatch.Groups["zoneInfo"].Value);
+                    String zoneName = reMatch.Groups["zoneName"].Value != String.Empty ? reMatch.Groups["zoneName"].Value : throw new Exception("Zone regex triggered but group empty.");
+                    //when checking the HistoryRecord the EndTime should be compared against default(DateTime) to determine if it an exact value among other methods such does the default(DateTime) take place before the StartTime for the HistoryRecord
+                    this.lastKnownZoneChange = GetDateTimeFromGroupMatch(reMatch.Groups["dateTimeOfLogLine"].Value);
+                    ActGlobals.oFormActMain.ZoneDatabaseAdd(new HistoryRecord(0, lastKnownZoneChange, new DateTime(), zoneName, ActGlobals.charName));
+                    ActGlobals.oFormActMain.ChangeZone(zoneName);
                     break;
                 //Instant heals
                 case 8:
@@ -547,6 +557,10 @@ namespace ACT_EverQuest_DPS_Plugin
                         break;
                     else
                         throw new Exception($"Possesive persona of action doesn't match drinker.  'They made me do it' {reMatch.Groups["drinker"].Value} != {reMatch.Groups["possesivePersona"].Value}.");
+                //
+                case 12:
+                    ActGlobals.oFormActMain.ZoneDatabase[this.lastKnownZoneChange].EndTime = GetDateTimeFromGroupMatch(reMatch.Groups["dateTimeOfLogLine"].Value);
+                    break;
                 default:
                     break;
             }
