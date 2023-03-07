@@ -257,18 +257,18 @@ namespace ACT_EverQuest_DPS_Plugin
         readonly char[] chrApos = new char[] { '\'', '’' };
         readonly char[] chrSpaceApos = new char[] { ' ', '\'', '’' };
         List<Tuple<Color, Regex>> regexTupleList = new List<Tuple<Color, Regex>>();
-        readonly String AlcoholConsumption = @"Glug, glug, glug...  (?<drinker>.+) take a swig of(?<typeOfAlcohol>.+).";
-        readonly String attackTypes = @"pierce|gore|crush|slash|hit|kick|slam|bash|shoot|strike|bite|grab";
-        readonly String DamageShield = @"(?<victim>(You|.+)) is (?<damageShieldDamageType>\S+) by(?<attacker>(YOUR|.+)) (?<damageShieldType>\S+) for (?<damagePoints>[\d]+) points of non-melee damage.";
-        readonly String DrinkConsumption = @"(?<drinker>.+) take a drink from your(?<typeOfDrink>.+).";
+        readonly String AlcoholConsumption = @"Glug, glug, glug...  (?<drinker>.+) take a swig of (?<typeOfAlcohol>.*\.)";
+        readonly static String attackTypes = @"pierce|gore|crush|slash|hit|kick|slam|bash|shoot|strike|bite|grab";
+        readonly String DamageShield = @"(?<victim>(You|.+)) is (?<damageShieldDamageType>\S+) by (?<attacker>(YOUR|.+)) (?<damageShieldType>\S+) for (?<damagePoints>[\d]+) points of non-melee damage.";
+        readonly String DrinkConsumption = @"Glug, glug, glug...  (?<drinker>.+) take(|s) a drink from (?<possessivePersona>(your|their).+) (?<typeOfDrink>.*\.)";
         readonly String eqDateTimeStampFormat = @"ddd MMM dd HH:mm:ss yyyy";
-        readonly String HealingOverTime = @"(?<healer>.+) healed(?<healingTarget>.+) over time for (?<healingPoints>[\d]+)(?:[\s\(](?<overHealPoints>[\d]+)[\)]){0,1} hit points by(?<healingSpell>.*\.)(?:[\s][\(](?<healingSpecial>.+)[\)]){0,1}";
+        readonly String HealingOverTime = @"(?<healer>.+) healed (?<healingTarget>.+) over time for (?<healingPoints>[\d]+)(?:[\s\(](?<overHealPoints>[\d]+)[\)]){0,1} hit points by (?<healingSpell>.*\.)";
         readonly String HitpointsHealingOverTime = @"Hit Points Healing Over Time";
-        readonly String InstantHeal = @"(?<healer>.+) healed(?<healingTarget>.+) for (?<healingPoints>[\d]+)(?:[\s\(](?<overHealPoints>[\d]+)[\)]){0,1} hit points by(?<healingSpell>.*\.)(?:[\s][\(](?<healingSpecial>.+)[\)]){0,1}";
-        readonly String LootedCorpse = @"--(?<looter>.+) have looted a(?<loot>.+) from(?<victim>.+)'s corpse.--";
-        readonly String MeleeAttack = @"(?:(?<attackType>("" + attackTypes + @""))(|s|es|bed|ped)) (?<victim>.+) for (?<damageAmount>[\d]+) (point[|s]) of damage.(?:\s\((?<damageSpecial>.+)\)){0,1}";
-        //readonly String MissedMeleeAttack = @"{EverQuestDPSParse.TimeStamp} (?< attacker >.+)(?:tr(ies | y)) to(?< attackType > ({ attackTypes})+) (?< victim >.+), but(?:miss(| es))!";
-        readonly String PetMelee = @"(?:(?< attacker >\S +)(`s pet))";
+        readonly String InstantHeal = @"(?<healer>.+) healed(?<healingTarget>.+) for (?<healingPoints>[\d]+)(?:[\s\(](?<overHealPoints>[\d]+)[\)]){0,1} hit points by (?<healingSpell>.*\.)(?:[\s][\(](?<healingSpecial>.+)[\)]){0,1}";
+        readonly String LootedCorpse = @"--(?<looter>.+) have looted a(?<loot>.+) from (?<victim>.+)'s corpse.--";
+        readonly String MeleeAttack = $@"(?:(?<attackType>({attackTypes}))(|s|es|bed|ped)) (?<victim>.+) for (?<damageAmount>[\d]+) (point[|s]) of damage.(?:\s\((?<damageSpecial>.+)\)){0,1}";
+        //readonly String MissedMeleeAttack = @"{EverQuestDPSParse.TimeStamp} (?<attacker>.+)(?:tr(ies|y)) to(?<attackType> ({attackTypes})+) (?<victim>.+), but(?:miss(|es))!";
+        readonly String PetMelee = @"(?:(?<attacker>\S +)(`s pet))";
         readonly int pluginId = 96;
         readonly String PluginName = @"EverQuest English Parsing Plugin";
         readonly static String PluginSettingsFileName = @"Config\ACT_EverQuest_English_Parser.config.xml";
@@ -282,7 +282,7 @@ namespace ACT_EverQuest_DPS_Plugin
         readonly String SpecialLucky = @"Lucky";
         readonly String SpecialRiposte = @"Riposte";
         readonly String SpecialStrikethrough = @"Strikethrough";
-        readonly String SpellDamage = @"(?<attacker>.+) hit (?< victim >.+) for (?< damagePoints >[\d] +) (?: point[| s]) of(?< typeOfDamage >.+) damage by(?:(?< damageEffect >.+).)(?:\s\((?<spellSpeicals>.+)\))";
+        readonly String SpellDamage = @"(?<attacker>.+) hit (?<victim>.+) for (?<damagePoints>[\d]+) (?:point[|s]) of(?<typeOfDamage>.+) damage by(?:(?<damageEffect>.+).)(?:\s\((?<spellSpeicals>.+)\))";
         readonly String TimeStamp = @"\[(?< dateTimeOfLogLine >.+)\]";
         readonly String ZoneChange = @"You have entered (?:the Drunken Monkey stance adequately|(?<zoneName>.+)).";
         Regex selfCheck = new Regex(@"(You|(YOU(?:(\b|R))(?:(\b|SELF))))", RegexOptions.Compiled);
@@ -372,9 +372,9 @@ namespace ACT_EverQuest_DPS_Plugin
             ActGlobals.oFormEncounterLogs.LogTypeToColorMapping.Add(regexTupleList.Count - 1, regexTupleList[regexTupleList.Count - 1].Item1);
             regexTupleList.Add(new Tuple<Color, Regex>(Color.AliceBlue, new Regex($@"{TimeStamp} {LootedCorpse}", RegexOptions.Compiled)));
             ActGlobals.oFormEncounterLogs.LogTypeToColorMapping.Add(regexTupleList.Count - 1, regexTupleList[regexTupleList.Count - 1].Item1);
-            regexTupleList.Add(new Tuple<Color, Regex>(Color.AliceBlue, new Regex($@"{TimeStamp} {AlcoholConsumption}")));
+            regexTupleList.Add(new Tuple<Color, Regex>(Color.AliceBlue, new Regex($@"{TimeStamp} {AlcoholConsumption}", RegexOptions.Compiled)));
             ActGlobals.oFormEncounterLogs.LogTypeToColorMapping.Add(regexTupleList.Count - 1, regexTupleList[regexTupleList.Count - 1].Item1);
-            regexTupleList.Add(new Tuple<Color, Regex>(Color.AliceBlue, new Regex($@"{TimeStamp} {DrinkConsumption}")));
+            regexTupleList.Add(new Tuple<Color, Regex>(Color.AliceBlue, new Regex($@"{TimeStamp} {DrinkConsumption}", RegexOptions.Compiled)));
             ActGlobals.oFormEncounterLogs.LogTypeToColorMapping.Add(regexTupleList.Count - 1, regexTupleList[regexTupleList.Count - 1].Item1);
         }
         void oFormActMain_BeforeLogLineRead(bool isImport, LogLineEventArgs logInfo)
@@ -533,14 +533,20 @@ namespace ACT_EverQuest_DPS_Plugin
                     String loot = reMatch.Groups["loot"].Value;
                     String victim = reMatch.Groups["victim"].Value;
                     break;
+                //Alcohol drink
                 case 10:
                     String alcoholDrinker = CharacterNamePersonaReplace(reMatch.Groups["drinker"].Value);
                     String typeOfAlcohol = reMatch.Groups["typeOfAlcohol"].Value;
                     break;
+                //Character drink consumption "You are thirsty."
                 case 11:
                     String drinkDrinker = CharacterNamePersonaReplace(reMatch.Groups["drinker"].Value);
                     String typeOfDrink = reMatch.Groups["typeOfDrink"].Value;
-                    break;
+                    bool possesiveMatchWithCharacterNamePersona = ((reMatch.Groups["drinker"].Value == "You" && reMatch.Groups["possessivePersona"].Value.Equals("your")) || (reMatch.Groups["drinker"].Value != "You" && reMatch.Groups["possessivePersona"].Value.Equals("their"))) ? true : false;
+                    if (possesiveMatchWithCharacterNamePersona)
+                        break;
+                    else
+                        throw new Exception($"Possesive persona of action doesn't match drinker.  'They made me do it' {reMatch.Groups["drinker"].Value} != {reMatch.Groups["possesivePersona"].Value}.");
                 default:
                     break;
             }
