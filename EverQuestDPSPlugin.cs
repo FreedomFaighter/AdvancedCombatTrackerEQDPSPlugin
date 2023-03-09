@@ -20,9 +20,13 @@ using System.Xml;
 [assembly: AssemblyTitle("ACT EverQuest Damage Per Second Parsing")]
 [assembly: AssemblyDescription("Worked based on EQAditu's EQ2 English DPS Parser, Plugin for ACT EverQuest Damage Per Second Parsing")]
 [assembly: AssemblyCompany("Egot")]
-[assembly: AssemblyVersion("0.0.0.2")]
+[assembly: AssemblyVersion("0.0.*")]
 [assembly: AssemblyCopyright("2023")]
-
+#if DEBUG
+[assembly: AssemblyConfiguration("Debug")]
+#else
+[assembly: AssemblyConfiguration("Release")]
+#endif
 namespace ACT_EverQuest_DPS_Plugin
 {
     public class EverQuestDPSPlugin : UserControl, IActPluginV1
