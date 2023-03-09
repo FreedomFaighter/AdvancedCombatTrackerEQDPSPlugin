@@ -68,5 +68,9 @@
       <SubType>UserControl</SubType>
     </Compile>
   </ItemGroup>
-  <ItemGroup />
+  <ItemGroup>
+    <EmbeddedResource Include="EverQuestDPSPlugin.resx">
+      <DependentUpon>EverQuestDPSPlugin.cs</DependentUpon>
+    </EmbeddedResource>
+  </ItemGroup>
 </Project>
