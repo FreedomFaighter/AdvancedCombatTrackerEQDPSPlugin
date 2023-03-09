@@ -28,6 +28,28 @@ using System.Xml;
 #endif
 namespace ACT_EverQuest_DPS_Plugin
 {
+    internal enum SpellDamageSave
+    {
+        Fire = 1,
+        Cold = 2,
+        Poison = 4,
+        Disease = 8,
+        Magic = 16,
+        Corruption = 32
+    }
+
+    internal enum SpecialAttacks
+    {
+        Crippling_Blow = 1,
+        Critical = 2,
+        Flurry = 4,
+        Locked = 8,
+        Lucky = 16,
+        Riposte = 32,
+        Strikethrough = 64,
+        Double_Bow_Shot = 128
+    }
+
     public class EverQuestDPSPlugin : UserControl, IActPluginV1
     {
         #region Designer generated code (Avoid editing)
@@ -278,14 +300,14 @@ namespace ACT_EverQuest_DPS_Plugin
         readonly static String PluginSettingsFileName = @"Config\ACT_EverQuest_English_Parser.config.xml";
         readonly String PluginSettingsSectionName = @"Data Correction\EQ English Settings";
         readonly String SlainMessage = @"(?<attacker>.+) ha(ve|s) slain (?<victim>.+)!";
-        readonly String SpecialCripplingBlow = @"Crippling Blow";
-        readonly String SpecialCritical = @"Critical";
-        readonly String SpecialDoubleBowShot = @"Double Bow Shot";
-        readonly String SpecialFlurry = @"Flurry";
-        readonly String SpecialLocked = @"Locked";
-        readonly String SpecialLucky = @"Lucky";
-        readonly String SpecialRiposte = @"Riposte";
-        readonly String SpecialStrikethrough = @"Strikethrough";
+        readonly String SpecialCripplingBlow = Enum.GetName(typeof(SpecialAttacks), (SpecialAttacks)SpecialAttacks.Crippling_Blow);
+        readonly String SpecialCritical = Enum.GetName(typeof(SpecialAttacks), (SpecialAttacks)SpecialAttacks.Critical);
+        readonly String SpecialDoubleBowShot = Enum.GetName(typeof(SpecialAttacks), (SpecialAttacks)SpecialAttacks.Double_Bow_Shot);
+        readonly String SpecialFlurry = Enum.GetName(typeof(SpecialAttacks), (SpecialAttacks)SpecialAttacks.Flurry);
+        readonly String SpecialLocked = Enum.GetName(typeof(SpecialAttacks), (SpecialAttacks)SpecialAttacks.Locked);
+        readonly String SpecialLucky = Enum.GetName(typeof(SpecialAttacks), (SpecialAttacks)SpecialAttacks.Lucky);
+        readonly String SpecialRiposte = Enum.GetName(typeof(SpecialAttacks), (SpecialAttacks)SpecialAttacks.Riposte);
+        readonly String SpecialStrikethrough = Enum.GetName(typeof(SpecialAttacks), (SpecialAttacks)SpecialAttacks.Strikethrough);
         readonly String SpellDamage = @"(?<attacker>.+) hit (?<victim>.+) for (?<damagePoints>[\d]+) (?:point[|s]) of (?<typeOfDamage>.+) damage by (?:(?<damageEffect>.*)\.)(?:\s\((?<spellSpeicals>.+)\))";
         readonly String TimeStamp = @"\[(?<dateTimeOfLogLine>.+)\]";
         readonly String ZoneChange = @"You have entered (?!.*the Drunken Monkey stance adequately)(?<zoneName>.*)\.";
@@ -1244,14 +1266,14 @@ namespace ACT_EverQuest_DPS_Plugin
             MasterSwing.ColumnDefs.Add("Time", new MasterSwing.ColumnDef("Time", true, "TIMESTAMP", "STime", (Data) => { return Data.Time.ToString("T"); }, (Data) => { return Data.Time.ToString("u").TrimEnd(new char[] { 'Z' }); }, (Left, Right) => { return Left.Time.CompareTo(Right.Time); }));
             MasterSwing.ColumnDefs.Add("RelativeTime", new MasterSwing.ColumnDef("RelativeTime", true, "FLOAT", "RelativeTime", (Data) => { return Data.ParentEncounter != null ? (Data.Time - Data.ParentEncounter.StartTime).ToString("g") : String.Empty; }, (Data) => { return Data.ParentEncounter != null ? (Data.Time - Data.ParentEncounter.StartTime).TotalSeconds.ToString(usCulture) : String.Empty; }, (Left, Right) => { return Left.Time.CompareTo(Right.Time); }));
             MasterSwing.ColumnDefs.Add("Attacker", new MasterSwing.ColumnDef("Attacker", true, "VARCHAR(64)", "Attacker", (Data) => { return Data.Attacker; }, (Data) => { return Data.Attacker; }, (Left, Right) => { return Left.Attacker.CompareTo(Right.Attacker); }));
-            MasterSwing.ColumnDefs.Add("SwingType", new MasterSwing.ColumnDef("SwingType", false, "TINYINT", "SwingType", (Data) => { return Data.SwingType.ToString(); }, (Data) => { return Data.SwingType.ToString(); }, (Left, Right) => { return Left.SwingType.CompareTo(Right.SwingType); }));
+            MasterSwing.ColumnDefs.Add("SwingType", new MasterSwing.ColumnDef("SwingType", false, "TINYINT", "SwingType", (Data) => { return Enum.GetName(typeof(SwingTypeEnum), (SwingTypeEnum)Data.SwingType); }, (Data) => { return Data.SwingType.ToString(); }, (Left, Right) => { return Left.SwingType.CompareTo(Right.SwingType); }));
             MasterSwing.ColumnDefs.Add("AttackType", new MasterSwing.ColumnDef("AttackType", true, "VARCHAR(64)", "AttackType", (Data) => { return Data.AttackType; }, (Data) => { return Data.AttackType; }, (Left, Right) => { return Left.AttackType.CompareTo(Right.AttackType); }));
             MasterSwing.ColumnDefs.Add("DamageType", new MasterSwing.ColumnDef("DamageType", true, "VARCHAR(64)", "DamageType", (Data) => { return Data.DamageType; }, (Data) => { return Data.DamageType; }, (Left, Right) => { return Left.DamageType.CompareTo(Right.DamageType); }));
             MasterSwing.ColumnDefs.Add("Victim", new MasterSwing.ColumnDef("Victim", true, "VARCHAR(64)", "Victim", (Data) => { return Data.Victim; }, (Data) => { return Data.Victim; }, (Left, Right) => { return Left.Victim.CompareTo(Right.Victim); }));
-            MasterSwing.ColumnDefs.Add("Damage", new MasterSwing.ColumnDef("Damage", true, "BIGINT", "Damage", (Data) => { return ((long)Data.Damage).ToString(); }, (Data) => { return ((long)Data.Damage).ToString(); }, (Left, Right) => { return Left.Damage.CompareTo(Right.Damage); }));
+            MasterSwing.ColumnDefs.Add("Damage", new MasterSwing.ColumnDef("Damage", true, "BIGINT", "Damage", (Data) => { return Data.DamageType == "Miss" ? 0.ToString() : ((long)Data.Damage).ToString(); }, (Data) => { return Data.DamageType == "Miss" ? 0.ToString() : ((long)Data.Damage).ToString(); }, (Left, Right) => { return (Left.DamageType == "Miss" ? 0 : Left.Damage).CompareTo(Right.DamageType == "Miss" ? 0 : Right.Damage); }));
             MasterSwing.ColumnDefs.Add("Special", new MasterSwing.ColumnDef("Special", true, "VARCHAR(90)", "Special", (Data) => { return Data.Special == "None" ? String.Empty : Data.Special; }, (Data) => { return Data.Special; }, (Left, Right) => { return Left.Special.CompareTo(Right.Special); }));
             MasterSwing.ColumnDefs.Add("Log Time", new MasterSwing.ColumnDef("Log Time", false, "TIMESTAMP", "LogTime", (Data) => { return ((DateTime)Data.Tags[logTimestamp]).ToString(); }, (Data) => { return ((DateTime)Data.Tags[logTimestamp]).ToString(); }, (Left, Right) => { return ((DateTime)Left.Tags[logTimestamp]).CompareTo((DateTime)Right.Tags[logTimestamp]); }));
-            MasterSwing.ColumnDefs.Add("Time Delta", new MasterSwing.ColumnDef("Time Delta", true, "BIGINT", "TimeDelta", (Data) => { return (((DateTime)Data.Tags[logTimestamp]) - Data.Time).Ticks.ToString(); }, (Data) => { return (((DateTime)Data.Tags[logTimestamp]) - Data.Time).Ticks.ToString(); }, (Left, Right) => { return (((DateTime)Left.Tags[logTimestamp]) - Left.Time).CompareTo((((DateTime)Right.Tags[logTimestamp]) - Right.Time)); }));
+            MasterSwing.ColumnDefs.Add("Time Delta", new MasterSwing.ColumnDef("Time Delta", true, "BIGINT", "TimeDelta", (Data) => { return (((DateTime)Data.Tags[logTimestamp]) - Data.Time).TotalMilliseconds.ToString(); }, (Data) => { return (((DateTime)Data.Tags[logTimestamp]) - Data.Time).TotalMilliseconds.ToString(); }, (Left, Right) => { return (((DateTime)Left.Tags[logTimestamp]) - Left.Time).CompareTo((((DateTime)Right.Tags[logTimestamp]) - Right.Time)); }));
             #endregion
 
             foreach (KeyValuePair<string, MasterSwing.ColumnDef> pair in MasterSwing.ColumnDefs)
