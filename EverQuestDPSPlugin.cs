@@ -429,11 +429,11 @@ namespace ACT_EverQuest_DPS_Plugin
                         String attackType = reMatch.Groups["attackType"].Value;
                         Dnum damage = new Dnum(Int64.Parse(reMatch.Groups["damageAmount"].Value));
                         victim = CharacterNamePersonaReplace(reMatch.Groups["victim"].Value);
-                        MasterSwing masterSwing = new MasterSwing((int)SwingTypeEnum.Melee
+                        MasterSwing masterSwingMelee = new MasterSwing((int)SwingTypeEnum.Melee
                             , critical, damage
                             , time, gts, attackType, attacker, damageSpecial, victim);
-                        masterSwing.Tags["logTime"] = GetDateTimeFromGroupMatch(reMatch.Groups["dateTimeOfLogLine"].Value);
-                        ActGlobals.oFormActMain.AddCombatAction(masterSwing);
+                        masterSwingMelee.Tags["logTime"] = GetDateTimeFromGroupMatch(reMatch.Groups["dateTimeOfLogLine"].Value);
+                        ActGlobals.oFormActMain.AddCombatAction(masterSwingMelee);
                     }
                     break;
                 //Non-melee damage shield
@@ -446,11 +446,11 @@ namespace ACT_EverQuest_DPS_Plugin
                         String attackType = reMatch.Groups["damageShieldDamageType"].Value;
                         Dnum damage = new Dnum(Int64.Parse(reMatch.Groups["damagePoints"].Value));
                         victim = CharacterNamePersonaReplace(reMatch.Groups["victim"].Value);
-                        MasterSwing masterSwing = new MasterSwing((int)SwingTypeEnum.Melee
+                        MasterSwing masterSwingDamageShield = new MasterSwing((int)SwingTypeEnum.Melee
                             , critical, new Dnum(Int64.Parse(reMatch.Groups["damagePoints"].Value), reMatch.Groups["damageShieldType"].Value)
                             , time, gts, attackType, attacker, damageSpecial, victim);
-                        masterSwing.Tags["logTime"] = GetDateTimeFromGroupMatch(reMatch.Groups["dateTimeOfLogLine"].Value);
-                        ActGlobals.oFormActMain.AddCombatAction(masterSwing);
+                        masterSwingDamageShield.Tags["logTime"] = GetDateTimeFromGroupMatch(reMatch.Groups["dateTimeOfLogLine"].Value);
+                        ActGlobals.oFormActMain.AddCombatAction(masterSwingDamageShield);
                     }
                     break;
                 //Missed melee
@@ -463,29 +463,28 @@ namespace ACT_EverQuest_DPS_Plugin
                         String attackType = reMatch.Groups["attackType"].Value;
                         Dnum damage = Dnum.Miss;
                         victim = CharacterNamePersonaReplace(reMatch.Groups["victim"].Value);
-                        MasterSwing masterSwing = new MasterSwing((int)SwingTypeEnum.Melee
+                        MasterSwing masterSwingMissedMelee = new MasterSwing((int)SwingTypeEnum.Melee
                             , critical, damage
                             , time, gts, attackType, attacker, damageSpecial, victim);
-                        masterSwing.Tags["logTime"] = GetDateTimeFromGroupMatch(reMatch.Groups["dateTimeOfLogLine"].Value);
-                        ActGlobals.oFormActMain.AddCombatAction(masterSwing);
+                        masterSwingMissedMelee.Tags["logTime"] = GetDateTimeFromGroupMatch(reMatch.Groups["dateTimeOfLogLine"].Value);
+                        ActGlobals.oFormActMain.AddCombatAction(masterSwingMissedMelee);
                     }
                     break;
                 //Spell Cast
                 case 4:
                     if (ActGlobals.oFormActMain.InCombat)
                     {
-                        if (ActGlobals.oFormActMain.InCombat)
-                        {
+
                             string spellSpecial = reMatch.Groups["spellSpeicals"].Success ? reMatch.Groups["spellSpeicals"].Value : String.Empty;
                             bool critical = spellSpecial.Contains(SpecialCritical) ? spellSpecial.Contains(SpecialCritical) : false;
                             attacker = CharacterNamePersonaReplace(reMatch.Groups["attacker"].Value);
                             Dnum damage = new Dnum(Int64.Parse(reMatch.Groups["damagePoints"].Value), reMatch.Groups["typeOfDamage"].Value);
                             victim = CharacterNamePersonaReplace(reMatch.Groups["victim"].Value);
                             String spellName = reMatch.Groups["damageEffect"].Value;
-                            MasterSwing masterSwing = new MasterSwing((int)SwingTypeEnum.Melee, critical, damage, time, gts, spellName, attacker, spellSpecial, victim);
-                            masterSwing.Tags["logTime"] = GetDateTimeFromGroupMatch(reMatch.Groups["dateTimeOfLogLine"].Value);
-                            ActGlobals.oFormActMain.AddCombatAction(masterSwing);
-                        }
+                            MasterSwing masterSwingSpellcast = new MasterSwing((int)SwingTypeEnum.Melee, critical, damage, time, gts, spellName, attacker, spellSpecial, victim);
+                            masterSwingSpellcast.Tags["logTime"] = GetDateTimeFromGroupMatch(reMatch.Groups["dateTimeOfLogLine"].Value);
+                            ActGlobals.oFormActMain.AddCombatAction(masterSwingSpellcast);
+                        
                     }
                     break;
                 //Heal Over Time heal
@@ -556,6 +555,11 @@ namespace ACT_EverQuest_DPS_Plugin
                 //
                 case 12:
                     //ActGlobals.oFormActMain.ZoneDatabase[this.lastKnownZoneChange].EndTime = GetDateTimeFromGroupMatch(reMatch.Groups["dateTimeOfLogLine"].Value);
+                    break;
+                //Lines with unknown in the logline
+                case 13:
+                    MasterSwing masterSwingUnknown = new MasterSwing((int)SwingTypeEnum.Threat, false, Dnum.Unknown, time, gts, "Unknown", "Unknown", "Unknown", "Unknown");
+                    masterSwingUnknown.Tags["logTime"] = GetDateTimeFromGroupMatch(reMatch.Groups["dateTimeOfLogLine"].Value);
                     break;
                 default:
                     break;
