@@ -1,17 +1,16 @@
 ﻿using Advanced_Combat_Tracker;
 using System;
 using System.Collections.Generic;
-using System.Data;
 using System.Drawing;
 using System.Globalization;
 using System.IO;
-using System.Linq;
 using System.Reflection;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading;
 using System.Windows.Forms;
 using System.Xml;
+using static System.Net.Mime.MediaTypeNames;
 /*
  * Project: EverQuest DPS Plugin
  * Original: EverQuest 2 English DPS Localization plugin developed by EQAditu
@@ -425,54 +424,50 @@ namespace ACT_EverQuest_DPS_Plugin
                     if (ActGlobals.oFormActMain.InCombat)
                     {
                         string damageSpecial = reMatch.Groups["damageSpecial"].Success ? reMatch.Groups["damageSpecial"].Value : String.Empty;
-                        bool critical = damageSpecial.Contains(SpecialCritical) ? reMatch.Groups["damageSpecial"].Value.Contains(SpecialCritical) : false;
+                        bool critical = damageSpecial.Contains(SpecialCritical) ? damageSpecial.Contains(SpecialCritical) : false;
                         attacker = CharacterNamePersonaReplace(reMatch.Groups["attacker"].Value);
                         String attackType = reMatch.Groups["attackType"].Value;
                         Dnum damage = new Dnum(Int64.Parse(reMatch.Groups["damageAmount"].Value));
                         victim = CharacterNamePersonaReplace(reMatch.Groups["victim"].Value);
-                        ActGlobals.oFormActMain.AddCombatAction(
-                            (int)SwingTypeEnum.Melee
-                            , critical
-                            , damageSpecial
-                            , attacker
-                            , attackType
-                            , damage
-                            , time
-                            , gts
-                            , victim
-                            , attackType);
+                        MasterSwing masterSwing = new MasterSwing((int)SwingTypeEnum.Melee
+                            , critical, damage
+                            , time, gts, attackType, attacker, damageSpecial, victim);
+                        masterSwing.Tags["logTime"] = GetDateTimeFromGroupMatch(reMatch.Groups["dateTimeOfLogLine"].Value);
+                        ActGlobals.oFormActMain.AddCombatAction(masterSwing);
                     }
                     break;
                 //Non-melee damage shield
                 case 1:
                     if (ActGlobals.oFormActMain.InCombat)
                     {
-                        ActGlobals.oFormActMain.AddCombatAction((int)SwingTypeEnum.NonMelee
-                            , false
-                            , String.Empty
-                            , CharacterNamePersonaReplace(reMatch.Groups["attacker"].Value)
-                            , reMatch.Groups["damageShieldDamageType"].Value
-                            , new Dnum(Int64.Parse(reMatch.Groups["damagePoints"].Value))
-                            , time
-                            , gts
-                            , CharacterNamePersonaReplace(reMatch.Groups["victim"].Value)
-                            , reMatch.Groups["damageShieldType"].Value);
+                        string damageSpecial = reMatch.Groups["damageSpecial"].Success ? reMatch.Groups["damageSpecial"].Value : String.Empty;
+                        bool critical = damageSpecial.Contains(SpecialCritical) ? damageSpecial.Contains(SpecialCritical) : false;
+                        attacker = CharacterNamePersonaReplace(reMatch.Groups["attacker"].Value);
+                        String attackType = reMatch.Groups["damageShieldDamageType"].Value;
+                        Dnum damage = new Dnum(Int64.Parse(reMatch.Groups["damagePoints"].Value));
+                        victim = CharacterNamePersonaReplace(reMatch.Groups["victim"].Value);
+                        MasterSwing masterSwing = new MasterSwing((int)SwingTypeEnum.Melee
+                            , critical, new Dnum(Int64.Parse(reMatch.Groups["damagePoints"].Value), reMatch.Groups["damageShieldType"].Value)
+                            , time, gts, attackType, attacker, damageSpecial, victim);
+                        masterSwing.Tags["logTime"] = GetDateTimeFromGroupMatch(reMatch.Groups["dateTimeOfLogLine"].Value);
+                        ActGlobals.oFormActMain.AddCombatAction(masterSwing);
                     }
                     break;
                 //Missed melee
                 case 2:
                     if (ActGlobals.oFormActMain.InCombat)
                     {
-                        ActGlobals.oFormActMain.AddCombatAction((int)SwingTypeEnum.Melee
-                            , false
-                            , string.Empty
-                            , CharacterNamePersonaReplace(reMatch.Groups["attacker"].Value)
-                            , reMatch.Groups["attackType"].Value
-                            , Dnum.Miss
-                            , time
-                            , gts
-                            , CharacterNamePersonaReplace(reMatch.Groups["victim"].Value)
-                            , "Melee");
+                        string damageSpecial = reMatch.Groups["damageSpecial"].Success ? reMatch.Groups["damageSpecial"].Value : String.Empty;
+                        bool critical = damageSpecial.Contains(SpecialCritical) ? damageSpecial.Contains(SpecialCritical) : false;
+                        attacker = CharacterNamePersonaReplace(reMatch.Groups["attacker"].Value);
+                        String attackType = reMatch.Groups["attackType"].Value;
+                        Dnum damage = Dnum.Miss;
+                        victim = CharacterNamePersonaReplace(reMatch.Groups["victim"].Value);
+                        MasterSwing masterSwing = new MasterSwing((int)SwingTypeEnum.Melee
+                            , critical, damage
+                            , time, gts, attackType, attacker, damageSpecial, victim);
+                        masterSwing.Tags["logTime"] = GetDateTimeFromGroupMatch(reMatch.Groups["dateTimeOfLogLine"].Value);
+                        ActGlobals.oFormActMain.AddCombatAction(masterSwing);
                     }
                     break;
                 //Spell Cast
@@ -481,16 +476,15 @@ namespace ACT_EverQuest_DPS_Plugin
                     {
                         if (ActGlobals.oFormActMain.InCombat)
                         {
-                            ActGlobals.oFormActMain.AddCombatAction((int)SwingTypeEnum.NonMelee
-                                , false
-                                , reMatch.Groups["spellSpeicals"].Value
-                                , CharacterNamePersonaReplace(reMatch.Groups["attacker"].Value)
-                                , reMatch.Groups["damageEffect"].Value
-                                , new Dnum(Int64.Parse(reMatch.Groups["damagePoints"].Value))
-                                , time
-                                , gts
-                                , CharacterNamePersonaReplace(reMatch.Groups["victim"].Value)
-                                , reMatch.Groups["typeOfDamage"].Value);
+                            string spellSpecial = reMatch.Groups["spellSpeicals"].Success ? reMatch.Groups["spellSpeicals"].Value : String.Empty;
+                            bool critical = spellSpecial.Contains(SpecialCritical) ? spellSpecial.Contains(SpecialCritical) : false;
+                            attacker = CharacterNamePersonaReplace(reMatch.Groups["attacker"].Value);
+                            Dnum damage = new Dnum(Int64.Parse(reMatch.Groups["damagePoints"].Value), reMatch.Groups["typeOfDamage"].Value);
+                            victim = CharacterNamePersonaReplace(reMatch.Groups["victim"].Value);
+                            String spellName = reMatch.Groups["damageEffect"].Value;
+                            MasterSwing masterSwing = new MasterSwing((int)SwingTypeEnum.Melee, critical, damage, time, gts, spellName, attacker, spellSpecial, victim);
+                            masterSwing.Tags["logTime"] = GetDateTimeFromGroupMatch(reMatch.Groups["dateTimeOfLogLine"].Value);
+                            ActGlobals.oFormActMain.AddCombatAction(masterSwing);
                         }
                     }
                     break;
