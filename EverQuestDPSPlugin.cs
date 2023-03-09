@@ -10,7 +10,6 @@ using System.Text.RegularExpressions;
 using System.Threading;
 using System.Windows.Forms;
 using System.Xml;
-using static System.Net.Mime.MediaTypeNames;
 /*
  * Project: EverQuest DPS Plugin
  * Original: EverQuest 2 English DPS Localization plugin developed by EQAditu
@@ -275,7 +274,7 @@ namespace ACT_EverQuest_DPS_Plugin
         //readonly String MissedMeleeAttack = @"{EverQuestDPSParse.TimeStamp} (?<attacker>.+)(?:tr(ies|y)) to(?<attackType> ({attackTypes})+) (?<victim>.+), but(?:miss(|es))!";
         readonly String PetMelee = @"(?:(?<attacker>\S +)(`s pet))";
         readonly int pluginId = 96;
-        readonly String PluginName = @"EverQuest English Parsing Plugin";
+        readonly String PluginName = @"EverQuest Damage Per Second Parser";
         readonly static String PluginSettingsFileName = @"Config\ACT_EverQuest_English_Parser.config.xml";
         readonly String PluginSettingsSectionName = @"Data Correction\EQ English Settings";
         readonly String SlainMessage = @"(?<attacker>.+) have slain (?<victim>.+)!";
@@ -292,11 +291,12 @@ namespace ACT_EverQuest_DPS_Plugin
         readonly String ZoneChange = @"You have entered (?!.*the Drunken Monkey stance adequately)(?<zoneName>.*)\.";
         readonly String LoadingPleaseWait = @"LOADING, PLEASE WAIT...";
         readonly String Unknown = @"(?<Unknown>Unknown)";
+        readonly String logTimestamp = "logTimestamp";
         Regex selfCheck = new Regex(@"(You|(YOU(?:(\b|R))(?:(\b|SELF))))", RegexOptions.Compiled);
         SortedList<string, AposNameFix> aposNameList = new SortedList<string, AposNameFix>();
         TreeNode optionsNode = null;
         Label lblStatus;    // The status label that appears in ACT's Plugin tab
-        readonly string settingsFile = Path.Combine(ActGlobals.oFormActMain.AppDataFolder.FullName, PluginSettingsFileName);
+        string settingsFile;
         SettingsSerializer xmlSettings;
         DateTime lastKnownZoneChange;
         #endregion
@@ -306,6 +306,7 @@ namespace ACT_EverQuest_DPS_Plugin
         }
         public void InitPlugin(TabPage pluginScreenSpace, Label pluginStatusText)
         {
+            settingsFile = Path.Combine(ActGlobals.oFormActMain.AppDataFolder.FullName, PluginSettingsFileName);
             lblStatus = pluginStatusText;   // Hand the status label's reference to our local var
             pluginScreenSpace.Controls.Add(this);
             this.Dock = DockStyle.Fill;
@@ -364,7 +365,7 @@ namespace ACT_EverQuest_DPS_Plugin
             ActGlobals.oFormEncounterLogs.LogTypeToColorMapping.Add(regexTupleList.Count - 1, regexTupleList[regexTupleList.Count - 1].Item1);
             regexTupleList.Add(new Tuple<Color, Regex>(Color.Red, new Regex($@"{TimeStamp} {DamageShield}", RegexOptions.Compiled)));
             ActGlobals.oFormEncounterLogs.LogTypeToColorMapping.Add(regexTupleList.Count - 1, regexTupleList[regexTupleList.Count - 1].Item1);
-            regexTupleList.Add(new Tuple<Color, Regex>(Color.Gray, new Regex($@"{TimeStamp} (?<attacker>.+) (?:(tr(ies|y))) to (?<attackType>(" + attackTypes + @")+) (?<victim>.+), but (?:miss(|es))!", RegexOptions.Compiled)));
+            regexTupleList.Add(new Tuple<Color, Regex>(Color.Gray, new Regex($@"{TimeStamp} (?<attacker>.+) (?:(tr(ies|y))) to (?<attackType>\S+) (?<victim>.+), but (?:miss(|es))!", RegexOptions.Compiled)));
             ActGlobals.oFormEncounterLogs.LogTypeToColorMapping.Add(regexTupleList.Count - 1, regexTupleList[regexTupleList.Count - 1].Item1);
             regexTupleList.Add(new Tuple<Color, Regex>(Color.Goldenrod, new Regex($@"{TimeStamp} {SlainMessage}", RegexOptions.Compiled)));
             ActGlobals.oFormEncounterLogs.LogTypeToColorMapping.Add(regexTupleList.Count - 1, regexTupleList[regexTupleList.Count - 1].Item1);
@@ -397,7 +398,7 @@ namespace ACT_EverQuest_DPS_Plugin
                 if (reMatch.Success)
                 {
                     logInfo.detectedType = i + 1;
-                    ParseEverQuestLogLine(reMatch, i, logInfo.logLine, isImport);
+                    ParseEverQuestLogLine(reMatch, i);
                     break;
                 }
             }
@@ -408,7 +409,7 @@ namespace ACT_EverQuest_DPS_Plugin
             DateTime.TryParseExact(dt, eqDateTimeStampFormat, DateTimeFormatInfo.InvariantInfo, DateTimeStyles.AssumeLocal, out currentEQTimeStamp);
             return currentEQTimeStamp;
         }
-        private void ParseEverQuestLogLine(Match reMatch, int logMatched, string logLine, bool isImport)
+        private void ParseEverQuestLogLine(Match reMatch, int logMatched)
         {
             //List<string> damages = new List<string>();
             DateTime time = ActGlobals.oFormActMain.LastKnownTime;
@@ -430,9 +431,9 @@ namespace ACT_EverQuest_DPS_Plugin
                         Dnum damage = new Dnum(Int64.Parse(reMatch.Groups["damageAmount"].Value));
                         victim = CharacterNamePersonaReplace(reMatch.Groups["victim"].Value);
                         MasterSwing masterSwingMelee = new MasterSwing((int)SwingTypeEnum.Melee
-                            , critical, damage
-                            , time, gts, attackType, attacker, damageSpecial, victim);
-                        masterSwingMelee.Tags["logTime"] = GetDateTimeFromGroupMatch(reMatch.Groups["dateTimeOfLogLine"].Value);
+                            , critical, damageSpecial, damage
+                            , time, gts, attackType, attacker, "Hitpoints", victim);
+                        masterSwingMelee.Tags[logTimestamp] = GetDateTimeFromGroupMatch(reMatch.Groups["dateTimeOfLogLine"].Value);
                         ActGlobals.oFormActMain.AddCombatAction(masterSwingMelee);
                     }
                     break;
@@ -449,7 +450,7 @@ namespace ACT_EverQuest_DPS_Plugin
                         MasterSwing masterSwingDamageShield = new MasterSwing((int)SwingTypeEnum.Melee
                             , critical, new Dnum(Int64.Parse(reMatch.Groups["damagePoints"].Value), reMatch.Groups["damageShieldType"].Value)
                             , time, gts, attackType, attacker, damageSpecial, victim);
-                        masterSwingDamageShield.Tags["logTime"] = GetDateTimeFromGroupMatch(reMatch.Groups["dateTimeOfLogLine"].Value);
+                        masterSwingDamageShield.Tags[logTimestamp] = GetDateTimeFromGroupMatch(reMatch.Groups["dateTimeOfLogLine"].Value);
                         ActGlobals.oFormActMain.AddCombatAction(masterSwingDamageShield);
                     }
                     break;
@@ -464,9 +465,9 @@ namespace ACT_EverQuest_DPS_Plugin
                         Dnum damage = Dnum.Miss;
                         victim = CharacterNamePersonaReplace(reMatch.Groups["victim"].Value);
                         MasterSwing masterSwingMissedMelee = new MasterSwing((int)SwingTypeEnum.Melee
-                            , critical, damage
-                            , time, gts, attackType, attacker, damageSpecial, victim);
-                        masterSwingMissedMelee.Tags["logTime"] = GetDateTimeFromGroupMatch(reMatch.Groups["dateTimeOfLogLine"].Value);
+                            , critical, damageSpecial, damage
+                            , time, gts, attackType, attacker, "Hitpoints", victim);
+                        masterSwingMissedMelee.Tags[logTimestamp] = GetDateTimeFromGroupMatch(reMatch.Groups["dateTimeOfLogLine"].Value);
                         ActGlobals.oFormActMain.AddCombatAction(masterSwingMissedMelee);
                     }
                     break;
@@ -481,10 +482,9 @@ namespace ACT_EverQuest_DPS_Plugin
                             Dnum damage = new Dnum(Int64.Parse(reMatch.Groups["damagePoints"].Value), reMatch.Groups["typeOfDamage"].Value);
                             victim = CharacterNamePersonaReplace(reMatch.Groups["victim"].Value);
                             String spellName = reMatch.Groups["damageEffect"].Value;
-                            MasterSwing masterSwingSpellcast = new MasterSwing((int)SwingTypeEnum.Melee, critical, damage, time, gts, spellName, attacker, spellSpecial, victim);
-                            masterSwingSpellcast.Tags["logTime"] = GetDateTimeFromGroupMatch(reMatch.Groups["dateTimeOfLogLine"].Value);
+                            MasterSwing masterSwingSpellcast = new MasterSwing((int)SwingTypeEnum.NonMelee, critical, spellSpecial, damage, time, gts, spellName, attacker, "Hitpoints" , victim);
+                            masterSwingSpellcast.Tags[logTimestamp] = GetDateTimeFromGroupMatch(reMatch.Groups["dateTimeOfLogLine"].Value);
                             ActGlobals.oFormActMain.AddCombatAction(masterSwingSpellcast);
-                        
                     }
                     break;
                 //Heal Over Time heal
@@ -1063,8 +1063,8 @@ namespace ACT_EverQuest_DPS_Plugin
             {"Healed (Out)", new CombatantData.DamageTypeDef("Healed (Out)", 1, Color.Blue)},
             {"Cure/Dispel (Out)", new CombatantData.DamageTypeDef("Cure/Dispel (Out)", 0, Color.Wheat)},
             {"All Outgoing (Ref)", new CombatantData.DamageTypeDef("All Outgoing (Ref)", 0, Color.Black)},
-                {"Pet Melee (Out)", new CombatantData.DamageTypeDef("Pet Melee", 0, Color.Green) },
-                {"Pet Spell (Out)", new CombatantData.DamageTypeDef("Pet Spell", 0, Color.Purple) }
+                {"Pet Melee (Out)", new CombatantData.DamageTypeDef("Pet Melee", -1, Color.Green) },
+                {"Pet Spell (Out)", new CombatantData.DamageTypeDef("Pet Spell", -1, Color.Purple) }
 
         };
             CombatantData.IncomingDamageTypeDataObjects = new Dictionary<string, CombatantData.DamageTypeDef>
@@ -1251,9 +1251,9 @@ namespace ACT_EverQuest_DPS_Plugin
             MasterSwing.ColumnDefs.Add("DamageType", new MasterSwing.ColumnDef("DamageType", true, "VARCHAR(64)", "DamageType", (Data) => { return Data.DamageType; }, (Data) => { return Data.DamageType; }, (Left, Right) => { return Left.DamageType.CompareTo(Right.DamageType); }));
             MasterSwing.ColumnDefs.Add("Victim", new MasterSwing.ColumnDef("Victim", true, "VARCHAR(64)", "Victim", (Data) => { return Data.Victim; }, (Data) => { return Data.Victim; }, (Left, Right) => { return Left.Victim.CompareTo(Right.Victim); }));
             MasterSwing.ColumnDefs.Add("DamageNum", new MasterSwing.ColumnDef("DamageNum", false, "BIGINT", "Damage", (Data) => { return ((long)Data.Damage).ToString(); }, (Data) => { return ((long)Data.Damage).ToString(); }, (Left, Right) => { return Left.Damage.CompareTo(Right.Damage); }));
-            MasterSwing.ColumnDefs.Add("Special", new MasterSwing.ColumnDef("Special", true, "VARCHAR(90)", "Special", (Data) => { return Data.Special; }, (Data) => { return Data.Special; }, (Left, Right) => { return Left.Special.CompareTo(Right.Special); }));
-            MasterSwing.ColumnDefs.Add("Log Time", new MasterSwing.ColumnDef("Log Time", false, "TIMESTAMP", "LogTime", (Data) => { return ((DateTime)Data.Tags["logTime"]).ToString(); }, (Data) => { return ((DateTime)Data.Tags["logTime"]).ToString(); }, (Left, Right) => { return ((DateTime)Left.Tags["logTime"]).CompareTo((DateTime)Right.Tags["logTime"]); }));
-            MasterSwing.ColumnDefs.Add("Time Delta", new MasterSwing.ColumnDef("Time Delta", true, "BIGINT", "TimeDelta", (Data) => { return (Data.Time - ((DateTime)Data.Tags["logTime"])).Ticks.ToString(); }, (Data) => { return (Data.Time - ((DateTime)Data.Tags["logTime"])).Ticks.ToString(); }, (Left, Right) => { return (Left.Time.CompareTo((DateTime)Right.Tags["logTime"])); }));
+            MasterSwing.ColumnDefs.Add("Special", new MasterSwing.ColumnDef("Special", true, "VARCHAR(90)", "Special", (Data) => { return Data.Special == "None" ? String.Empty : Data.Special; }, (Data) => { return Data.Special; }, (Left, Right) => { return Left.Special.CompareTo(Right.Special); }));
+            MasterSwing.ColumnDefs.Add("Log Time", new MasterSwing.ColumnDef("Log Time", false, "TIMESTAMP", "LogTime", (Data) => { return ((DateTime)Data.Tags[logTimestamp]).ToString(); }, (Data) => { return ((DateTime)Data.Tags[logTimestamp]).ToString(); }, (Left, Right) => { return ((DateTime)Left.Tags[logTimestamp]).CompareTo((DateTime)Right.Tags[logTimestamp]); }));
+            MasterSwing.ColumnDefs.Add("Time Delta", new MasterSwing.ColumnDef("Time Delta", true, "BIGINT", "TimeDelta", (Data) => { return (((DateTime)Data.Tags[logTimestamp]) - Data.Time).Ticks.ToString(); }, (Data) => { return (((DateTime)Data.Tags[logTimestamp]) - Data.Time).Ticks.ToString(); }, (Left, Right) => { return (Left.Time.CompareTo((DateTime)Right.Tags["logTime"])); }));
             #endregion
 
             foreach (KeyValuePair<string, MasterSwing.ColumnDef> pair in MasterSwing.ColumnDefs)
