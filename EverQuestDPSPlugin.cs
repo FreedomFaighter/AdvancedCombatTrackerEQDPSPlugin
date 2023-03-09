@@ -1,6 +1,7 @@
 ﻿using Advanced_Combat_Tracker;
 using System;
 using System.Collections.Generic;
+using System.Data;
 using System.Drawing;
 using System.Globalization;
 using System.IO;
@@ -291,6 +292,7 @@ namespace ACT_EverQuest_DPS_Plugin
         readonly String TimeStamp = @"\[(?<dateTimeOfLogLine>.+)\]";
         readonly String ZoneChange = @"You have entered (?!.*the Drunken Monkey stance adequately)(?<zoneName>.*)\.";
         readonly String LoadingPleaseWait = @"LOADING, PLEASE WAIT...";
+        readonly String Unknown = @"(?<Unknown>Unknown)";
         Regex selfCheck = new Regex(@"(You|(YOU(?:(\b|R))(?:(\b|SELF))))", RegexOptions.Compiled);
         SortedList<string, AposNameFix> aposNameList = new SortedList<string, AposNameFix>();
         TreeNode optionsNode = null;
@@ -385,6 +387,8 @@ namespace ACT_EverQuest_DPS_Plugin
             ActGlobals.oFormEncounterLogs.LogTypeToColorMapping.Add(regexTupleList.Count - 1, regexTupleList[regexTupleList.Count - 1].Item1);
             regexTupleList.Add(new Tuple<Color, Regex>(Color.Azure, new Regex($@"{TimeStamp} {LoadingPleaseWait}", RegexOptions.Compiled)));
             ActGlobals.oFormEncounterLogs.LogTypeToColorMapping.Add(regexTupleList.Count - 1, regexTupleList[regexTupleList.Count - 1].Item1);
+            regexTupleList.Add(new Tuple<Color, Regex>(Color.Silver, new Regex($@"{TimeStamp} {Unknown}", RegexOptions.Compiled)));
+            ActGlobals.oFormEncounterLogs.LogTypeToColorMapping.Add(regexTupleList.Count - 1, regexTupleList[regexTupleList.Count - 1].Item1);
         }
         void oFormActMain_BeforeLogLineRead(bool isImport, LogLineEventArgs logInfo)
         {
@@ -398,7 +402,6 @@ namespace ACT_EverQuest_DPS_Plugin
                     break;
                 }
             }
-            
         }
         private DateTime GetDateTimeFromGroupMatch(String dt)
         {
@@ -1241,7 +1244,7 @@ namespace ACT_EverQuest_DPS_Plugin
 
             #region MasterSwing
             MasterSwing.ColumnDefs.Clear();
-            MasterSwing.ColumnDefs.Add("EncId", new MasterSwing.ColumnDef("EncId", false, "CHAR(8)", "EncId", (Data) => { return string.Empty; }, (Data) => { return Data.ParentEncounter.EncId; }, (Left, Right) => { return 0; }));
+            MasterSwing.ColumnDefs.Add("EncId", new MasterSwing.ColumnDef("EncId", false, "CHAR(8)", "EncId", (Data) => { return string.Empty; }, (Data) => { return Data.ParentEncounter.EncId; }, (Left, Right) => { return Left.ParentEncounter.EncId.CompareTo(Right.ParentEncounter.EncId); }));
             MasterSwing.ColumnDefs.Add("Time", new MasterSwing.ColumnDef("Time", true, "TIMESTAMP", "STime", (Data) => { return Data.Time.ToString("T"); }, (Data) => { return Data.Time.ToString("u").TrimEnd(new char[] { 'Z' }); }, (Left, Right) => { return Left.Time.CompareTo(Right.Time); }));
             MasterSwing.ColumnDefs.Add("RelativeTime", new MasterSwing.ColumnDef("RelativeTime", true, "FLOAT", "RelativeTime", (Data) => { return Data.ParentEncounter != null ? (Data.Time - Data.ParentEncounter.StartTime).ToString("g") : String.Empty; }, (Data) => { return Data.ParentEncounter != null ? (Data.Time - Data.ParentEncounter.StartTime).TotalSeconds.ToString(usCulture) : String.Empty; }, (Left, Right) => { return Left.Time.CompareTo(Right.Time); }));
             MasterSwing.ColumnDefs.Add("Attacker", new MasterSwing.ColumnDef("Attacker", true, "VARCHAR(64)", "Attacker", (Data) => { return Data.Attacker; }, (Data) => { return Data.Attacker; }, (Left, Right) => { return Left.Attacker.CompareTo(Right.Attacker); }));
@@ -1250,8 +1253,9 @@ namespace ACT_EverQuest_DPS_Plugin
             MasterSwing.ColumnDefs.Add("DamageType", new MasterSwing.ColumnDef("DamageType", true, "VARCHAR(64)", "DamageType", (Data) => { return Data.DamageType; }, (Data) => { return Data.DamageType; }, (Left, Right) => { return Left.DamageType.CompareTo(Right.DamageType); }));
             MasterSwing.ColumnDefs.Add("Victim", new MasterSwing.ColumnDef("Victim", true, "VARCHAR(64)", "Victim", (Data) => { return Data.Victim; }, (Data) => { return Data.Victim; }, (Left, Right) => { return Left.Victim.CompareTo(Right.Victim); }));
             MasterSwing.ColumnDefs.Add("DamageNum", new MasterSwing.ColumnDef("DamageNum", false, "BIGINT", "Damage", (Data) => { return ((long)Data.Damage).ToString(); }, (Data) => { return ((long)Data.Damage).ToString(); }, (Left, Right) => { return Left.Damage.CompareTo(Right.Damage); }));
-            MasterSwing.ColumnDefs.Add("Damage", new MasterSwing.ColumnDef("Damage", true, "VARCHAR(128)", "DamageString", (Data) => { return Data.Damage.ToString(); }, (Data) => { return Data.Damage.ToString(); }, (Left, Right) => { return Left.Damage.CompareTo(Right.Damage); }));
             MasterSwing.ColumnDefs.Add("Special", new MasterSwing.ColumnDef("Special", true, "VARCHAR(90)", "Special", (Data) => { return Data.Special; }, (Data) => { return Data.Special; }, (Left, Right) => { return Left.Special.CompareTo(Right.Special); }));
+            MasterSwing.ColumnDefs.Add("Log Time", new MasterSwing.ColumnDef("Log Time", false, "TIMESTAMP", "LogTime", (Data) => { return ((DateTime)Data.Tags["logTime"]).ToString(); }, (Data) => { return ((DateTime)Data.Tags["logTime"]).ToString(); }, (Left, Right) => { return ((DateTime)Left.Tags["logTime"]).CompareTo((DateTime)Right.Tags["logTime"]); }));
+            MasterSwing.ColumnDefs.Add("Time Delta", new MasterSwing.ColumnDef("Time Delta", true, "BIGINT", "TimeDelta", (Data) => { return (Data.Time - ((DateTime)Data.Tags["logTime"])).Ticks.ToString(); }, (Data) => { return (Data.Time - ((DateTime)Data.Tags["logTime"])).Ticks.ToString(); }, (Left, Right) => { return (Left.Time.CompareTo((DateTime)Right.Tags["logTime"])); }));
             #endregion
 
             foreach (KeyValuePair<string, MasterSwing.ColumnDef> pair in MasterSwing.ColumnDefs)
