@@ -47,7 +47,8 @@ namespace ACT_EverQuest_DPS_Plugin
         Lucky = 16,
         Riposte = 32,
         Strikethrough = 64,
-        Double_Bow_Shot = 128
+        Double_Bow_Shot = 128,
+        Twincast = 256
     }
 
     public class EverQuestDPSPlugin : UserControl, IActPluginV1
@@ -308,6 +309,7 @@ namespace ACT_EverQuest_DPS_Plugin
         readonly String SpecialLucky = Enum.GetName(typeof(SpecialAttacks), (SpecialAttacks)SpecialAttacks.Lucky).Replace("_", " ");
         readonly String SpecialRiposte = Enum.GetName(typeof(SpecialAttacks), (SpecialAttacks)SpecialAttacks.Riposte).Replace("_", " ");
         readonly String SpecialStrikethrough = Enum.GetName(typeof(SpecialAttacks), (SpecialAttacks)SpecialAttacks.Strikethrough).Replace("_", " ");
+        readonly String SpecialTwincast = Enum.GetName(typeof(SpecialAttacks), (SpecialAttacks)SpecialAttacks.Twincast).Replace("_", " ");
         readonly String SpellDamage = @"(?<attacker>.+) hit (?<victim>.+) for (?<damagePoints>[\d]+) (?:point[|s]) of (?<typeOfDamage>.+) damage by (?:(?<damageEffect>.*)\.)(?:\s\((?<spellSpeicals>.+)\))";
         readonly String TimeStamp = @"\[(?<dateTimeOfLogLine>.+)\]";
         readonly String ZoneChange = @"You have entered (?!.*the Drunken Monkey stance adequately)(?<zoneName>.*)\.";
@@ -315,7 +317,7 @@ namespace ACT_EverQuest_DPS_Plugin
         readonly String Unknown = @"(?<Unknown>(u|U)nknown)";
         readonly String logTimestamp = "logTimestamp";
         readonly String targetTooFarAway = @"Your target is too far away, get closer!";
-        Regex selfCheck = new Regex(@"(You|(YOU(?:(\b|R))(?:(\b|SELF))))", RegexOptions.Compiled);
+        Regex selfCheck = new Regex(@"((y|Y)ou|(YOU(?:(\b|R))(?:(\b|SELF))))", RegexOptions.Compiled);
         SortedList<string, AposNameFix> aposNameList = new SortedList<string, AposNameFix>();
         TreeNode optionsNode = null;
         Label lblStatus;    // The status label that appears in ACT's Plugin tab
@@ -522,7 +524,7 @@ namespace ACT_EverQuest_DPS_Plugin
                             , reMatch.Groups["healingSpell"].Value                           
                             , CharacterNamePersonaReplace(reMatch.Groups["healer"].Value)
                             , "Hitpoints", reMatch.Groups["healingTarget"].Value.Contains("self") ? CharacterNamePersonaReplace(reMatch.Groups["healer"].Value) : CharacterNamePersonaReplace(reMatch.Groups["healingTarget"].Value));
-                        masterSwingHealOverTime.Tags["overheal"] = Int64.Parse(reMatch.Groups["overHealPoints"].Value);
+                        masterSwingHealOverTime.Tags["overheal"] = reMatch.Groups["overHealPoints"].Success ? Int64.Parse(reMatch.Groups["overHealPoints"].Value) : 0;
                         masterSwingHealOverTime.Tags[logTimestamp] = GetDateTimeFromGroupMatch(reMatch.Groups["dateTimeOfLogLine"].Value);
                         ActGlobals.oFormActMain.AddCombatAction(masterSwingHealOverTime);
                     }
@@ -548,7 +550,7 @@ namespace ACT_EverQuest_DPS_Plugin
                             , reMatch.Groups["healingSpell"].Value
                             , CharacterNamePersonaReplace(reMatch.Groups["healer"].Value)
                             , "Hitpoints", reMatch.Groups["healingTarget"].Value.Contains("self") ? CharacterNamePersonaReplace(reMatch.Groups["healer"].Value) : CharacterNamePersonaReplace(reMatch.Groups["healingTarget"].Value));
-                        masterSwingInstantHeal.Tags["overheal"] = Int64.Parse(reMatch.Groups["overHealPoints"].Value);
+                        masterSwingInstantHeal.Tags["overheal"] = reMatch.Groups["overHealPoints"].Success ? Int64.Parse(reMatch.Groups["overHealPoints"].Value) : 0;
                         masterSwingInstantHeal.Tags[logTimestamp] = GetDateTimeFromGroupMatch(reMatch.Groups["dateTimeOfLogLine"].Value);
                         ActGlobals.oFormActMain.AddCombatAction(masterSwingInstantHeal);
                     }
@@ -1083,9 +1085,10 @@ namespace ACT_EverQuest_DPS_Plugin
             {"Outgoing Damage", new CombatantData.DamageTypeDef("Outgoing Damage", 0, Color.Orange)},
             {"Healed (Out)", new CombatantData.DamageTypeDef("Healed (Out)", 1, Color.Blue)},
             {"Cure/Dispel (Out)", new CombatantData.DamageTypeDef("Cure/Dispel (Out)", 0, Color.Wheat)},
-            {"All Outgoing (Ref)", new CombatantData.DamageTypeDef("All Outgoing (Ref)", 0, Color.Black)},
-                {"Pet Melee (Out)", new CombatantData.DamageTypeDef("Pet Melee", -1, Color.Green) },
-                {"Pet Spell (Out)", new CombatantData.DamageTypeDef("Pet Spell", -1, Color.Purple) }
+            {"All Outgoing (Ref)", new CombatantData.DamageTypeDef("All Outgoing (Ref)", 0, Color.Black)}
+                //,
+                //{"Pet Melee (Out)", new CombatantData.DamageTypeDef("Pet Melee", -1, Color.Green) },
+                //{"Pet Spell (Out)", new CombatantData.DamageTypeDef("Pet Spell", -1, Color.Purple) }
 
         };
             CombatantData.IncomingDamageTypeDataObjects = new Dictionary<string, CombatantData.DamageTypeDef>
@@ -1315,7 +1318,7 @@ namespace ACT_EverQuest_DPS_Plugin
             int specialFlurry = 0;
             int specialLucky = 0;
             int specialDoubleBowShot = 0;
-
+            int specialTwincast = 0;
             bool specialFound;
             for (int i = 0; i < Data.Items.Count; i++)
             {
@@ -1380,7 +1383,13 @@ namespace ACT_EverQuest_DPS_Plugin
                             specialFound = true;
                         continue;
                     }
-
+                    if (ms.Special.Contains(SpecialTwincast))
+                    {
+                        specialTwincast++;
+                        if (!specialFound)
+                            specialFound = true;
+                        continue;
+                    }
                     if (specialFound)
                         break;
                     specialNonDefined++;
@@ -1396,11 +1405,9 @@ namespace ACT_EverQuest_DPS_Plugin
             float specialFlurryPerc = ((float)specialFlurry / (float)Data.Items.Count) * 100f;
             float speicalLuckyPerc = ((float)specialLucky / (float)Data.Items.Count) * 100f;
             float specialDoubleBowShotPerc = ((float)specialDoubleBowShot / (float)Data.Items.Count) * 100f;
+            float specialTwincastPerc = ((float)specialTwincast / (float)Data.Items.Count) * 100f;
 
-            if (special == 0)
-                return "-";
-
-            return $"{specialCripplingBlowPerc:0.0}%CB - {specialLockedPerc:0.0}%Locked - {specialCriticalPerc:0.0}%C - {specialStrikethroughPerc:0.0}%S - {specialRipostePerc:0.0}%R - {specialNonDefinedPerc:0.0}%ND - {specialFlurryPerc:0.0}%F - {speicalLuckyPerc:0.0}%Lucky - {specialDoubleBowShotPerc:0.0}%DB";
+            return $"{specialCripplingBlowPerc:0.0}%CB - {specialLockedPerc:0.0}%Locked - {specialCriticalPerc:0.0}%C - {specialStrikethroughPerc:0.0}%S - {specialRipostePerc:0.0}%R - {specialNonDefinedPerc:0.0}%ND - {specialFlurryPerc:0.0}%F - {speicalLuckyPerc:0.0}%Lucky - {specialDoubleBowShotPerc:0.0}%DB - {specialTwincastPerc:0.0}%TC";
         }
         private Color GetSwingTypeColor(int SwingType)
         {
