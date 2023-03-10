@@ -532,7 +532,7 @@ namespace ACT_EverQuest_DPS_Plugin
                     break;
                 //slain message
                 case 6:
-                    MasterSwing masterSwingSlain = new MasterSwing(0, false, Dnum.Death, date, gts, String.Empty, reMatch.Groups["attacker"].Value, String.Empty, reMatch.Groups["victim"].Value);
+                    MasterSwing masterSwingSlain = new MasterSwing(0, false, Dnum.Death, date, gts, String.Empty, CharacterNamePersonaReplace(reMatch.Groups["attacker"].Value), String.Empty, CharacterNamePersonaReplace(reMatch.Groups["victim"].Value));
                     ActGlobals.oFormActMain.AddCombatAction(masterSwingSlain);
                     break;
                 //Zone change
