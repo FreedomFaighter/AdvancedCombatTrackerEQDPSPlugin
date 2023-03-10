@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Drawing;
 using System.Globalization;
 using System.IO;
+using System.Linq;
 using System.Reflection;
 using System.Text;
 using System.Text.RegularExpressions;
@@ -451,7 +452,8 @@ namespace ACT_EverQuest_DPS_Plugin
             {
                 //Melee
                 case 0:
-                    if(ActGlobals.oFormActMain.SetEncounter(date, reMatch.Groups["attacker"].Value, reMatch.Groups["victim"].Value)) { 
+                    if (ActGlobals.oFormActMain.SetEncounter(date, reMatch.Groups["attacker"].Value, reMatch.Groups["victim"].Value))
+                    {
                         string damageSpecial = reMatch.Groups["damageSpecial"].Success ? reMatch.Groups["damageSpecial"].Value : String.Empty;
                         bool critical = damageSpecial.Contains(SpecialCritical) ? damageSpecial.Contains(SpecialCritical) : false;
                         attacker = CharacterNamePersonaReplace(reMatch.Groups["attacker"].Value);
@@ -462,7 +464,7 @@ namespace ACT_EverQuest_DPS_Plugin
                             , critical, damageSpecial, damage
                             , ActGlobals.oFormActMain.LastKnownTime, gts, attackType, attacker, "Hitpoints", victim);
                         ActGlobals.oFormActMain.AddCombatAction(masterSwingMelee);
-                    } 
+                    }
                     break;
                 //Non-melee damage shield
                 case 1:
@@ -501,13 +503,13 @@ namespace ACT_EverQuest_DPS_Plugin
                     if (ActGlobals.oFormActMain.SetEncounter(date, reMatch.Groups["attacker"].Value, reMatch.Groups["victim"].Value))
                     {
 
-                            string spellSpecial = reMatch.Groups["spellSpeicals"].Success ? reMatch.Groups["spellSpeicals"].Value : String.Empty;
-                            bool critical = spellSpecial.Contains(SpecialCritical) ? spellSpecial.Contains(SpecialCritical) : false;
-                            attacker = CharacterNamePersonaReplace(reMatch.Groups["attacker"].Value);
-                            Dnum damage = new Dnum(Int64.Parse(reMatch.Groups["damagePoints"].Value), reMatch.Groups["typeOfDamage"].Value);
-                            victim = CharacterNamePersonaReplace(reMatch.Groups["victim"].Value);
-                            String spellName = reMatch.Groups["damageEffect"].Value;
-                            MasterSwing masterSwingSpellcast = new MasterSwing((int)SwingTypeEnum.NonMelee, critical, spellSpecial, damage, ActGlobals.oFormActMain.LastKnownTime, gts, spellName, attacker, "Hitpoints" , victim);
+                        string spellSpecial = reMatch.Groups["spellSpeicals"].Success ? reMatch.Groups["spellSpeicals"].Value : String.Empty;
+                        bool critical = spellSpecial.Contains(SpecialCritical) ? spellSpecial.Contains(SpecialCritical) : false;
+                        attacker = CharacterNamePersonaReplace(reMatch.Groups["attacker"].Value);
+                        Dnum damage = new Dnum(Int64.Parse(reMatch.Groups["damagePoints"].Value), reMatch.Groups["typeOfDamage"].Value);
+                        victim = CharacterNamePersonaReplace(reMatch.Groups["victim"].Value);
+                        String spellName = reMatch.Groups["damageEffect"].Value;
+                        MasterSwing masterSwingSpellcast = new MasterSwing((int)SwingTypeEnum.NonMelee, critical, spellSpecial, damage, ActGlobals.oFormActMain.LastKnownTime, gts, spellName, attacker, "Hitpoints", victim);
                         ActGlobals.oFormActMain.AddCombatAction(masterSwingSpellcast);
                     }
                     break;
@@ -521,12 +523,17 @@ namespace ACT_EverQuest_DPS_Plugin
                             , new Dnum(Int64.Parse(reMatch.Groups["healingPoints"].Value))
                             , ActGlobals.oFormActMain.LastKnownTime
                             , gts
-                            , reMatch.Groups["healingSpell"].Value                           
+                            , reMatch.Groups["healingSpell"].Value
                             , CharacterNamePersonaReplace(reMatch.Groups["healer"].Value)
                             , "Hitpoints", reMatch.Groups["healingTarget"].Value.Contains("self") ? CharacterNamePersonaReplace(reMatch.Groups["healer"].Value) : CharacterNamePersonaReplace(reMatch.Groups["healingTarget"].Value));
                         masterSwingHealOverTime.Tags["overheal"] = reMatch.Groups["overHealPoints"].Success ? Int64.Parse(reMatch.Groups["overHealPoints"].Value) : 0;
                         ActGlobals.oFormActMain.AddCombatAction(masterSwingHealOverTime);
                     }
+                    break;
+                //slain message
+                case 6:
+                    MasterSwing masterSwingSlain = new MasterSwing(0, false, Dnum.Death, date, gts, String.Empty, reMatch.Groups["attacker"].Value, String.Empty, reMatch.Groups["victim"].Value);
+                    ActGlobals.oFormActMain.AddCombatAction(masterSwingSlain);
                     break;
                 //Zone change
                 case 7:
@@ -574,14 +581,12 @@ namespace ACT_EverQuest_DPS_Plugin
                         break;
                     else
                         throw new Exception($"Possesive persona of action doesn't match drinker.  'They made me do it' {reMatch.Groups["drinker"].Value} != {reMatch.Groups["possesivePersona"].Value}.");
-                //
                 case 12:
-                    //ActGlobals.oFormActMain.ZoneDatabase[this.lastKnownZoneChange].EndTime = GetDateTimeFromGroupMatch(reMatch.Groups["dateTimeOfLogLine"].Value);
+                    ActGlobals.oFormActMain.ZoneDatabase[ActGlobals.oFormActMain.ZoneDatabase[ActGlobals.oFormActMain.ZoneDatabase.Last().Key].StartTime].EndTime = GetDateTimeFromGroupMatch(reMatch.Groups["dateTimeOfLogLine"].Value);
                     break;
                 //Lines with unknown in the logline
                 case 13:
                     MasterSwing masterSwingUnknown = new MasterSwing((int)SwingTypeEnum.NonMelee, false, Dnum.Unknown, date, gts, "Unknown", "Unknown", "Unknown", "Unknown");
-                    //masterSwingUnknown.Tags["logTime"] = GetDateTimeFromGroupMatch(reMatch.Groups["dateTimeOfLogLine"].Value);
                     break;
                 default:
                     break;
@@ -1083,18 +1088,16 @@ namespace ACT_EverQuest_DPS_Plugin
             {"Skill/Ability (Out)", new CombatantData.DamageTypeDef("Skill/Ability (Out)", -1, Color.DarkOrange)},
             {"Outgoing Damage", new CombatantData.DamageTypeDef("Outgoing Damage", 0, Color.Orange)},
             {"Healed (Out)", new CombatantData.DamageTypeDef("Healed (Out)", 1, Color.Blue)},
-            {"Cure/Dispel (Out)", new CombatantData.DamageTypeDef("Cure/Dispel (Out)", 0, Color.Wheat)},
+            //,{"Pet Melee (Out)", new CombatantData.DamageTypeDef("Pet Melee (Out)", -1, Color.Green) },
+            //{"Pet Spell (Out)", new CombatantData.DamageTypeDef("Pet Spell (Out)", -1, Color.Purple) }
             {"All Outgoing (Ref)", new CombatantData.DamageTypeDef("All Outgoing (Ref)", 0, Color.Black)}
-                //,
-                //{"Pet Melee (Out)", new CombatantData.DamageTypeDef("Pet Melee", -1, Color.Green) },
-                //{"Pet Spell (Out)", new CombatantData.DamageTypeDef("Pet Spell", -1, Color.Purple) }
+
 
         };
             CombatantData.IncomingDamageTypeDataObjects = new Dictionary<string, CombatantData.DamageTypeDef>
         {
             {"Incoming Damage", new CombatantData.DamageTypeDef("Incoming Damage", -1, Color.Red)},
             {"Healed (Inc)",new CombatantData.DamageTypeDef("Healed (Inc)", 1, Color.LimeGreen)},
-            {"Cure/Dispel (Inc)", new CombatantData.DamageTypeDef("Cure/Dispel (Inc)", 0, Color.Wheat)},
             {"All Incoming (Ref)",new CombatantData.DamageTypeDef("All Incoming (Ref)", 0, Color.Black)}
         };
             CombatantData.SwingTypeToDamageTypeDataLinksOutgoing = new SortedDictionary<int, List<string>>
@@ -1102,7 +1105,6 @@ namespace ACT_EverQuest_DPS_Plugin
             {1, new List<string> { "Auto-Attack (Out)", "Outgoing Damage" } },
             {2, new List<string> { "Skill/Ability (Out)", "Outgoing Damage" } },
             {3, new List<string> { "Healed (Out)" } },
-            {20, new List<string> { "Cure/Dispel (Out)" } },
         };
             CombatantData.SwingTypeToDamageTypeDataLinksIncoming = new SortedDictionary<int, List<string>>
         {
@@ -1123,7 +1125,6 @@ namespace ACT_EverQuest_DPS_Plugin
 
             #region CombatantData ExportVariables
             CombatantData.ExportVariables.Clear();
-            
             CombatantData.ExportVariables.Add("n", new CombatantData.TextExportFormatter("n", "New Line", "Formatting after this element will appear on a new line.", (Data, Extra) => { return "\n"; }));
             CombatantData.ExportVariables.Add("t", new CombatantData.TextExportFormatter("t", "Tab Character", "Formatting after this element will appear in a relative column arrangement.  (The formatting example cannot display this properly)", (Data, Extra) => { return "\t"; }));
             CombatantData.ExportVariables.Add("name", new CombatantData.TextExportFormatter("name", "Name", "The combatant's name.", (Data, Extra) => { return CombatantFormatSwitch(Data, "name", Extra); }));
@@ -1203,7 +1204,7 @@ namespace ACT_EverQuest_DPS_Plugin
             CombatantData.ExportVariables.Add("NAME13", new CombatantData.TextExportFormatter("NAME13", "Name (13 chars)", "The combatant's name, up to 13 characters will be displayed.", (Data, Extra) => { return CombatantFormatSwitch(Data, "NAME13", Extra); }));
             CombatantData.ExportVariables.Add("NAME14", new CombatantData.TextExportFormatter("NAME14", "Name (14 chars)", "The combatant's name, up to 14 characters will be displayed.", (Data, Extra) => { return CombatantFormatSwitch(Data, "NAME14", Extra); }));
             CombatantData.ExportVariables.Add("NAME15", new CombatantData.TextExportFormatter("NAME15", "Name (15 chars)", "The combatant's name, up to 15 characters will be displayed.", (Data, Extra) => { return CombatantFormatSwitch(Data, "NAME15", Extra); }));
-            
+
             #endregion
 
             #region DamageTypeData
@@ -1261,6 +1262,7 @@ namespace ACT_EverQuest_DPS_Plugin
             AttackType.ColumnDefs.Add("ToHit", new AttackType.ColumnDef("ToHit", true, "FLOAT", "ToHit", (Data) => { return Data.ToHit.ToString(GetFloatCommas()); }, (Data) => { return Data.ToHit.ToString(usCulture); }, (Left, Right) => { return Left.ToHit.CompareTo(Right.ToHit); }));
             AttackType.ColumnDefs.Add("AvgDelay", new AttackType.ColumnDef("AvgDelay", false, "FLOAT", "AverageDelay", (Data) => { return Data.AverageDelay.ToString(GetFloatCommas()); }, (Data) => { return Data.AverageDelay.ToString(usCulture); }, (Left, Right) => { return Left.AverageDelay.CompareTo(Right.AverageDelay); }));
             AttackType.ColumnDefs.Add("Specials", new AttackType.ColumnDef("Specials", true, "VARCHAR(32)", "Specials", AttackTypeGetCritTypes, AttackTypeGetCritTypes, (Left, Right) => { return AttackTypeGetCritTypes(Left).CompareTo(AttackTypeGetCritTypes(Right)); }));
+            
             #endregion
 
             #region MasterSwing
@@ -1275,8 +1277,6 @@ namespace ACT_EverQuest_DPS_Plugin
             MasterSwing.ColumnDefs.Add("Victim", new MasterSwing.ColumnDef("Victim", true, "VARCHAR(64)", "Victim", (Data) => { return Data.Victim; }, (Data) => { return Data.Victim; }, (Left, Right) => { return Left.Victim.CompareTo(Right.Victim); }));
             MasterSwing.ColumnDefs.Add("Damage", new MasterSwing.ColumnDef("Damage", true, "BIGINT", "Damage", (Data) => { return Data.DamageType == "Miss" ? 0.ToString() : ((long)Data.Damage).ToString(); }, (Data) => { return Data.DamageType == "Miss" ? 0.ToString() : ((long)Data.Damage).ToString(); }, (Left, Right) => { return (Left.DamageType == "Miss" ? 0 : Left.Damage).CompareTo(Right.DamageType == "Miss" ? 0 : Right.Damage); }));
             MasterSwing.ColumnDefs.Add("Special", new MasterSwing.ColumnDef("Special", true, "VARCHAR(90)", "Special", (Data) => { return Data.Special == "None" ? String.Empty : Data.Special; }, (Data) => { return Data.Special; }, (Left, Right) => { return Left.Special.CompareTo(Right.Special); }));
-            //MasterSwing.ColumnDefs.Add("Log Time", new MasterSwing.ColumnDef("Log Time", false, "TIMESTAMP", "LogTime", (Data) => { return ((DateTime)Data.Tags[logTimestamp]).ToString(); }, (Data) => { return ((DateTime)Data.Tags[logTimestamp]).ToString(); }, (Left, Right) => { return ((DateTime)Left.Tags[logTimestamp]).CompareTo((DateTime)Right.Tags[logTimestamp]); }));
-            //MasterSwing.ColumnDefs.Add("Time Δ", new MasterSwing.ColumnDef("Time Δ", true, "BIGINT", "TimeDelta", (Data) => { return (Data.Time - ((DateTime)Data.Tags[logTimestamp])).TotalMilliseconds.ToString(); }, (Data) => { return (Data.Time - ((DateTime)Data.Tags[logTimestamp])).TotalMilliseconds.ToString(); }, (Left, Right) => { return (Left.Time - ((DateTime)Left.Tags[logTimestamp])).CompareTo((Right.Time - ((DateTime)Right.Tags[logTimestamp]))); }));
             #endregion
 
             foreach (KeyValuePair<string, MasterSwing.ColumnDef> pair in MasterSwing.ColumnDefs)
@@ -1406,7 +1406,7 @@ namespace ACT_EverQuest_DPS_Plugin
             float specialDoubleBowShotPerc = ((float)specialDoubleBowShot / (float)Data.Items.Count) * 100f;
             float specialTwincastPerc = ((float)specialTwincast / (float)Data.Items.Count) * 100f;
 
-            return $"{specialCripplingBlowPerc:000.0}%CB-{specialLockedPerc:000.0}%Locked-{specialCriticalPerc:000.0}%C-{specialStrikethroughPerc:000.0}%S-{specialRipostePerc:000.0}%R-{specialNonDefinedPerc:000.0}%ND-{specialFlurryPerc:000.0}%F-{speicalLuckyPerc:000.0}%Lucky-{specialDoubleBowShotPerc:000.0}%DB-{specialTwincastPerc:000.0}%TC";
+            return $"{specialCripplingBlowPerc:000.0}%CB-{specialLockedPerc:000.0}%Locked-{specialCriticalPerc:000.0}%C-{specialStrikethroughPerc:000.0}%S-{specialRipostePerc:000.0}%R-{specialFlurryPerc:000.0}%F-{speicalLuckyPerc:000.0}%Lucky-{specialDoubleBowShotPerc:000.0}%DB-{specialTwincastPerc:000.0}%TC-{specialNonDefinedPerc:000.0}%ND";
         }
         private Color GetSwingTypeColor(int SwingType)
         {
