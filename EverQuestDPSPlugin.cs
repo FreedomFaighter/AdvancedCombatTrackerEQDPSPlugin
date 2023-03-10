@@ -438,9 +438,6 @@ namespace ACT_EverQuest_DPS_Plugin
         }
         private void ParseEverQuestLogLine(Match reMatch, int logMatched)
         {
-            //List<string> damages = new List<string>();
-            
-
             int gts = ActGlobals.oFormActMain.GlobalTimeSorter;
             String attacker, victim;
             switch (logMatched)
@@ -473,7 +470,7 @@ namespace ACT_EverQuest_DPS_Plugin
                         victim = CharacterNamePersonaReplace(reMatch.Groups["victim"].Value);
                         MasterSwing masterSwingDamageShield = new MasterSwing((int)SwingTypeEnum.Melee
                             , critical, new Dnum(Int64.Parse(reMatch.Groups["damagePoints"].Value), reMatch.Groups["damageShieldType"].Value)
-                            , ActGlobals.oFormActMain.LastEstimatedTime, gts, attackType, attacker, damageSpecial, victim);
+                            , ActGlobals.oFormActMain.LastEstimatedTime, gts, attackType, attacker, "Hitpoints", victim);
                         masterSwingDamageShield.Tags[logTimestamp] = GetDateTimeFromGroupMatch(reMatch.Groups["dateTimeOfLogLine"].Value);
                         ActGlobals.oFormActMain.AddCombatAction(masterSwingDamageShield);
                     }
@@ -1407,7 +1404,7 @@ namespace ACT_EverQuest_DPS_Plugin
             float specialDoubleBowShotPerc = ((float)specialDoubleBowShot / (float)Data.Items.Count) * 100f;
             float specialTwincastPerc = ((float)specialTwincast / (float)Data.Items.Count) * 100f;
 
-            return $"{specialCripplingBlowPerc:0.0}%CB - {specialLockedPerc:0.0}%Locked - {specialCriticalPerc:0.0}%C - {specialStrikethroughPerc:0.0}%S - {specialRipostePerc:0.0}%R - {specialNonDefinedPerc:0.0}%ND - {specialFlurryPerc:0.0}%F - {speicalLuckyPerc:0.0}%Lucky - {specialDoubleBowShotPerc:0.0}%DB - {specialTwincastPerc:0.0}%TC";
+            return $"{specialCripplingBlowPerc:0.0}%CB-{specialLockedPerc:0.0}%Locked-{specialCriticalPerc:0.0}%C-{specialStrikethroughPerc:0.0}%S-{specialRipostePerc:0.0}%R-{specialNonDefinedPerc:0.0}%ND-{specialFlurryPerc:0.0}%F-{speicalLuckyPerc:0.0}%Lucky-{specialDoubleBowShotPerc:0.0}%DB-{specialTwincastPerc:0.0}%TC";
         }
         private Color GetSwingTypeColor(int SwingType)
         {
