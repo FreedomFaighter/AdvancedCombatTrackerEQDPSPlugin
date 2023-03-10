@@ -1404,7 +1404,7 @@ namespace ACT_EverQuest_DPS_Plugin
             float specialDoubleBowShotPerc = ((float)specialDoubleBowShot / (float)Data.Items.Count) * 100f;
             float specialTwincastPerc = ((float)specialTwincast / (float)Data.Items.Count) * 100f;
 
-            return $"{specialCripplingBlowPerc:0.0}%CB-{specialLockedPerc:0.0}%Locked-{specialCriticalPerc:0.0}%C-{specialStrikethroughPerc:0.0}%S-{specialRipostePerc:0.0}%R-{specialNonDefinedPerc:0.0}%ND-{specialFlurryPerc:0.0}%F-{speicalLuckyPerc:0.0}%Lucky-{specialDoubleBowShotPerc:0.0}%DB-{specialTwincastPerc:0.0}%TC";
+            return $"{specialCripplingBlowPerc:000.0}%CB-{specialLockedPerc:000.0}%Locked-{specialCriticalPerc:000.0}%C-{specialStrikethroughPerc:000.0}%S-{specialRipostePerc:000.0}%R-{specialNonDefinedPerc:000.0}%ND-{specialFlurryPerc:000.0}%F-{speicalLuckyPerc:000.0}%Lucky-{specialDoubleBowShotPerc:000.0}%DB-{specialTwincastPerc:000.0}%TC";
         }
         private Color GetSwingTypeColor(int SwingType)
         {
