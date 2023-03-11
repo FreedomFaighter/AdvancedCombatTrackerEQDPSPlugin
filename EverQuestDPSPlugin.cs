@@ -549,7 +549,7 @@ namespace ACT_EverQuest_DPS_Plugin
                 //Zone change
                 case 7:
                     //when checking the HistoryRecord the EndTime should be compared against default(DateTime) to determine if it an exact value among other methods such does the default(DateTime) take place before the StartTime for the HistoryRecord
-                    ActGlobals.oFormActMain.ZoneDatabaseAdd(new HistoryRecord(0, ActGlobals.oFormActMain.LastKnownTime, new DateTime(), reMatch.Groups["zoneName"].Value != String.Empty ? reMatch.Groups["zoneName"].Value : throw new Exception("Zone regex triggered but group empty."), ActGlobals.charName));
+                    ActGlobals.oFormActMain.ZoneDatabaseAdd(new HistoryRecord(0, ActGlobals.oFormActMain.LastKnownTime, new DateTime(), reMatch.Groups["zoneName"].Value != String.Empty ? reMatch.Groups["zoneName"].Value : throw new Exception("Zone regex triggered but zone name not found."), ActGlobals.charName));
                     ActGlobals.oFormActMain.ChangeZone(ActGlobals.oFormActMain.ZoneDatabase[ActGlobals.oFormActMain.LastKnownTime].Label);
                     break;
                 //Instant heals
