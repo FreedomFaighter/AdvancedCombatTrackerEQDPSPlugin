@@ -443,8 +443,26 @@ namespace ACT_EverQuest_DPS_Plugin
             DateTime.TryParseExact(dt, eqDateTimeStampFormat, DateTimeFormatInfo.CurrentInfo, DateTimeStyles.AssumeLocal, out currentEQTimeStamp);
             return currentEQTimeStamp;
         }
+        enum ExtendedSwingTypeEnum : int
+        {
+            None = 0,
+            Melee = (int)SwingTypeEnum.Melee,//1,
+            NonMelee = (int)SwingTypeEnum.NonMelee,//2,
+            Healing = Melee | NonMelee, //3,
+            Unknown4 = 4,//4,
+            Unknown8 = 8,//8,
+            PowerDrain = NonMelee | Unknown8,//10,
+            PowerHealing = Unknown8 | Unknown4 | Melee, //13(int)SwingTypeEnum.PowerHealing,
+            Threat = (int)SwingTypeEnum.Threat,//16
+            CureDispell = Unknown4 | Threat,//20,
+            Pet = 32,//Pet unknown actions, not expected to occur
+            PetMelee = Pet | Melee,
+            PetNonMelee = Pet | NonMelee
+        }
+
         private void ParseEverQuestLogLine(Match reMatch, int logMatched)
         {
+            
             String attacker, victim;
             switch (logMatched)
             {
