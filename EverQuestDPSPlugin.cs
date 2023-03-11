@@ -295,7 +295,7 @@ namespace ACT_EverQuest_DPS_Plugin
         readonly String HealingOverTime = @"(?<healer>.+) healed (?<healingTarget>.+) over time for (?<healingPoints>[\d]+)(?:[\s\(](?<overHealPoints>[\d]+)[\)]){0,1} hit points by (?<healingSpell>.*\.)(?:[\s][\(](?<healingSpecial>.+)[\)]){0,1}";
         readonly String HitpointsHealingOverTime = @"Hit Points Healing Over Time";
         readonly String InstantHeal = @"(?<healer>.+) healed (?<healingTarget>.+) for (?<healingPoints>[\d]+)(?:[\s\(](?<overHealPoints>[\d]+)[\)]){0,1} hit points by (?<healingSpell>.*(\.))(?:[\s][\(](?<healingSpecial>.+)[\)]){0,1}";
-        readonly String LootedCorpse = @"--(?<looter>.+) have looted a(?<loot>.+) from (?<victim>.+)'s corpse.--";
+        readonly String LootedCorpse = @"--(?<looter>.+) have looted a(?<loot>.+) from (?<looted>.+)'s corpse.--";
         readonly String MeleeAttack = @"(?<attacker>.+) (?<attackType>" + $@"{attackTypes}" + @")(?:|s|es|bed|ped) (?<victim>.+) for (?<damageAmount>[\d]+) (?:point[|s]) of damage.(?:\s\((?<damageSpecial>.+)\)){0,1}";
         readonly String MissedMeleeAttack = $@"(?<attacker>.+) (?:(tr(ies|y))) to (?<attackType>" + $@"{attackTypes}" + @") (?<victim>.+), but (?:miss(|es))!";
         readonly String PetMelee = @"(?:(?<attacker>\S +)(`s pet))";
@@ -574,7 +574,7 @@ namespace ACT_EverQuest_DPS_Plugin
                 case 9:
                     String looter = CharacterNamePersonaReplace(reMatch.Groups["looter"].Value);
                     String loot = reMatch.Groups["loot"].Value;
-                    victim = CharacterNamePersonaReplace(reMatch.Groups["victim"].Value);
+                    String looted = CharacterNamePersonaReplace(reMatch.Groups["looted"].Value);
                     break;
                 //Alcohol drink
                 case 10:
@@ -645,8 +645,6 @@ namespace ACT_EverQuest_DPS_Plugin
                     break;
                 }
             }
-            attacker = attacker.TrimStart(chrApos); // Remove the appostrophe at the begining of the string
-            skillType = skillType.Trim();
         }
         private string CharacterNamePersonaReplace(string PersonaString)
         {
