@@ -454,7 +454,7 @@ namespace ACT_EverQuest_DPS_Plugin
             PowerDrain = NonMelee | Unknown8,//10,
             PowerHealing = Unknown8 | Unknown4 | Melee, //13(int)SwingTypeEnum.PowerHealing,
             Threat = (int)SwingTypeEnum.Threat,//16
-            CureDispell = Unknown4 | Threat,//20,
+            CureDispel = Unknown4 | Threat,//20,
             Pet = 32,//Pet unknown actions, not expected to occur
             PetMelee = Pet | Melee,
             PetNonMelee = Pet | NonMelee
@@ -462,7 +462,6 @@ namespace ACT_EverQuest_DPS_Plugin
 
         private void ParseEverQuestLogLine(Match reMatch, int logMatched)
         {
-            
             String attacker, victim;
             switch (logMatched)
             {
