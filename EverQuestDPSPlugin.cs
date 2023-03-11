@@ -287,6 +287,7 @@ namespace ACT_EverQuest_DPS_Plugin
         List<Tuple<Color, Regex>> regexTupleList = new List<Tuple<Color, Regex>>();
         readonly String AlcoholConsumption = @"Glug, glug, glug...  (?<drinker>.+) take a swig of (?<typeOfAlcohol>.*)\.";
         readonly static String attackTypes = @"pierce|gore|crush|slash|hit|kick|slam|bash|shoot|strike|bite|grab|punch";
+        readonly static String evasionTypes = @"block(|s)|dodge(|s)|parr(ies|y)|riposte(|s)";
         readonly String DamageShield = @"(?<victim>(You|.+)) is (?<damageShieldDamageType>\S+) by (?<attacker>(YOUR|.+)) (?<damageShieldType>\S+) for (?<damagePoints>[\d]+) points of non-melee damage.";
         readonly String DrinkConsumption = @"Glug, glug, glug...  (?<drinker>.+) take(|s) a drink from (?<possessivePersona>(your|their).+) (?<typeOfDrink>.*\.)";
         readonly String eqDateTimeStampFormat = @"ddd MMM dd HH:mm:ss yyyy";
@@ -294,8 +295,8 @@ namespace ACT_EverQuest_DPS_Plugin
         readonly String HitpointsHealingOverTime = @"Hit Points Healing Over Time";
         readonly String InstantHeal = @"(?<healer>.+) healed (?<healingTarget>.+) for (?<healingPoints>[\d]+)(?:[\s\(](?<overHealPoints>[\d]+)[\)]){0,1} hit points by (?<healingSpell>.*(\.))(?:[\s][\(](?<healingSpecial>.+)[\)]){0,1}";
         readonly String LootedCorpse = @"--(?<looter>.+) have looted a(?<loot>.+) from (?<victim>.+)'s corpse.--";
-        readonly String MeleeAttack = @"(?<attacker>.+) (?<attackType>pierce|gore|crush|slash|hit|kick|slam|bash|shoot|strike|bite|grab|punch)(?:|s|es|bed|ped) (?<victim>.+) for (?<damageAmount>[\d]+) (?:point[|s]) of damage.(?:\s\((?<damageSpecial>.+)\)){0,1}";
-        readonly String MissedMeleeAttack = @"(?<attacker>.+) (?:(tr(ies|y))) to (?<attackType>\S+) (?<victim>.+), but (?:miss(|es))!";
+        readonly String MeleeAttack = $@"(?<attacker>.+) (?<attackType>{attackTypes})(?:|s|es|bed|ped) (?<victim>.+) for (?<damageAmount>[\d]+) (?:point[|s]) of damage.(?:\s\((?<damageSpecial>.+)\)){0,1}";
+        readonly String MissedMeleeAttack = $@"(?<attacker>.+) (?:(tr(ies|y))) to (?<attackType>{attackTypes}) (?<victim>.+), but (?:miss(|es))!";
         readonly String PetMelee = @"(?:(?<attacker>\S +)(`s pet))";
         readonly int pluginId = 96;
         readonly String PluginName = @"EverQuest Damage Per Second Parser";
@@ -319,6 +320,7 @@ namespace ACT_EverQuest_DPS_Plugin
         readonly String logTimestamp = "logTimestamp";
         readonly String targetTooFarAway = @"Your target is too far away, get closer!";
         readonly String tells = @"(?<teller>.+) tells (the|) (?<listener>.+), \'(<message>.+)\'";
+        readonly String Evasion = $@"(?<attacker>.*) tries to (?<attackType>{attackTypes}) (?:(?<victim>(.+)), but \1) (?:(?<evasionType>{evasionTypes})(|s))!(?:[\s][\(](?<evasionSpecial>.+)[\)]){0,1}";
         readonly Regex dateTimeRegex = new Regex(TimeStamp, RegexOptions.Compiled);
         Regex selfCheck = new Regex(@"((y|Y)ou|(YOU(?:(\b|R))(?:(\b|SELF))))", RegexOptions.Compiled);
         SortedList<string, AposNameFix> aposNameList = new SortedList<string, AposNameFix>();
@@ -454,7 +456,7 @@ namespace ACT_EverQuest_DPS_Plugin
             PowerDrain = NonMelee | Unknown8,//10,
             PowerHealing = Unknown8 | Unknown4 | Melee, //13(int)SwingTypeEnum.PowerHealing,
             Threat = (int)SwingTypeEnum.Threat,//16
-            CureDispel = Unknown4 | Threat,//20,
+            CureDispell = Unknown4 | Threat,//20,
             Pet = 32,//Pet unknown actions, not expected to occur
             PetMelee = Pet | Melee,
             PetNonMelee = Pet | NonMelee
