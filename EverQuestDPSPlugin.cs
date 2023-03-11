@@ -1288,8 +1288,11 @@ namespace ACT_EverQuest_DPS_Plugin
             MasterSwing.ColumnDefs.Add("Log Time Δ", new MasterSwing.ColumnDef("Log Time Δ", true, "BIGINT", "Log Time Δ", (Data) => { return Data.Tags.ContainsKey(logTimestamp) ? ((DateTime)Data.Tags[logTimestamp] - Data.Time).ToString() : "Missing log timestamp"; }, (Data) => { return Data.Tags.ContainsKey(logTimestamp) ? ((DateTime)Data.Tags[logTimestamp] - Data.Time).ToString() : "Missing log timestamp"; }, (Left, Right) => { return (Left.Tags.ContainsKey(logTimestamp) && Right.Tags.ContainsKey(logTimestamp)) ? ((DateTime)Left.Tags[logTimestamp] - Left.Time).CompareTo((DateTime)Right.Tags[logTimestamp] - Right.Time) : 0; }));
             #endregion
 
-            foreach (KeyValuePair<string, MasterSwing.ColumnDef> pair in MasterSwing.ColumnDefs)
+            MasterSwing.ColumnDefs.ToList().ForEach((pair) =>
+            {
                 pair.Value.GetCellForeColor = (Data) => { return GetSwingTypeColor(Data.SwingType); };
+            }
+            );
 
             ActGlobals.oFormActMain.ValidateLists();
             ActGlobals.oFormActMain.ValidateTableSetup();
@@ -1327,74 +1330,60 @@ namespace ACT_EverQuest_DPS_Plugin
             int specialLucky = 0;
             int specialDoubleBowShot = 0;
             int specialTwincast = 0;
-            bool specialFound;
 
-            specialFound = false;
             Data.Items.ForEach((ms) =>
             {
                 if (ms.Special.Length > 0 && ms.Special != "None")
                 {
                     special++;
-                    if (ms.Special.Contains(SpecialCripplingBlow))
+                    bool cripplingBlowFound = ms.Special.Contains(SpecialCripplingBlow);
+                    bool lockedFound = ms.Special.Contains(SpecialLocked);
+                    bool strikethroughFound = ms.Special.Contains(SpecialStrikethrough);
+                    bool riposteFound = ms.Special.Contains(SpecialRiposte);
+                    bool flurryFound = ms.Special.Contains(SpecialFlurry);
+                    bool luckyFound = ms.Special.Contains(SpecialLucky);
+                    bool doubleBowShotFound = ms.Special.Contains(SpecialDoubleBowShot);
+                    bool twincastFound = ms.Special.Contains(SpecialTwincast);
+                    if (cripplingBlowFound)
                     {
                         specialCripplingBlow++;
-                        if (!specialFound)
-                            specialFound = true;
                     }
-                    if (ms.Special.Contains(SpecialLocked))
+                    if (lockedFound)
                     {
                         specialLocked++;
-                        if (!specialFound)
-                            specialFound = true;
                     }
-                    if (ms.Special.Contains(SpecialCritical))
+                    if (ms.Critical)
                     {
                         specialCritical++;
-                        if (!specialFound)
-                            specialFound = true;
                     }
-                    if (ms.Special.Contains(SpecialStrikethrough))
+                    if (strikethroughFound)
                     {
                         specialStrikethrough++;
-                        if (!specialFound)
-                            specialFound = true;
                     }
-                    if (ms.Special.Contains(SpecialRiposte))
+                    if (riposteFound)
                     {
                         specialRiposte++;
-                        if (!specialFound)
-                            specialFound = true;
                     }
-                    if (ms.Special.Contains(SpecialFlurry))
+                    if (flurryFound)
                     {
                         specialFlurry++;
-                        if (!specialFound)
-                            specialFound = true;
                     }
-                    if (ms.Special.Contains(SpecialLucky))
+                    if (luckyFound)
                     {
                         specialLucky++;
-                        if (!specialFound)
-                            specialFound = true;
                     }
-                    if (ms.Special.Contains(SpecialDoubleBowShot))
+                    if (doubleBowShotFound)
                     {
                         specialDoubleBowShot++;
-                        if (!specialFound)
-                            specialFound = true;
                     }
-                    if (ms.Special.Contains(SpecialTwincast))
+                    if (twincastFound)
                     {
                         specialTwincast++;
-                        if (!specialFound)
-                            specialFound = true;
                     }
-                    if (!specialFound)
+                    if (!(cripplingBlowFound || lockedFound || ms.Critical || strikethroughFound || riposteFound || flurryFound || luckyFound || doubleBowShotFound || twincastFound))
                         specialNonDefined++;
                 }
             });
-
-
 
             float specialCripplingBlowPerc = ((float)specialCripplingBlow / (float)Data.Items.Count) * 100f;
             float specialLockedPerc = ((float)specialLocked / (float)Data.Items.Count) * 100f;
