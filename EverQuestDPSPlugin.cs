@@ -1064,7 +1064,7 @@ namespace ACT_EverQuest_DPS_Plugin
             CombatantData.ColumnDefs.Add("Healed%", new CombatantData.ColumnDef("Healed%", false, "VARCHAR(4)", "HealedPerc", (Data) => { return Data.HealedPercent; }, (Data) => { return Data.HealedPercent; }, (Left, Right) => { return Left.Healed.CompareTo(Right.Healed); }));
             CombatantData.ColumnDefs.Add("CritHeals", new CombatantData.ColumnDef("CritHeals", false, "INT", "CritHeals", (Data) => { return Data.CritHeals.ToString(); }, (Data) => { return Data.CritHeals.ToString(); }, (Left, Right) => { return Left.CritHeals.CompareTo(Right.CritHeals); }));
             CombatantData.ColumnDefs.Add("Heals", new CombatantData.ColumnDef("Heals", false, "INT", "Heals", (Data) => { return Data.Heals.ToString(); }, (Data) => { return Data.Heals.ToString(); }, (Left, Right) => { return Left.Heals.CompareTo(Right.Heals); }));
-            CombatantData.ColumnDefs.Add("OverHeal", new CombatantData.ColumnDef("OverHeal", true, "INT", "OverHeal", (Data) => { return Data.Tags.ContainsKey("overheal")  ? ((int)Data.Tags["overheal"]).ToString() : string.Empty; }, (Data) => { return Data.Tags.ContainsKey("overheal") ? ((int)Data.Tags["overheal"]).ToString() : string.Empty;  }, (Left, Right) => { return (Left.Tags.ContainsKey("overheal") && Right.Tags.ContainsKey("overheal")) ? ((int)Left.Tags["overheal"]).CompareTo(((int)Right.Tags["overheal"])) : 0; }));
+            CombatantData.ColumnDefs.Add("OverHeal", new CombatantData.ColumnDef("OverHeal", true, "INT", "OverHeal", (Data) => { return Data.Tags.ContainsKey("overheal") ? ((int)Data.Tags["overheal"]).ToString() : string.Empty; }, (Data) => { return Data.Tags.ContainsKey("overheal") ? ((int)Data.Tags["overheal"]).ToString() : string.Empty; }, (Left, Right) => { return (Left.Tags.ContainsKey("overheal") && Right.Tags.ContainsKey("overheal")) ? ((int)Left.Tags["overheal"]).CompareTo(((int)Right.Tags["overheal"])) : 0; }));
             CombatantData.ColumnDefs.Add("DPS", new CombatantData.ColumnDef("DPS", false, "DOUBLE", "DPS", (Data) => { return Data.DPS.ToString(); }, (Data) => { return Data.DPS.ToString(usCulture); }, (Left, Right) => { return Left.DPS.CompareTo(Right.DPS); }));
             CombatantData.ColumnDefs.Add("EncDPS", new CombatantData.ColumnDef("EncDPS", true, "DOUBLE", "EncDPS", (Data) => { return Data.EncDPS.ToString(); }, (Data) => { return Data.EncDPS.ToString(usCulture); }, (Left, Right) => { return Left.Damage.CompareTo(Right.Damage); }));
             CombatantData.ColumnDefs.Add("EncHPS", new CombatantData.ColumnDef("EncHPS", true, "DOUBLE", "EncHPS", (Data) => { return Data.EncHPS.ToString(); }, (Data) => { return Data.EncHPS.ToString(usCulture); }, (Left, Right) => { return Left.Healed.CompareTo(Right.Healed); }));
@@ -1080,7 +1080,7 @@ namespace ACT_EverQuest_DPS_Plugin
             CombatantData.ColumnDefs.Add("CritDam%", new CombatantData.ColumnDef("CritDam%", false, "VARCHAR(8)", "CritDamPerc", (Data) => { return Data.CritDamPerc.ToString("0'%"); }, (Data) => { return Data.CritDamPerc.ToString("0'%"); }, (Left, Right) => { return Left.CritDamPerc.CompareTo(Right.CritDamPerc); }));
             CombatantData.ColumnDefs.Add("CritHeal%", new CombatantData.ColumnDef("CritHeal%", false, "VARCHAR(8)", "CritHealPerc", (Data) => { return Data.CritHealPerc.ToString("0'%"); }, (Data) => { return Data.CritHealPerc.ToString("0'%"); }, (Left, Right) => { return Left.CritHealPerc.CompareTo(Right.CritHealPerc); }));
             CombatantData.ColumnDefs.Add("Specials", new CombatantData.ColumnDef("Specials", true, "VARCHAR(32)", "Specials", CombatantDataGetCritTypes, CombatantDataGetCritTypes, (Left, Right) => { return CombatantDataGetCritTypes(Left).CompareTo(CombatantDataGetCritTypes(Right)); }));
-            
+
             CombatantData.ColumnDefs["Damage"].GetCellForeColor = (Data) => { return Color.DarkRed; };
             CombatantData.ColumnDefs["Damage%"].GetCellForeColor = (Data) => { return Color.DarkRed; };
             CombatantData.ColumnDefs["Healed"].GetCellForeColor = (Data) => { return Color.DarkBlue; };
@@ -1270,7 +1270,7 @@ namespace ACT_EverQuest_DPS_Plugin
             AttackType.ColumnDefs.Add("ToHit", new AttackType.ColumnDef("ToHit", true, "FLOAT", "ToHit", (Data) => { return Data.ToHit.ToString(GetFloatCommas()); }, (Data) => { return Data.ToHit.ToString(usCulture); }, (Left, Right) => { return Left.ToHit.CompareTo(Right.ToHit); }));
             AttackType.ColumnDefs.Add("AvgDelay", new AttackType.ColumnDef("AvgDelay", false, "FLOAT", "AverageDelay", (Data) => { return Data.AverageDelay.ToString(GetFloatCommas()); }, (Data) => { return Data.AverageDelay.ToString(usCulture); }, (Left, Right) => { return Left.AverageDelay.CompareTo(Right.AverageDelay); }));
             AttackType.ColumnDefs.Add("Specials", new AttackType.ColumnDef("Specials", true, "VARCHAR(32)", "Specials", AttackTypeGetCritTypes, AttackTypeGetCritTypes, (Left, Right) => { return AttackTypeGetCritTypes(Left).CompareTo(AttackTypeGetCritTypes(Right)); }));
-            
+
             #endregion
 
             #region MasterSwing
@@ -1328,10 +1328,10 @@ namespace ACT_EverQuest_DPS_Plugin
             int specialDoubleBowShot = 0;
             int specialTwincast = 0;
             bool specialFound;
-            for (int i = 0; i < Data.Items.Count; i++)
+
+            specialFound = false;
+            Data.Items.ForEach((ms) =>
             {
-                specialFound = false;
-                MasterSwing ms = Data.Items[i];
                 if (ms.Special.Length > 0 && ms.Special != "None")
                 {
                     special++;
@@ -1340,69 +1340,61 @@ namespace ACT_EverQuest_DPS_Plugin
                         specialCripplingBlow++;
                         if (!specialFound)
                             specialFound = true;
-                        continue;
                     }
                     if (ms.Special.Contains(SpecialLocked))
                     {
                         specialLocked++;
                         if (!specialFound)
                             specialFound = true;
-                        continue;
                     }
                     if (ms.Special.Contains(SpecialCritical))
                     {
                         specialCritical++;
                         if (!specialFound)
                             specialFound = true;
-                        continue;
                     }
                     if (ms.Special.Contains(SpecialStrikethrough))
                     {
                         specialStrikethrough++;
                         if (!specialFound)
                             specialFound = true;
-                        continue;
                     }
                     if (ms.Special.Contains(SpecialRiposte))
                     {
                         specialRiposte++;
                         if (!specialFound)
                             specialFound = true;
-                        continue;
                     }
                     if (ms.Special.Contains(SpecialFlurry))
                     {
                         specialFlurry++;
                         if (!specialFound)
                             specialFound = true;
-                        continue;
                     }
                     if (ms.Special.Contains(SpecialLucky))
                     {
                         specialLucky++;
                         if (!specialFound)
                             specialFound = true;
-                        continue;
                     }
                     if (ms.Special.Contains(SpecialDoubleBowShot))
                     {
                         specialDoubleBowShot++;
                         if (!specialFound)
                             specialFound = true;
-                        continue;
                     }
                     if (ms.Special.Contains(SpecialTwincast))
                     {
                         specialTwincast++;
                         if (!specialFound)
                             specialFound = true;
-                        continue;
                     }
-                    if (specialFound)
-                        break;
-                    specialNonDefined++;
+                    if (!specialFound)
+                        specialNonDefined++;
                 }
-            }
+            });
+
+
 
             float specialCripplingBlowPerc = ((float)specialCripplingBlow / (float)Data.Items.Count) * 100f;
             float specialLockedPerc = ((float)specialLocked / (float)Data.Items.Count) * 100f;
