@@ -591,7 +591,7 @@ namespace ACT_EverQuest_DPS_Plugin
                     else
                         throw new Exception($"Possesive persona of action doesn't match drinker.  'They made {CharacterNamePersonaReplace(reMatch.Groups["drinker"].Value)} do it' {reMatch.Groups["drinker"].Value} != {reMatch.Groups["possesivePersona"].Value}.");
                 case 12:
-                    ActGlobals.oFormActMain.ZoneDatabase[ActGlobals.oFormActMain.ZoneDatabase[ActGlobals.oFormActMain.ZoneDatabase.Last().Key].StartTime].EndTime = ActGlobals.oFormActMain.LastKnownTime;
+                    _ = ActGlobals.oFormActMain.ZoneDatabase[ActGlobals.oFormActMain.ZoneDatabase[ActGlobals.oFormActMain.ZoneDatabase.Max().Key].Label.Equals(ActGlobals.oFormActMain.CurrentZone) ? ActGlobals.oFormActMain.ZoneDatabase[ActGlobals.oFormActMain.ZoneDatabase.Max().Key].EndTime = ActGlobals.oFormActMain.LastKnownTime : throw new Exception("unable to determine last zone and time from log file")];
                     break;
                 //Lines with unknown in the logline
                 case 13:
