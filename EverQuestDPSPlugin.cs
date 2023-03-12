@@ -466,7 +466,6 @@ namespace ACT_EverQuest_DPS_Plugin
 
         private void ParseEverQuestLogLine(Match reMatch, int logMatched)
         {
-            String attacker, victim;
             switch (logMatched)
             {
                 //Melee
@@ -509,14 +508,13 @@ namespace ACT_EverQuest_DPS_Plugin
                 case 4:
                     if (ActGlobals.oFormActMain.SetEncounter(ActGlobals.oFormActMain.LastKnownTime, CharacterNamePersonaReplace(reMatch.Groups["attacker"].Value), CharacterNamePersonaReplace(reMatch.Groups["victim"].Value)))
                     {
-                        attacker = CharacterNamePersonaReplace(reMatch.Groups["attacker"].Value);
                         Dnum damage = new Dnum(Int64.Parse(reMatch.Groups["damagePoints"].Value), reMatch.Groups["typeOfDamage"].Value);
                         MasterSwing masterSwingSpellcast = new MasterSwing((int)SwingTypeEnum.NonMelee
                             , reMatch.Groups["spellSpecials"].Success ? (reMatch.Groups["spellSpecials"].Value.Contains(SpecialCritical) ? reMatch.Groups["spellSpecials"].Value.Contains(SpecialCritical) : false) : false
                             , reMatch.Groups["spellSpeicals"].Success ? reMatch.Groups["spellSpeicals"].Value : String.Empty
                             , damage, ActGlobals.oFormActMain.LastEstimatedTime
                             , ActGlobals.oFormActMain.GlobalTimeSorter, reMatch.Groups["damageEffect"].Value
-                            , attacker
+                            , CharacterNamePersonaReplace(reMatch.Groups["attacker"].Value)
                             , "Hitpoints"
                             , CharacterNamePersonaReplace(reMatch.Groups["victim"].Value)
                         );
