@@ -1,3 +1,4 @@
+﻿using Advanced_Combat_Tracker;
 using System;
 using System.Collections.Generic;
 using System.Drawing;
@@ -10,8 +11,7 @@ using System.Text.RegularExpressions;
 using System.Threading;
 using System.Windows.Forms;
 using System.Xml;
-using Advanced_Combat_Tracker;
-
+using static System.Windows.Forms.VisualStyles.VisualStyleElement.ListView;
 /*
  * Project: EverQuest DPS Plugin
  * Original: EverQuest 2 English DPS Localization plugin developed by EQAditu
@@ -369,10 +369,7 @@ namespace ACT_EverQuest_DPS_Plugin
             SetupEverQuestEnvironment();   // Not really needed since ACT has this code internalized as well.
             ActGlobals.oFormActMain.BeforeLogLineRead += new LogLineEventDelegate(oFormActMain_BeforeLogLineRead);
             ActGlobals.oFormActMain.UpdateCheckClicked += new FormActMain.NullDelegate(oFormActMain_UpdateCheckClicked);
-            ActGlobals.oFormActMain.GetDateTimeFromLog += new FormActMain.DateTimeLogParser((logLine) =>
-            {
-                return GetDateTimeFromGroupMatch((dateTimeRegex.Match(logLine).Groups["dateTimeOfLogLine"].Value));
-            });
+            ActGlobals.oFormActMain.GetDateTimeFromLog += new FormActMain.DateTimeLogParser(parseDateTime);
             if (ActGlobals.oFormActMain.GetAutomaticUpdatesAllowed())   // If ACT is set to automatically check for updates, check for updates to the plugin
                 new Thread(new ThreadStart(oFormActMain_UpdateCheckClicked)).Start();   // If we don't put this on a separate thread, web latency will delay the plugin init phase
             ActGlobals.oFormActMain.CharacterFileNameRegex = new Regex(@"(?:.+)[\\]eqlog_(?<characterName>\S+)_(?<server>.+).txt", RegexOptions.Compiled);
@@ -383,6 +380,7 @@ namespace ACT_EverQuest_DPS_Plugin
         {
             ActGlobals.oFormActMain.BeforeLogLineRead -= oFormActMain_BeforeLogLineRead;
             ActGlobals.oFormActMain.UpdateCheckClicked -= oFormActMain_UpdateCheckClicked;
+            ActGlobals.oFormActMain.GetDateTimeFromLog -= parseDateTime;
 
             if (optionsNode != null)    // If we added our user control to the Options tab, remove it
             {
@@ -393,6 +391,14 @@ namespace ACT_EverQuest_DPS_Plugin
             SaveSettings();
             lblStatus.Text = $@"{PluginName} Plugin Exited";
         }
+
+        private DateTime parseDateTime(String logLine)
+        {
+            DateTime currentEQTimeStamp;
+            DateTime.TryParseExact(dateTimeRegex.Match(logLine).Groups["dateTimeOfLogLine"].Value, eqDateTimeStampFormat, DateTimeFormatInfo.CurrentInfo, DateTimeStyles.AssumeLocal, out currentEQTimeStamp);
+            return currentEQTimeStamp;
+        }
+
         private void PopulateRegexArray()
         {
             ActGlobals.oFormEncounterLogs.LogTypeToColorMapping.Clear();
