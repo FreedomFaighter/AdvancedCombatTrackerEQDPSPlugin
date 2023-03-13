@@ -1,3 +1,4 @@
+﻿using Advanced_Combat_Tracker;
 using System;
 using System.Collections.Generic;
 using System.Drawing;
@@ -10,8 +11,7 @@ using System.Text.RegularExpressions;
 using System.Threading;
 using System.Windows.Forms;
 using System.Xml;
-using Advanced_Combat_Tracker;
-
+using static System.Windows.Forms.VisualStyles.VisualStyleElement.ListView;
 /*
  * Project: EverQuest DPS Plugin
  * Original: EverQuest 2 English DPS Localization plugin developed by EQAditu
