@@ -329,7 +329,6 @@ namespace ACT_EverQuest_DPS_Plugin
         Label lblStatus;    // The status label that appears in ACT's Plugin tab
         string settingsFile;
         SettingsSerializer xmlSettings;
-        DateTime lastKnownZoneChange;
         #endregion
         public EverQuestDPSPlugin()
         {
