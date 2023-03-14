@@ -288,7 +288,6 @@ namespace ACT_EverQuest_DPS_Plugin
         readonly char[] chrSpaceApos = new char[] { ' ', '\'', '’' };
         List<Tuple<Color, Regex>> regexTupleList = new List<Tuple<Color, Regex>>();
         readonly String AlcoholConsumption = @"Glug, glug, glug...  (?<drinker>.+) take a swig of (?<typeOfAlcohol>.*)\.";
-        readonly static String attackTypes = @"pierce|gore|crush|slash|hit|kick|slam|bash|shoot|strike|bite|grab|punch";
         readonly static String evasionTypes = @"block(|s)|dodge(|s)|parr(ies|y)|riposte(|s)";
         readonly String DamageShield = @"(?<victim>(You|.+)) is (?<damageShieldDamageType>\S+) by (?<attacker>(YOUR|.+)) (?<damageShieldType>\S+) for (?<damagePoints>[\d]+) points of non-melee damage.";
         readonly String DrinkConsumption = @"Glug, glug, glug...  (?<drinker>.+) take(|s) a drink from (?<possessivePersona>(your|their).+) (?<typeOfDrink>.*\.)";
