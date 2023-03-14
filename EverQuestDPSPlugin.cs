@@ -287,7 +287,6 @@ namespace ACT_EverQuest_DPS_Plugin
         readonly char[] chrSpaceApos = new char[] { ' ', '\'', '’' };
         List<Tuple<Color, Regex>> regexTupleList = new List<Tuple<Color, Regex>>();
         readonly String AlcoholConsumption = @"Glug, glug, glug...  (?<drinker>.+) take a swig of (?<typeOfAlcohol>.*)\.";
-        readonly static String attackTypes = @"pierce|gore|crush|slash|hit|kick|slam|bash|shoot|strike|bite|grab|punch";
         readonly static String evasionTypes = @"block(|s)|dodge(|s)|parr(ies|y)|riposte(|s)";
         readonly String DamageShield = @"(?<victim>(You|.+)) is (?<damageShieldDamageType>\S+) by (?<attacker>(YOUR|.+)) (?<damageShieldType>\S+) for (?<damagePoints>[\d]+) points of non-melee damage.";
         readonly String DrinkConsumption = @"Glug, glug, glug...  (?<drinker>.+) take(|s) a drink from (?<possessivePersona>(your|their).+) (?<typeOfDrink>.*\.)";
@@ -296,8 +295,8 @@ namespace ACT_EverQuest_DPS_Plugin
         readonly String HitpointsHealingOverTime = @"Hit Points Healing Over Time";
         readonly String InstantHeal = @"(?<healer>.+) healed (?<healingTarget>.+) for (?<healingPoints>[\d]+)(?:[\s\(](?<overHealPoints>[\d]+)[\)]){0,1} hit points by (?<healingSpell>.*(\.))(?:[\s][\(](?<healingSpecial>.+)[\)]){0,1}";
         readonly String LootedCorpse = @"--(?<looter>.+) have looted a(?<loot>.+) from (?<looted>.+)'s corpse.--";
-        readonly String MeleeAttack = @"(?<attacker>.+) (?<attackType>" + $@"{attackTypes}" + @")(?:|s|es|bed|ped) (?<victim>.+) for (?<damageAmount>[\d]+) (?:point[|s]) of damage.(?:\s\((?<damageSpecial>.+)\)){0,1}";
-        readonly String MissedMeleeAttack = $@"(?<attacker>.+) (?:(tr(ies|y))) to (?<attackType>" + $@"{attackTypes}" + @") (?<victim>.+), but (?:miss(|es))!";
+        readonly String MeleeAttack = @"(?<attacker>.+) (?<attackType>\S+) (?<victim>.+) for (?<damageAmount>[\d]+) (?:point[|s]) of damage.(?:\s\((?<damageSpecial>.+)\)){0,1}";
+        readonly String MissedMeleeAttack = $@"(?<attacker>.+) (?:(tr(ies|y))) to (?<attackType>\S+) (?<victim>.+), but (?:miss(|es))!";
         readonly String PetMelee = @"(?:(?<attacker>\S +)(`s pet))";
         readonly String PluginName = @"EverQuest Damage Per Second Parser";
         readonly static String PluginSettingsFileName = @"Config\ACT_EverQuest_English_Parser.config.xml";
@@ -319,8 +318,8 @@ namespace ACT_EverQuest_DPS_Plugin
         readonly String Unknown = @"(?<Unknown>(u|U)nknown)";
         readonly String logTimestamp = "logTimestamp";
         readonly String targetTooFarAway = @"Your target is too far away, get closer!";
-        readonly String tells = @"(?<teller>.+) tells (the|) (?<listener>.+), \'(<message>.+)\'";
-        readonly String Evasion = @"(?<attacker>.*) tries to (?<attackType>" + $@"{attackTypes}" + @") (?:(?<victim>(.+)), but \1) (?:(?<evasionType>" + $@"{evasionTypes}" + @"))!(?:[\s][\(](?<evasionSpecial>.+)[\)]){0,1}";
+        //readonly String tells = @"(?<teller>.+) tells (the|) (?<listener>.+), \'(<message>.+)\'";
+        readonly String Evasion = @"(?<attacker>.*) tries to (?<attackType>\S+) (?:(?<victim>(.+)), but \1) (?:(?<evasionType>" + $@"{evasionTypes}" + @"))!(?:[\s][\(](?<evasionSpecial>.+)[\)]){0,1}";
         readonly Regex dateTimeRegex = new Regex(TimeStamp, RegexOptions.Compiled);
         Regex selfCheck = new Regex(@"((y|Y)ou|(YOU(?:(\b|R))(?:(\b|SELF))))", RegexOptions.Compiled);
         SortedList<string, AposNameFix> aposNameList = new SortedList<string, AposNameFix>();
@@ -328,7 +327,6 @@ namespace ACT_EverQuest_DPS_Plugin
         Label lblStatus;    // The status label that appears in ACT's Plugin tab
         string settingsFile;
         SettingsSerializer xmlSettings;
-        DateTime lastKnownZoneChange;
         #endregion
         public EverQuestDPSPlugin()
         {
@@ -368,10 +366,7 @@ namespace ACT_EverQuest_DPS_Plugin
             SetupEverQuestEnvironment();   // Not really needed since ACT has this code internalized as well.
             ActGlobals.oFormActMain.BeforeLogLineRead += new LogLineEventDelegate(oFormActMain_BeforeLogLineRead);
             ActGlobals.oFormActMain.UpdateCheckClicked += new FormActMain.NullDelegate(oFormActMain_UpdateCheckClicked);
-            ActGlobals.oFormActMain.GetDateTimeFromLog += new FormActMain.DateTimeLogParser((logLine) =>
-            {
-                return GetDateTimeFromGroupMatch((dateTimeRegex.Match(logLine).Groups["dateTimeOfLogLine"].Value));
-            });
+            ActGlobals.oFormActMain.GetDateTimeFromLog += new FormActMain.DateTimeLogParser(parseDateTime);
             if (ActGlobals.oFormActMain.GetAutomaticUpdatesAllowed())   // If ACT is set to automatically check for updates, check for updates to the plugin
                 new Thread(new ThreadStart(oFormActMain_UpdateCheckClicked)).Start();   // If we don't put this on a separate thread, web latency will delay the plugin init phase
             ActGlobals.oFormActMain.CharacterFileNameRegex = new Regex(@"(?:.+)[\\]eqlog_(?<characterName>\S+)_(?<server>.+).txt", RegexOptions.Compiled);
@@ -382,6 +377,7 @@ namespace ACT_EverQuest_DPS_Plugin
         {
             ActGlobals.oFormActMain.BeforeLogLineRead -= oFormActMain_BeforeLogLineRead;
             ActGlobals.oFormActMain.UpdateCheckClicked -= oFormActMain_UpdateCheckClicked;
+            ActGlobals.oFormActMain.GetDateTimeFromLog -= parseDateTime;
 
             if (optionsNode != null)    // If we added our user control to the Options tab, remove it
             {
@@ -392,6 +388,14 @@ namespace ACT_EverQuest_DPS_Plugin
             SaveSettings();
             lblStatus.Text = $@"{PluginName} Plugin Exited";
         }
+
+        private DateTime parseDateTime(String logLine)
+        {
+            DateTime currentEQTimeStamp;
+            DateTime.TryParseExact(dateTimeRegex.Match(logLine).Groups["dateTimeOfLogLine"].Value, eqDateTimeStampFormat, DateTimeFormatInfo.CurrentInfo, DateTimeStyles.AssumeLocal, out currentEQTimeStamp);
+            return currentEQTimeStamp;
+        }
+
         private void PopulateRegexArray()
         {
             ActGlobals.oFormEncounterLogs.LogTypeToColorMapping.Clear();
@@ -704,7 +708,7 @@ namespace ACT_EverQuest_DPS_Plugin
                     SaveXmlApostropheNameFix(xWriter);  // Create and fill the ApostropheNameFix node
                     xWriter.WriteEndElement();  // </Config>
                     xWriter.WriteEndDocument(); // Tie up loose ends (shouldn't be any)
-                    xWriter.Flush();    // Flush the file buffer to disk
+                    //xWriter.Flush();    // Flush the file buffer to disk
                 }
             }
         }
