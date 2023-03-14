@@ -297,8 +297,8 @@ namespace ACT_EverQuest_DPS_Plugin
         readonly String HitpointsHealingOverTime = @"Hit Points Healing Over Time";
         readonly String InstantHeal = @"(?<healer>.+) healed (?<healingTarget>.+) for (?<healingPoints>[\d]+)(?:[\s\(](?<overHealPoints>[\d]+)[\)]){0,1} hit points by (?<healingSpell>.*(\.))(?:[\s][\(](?<healingSpecial>.+)[\)]){0,1}";
         readonly String LootedCorpse = @"--(?<looter>.+) have looted a(?<loot>.+) from (?<looted>.+)'s corpse.--";
-        readonly String MeleeAttack = @"(?<attacker>.+) (?<attackType>" + $@"{attackTypes}" + @")(?:|s|es|bed|ped) (?<victim>.+) for (?<damageAmount>[\d]+) (?:point[|s]) of damage.(?:\s\((?<damageSpecial>.+)\)){0,1}";
-        readonly String MissedMeleeAttack = $@"(?<attacker>.+) (?:(tr(ies|y))) to (?<attackType>" + $@"{attackTypes}" + @") (?<victim>.+), but (?:miss(|es))!";
+        readonly String MeleeAttack = @"(?<attacker>.+) (?<attackType>\S+) (?<victim>.+) for (?<damageAmount>[\d]+) (?:point[|s]) of damage.(?:\s\((?<damageSpecial>.+)\)){0,1}";
+        readonly String MissedMeleeAttack = $@"(?<attacker>.+) (?:(tr(ies|y))) to (?<attackType>\S+) (?<victim>.+), but (?:miss(|es))!";
         readonly String PetMelee = @"(?:(?<attacker>\S +)(`s pet))";
         readonly String PluginName = @"EverQuest Damage Per Second Parser";
         readonly static String PluginSettingsFileName = @"Config\ACT_EverQuest_English_Parser.config.xml";
@@ -321,7 +321,7 @@ namespace ACT_EverQuest_DPS_Plugin
         readonly String logTimestamp = "logTimestamp";
         readonly String targetTooFarAway = @"Your target is too far away, get closer!";
         readonly String tells = @"(?<teller>.+) tells (the|) (?<listener>.+), \'(<message>.+)\'";
-        readonly String Evasion = @"(?<attacker>.*) tries to (?<attackType>" + $@"{attackTypes}" + @") (?:(?<victim>(.+)), but \1) (?:(?<evasionType>" + $@"{evasionTypes}" + @"))!(?:[\s][\(](?<evasionSpecial>.+)[\)]){0,1}";
+        readonly String Evasion = @"(?<attacker>.*) tries to (?<attackType>\S+) (?:(?<victim>(.+)), but \1) (?:(?<evasionType>" + $@"{evasionTypes}" + @"))!(?:[\s][\(](?<evasionSpecial>.+)[\)]){0,1}";
         readonly Regex dateTimeRegex = new Regex(TimeStamp, RegexOptions.Compiled);
         Regex selfCheck = new Regex(@"((y|Y)ou|(YOU(?:(\b|R))(?:(\b|SELF))))", RegexOptions.Compiled);
         SortedList<string, AposNameFix> aposNameList = new SortedList<string, AposNameFix>();
