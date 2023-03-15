@@ -1395,7 +1395,8 @@ namespace ACT_EverQuest_DPS_Plugin
                         specialNonDefined++;
                 }
             });
-
+            if(Data.Items.Count==0)
+                return String.Empty;
             float specialCripplingBlowPerc = ((float)specialCripplingBlow / (float)Data.Items.Count) * 100f;
             float specialLockedPerc = ((float)specialLocked / (float)Data.Items.Count) * 100f;
             float specialCriticalPerc = ((float)specialCritical / (float)Data.Items.Count) * 100f;
