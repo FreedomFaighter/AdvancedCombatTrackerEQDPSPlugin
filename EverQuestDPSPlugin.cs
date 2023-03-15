@@ -1340,10 +1340,11 @@ namespace ACT_EverQuest_DPS_Plugin
             int specialLucky = 0;
             int specialDoubleBowShot = 0;
             int specialTwincast = 0;
-
-            Data.Items.ForEach((ms) =>
+            
+            for(int i=1; i<=Data.Items.Count; i++)
             {
-                if (ms.Special.Length > 0 && ms.Special != "None")
+                MasterSwing ms = Data.Items[i];
+                if (ms.Special > 0 && ms.Special != "None")
                 {
                     special++;
                     bool cripplingBlowFound = ms.Special.Contains(SpecialCripplingBlow);
