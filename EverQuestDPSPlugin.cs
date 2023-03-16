@@ -1396,18 +1396,18 @@ namespace ACT_EverQuest_DPS_Plugin
                         specialNonDefined++;
                 }
             });
-            if(Data.Items.Count==0)
+            if(special==0)
                 return String.Empty;
-            float specialCripplingBlowPerc = ((float)specialCripplingBlow / (float)Data.Items.Count) * 100f;
-            float specialLockedPerc = ((float)specialLocked / (float)Data.Items.Count) * 100f;
-            float specialCriticalPerc = ((float)specialCritical / (float)Data.Items.Count) * 100f;
-            float specialNonDefinedPerc = ((float)specialNonDefined / (float)Data.Items.Count) * 100f;
-            float specialStrikethroughPerc = ((float)specialStrikethrough / (float)Data.Items.Count) * 100f;
-            float specialRipostePerc = ((float)specialRiposte / (float)Data.Items.Count) * 100f;
-            float specialFlurryPerc = ((float)specialFlurry / (float)Data.Items.Count) * 100f;
-            float speicalLuckyPerc = ((float)specialLucky / (float)Data.Items.Count) * 100f;
-            float specialDoubleBowShotPerc = ((float)specialDoubleBowShot / (float)Data.Items.Count) * 100f;
-            float specialTwincastPerc = ((float)specialTwincast / (float)Data.Items.Count) * 100f;
+            float specialCripplingBlowPerc = ((float)specialCripplingBlow / (float)special) * 100f;
+            float specialLockedPerc = ((float)specialLocked / (float)special) * 100f;
+            float specialCriticalPerc = ((float)specialCritical / (float)special) * 100f;
+            float specialNonDefinedPerc = ((float)specialNonDefined / (float)special) * 100f;
+            float specialStrikethroughPerc = ((float)specialStrikethrough / (float)special) * 100f;
+            float specialRipostePerc = ((float)specialRiposte / (float)special) * 100f;
+            float specialFlurryPerc = ((float)specialFlurry / (float)special) * 100f;
+            float speicalLuckyPerc = ((float)specialLucky / (float)special) * 100f;
+            float specialDoubleBowShotPerc = ((float)specialDoubleBowShot / (float)special) * 100f;
+            float specialTwincastPerc = ((float)specialTwincast / (float)special) * 100f;
 
             return $"{specialCripplingBlowPerc:000.0}%CB-{specialLockedPerc:000.0}%Locked-{specialCriticalPerc:000.0}%C-{specialStrikethroughPerc:000.0}%S-{specialRipostePerc:000.0}%R-{specialFlurryPerc:000.0}%F-{speicalLuckyPerc:000.0}%Lucky-{specialDoubleBowShotPerc:000.0}%DB-{specialTwincastPerc:000.0}%TC-{specialNonDefinedPerc:000.0}%ND";
         }
