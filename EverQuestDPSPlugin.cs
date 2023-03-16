@@ -1316,7 +1316,7 @@ namespace ACT_EverQuest_DPS_Plugin
                 return AttackTypeGetCritTypes(at);
             }
             else
-                return "-";
+                return String.Empty;
         }
         private string DamageTypeDataGetCritTypes(DamageTypeData Data)
         {
@@ -1326,7 +1326,7 @@ namespace ACT_EverQuest_DPS_Plugin
                 return AttackTypeGetCritTypes(at);
             }
             else
-                return "-";
+                return String.Empty;
         }
         private string AttackTypeGetCritTypes(AttackType Data)
         {
@@ -1395,7 +1395,7 @@ namespace ACT_EverQuest_DPS_Plugin
                     if (!(cripplingBlowFound || lockedFound || ms.Critical || strikethroughFound || riposteFound || flurryFound || luckyFound || doubleBowShotFound || twincastFound))
                         specialNonDefined++;
                 }
-            });
+            }
             if(special==0)
                 return String.Empty;
             float specialCripplingBlowPerc = ((float)specialCripplingBlow / (float)special) * 100f;
