@@ -358,5 +358,4 @@ MigrationBackup/
 # Fody - auto-generated XML schema
 FodyWeavers.xsd
 
-/GlobalSuppressions.cs
-/ACT_EverQuest_DPS_Plugin.sln
+GlobalSuppressions.cs
