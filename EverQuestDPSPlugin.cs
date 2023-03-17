@@ -411,7 +411,7 @@ namespace ACT_EverQuest_DPS_Plugin
             {
                 if (ActGlobals.oFormActMain.SetEncounter(ActGlobals.oFormActMain.LastKnownTime, CharacterNamePersonaReplace(regexMatch.Groups["attacker"].Value), CharacterNamePersonaReplace(regexMatch.Groups["victim"].Value)))
                 {
-                    MasterSwing masterSwingMelee = new MasterSwing((int)SwingTypeEnum.Melee
+                    MasterSwing masterSwingMelee = new MasterSwing(regexMatch.Groups["attacker"].Value.Contains("pet") ? (int)EverQuestSwingType.Melee : (int)EverQuestSwingType.PetMelee
                         , regexMatch.Groups["damageSpecial"].Success ? (regexMatch.Groups["damageSpecial"].Value.Contains(SpecialCritical) ? regexMatch.Groups["damageSpecial"].Value.Contains(SpecialCritical) : false) : false, regexMatch.Groups["damageSpecial"].Success ? regexMatch.Groups["damageSpecial"].Value : String.Empty, new Dnum(Int64.Parse(regexMatch.Groups["damageAmount"].Value))
                         , ActGlobals.oFormActMain.LastEstimatedTime, ActGlobals.oFormActMain.GlobalTimeSorter, regexMatch.Groups["attackType"].Value, CharacterNamePersonaReplace(regexMatch.Groups["attacker"].Value), "Hitpoints", CharacterNamePersonaReplace(regexMatch.Groups["victim"].Value));
                     masterSwingMelee.Tags[logTimestamp] = ActGlobals.oFormActMain.LastKnownTime;
@@ -423,7 +423,7 @@ namespace ACT_EverQuest_DPS_Plugin
             {
                 if (ActGlobals.oFormActMain.SetEncounter(ActGlobals.oFormActMain.LastKnownTime, CharacterNamePersonaReplace(regexMatch.Groups["attacker"].Value), CharacterNamePersonaReplace(regexMatch.Groups["victim"].Value)))
                 {
-                    MasterSwing masterSwingDamageShield = new MasterSwing((int)EverQuestSwingType.NonMelee
+                    MasterSwing masterSwingDamageShield = new MasterSwing(regexMatch.Groups["attacker"].Value.Contains("pet") ? (int)EverQuestSwingType.NonMelee : (int)EverQuestSwingType.PetNonMelee
                         , regexMatch.Groups["damageSpecial"].Success ? (regexMatch.Groups["damageSpecial"].Value.Contains(SpecialCritical) ? regexMatch.Groups["damageSpecial"].Value.Contains(SpecialCritical) : false) : false, regexMatch.Groups["damageSpecial"].Success ? regexMatch.Groups["damageSpecial"].Value : String.Empty
                         , new Dnum(Int64.Parse(regexMatch.Groups["damagePoints"].Value), regexMatch.Groups["damageShieldType"].Value)
                         , ActGlobals.oFormActMain.LastEstimatedTime, ActGlobals.oFormActMain.GlobalTimeSorter, regexMatch.Groups["damageShieldDamageType"].Value, CharacterNamePersonaReplace(regexMatch.Groups["attacker"].Value), "Hitpoints", CharacterNamePersonaReplace(regexMatch.Groups["victim"].Value));
@@ -436,7 +436,7 @@ namespace ACT_EverQuest_DPS_Plugin
             {
                 if (ActGlobals.oFormActMain.SetEncounter(ActGlobals.oFormActMain.LastKnownTime, CharacterNamePersonaReplace(regexMatch.Groups["attacker"].Value), CharacterNamePersonaReplace(regexMatch.Groups["victim"].Value)))
                 {
-                    MasterSwing masterSwingMissedMelee = new MasterSwing((int)SwingTypeEnum.Melee
+                    MasterSwing masterSwingMissedMelee = new MasterSwing(regexMatch.Groups["attacker"].Value.Contains("pet") ? (int)EverQuestSwingType.Melee : (int)EverQuestSwingType.PetMelee
                         , regexMatch.Groups["damageSpecial"].Success ? (regexMatch.Groups["damageSpecial"].Value.Contains(SpecialCritical) ? regexMatch.Groups["damageSpecial"].Value.Contains(SpecialCritical) : false) : false,
                         regexMatch.Groups["damageSpecial"].Success ? regexMatch.Groups["damageSpecial"].Value : String.Empty
                     , Dnum.Miss
@@ -456,7 +456,7 @@ namespace ACT_EverQuest_DPS_Plugin
                 if (ActGlobals.oFormActMain.SetEncounter(ActGlobals.oFormActMain.LastKnownTime, CharacterNamePersonaReplace(regexMatch.Groups["attacker"].Value), CharacterNamePersonaReplace(regexMatch.Groups["victim"].Value)))
                 {
                     Dnum damage = new Dnum(Int64.Parse(regexMatch.Groups["damagePoints"].Value), regexMatch.Groups["typeOfDamage"].Value);
-                    MasterSwing masterSwingSpellcast = new MasterSwing((int)SwingTypeEnum.NonMelee
+                    MasterSwing masterSwingSpellcast = new MasterSwing(regexMatch.Groups["attacker"].Value.Contains("pet") ? (int)EverQuestSwingType.NonMelee : (int)EverQuestSwingType.PetNonMelee
                         , regexMatch.Groups["spellSpecials"].Success ? (regexMatch.Groups["spellSpecials"].Value.Contains(SpecialCritical) ? regexMatch.Groups["spellSpecials"].Value.Contains(SpecialCritical) : false) : false
                         , regexMatch.Groups["spellSpeicals"].Success ? regexMatch.Groups["spellSpeicals"].Value : String.Empty
                         , damage, ActGlobals.oFormActMain.LastEstimatedTime
@@ -581,16 +581,16 @@ namespace ACT_EverQuest_DPS_Plugin
         
         void oFormActMain_BeforeLogLineRead(bool isImport, LogLineEventArgs logInfo)
         {
-            for (int i = 0; i < regexTupleList.Count; i++)
-            {
-                Match reMatch = regexTupleList[i].Item2.Match(logInfo.logLine);
-                if (reMatch.Success)
-                {
-                    logInfo.detectedType = i + 1;
-                    ParseEverQuestLogLine(reMatch, i);
-                    break;
-                }
-            }
+            //for (int i = 0; i < regexTupleList.Count; i++)
+            //{
+            //    Match reMatch = regexTupleList[i].Item2.Match(logInfo.logLine);
+            //    if (reMatch.Success)
+            //    {
+            //        logInfo.detectedType = i + 1;
+            //        ParseEverQuestLogLine(reMatch, i);
+            //        break;
+            //    }
+            //}
         }
         
         enum EverQuestSwingType : int
@@ -605,151 +605,151 @@ namespace ACT_EverQuest_DPS_Plugin
             PetNonMelee = 64,
         }
 
-        private void ParseEverQuestLogLine(Match reMatch, int logMatched)
-        {
-            switch (logMatched)
-            {
-                //Melee
-                //case 0:
-                //    if (ActGlobals.oFormActMain.SetEncounter(ActGlobals.oFormActMain.LastKnownTime, CharacterNamePersonaReplace(reMatch.Groups["attacker"].Value), CharacterNamePersonaReplace(reMatch.Groups["victim"].Value)))
-                //    {
-                //        MasterSwing masterSwingMelee = new MasterSwing((int)SwingTypeEnum.Melee
-                //            , reMatch.Groups["damageSpecial"].Success ? (reMatch.Groups["damageSpecial"].Value.Contains(SpecialCritical) ? reMatch.Groups["damageSpecial"].Value.Contains(SpecialCritical) : false) : false, reMatch.Groups["damageSpecial"].Success ? reMatch.Groups["damageSpecial"].Value : String.Empty, new Dnum(Int64.Parse(reMatch.Groups["damageAmount"].Value))
-                //            , ActGlobals.oFormActMain.LastEstimatedTime, ActGlobals.oFormActMain.GlobalTimeSorter, reMatch.Groups["attackType"].Value, CharacterNamePersonaReplace(reMatch.Groups["attacker"].Value), "Hitpoints", CharacterNamePersonaReplace(reMatch.Groups["victim"].Value));
-                //        masterSwingMelee.Tags[logTimestamp] = ActGlobals.oFormActMain.LastKnownTime;
-                //        ActGlobals.oFormActMain.AddCombatAction(masterSwingMelee);
-                //    }
-                //    break;
-                ////Non-melee damage shield
-                //case 1:
-                //    if (ActGlobals.oFormActMain.SetEncounter(ActGlobals.oFormActMain.LastKnownTime, CharacterNamePersonaReplace(reMatch.Groups["attacker"].Value), CharacterNamePersonaReplace(reMatch.Groups["victim"].Value)))
-                //    {
-                //        MasterSwing masterSwingDamageShield = new MasterSwing((int)EverQuestSwingType.NonMelee
-                //            , reMatch.Groups["damageSpecial"].Success ? (reMatch.Groups["damageSpecial"].Value.Contains(SpecialCritical) ? reMatch.Groups["damageSpecial"].Value.Contains(SpecialCritical) : false) : false, reMatch.Groups["damageSpecial"].Success ? reMatch.Groups["damageSpecial"].Value : String.Empty
-                //            , new Dnum(Int64.Parse(reMatch.Groups["damagePoints"].Value), reMatch.Groups["damageShieldType"].Value)
-                //            , ActGlobals.oFormActMain.LastEstimatedTime, ActGlobals.oFormActMain.GlobalTimeSorter, reMatch.Groups["damageShieldDamageType"].Value, CharacterNamePersonaReplace(reMatch.Groups["attacker"].Value), "Hitpoints", CharacterNamePersonaReplace(reMatch.Groups["victim"].Value));
-                //        masterSwingDamageShield.Tags[logTimestamp] = ActGlobals.oFormActMain.LastKnownTime;
-                //        ActGlobals.oFormActMain.AddCombatAction(masterSwingDamageShield);
-                //    }
-                //    break;
-                //Missed melee
-                //case 2:
-                //    if (ActGlobals.oFormActMain.SetEncounter(ActGlobals.oFormActMain.LastKnownTime, CharacterNamePersonaReplace(reMatch.Groups["attacker"].Value), CharacterNamePersonaReplace(reMatch.Groups["victim"].Value)))
-                //    {
-                //        MasterSwing masterSwingMissedMelee = new MasterSwing((int)SwingTypeEnum.Melee
-                //            , reMatch.Groups["damageSpecial"].Success ? (reMatch.Groups["damageSpecial"].Value.Contains(SpecialCritical) ? reMatch.Groups["damageSpecial"].Value.Contains(SpecialCritical) : false) : false,
-                //            reMatch.Groups["damageSpecial"].Success ? reMatch.Groups["damageSpecial"].Value : String.Empty
-                //        , Dnum.Miss
-                //            , ActGlobals.oFormActMain.LastEstimatedTime, ActGlobals.oFormActMain.GlobalTimeSorter, reMatch.Groups["attackType"].Value, CharacterNamePersonaReplace(reMatch.Groups["attacker"].Value), "Miss", CharacterNamePersonaReplace(reMatch.Groups["victim"].Value));
-                //        masterSwingMissedMelee.Tags[logTimestamp] = ActGlobals.oFormActMain.LastKnownTime;
-                //        ActGlobals.oFormActMain.AddCombatAction(masterSwingMissedMelee);
-                //    }
-                //    break;
-                //Spell Cast
-                //case 4:
-                //    if (ActGlobals.oFormActMain.SetEncounter(ActGlobals.oFormActMain.LastKnownTime, CharacterNamePersonaReplace(reMatch.Groups["attacker"].Value), CharacterNamePersonaReplace(reMatch.Groups["victim"].Value)))
-                //    {
-                //        Dnum damage = new Dnum(Int64.Parse(reMatch.Groups["damagePoints"].Value), reMatch.Groups["typeOfDamage"].Value);
-                //        MasterSwing masterSwingSpellcast = new MasterSwing((int)SwingTypeEnum.NonMelee
-                //            , reMatch.Groups["spellSpecials"].Success ? (reMatch.Groups["spellSpecials"].Value.Contains(SpecialCritical) ? reMatch.Groups["spellSpecials"].Value.Contains(SpecialCritical) : false) : false
-                //            , reMatch.Groups["spellSpeicals"].Success ? reMatch.Groups["spellSpeicals"].Value : String.Empty
-                //            , damage, ActGlobals.oFormActMain.LastEstimatedTime
-                //            , ActGlobals.oFormActMain.GlobalTimeSorter, reMatch.Groups["damageEffect"].Value
-                //            , CharacterNamePersonaReplace(reMatch.Groups["attacker"].Value)
-                //            , "Hitpoints"
-                //            , CharacterNamePersonaReplace(reMatch.Groups["victim"].Value)
-                //        );
-                //        masterSwingSpellcast.Tags[logTimestamp] = ActGlobals.oFormActMain.LastKnownTime;
-                //        ActGlobals.oFormActMain.AddCombatAction(masterSwingSpellcast);
-                //    }
-                //    break;
-                //Heal Over Time heal
-                //case 5:
-                //    if (ActGlobals.oFormActMain.InCombat)
-                //    {
-                //        MasterSwing masterSwingHealOverTime = new MasterSwing((int)EverQuestSwingType.HealOverTime, reMatch.Groups["healingSpecial"].Success ? (reMatch.Groups["healingSpecial"].Value.Contains(SpecialCritical) ? reMatch.Groups["healingSpecial"].Value.Contains(SpecialCritical) : false) : false
-                //            , reMatch.Groups["healingSpecial"].Success ? reMatch.Groups["healingSpecial"].Value : String.Empty
-                //            , new Dnum(Int64.Parse(reMatch.Groups["healingPoints"].Value))
-                //            , ActGlobals.oFormActMain.LastEstimatedTime
-                //            , ActGlobals.oFormActMain.GlobalTimeSorter
-                //            , reMatch.Groups["healingSpell"].Value
-                //            , CharacterNamePersonaReplace(reMatch.Groups["healer"].Value)
-                //            , "Hitpoints", reMatch.Groups["healingTarget"].Value.Contains("self") ? CharacterNamePersonaReplace(reMatch.Groups["healer"].Value) : CharacterNamePersonaReplace(reMatch.Groups["healingTarget"].Value));
-                //        masterSwingHealOverTime.Tags["overheal"] = reMatch.Groups["overHealPoints"].Success ? Int64.Parse(reMatch.Groups["overHealPoints"].Value) : 0;
-                //        masterSwingHealOverTime.Tags[logTimestamp] = ActGlobals.oFormActMain.LastKnownTime;
-                //        ActGlobals.oFormActMain.AddCombatAction(masterSwingHealOverTime);
-                //    }
-                //    break;
-                //slain message
-                //case 6:
-                //    MasterSwing masterSwingSlain = new MasterSwing(0, false, Dnum.Death, ActGlobals.oFormActMain.LastKnownTime, ActGlobals.oFormActMain.GlobalTimeSorter, String.Empty, CharacterNamePersonaReplace(reMatch.Groups["attacker"].Value), String.Empty, CharacterNamePersonaReplace(reMatch.Groups["victim"].Value));
-                //    ActGlobals.oFormActMain.AddCombatAction(masterSwingSlain);
-                //    break;
-                //Zone change
-                //case 7:
-                //    //when checking the HistoryRecord the EndTime should be compared against default(DateTime) to determine if it an exact value among other methods such does the default(DateTime) take place before the StartTime for the HistoryRecord
-                //    ActGlobals.oFormActMain.ZoneDatabaseAdd(new HistoryRecord(0, ActGlobals.oFormActMain.LastKnownTime, new DateTime(), reMatch.Groups["zoneName"].Value != String.Empty ? reMatch.Groups["zoneName"].Value : throw new Exception("Zone regex triggered but zone name not found."), ActGlobals.charName));
-                //    ActGlobals.oFormActMain.ChangeZone(ActGlobals.oFormActMain.ZoneDatabase[ActGlobals.oFormActMain.LastKnownTime].Label);
-                //    break;
-                //Instant heals
-                //case 8:
-                //    if (ActGlobals.oFormActMain.InCombat)
-                //    {
-                //        String healingSpecial = reMatch.Groups["healingSpecial"].Value;
-                //        MasterSwing masterSwingInstantHeal = new MasterSwing((int)EverQuestSwingType.InstantHealing, healingSpecial.Contains(SpecialCritical)
-                //            , healingSpecial
-                //            , new Dnum(Int64.Parse(reMatch.Groups["healingPoints"].Value))
-                //            , ActGlobals.oFormActMain.LastEstimatedTime
-                //            , ActGlobals.oFormActMain.GlobalTimeSorter
-                //            , reMatch.Groups["healingSpell"].Value
-                //            , CharacterNamePersonaReplace(reMatch.Groups["healer"].Value)
-                //            , "Hitpoints", reMatch.Groups["healingTarget"].Value.Contains("self") ? CharacterNamePersonaReplace(reMatch.Groups["healer"].Value) : CharacterNamePersonaReplace(reMatch.Groups["healingTarget"].Value));
-                //        masterSwingInstantHeal.Tags["overheal"] = reMatch.Groups["overHealPoints"].Success ? Int64.Parse(reMatch.Groups["overHealPoints"].Value) : 0;
-                //        masterSwingInstantHeal.Tags[logTimestamp] = ActGlobals.oFormActMain.LastKnownTime;
-                //        ActGlobals.oFormActMain.AddCombatAction(masterSwingInstantHeal);
-                //    }
-                //    break;
-                //Loot line for future use
-                //case 9:
-                //    String looter = CharacterNamePersonaReplace(reMatch.Groups["looter"].Value);
-                //    String loot = reMatch.Groups["loot"].Value;
-                //    String looted = CharacterNamePersonaReplace(reMatch.Groups["looted"].Value);
-                //    break;
-                //Alcohol drink
-                //case 10:
-                //    String alcoholDrinker = CharacterNamePersonaReplace(reMatch.Groups["drinker"].Value);
-                //    String typeOfAlcohol = reMatch.Groups["typeOfAlcohol"].Value;
-                //    break;
-                //Character drink consumption "You are thirsty."
-                //case 11:
-                //    String drinkDrinker = CharacterNamePersonaReplace(reMatch.Groups["drinker"].Value);
-                //    String typeOfDrink = reMatch.Groups["typeOfDrink"].Value;
-                //    bool possesiveMatchWithCharacterNamePersona = ((CharacterNamePersonaReplace(reMatch.Groups["drinker"].Value) == ActGlobals.charName && reMatch.Groups["possessivePersona"].Value.Equals("your")) || (CharacterNamePersonaReplace(reMatch.Groups["drinker"].Value) != ActGlobals.charName && reMatch.Groups["possessivePersona"].Value.Equals("their"))) ? true : false;
-                //    if (possesiveMatchWithCharacterNamePersona)
-                //        break;
-                //    else
-                //        throw new Exception($"Possesive persona of action doesn't match drinker.  'They made {CharacterNamePersonaReplace(reMatch.Groups["drinker"].Value)} do it' {reMatch.Groups["drinker"].Value} != {reMatch.Groups["possesivePersona"].Value}.");
-                //case 12:
-                //    _ = ActGlobals.oFormActMain.ZoneDatabase[ActGlobals.oFormActMain.ZoneDatabase[ActGlobals.oFormActMain.ZoneDatabase.Max().Key].Label.Equals(ActGlobals.oFormActMain.CurrentZone) ? ActGlobals.oFormActMain.ZoneDatabase[ActGlobals.oFormActMain.ZoneDatabase.Max().Key].EndTime = ActGlobals.oFormActMain.LastKnownTime : throw new Exception("unable to determine last zone and time from log file")];
-                //    break;
-                //Lines with unknown in the logline
-                //case 13:
-                //    MasterSwing masterSwingUnknown = new MasterSwing((int)SwingTypeEnum.NonMelee, false, Dnum.Unknown, ActGlobals.oFormActMain.LastEstimatedTime, ActGlobals.oFormActMain.GlobalTimeSorter, "Unknown", "Unknown", "Unknown", "Unknown");
-                //    break;
-                //case 15:
-                //    if (ActGlobals.oFormActMain.SetEncounter(ActGlobals.oFormActMain.LastKnownTime, CharacterNamePersonaReplace(reMatch.Groups["attacker"].Value), CharacterNamePersonaReplace(reMatch.Groups["victim"].Value)))
-                //    {
-                //        MasterSwing masterSwingEvasion = new MasterSwing((int)EverQuestSwingType.Melee, false, reMatch.Groups["evasionSpecial"].Value, Dnum.NoDamage, ActGlobals.oFormActMain.LastEstimatedTime, ActGlobals.oFormActMain.GlobalTimeSorter, reMatch.Groups["attackType"].Value, CharacterNamePersonaReplace(reMatch.Groups["attacker"].Value), reMatch.Groups["evasionType"].Value, CharacterNamePersonaReplace(reMatch.Groups["victim"].Value));
-                //        masterSwingEvasion.Tags[logTimestamp] = ActGlobals.oFormActMain.LastKnownTime;
-                //        ActGlobals.oFormActMain.AddCombatAction(masterSwingEvasion);
-                //    }
-                //    break;
-                default:
-                    break;
-            }
-        }
-        
-        private void SplitAttackerSkill(ref string attacker, ref string skillType, string[] engNameSkillSplit)
+    //    private void ParseEverQuestLogLine(Match reMatch, int logMatched)
+    //    {
+    //        switch (logMatched)
+    //        {
+    //            Melee
+    //            case 0:
+    //                if (ActGlobals.oFormActMain.SetEncounter(ActGlobals.oFormActMain.LastKnownTime, CharacterNamePersonaReplace(reMatch.Groups["attacker"].Value), CharacterNamePersonaReplace(reMatch.Groups["victim"].Value)))
+    //        {
+    //            MasterSwing masterSwingMelee = new MasterSwing((int)SwingTypeEnum.Melee
+    //                , reMatch.Groups["damageSpecial"].Success ? (reMatch.Groups["damageSpecial"].Value.Contains(SpecialCritical) ? reMatch.Groups["damageSpecial"].Value.Contains(SpecialCritical) : false) : false, reMatch.Groups["damageSpecial"].Success ? reMatch.Groups["damageSpecial"].Value : String.Empty, new Dnum(Int64.Parse(reMatch.Groups["damageAmount"].Value))
+    //                , ActGlobals.oFormActMain.LastEstimatedTime, ActGlobals.oFormActMain.GlobalTimeSorter, reMatch.Groups["attackType"].Value, CharacterNamePersonaReplace(reMatch.Groups["attacker"].Value), "Hitpoints", CharacterNamePersonaReplace(reMatch.Groups["victim"].Value));
+    //            masterSwingMelee.Tags[logTimestamp] = ActGlobals.oFormActMain.LastKnownTime;
+    //            ActGlobals.oFormActMain.AddCombatAction(masterSwingMelee);
+    //        }
+    //        break;
+    //            //Non-melee damage shield
+    //            case 1:
+    //                if (ActGlobals.oFormActMain.SetEncounter(ActGlobals.oFormActMain.LastKnownTime, CharacterNamePersonaReplace(reMatch.Groups["attacker"].Value), CharacterNamePersonaReplace(reMatch.Groups["victim"].Value)))
+    //        {
+    //            MasterSwing masterSwingDamageShield = new MasterSwing((int)EverQuestSwingType.NonMelee
+    //                , reMatch.Groups["damageSpecial"].Success ? (reMatch.Groups["damageSpecial"].Value.Contains(SpecialCritical) ? reMatch.Groups["damageSpecial"].Value.Contains(SpecialCritical) : false) : false, reMatch.Groups["damageSpecial"].Success ? reMatch.Groups["damageSpecial"].Value : String.Empty
+    //                , new Dnum(Int64.Parse(reMatch.Groups["damagePoints"].Value), reMatch.Groups["damageShieldType"].Value)
+    //                , ActGlobals.oFormActMain.LastEstimatedTime, ActGlobals.oFormActMain.GlobalTimeSorter, reMatch.Groups["damageShieldDamageType"].Value, CharacterNamePersonaReplace(reMatch.Groups["attacker"].Value), "Hitpoints", CharacterNamePersonaReplace(reMatch.Groups["victim"].Value));
+    //            masterSwingDamageShield.Tags[logTimestamp] = ActGlobals.oFormActMain.LastKnownTime;
+    //            ActGlobals.oFormActMain.AddCombatAction(masterSwingDamageShield);
+    //        }
+    //        break;
+    //        Missed melee
+    //            case 2:
+    //                if (ActGlobals.oFormActMain.SetEncounter(ActGlobals.oFormActMain.LastKnownTime, CharacterNamePersonaReplace(reMatch.Groups["attacker"].Value), CharacterNamePersonaReplace(reMatch.Groups["victim"].Value)))
+    //        {
+    //            MasterSwing masterSwingMissedMelee = new MasterSwing((int)SwingTypeEnum.Melee
+    //                , reMatch.Groups["damageSpecial"].Success ? (reMatch.Groups["damageSpecial"].Value.Contains(SpecialCritical) ? reMatch.Groups["damageSpecial"].Value.Contains(SpecialCritical) : false) : false,
+    //                reMatch.Groups["damageSpecial"].Success ? reMatch.Groups["damageSpecial"].Value : String.Empty
+    //            , Dnum.Miss
+    //                , ActGlobals.oFormActMain.LastEstimatedTime, ActGlobals.oFormActMain.GlobalTimeSorter, reMatch.Groups["attackType"].Value, CharacterNamePersonaReplace(reMatch.Groups["attacker"].Value), "Miss", CharacterNamePersonaReplace(reMatch.Groups["victim"].Value));
+    //            masterSwingMissedMelee.Tags[logTimestamp] = ActGlobals.oFormActMain.LastKnownTime;
+    //            ActGlobals.oFormActMain.AddCombatAction(masterSwingMissedMelee);
+    //        }
+    //        break;
+    //        Spell Cast
+    //            case 4:
+    //                if (ActGlobals.oFormActMain.SetEncounter(ActGlobals.oFormActMain.LastKnownTime, CharacterNamePersonaReplace(reMatch.Groups["attacker"].Value), CharacterNamePersonaReplace(reMatch.Groups["victim"].Value)))
+    //        {
+    //            Dnum damage = new Dnum(Int64.Parse(reMatch.Groups["damagePoints"].Value), reMatch.Groups["typeOfDamage"].Value);
+    //            MasterSwing masterSwingSpellcast = new MasterSwing((int)SwingTypeEnum.NonMelee
+    //                , reMatch.Groups["spellSpecials"].Success ? (reMatch.Groups["spellSpecials"].Value.Contains(SpecialCritical) ? reMatch.Groups["spellSpecials"].Value.Contains(SpecialCritical) : false) : false
+    //                , reMatch.Groups["spellSpeicals"].Success ? reMatch.Groups["spellSpeicals"].Value : String.Empty
+    //                , damage, ActGlobals.oFormActMain.LastEstimatedTime
+    //                , ActGlobals.oFormActMain.GlobalTimeSorter, reMatch.Groups["damageEffect"].Value
+    //                , CharacterNamePersonaReplace(reMatch.Groups["attacker"].Value)
+    //                , "Hitpoints"
+    //                , CharacterNamePersonaReplace(reMatch.Groups["victim"].Value)
+    //            );
+    //            masterSwingSpellcast.Tags[logTimestamp] = ActGlobals.oFormActMain.LastKnownTime;
+    //            ActGlobals.oFormActMain.AddCombatAction(masterSwingSpellcast);
+    //        }
+    //        break;
+    //        Heal Over Time heal
+    //            case 5:
+    //                if (ActGlobals.oFormActMain.InCombat)
+    //        {
+    //            MasterSwing masterSwingHealOverTime = new MasterSwing((int)EverQuestSwingType.HealOverTime, reMatch.Groups["healingSpecial"].Success ? (reMatch.Groups["healingSpecial"].Value.Contains(SpecialCritical) ? reMatch.Groups["healingSpecial"].Value.Contains(SpecialCritical) : false) : false
+    //                , reMatch.Groups["healingSpecial"].Success ? reMatch.Groups["healingSpecial"].Value : String.Empty
+    //                , new Dnum(Int64.Parse(reMatch.Groups["healingPoints"].Value))
+    //                , ActGlobals.oFormActMain.LastEstimatedTime
+    //                , ActGlobals.oFormActMain.GlobalTimeSorter
+    //                , reMatch.Groups["healingSpell"].Value
+    //                , CharacterNamePersonaReplace(reMatch.Groups["healer"].Value)
+    //                , "Hitpoints", reMatch.Groups["healingTarget"].Value.Contains("self") ? CharacterNamePersonaReplace(reMatch.Groups["healer"].Value) : CharacterNamePersonaReplace(reMatch.Groups["healingTarget"].Value));
+    //            masterSwingHealOverTime.Tags["overheal"] = reMatch.Groups["overHealPoints"].Success ? Int64.Parse(reMatch.Groups["overHealPoints"].Value) : 0;
+    //            masterSwingHealOverTime.Tags[logTimestamp] = ActGlobals.oFormActMain.LastKnownTime;
+    //            ActGlobals.oFormActMain.AddCombatAction(masterSwingHealOverTime);
+    //        }
+    //        break;
+    //        slain message
+    //            case 6:
+    //                MasterSwing masterSwingSlain = new MasterSwing(0, false, Dnum.Death, ActGlobals.oFormActMain.LastKnownTime, ActGlobals.oFormActMain.GlobalTimeSorter, String.Empty, CharacterNamePersonaReplace(reMatch.Groups["attacker"].Value), String.Empty, CharacterNamePersonaReplace(reMatch.Groups["victim"].Value));
+    //        ActGlobals.oFormActMain.AddCombatAction(masterSwingSlain);
+    //        break;
+    //        Zone change
+    //            case 7:
+    //                //when checking the HistoryRecord the EndTime should be compared against default(DateTime) to determine if it an exact value among other methods such does the default(DateTime) take place before the StartTime for the HistoryRecord
+    //                ActGlobals.oFormActMain.ZoneDatabaseAdd(new HistoryRecord(0, ActGlobals.oFormActMain.LastKnownTime, new DateTime(), reMatch.Groups["zoneName"].Value != String.Empty ? reMatch.Groups["zoneName"].Value : throw new Exception("Zone regex triggered but zone name not found."), ActGlobals.charName));
+    //        ActGlobals.oFormActMain.ChangeZone(ActGlobals.oFormActMain.ZoneDatabase[ActGlobals.oFormActMain.LastKnownTime].Label);
+    //        break;
+    //        Instant heals
+    //            case 8:
+    //                if (ActGlobals.oFormActMain.InCombat)
+    //        {
+    //            String healingSpecial = reMatch.Groups["healingSpecial"].Value;
+    //            MasterSwing masterSwingInstantHeal = new MasterSwing((int)EverQuestSwingType.InstantHealing, healingSpecial.Contains(SpecialCritical)
+    //                , healingSpecial
+    //                , new Dnum(Int64.Parse(reMatch.Groups["healingPoints"].Value))
+    //                , ActGlobals.oFormActMain.LastEstimatedTime
+    //                , ActGlobals.oFormActMain.GlobalTimeSorter
+    //                , reMatch.Groups["healingSpell"].Value
+    //                , CharacterNamePersonaReplace(reMatch.Groups["healer"].Value)
+    //                , "Hitpoints", reMatch.Groups["healingTarget"].Value.Contains("self") ? CharacterNamePersonaReplace(reMatch.Groups["healer"].Value) : CharacterNamePersonaReplace(reMatch.Groups["healingTarget"].Value));
+    //            masterSwingInstantHeal.Tags["overheal"] = reMatch.Groups["overHealPoints"].Success ? Int64.Parse(reMatch.Groups["overHealPoints"].Value) : 0;
+    //            masterSwingInstantHeal.Tags[logTimestamp] = ActGlobals.oFormActMain.LastKnownTime;
+    //            ActGlobals.oFormActMain.AddCombatAction(masterSwingInstantHeal);
+    //        }
+    //        break;
+    //        Loot line for future use
+    //            case 9:
+    //                String looter = CharacterNamePersonaReplace(reMatch.Groups["looter"].Value);
+    //        String loot = reMatch.Groups["loot"].Value;
+    //        String looted = CharacterNamePersonaReplace(reMatch.Groups["looted"].Value);
+    //        break;
+    //        Alcohol drink
+    //            case 10:
+    //                String alcoholDrinker = CharacterNamePersonaReplace(reMatch.Groups["drinker"].Value);
+    //        String typeOfAlcohol = reMatch.Groups["typeOfAlcohol"].Value;
+    //        break;
+    //        Character drink consumption "You are thirsty."
+    //            case 11:
+    //                String drinkDrinker = CharacterNamePersonaReplace(reMatch.Groups["drinker"].Value);
+    //        String typeOfDrink = reMatch.Groups["typeOfDrink"].Value;
+    //        bool possesiveMatchWithCharacterNamePersona = ((CharacterNamePersonaReplace(reMatch.Groups["drinker"].Value) == ActGlobals.charName && reMatch.Groups["possessivePersona"].Value.Equals("your")) || (CharacterNamePersonaReplace(reMatch.Groups["drinker"].Value) != ActGlobals.charName && reMatch.Groups["possessivePersona"].Value.Equals("their"))) ? true : false;
+    //        if (possesiveMatchWithCharacterNamePersona)
+    //            break;
+    //        else
+    //            throw new Exception($"Possesive persona of action doesn't match drinker.  'They made {CharacterNamePersonaReplace(reMatch.Groups["drinker"].Value)} do it' {reMatch.Groups["drinker"].Value} != {reMatch.Groups["possesivePersona"].Value}.");
+    //            case 12:
+    //                _ = ActGlobals.oFormActMain.ZoneDatabase[ActGlobals.oFormActMain.ZoneDatabase[ActGlobals.oFormActMain.ZoneDatabase.Max().Key].Label.Equals(ActGlobals.oFormActMain.CurrentZone) ? ActGlobals.oFormActMain.ZoneDatabase[ActGlobals.oFormActMain.ZoneDatabase.Max().Key].EndTime = ActGlobals.oFormActMain.LastKnownTime : throw new Exception("unable to determine last zone and time from log file")];
+    //        break;
+    //        Lines with unknown in the logline
+    //            case 13:
+    //                MasterSwing masterSwingUnknown = new MasterSwing((int)SwingTypeEnum.NonMelee, false, Dnum.Unknown, ActGlobals.oFormActMain.LastEstimatedTime, ActGlobals.oFormActMain.GlobalTimeSorter, "Unknown", "Unknown", "Unknown", "Unknown");
+    //        break;
+    //            case 15:
+    //                if (ActGlobals.oFormActMain.SetEncounter(ActGlobals.oFormActMain.LastKnownTime, CharacterNamePersonaReplace(reMatch.Groups["attacker"].Value), CharacterNamePersonaReplace(reMatch.Groups["victim"].Value)))
+    //        {
+    //            MasterSwing masterSwingEvasion = new MasterSwing((int)EverQuestSwingType.Melee, false, reMatch.Groups["evasionSpecial"].Value, Dnum.NoDamage, ActGlobals.oFormActMain.LastEstimatedTime, ActGlobals.oFormActMain.GlobalTimeSorter, reMatch.Groups["attackType"].Value, CharacterNamePersonaReplace(reMatch.Groups["attacker"].Value), reMatch.Groups["evasionType"].Value, CharacterNamePersonaReplace(reMatch.Groups["victim"].Value));
+    //            masterSwingEvasion.Tags[logTimestamp] = ActGlobals.oFormActMain.LastKnownTime;
+    //            ActGlobals.oFormActMain.AddCombatAction(masterSwingEvasion);
+    //        }
+    //        break;
+    //        default:
+    //                break;
+    //    }
+    //}
+
+    private void SplitAttackerSkill(ref string attacker, ref string skillType, string[] engNameSkillSplit)
         {
             attacker = string.Empty;    // It wasn't a pet
             for (int i = 0; i < engNameSkillSplit.Length; i++)
