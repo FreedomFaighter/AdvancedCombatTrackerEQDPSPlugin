@@ -30,7 +30,7 @@ using System.Xml;
 #endif
 namespace ACT_EverQuest_DPS_Plugin
 {
-    internal enum SpellDamageSave
+    enum SpellDamageSave
     {
         Fire = 1,
         Cold = 2,
@@ -40,7 +40,7 @@ namespace ACT_EverQuest_DPS_Plugin
         Corruption = 32
     }
 
-    internal enum SpecialAttacks
+    enum SpecialAttacks
     {
         Crippling_Blow = 1,
         Critical = 2,
@@ -505,7 +505,7 @@ namespace ACT_EverQuest_DPS_Plugin
                 case 1:
                     if (ActGlobals.oFormActMain.SetEncounter(ActGlobals.oFormActMain.LastKnownTime, CharacterNamePersonaReplace(reMatch.Groups["attacker"].Value), CharacterNamePersonaReplace(reMatch.Groups["victim"].Value)))
                     {
-                        MasterSwing masterSwingDamageShield = new MasterSwing((int)SwingTypeEnum.Melee
+                        MasterSwing masterSwingDamageShield = new MasterSwing((int)EverQuestSwingType.NonMelee
                             , reMatch.Groups["damageSpecial"].Success ? (reMatch.Groups["damageSpecial"].Value.Contains(SpecialCritical) ? reMatch.Groups["damageSpecial"].Value.Contains(SpecialCritical) : false) : false, reMatch.Groups["damageSpecial"].Success ? reMatch.Groups["damageSpecial"].Value : String.Empty
                             , new Dnum(Int64.Parse(reMatch.Groups["damagePoints"].Value), reMatch.Groups["damageShieldType"].Value)
                             , ActGlobals.oFormActMain.LastEstimatedTime, ActGlobals.oFormActMain.GlobalTimeSorter, reMatch.Groups["damageShieldDamageType"].Value, CharacterNamePersonaReplace(reMatch.Groups["attacker"].Value), "Hitpoints", CharacterNamePersonaReplace(reMatch.Groups["victim"].Value));
@@ -548,7 +548,7 @@ namespace ACT_EverQuest_DPS_Plugin
                 case 5:
                     if (ActGlobals.oFormActMain.InCombat)
                     {
-                        MasterSwing masterSwingHealOverTime = new MasterSwing((int)SwingTypeEnum.Healing, reMatch.Groups["healingSpecial"].Success ? (reMatch.Groups["healingSpecial"].Value.Contains(SpecialCritical) ? reMatch.Groups["healingSpecial"].Value.Contains(SpecialCritical) : false) : false
+                        MasterSwing masterSwingHealOverTime = new MasterSwing((int)EverQuestSwingType.Healing, reMatch.Groups["healingSpecial"].Success ? (reMatch.Groups["healingSpecial"].Value.Contains(SpecialCritical) ? reMatch.Groups["healingSpecial"].Value.Contains(SpecialCritical) : false) : false
                             , reMatch.Groups["healingSpecial"].Success ? reMatch.Groups["healingSpecial"].Value : String.Empty
                             , new Dnum(Int64.Parse(reMatch.Groups["healingPoints"].Value))
                             , ActGlobals.oFormActMain.LastEstimatedTime
@@ -577,7 +577,7 @@ namespace ACT_EverQuest_DPS_Plugin
                     if (ActGlobals.oFormActMain.InCombat)
                     {
                         String healingSpecial = reMatch.Groups["healingSpecial"].Value;
-                        MasterSwing masterSwingInstantHeal = new MasterSwing((int)SwingTypeEnum.Healing, healingSpecial.Contains(SpecialCritical)
+                        MasterSwing masterSwingInstantHeal = new MasterSwing((int)EverQuestSwingType.Healing, healingSpecial.Contains(SpecialCritical)
                             , healingSpecial
                             , new Dnum(Int64.Parse(reMatch.Groups["healingPoints"].Value))
                             , ActGlobals.oFormActMain.LastEstimatedTime
@@ -620,7 +620,7 @@ namespace ACT_EverQuest_DPS_Plugin
                 case 15:
                     if (ActGlobals.oFormActMain.SetEncounter(ActGlobals.oFormActMain.LastKnownTime, CharacterNamePersonaReplace(reMatch.Groups["attacker"].Value), CharacterNamePersonaReplace(reMatch.Groups["victim"].Value)))
                     {
-                        MasterSwing masterSwingEvasion = new MasterSwing((int)SwingTypeEnum.Melee, false, reMatch.Groups["evasionSpecial"].Value, Dnum.NoDamage, ActGlobals.oFormActMain.LastEstimatedTime, ActGlobals.oFormActMain.GlobalTimeSorter, reMatch.Groups["attackType"].Value, CharacterNamePersonaReplace(reMatch.Groups["attacker"].Value), reMatch.Groups["evasionType"].Value, CharacterNamePersonaReplace(reMatch.Groups["victim"].Value));
+                        MasterSwing masterSwingEvasion = new MasterSwing((int)EverQuestSwingType.Melee, false, reMatch.Groups["evasionSpecial"].Value, Dnum.NoDamage, ActGlobals.oFormActMain.LastEstimatedTime, ActGlobals.oFormActMain.GlobalTimeSorter, reMatch.Groups["attackType"].Value, CharacterNamePersonaReplace(reMatch.Groups["attacker"].Value), reMatch.Groups["evasionType"].Value, CharacterNamePersonaReplace(reMatch.Groups["victim"].Value));
                         masterSwingEvasion.Tags[logTimestamp] = ActGlobals.oFormActMain.LastKnownTime;
                         ActGlobals.oFormActMain.AddCombatAction(masterSwingEvasion);
                     }
