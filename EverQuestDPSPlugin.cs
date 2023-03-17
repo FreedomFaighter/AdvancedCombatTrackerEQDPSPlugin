@@ -1413,7 +1413,7 @@ namespace ACT_EverQuest_DPS_Plugin
                 }
             }
             if(special==0)
-                return String.Empty;
+                return string.Empty;
             float specialCripplingBlowPerc = ((float)specialCripplingBlow / (float)special) * 100f;
             float specialLockedPerc = ((float)specialLocked / (float)special) * 100f;
             float specialCriticalPerc = ((float)specialCritical / (float)special) * 100f;
