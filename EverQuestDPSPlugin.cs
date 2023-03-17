@@ -283,7 +283,7 @@ namespace ACT_EverQuest_DPS_Plugin
         private CheckedListBox clbAposName;
         #endregion
         #region class members
-        readonly int pluginId = -1;
+        //readonly int pluginId = -1;
         readonly char[] chrApos = new char[] { '\'', '’' };
         readonly char[] chrSpaceApos = new char[] { ' ', '\'', '’' };
         List<Tuple<Color, Regex>> regexTupleList = new List<Tuple<Color, Regex>>();
