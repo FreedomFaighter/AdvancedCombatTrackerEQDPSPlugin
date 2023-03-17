@@ -283,7 +283,7 @@ namespace ACT_EverQuest_DPS_Plugin
         private CheckedListBox clbAposName;
         #endregion
         #region class members
-        readonly int pluginId = 96;
+        readonly int pluginId = -1;
         readonly char[] chrApos = new char[] { '\'', '’' };
         readonly char[] chrSpaceApos = new char[] { ' ', '\'', '’' };
         List<Tuple<Color, Regex>> regexTupleList = new List<Tuple<Color, Regex>>();
@@ -368,7 +368,7 @@ namespace ACT_EverQuest_DPS_Plugin
             PopulateRegexArray();
             SetupEverQuestEnvironment();   // Not really needed since ACT has this code internalized as well.
             ActGlobals.oFormActMain.BeforeLogLineRead += new LogLineEventDelegate(oFormActMain_BeforeLogLineRead);
-            ActGlobals.oFormActMain.UpdateCheckClicked += new FormActMain.NullDelegate(oFormActMain_UpdateCheckClicked);
+            //ActGlobals.oFormActMain.UpdateCheckClicked += new FormActMain.NullDelegate(oFormActMain_UpdateCheckClicked);
             ActGlobals.oFormActMain.GetDateTimeFromLog += new FormActMain.DateTimeLogParser(parseDateTime);
             if (ActGlobals.oFormActMain.GetAutomaticUpdatesAllowed())   // If ACT is set to automatically check for updates, check for updates to the plugin
                 new Thread(new ThreadStart(oFormActMain_UpdateCheckClicked)).Start();   // If we don't put this on a separate thread, web latency will delay the plugin init phase
@@ -379,7 +379,7 @@ namespace ACT_EverQuest_DPS_Plugin
         public void DeInitPlugin()
         {
             ActGlobals.oFormActMain.BeforeLogLineRead -= oFormActMain_BeforeLogLineRead;
-            ActGlobals.oFormActMain.UpdateCheckClicked -= oFormActMain_UpdateCheckClicked;
+            //ActGlobals.oFormActMain.UpdateCheckClicked -= oFormActMain_UpdateCheckClicked;
             ActGlobals.oFormActMain.GetDateTimeFromLog -= parseDateTime;
 
             if (optionsNode != null)    // If we added our user control to the Options tab, remove it
