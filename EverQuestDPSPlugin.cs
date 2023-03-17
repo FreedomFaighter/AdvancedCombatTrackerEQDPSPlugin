@@ -878,33 +878,33 @@ namespace ACT_EverQuest_DPS_Plugin
             }
             xWriter.WriteEndElement();
         }
-        void oFormActMain_UpdateCheckClicked()
-        {
-            try
-            {
-                DateTime localDate = ActGlobals.oFormActMain.PluginGetSelfDateUtc(this);
-                DateTime remoteDate = ActGlobals.oFormActMain.PluginGetRemoteDateUtc(pluginId);
-                ActGlobals.oFormActMain.PluginGetGithubApi(pluginId);
-                if (localDate.AddHours(2) < remoteDate)
-                {
-                    DialogResult result = MessageBox.Show($"There is an updated version of the {PluginName} .  Update it now?\n\n(If there is an update to ACT, you should click No and update ACT first.)", "New Version", MessageBoxButtons.YesNo, MessageBoxIcon.Question);
-                    if (result == DialogResult.Yes)
-                    {
-                        FileInfo updatedFile = ActGlobals.oFormActMain.PluginDownload(pluginId);
-                        ActPluginData pluginData = ActGlobals.oFormActMain.PluginGetSelfData(this);
-                        pluginData.pluginFile.Delete();
-                        updatedFile.MoveTo(pluginData.pluginFile.FullName);
-                        ThreadInvokes.CheckboxSetChecked(ActGlobals.oFormActMain, pluginData.cbEnabled, false);
-                        Application.DoEvents();
-                        ThreadInvokes.CheckboxSetChecked(ActGlobals.oFormActMain, pluginData.cbEnabled, true);
-                    }
-                }
-            }
-            catch (Exception ex)
-            {
-                ActGlobals.oFormActMain.WriteExceptionLog(ex, "Plugin Update Check");
-            }
-        }
+        //void oFormActMain_UpdateCheckClicked()
+        //{
+        //    try
+        //    {
+        //        DateTime localDate = ActGlobals.oFormActMain.PluginGetSelfDateUtc(this);
+        //        DateTime remoteDate = ActGlobals.oFormActMain.PluginGetRemoteDateUtc(pluginId);
+        //        ActGlobals.oFormActMain.PluginGetGithubApi(pluginId);
+        //        if (localDate.AddHours(2) < remoteDate)
+        //        {
+        //            DialogResult result = MessageBox.Show($"There is an updated version of the {PluginName} .  Update it now?\n\n(If there is an update to ACT, you should click No and update ACT first.)", "New Version", MessageBoxButtons.YesNo, MessageBoxIcon.Question);
+        //            if (result == DialogResult.Yes)
+        //            {
+        //                FileInfo updatedFile = ActGlobals.oFormActMain.PluginDownload(pluginId);
+        //                ActPluginData pluginData = ActGlobals.oFormActMain.PluginGetSelfData(this);
+        //                pluginData.pluginFile.Delete();
+        //                updatedFile.MoveTo(pluginData.pluginFile.FullName);
+        //                ThreadInvokes.CheckboxSetChecked(ActGlobals.oFormActMain, pluginData.cbEnabled, false);
+        //                Application.DoEvents();
+        //                ThreadInvokes.CheckboxSetChecked(ActGlobals.oFormActMain, pluginData.cbEnabled, true);
+        //            }
+        //        }
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        ActGlobals.oFormActMain.WriteExceptionLog(ex, "Plugin Update Check");
+        //    }
+        //}
         private void cbRecalcWardedHits_MouseHover(object sender, EventArgs e)
         {
             ActGlobals.oFormActMain.SetOptionsHelpText("If enabled, no-damage hits or reduced damage hits immediately following a ward absorbtion will be increased by the absorption amount.  Stoneskin's no-damage hits cannot be recalculated.");
