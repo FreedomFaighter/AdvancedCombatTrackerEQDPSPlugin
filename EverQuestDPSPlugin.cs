@@ -575,19 +575,18 @@ namespace ACT_EverQuest_DPS_Plugin
                 }
             }));
         }
-
+        List<LogLineEventArgs> nonMatchList = new List<LogLineEventArgs>();
         void oFormActMain_BeforeLogLineRead(bool isImport, LogLineEventArgs logInfo)
         {
-            //for (int i = 0; i < regexTupleList.Count; i++)
-            //{
-            //    Match reMatch = regexTupleList[i].Item2.Match(logInfo.logLine);
-            //    if (reMatch.Success)
-            //    {
-            //        logInfo.detectedType = i + 1;
-            //        ParseEverQuestLogLine(reMatch, i);
-            //        break;
-            //    }
-            //}
+            Tuple<Color, Regex, matchParse> firstRegex = regexTupleList.FirstOrDefault((regexTuple) =>
+            {
+                return regexTuple.Item2.Match(logInfo.logLine).Success;
+            });
+
+            if (firstRegex != default(Tuple<Color, Regex, matchParse>))
+                firstRegex.Item3(firstRegex.Item2.Match(logInfo.logLine));
+            else
+                nonMatchList.Add(logInfo);
         }
 
         enum EverQuestSwingType : int
