@@ -548,7 +548,7 @@ namespace ACT_EverQuest_DPS_Plugin
                 case 5:
                     if (ActGlobals.oFormActMain.InCombat)
                     {
-                        MasterSwing masterSwingHealOverTime = new MasterSwing((int)EverQuestSwingType.Healing, reMatch.Groups["healingSpecial"].Success ? (reMatch.Groups["healingSpecial"].Value.Contains(SpecialCritical) ? reMatch.Groups["healingSpecial"].Value.Contains(SpecialCritical) : false) : false
+                        MasterSwing masterSwingHealOverTime = new MasterSwing((int)EverQuestSwingType.HealOverTime, reMatch.Groups["healingSpecial"].Success ? (reMatch.Groups["healingSpecial"].Value.Contains(SpecialCritical) ? reMatch.Groups["healingSpecial"].Value.Contains(SpecialCritical) : false) : false
                             , reMatch.Groups["healingSpecial"].Success ? reMatch.Groups["healingSpecial"].Value : String.Empty
                             , new Dnum(Int64.Parse(reMatch.Groups["healingPoints"].Value))
                             , ActGlobals.oFormActMain.LastEstimatedTime
@@ -577,7 +577,7 @@ namespace ACT_EverQuest_DPS_Plugin
                     if (ActGlobals.oFormActMain.InCombat)
                     {
                         String healingSpecial = reMatch.Groups["healingSpecial"].Value;
-                        MasterSwing masterSwingInstantHeal = new MasterSwing((int)EverQuestSwingType.Healing, healingSpecial.Contains(SpecialCritical)
+                        MasterSwing masterSwingInstantHeal = new MasterSwing((int)EverQuestSwingType.InstantHealing, healingSpecial.Contains(SpecialCritical)
                             , healingSpecial
                             , new Dnum(Int64.Parse(reMatch.Groups["healingPoints"].Value))
                             , ActGlobals.oFormActMain.LastEstimatedTime
