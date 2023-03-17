@@ -474,7 +474,7 @@ namespace ACT_EverQuest_DPS_Plugin
         //    PetNonMelee = Pet | NonMelee
         //}
 
-        enum EQSwingTypeEnum : int
+        enum EverQuestSwingType : int
         {
             None = 0,
             Melee = 1,
@@ -1122,8 +1122,6 @@ namespace ACT_EverQuest_DPS_Plugin
             {"Skill/Ability (Out)", new CombatantData.DamageTypeDef("Skill/Ability (Out)", -1, Color.DarkOrange)},
             {"Outgoing Damage", new CombatantData.DamageTypeDef("Outgoing Damage", 0, Color.Orange)},
             {"Healed (Out)", new CombatantData.DamageTypeDef("Healed (Out)", 1, Color.Blue)},
-            //,{"Pet Melee (Out)", new CombatantData.DamageTypeDef("Pet Melee (Out)", -1, Color.Green) },
-            //{"Pet Spell (Out)", new CombatantData.DamageTypeDef("Pet Spell (Out)", -1, Color.Purple) }
             {"All Outgoing (Ref)", new CombatantData.DamageTypeDef("All Outgoing (Ref)", 0, Color.Black)}
 
 
@@ -1136,19 +1134,27 @@ namespace ACT_EverQuest_DPS_Plugin
         };
             CombatantData.SwingTypeToDamageTypeDataLinksOutgoing = new SortedDictionary<int, List<string>>
         {
-            {1, new List<string> { "Auto-Attack (Out)", "Outgoing Damage" } },
-            {2, new List<string> { "Skill/Ability (Out)", "Outgoing Damage" } },
-            {3, new List<string> { "Healed (Out)" } },
+            {(int)EverQuestSwingType.Melee, new List<string> { "Auto-Attack (Out)", "Outgoing Damage" } },
+            {(int)EverQuestSwingType.NonMelee, new List<string> { "Skill/Ability (Out)", "Outgoing Damage" } },
+            {(int)EverQuestSwingType.InstantHealing, new List<string> { "Instant Healed (Out)", "Outgoing Instant Healing" } },
+                {(int)EverQuestSwingType.HealOverTime, new List<string> { "Heal Over Time (Out)", "Outgoing Heal Over Time" } },
+                {(int)EverQuestSwingType.Bane, new List<string> { "Bane Damage (Out)", "Outgoing Bane Damage"} },
+                {(int)EverQuestSwingType.PetMelee, new List<string> { "Pet Melee (Out)", "Outgoing Pet Melee Damage" } },
+                {(int)EverQuestSwingType.PetNonMelee, new List<string> { "Pet Non Melee (Out)", "Outgoing Pet Non Melee"} }
         };
             CombatantData.SwingTypeToDamageTypeDataLinksIncoming = new SortedDictionary<int, List<string>>
         {
-            {1, new List<string> { "Incoming Damage" } },
-            {2, new List<string> { "Incoming Damage" } },
-            {3, new List<string> { "Healed (Inc)" } }
+            {(int)EverQuestSwingType.Melee, new List<string> { "Melee Damage (Inc)" } },
+            {(int)EverQuestSwingType.NonMelee, new List<string> { "Non Melee Damage (Inc)" } },
+            {(int)EverQuestSwingType.InstantHealing, new List<string> { "Instant Healed (Inc)" } },
+                {(int)EverQuestSwingType.HealOverTime, new List<string> {"Heal Over Time (Inc)"} },
+                {(int)EverQuestSwingType.Bane, new List<string> {"Bane Damage (Inc)"} },
+                {(int)EverQuestSwingType.PetMelee, new List<string> {"Pet Melee (Inc)"} },
+                {(int)EverQuestSwingType.PetNonMelee, new List<string> {"Pet Non Melee (Inc)"} }
         };
 
-            CombatantData.DamageSwingTypes = new List<int> { 1, 2 };
-            CombatantData.HealingSwingTypes = new List<int> { 3 };
+            CombatantData.DamageSwingTypes = new List<int> { (int)EverQuestSwingType.Melee, (int)EverQuestSwingType.NonMelee, (int)EverQuestSwingType.Bane, (int)EverQuestSwingType.PetMelee, (int)EverQuestSwingType.PetNonMelee };
+            CombatantData.HealingSwingTypes = new List<int> { (int)EverQuestSwingType.InstantHealing, (int)EverQuestSwingType.HealOverTime };
 
             CombatantData.DamageTypeDataNonSkillDamage = "Auto-Attack (Out)";
             CombatantData.DamageTypeDataOutgoingDamage = "Outgoing Damage";
@@ -1356,8 +1362,8 @@ namespace ACT_EverQuest_DPS_Plugin
             int specialLucky = 0;
             int specialDoubleBowShot = 0;
             int specialTwincast = 0;
-            
-            for(int i=1; i<=Data.Items.Count; i++)
+
+            for (int i = 1; i <= Data.Items.Count; i++)
             {
                 MasterSwing ms = Data.Items[i];
                 if (ms.Special.Length > 0 && ms.Special != "None")
@@ -1411,7 +1417,7 @@ namespace ACT_EverQuest_DPS_Plugin
                         specialNonDefined++;
                 }
             }
-            if(special==0)
+            if (special == 0)
                 return string.Empty;
             float specialCripplingBlowPerc = ((float)specialCripplingBlow / (float)special) * 100f;
             float specialLockedPerc = ((float)specialLocked / (float)special) * 100f;
