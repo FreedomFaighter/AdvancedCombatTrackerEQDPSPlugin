@@ -331,10 +331,12 @@ namespace ACT_EverQuest_DPS_Plugin
         string settingsFile;
         SettingsSerializer xmlSettings;
         #endregion
+        
         public EverQuestDPSPlugin()
         {
             InitializeComponent();
         }
+        
         public void InitPlugin(TabPage pluginScreenSpace, Label pluginStatusText)
         {
             settingsFile = Path.Combine(ActGlobals.oFormActMain.AppDataFolder.FullName, PluginSettingsFileName);
@@ -376,6 +378,7 @@ namespace ACT_EverQuest_DPS_Plugin
             ActGlobals.oFormActMain.ZoneChangeRegex = new Regex($@"{ZoneChange}", RegexOptions.Compiled);
             lblStatus.Text = $"{PluginName} Plugin Started";
         }
+        
         public void DeInitPlugin()
         {
             ActGlobals.oFormActMain.BeforeLogLineRead -= oFormActMain_BeforeLogLineRead;
@@ -398,8 +401,6 @@ namespace ACT_EverQuest_DPS_Plugin
             DateTime.TryParseExact(dateTimeRegex.Match(logLine).Groups["dateTimeOfLogLine"].Value, eqDateTimeStampFormat, DateTimeFormatInfo.CurrentInfo, DateTimeStyles.AssumeLocal, out currentEQTimeStamp);
             return currentEQTimeStamp;
         }
-
-
 
         private void PopulateRegexArray()
         {
@@ -438,6 +439,7 @@ namespace ACT_EverQuest_DPS_Plugin
             ActGlobals.oFormEncounterLogs.LogTypeToColorMapping.Add(regexTupleList.Count - 1, regexTupleList[regexTupleList.Count - 1].Item1);
 
         }
+        
         void oFormActMain_BeforeLogLineRead(bool isImport, LogLineEventArgs logInfo)
         {
             for (int i = 0; i < regexTupleList.Count; i++)
@@ -451,29 +453,14 @@ namespace ACT_EverQuest_DPS_Plugin
                 }
             }
         }
+        
         private DateTime GetDateTimeFromGroupMatch(String dt)
         {
             DateTime currentEQTimeStamp;
             DateTime.TryParseExact(dt, eqDateTimeStampFormat, DateTimeFormatInfo.CurrentInfo, DateTimeStyles.AssumeLocal, out currentEQTimeStamp);
             return currentEQTimeStamp;
         }
-        //enum ExtendedSwingTypeEnum : int
-        //{
-        //    None = 0,
-        //    Melee = (int)SwingTypeEnum.Melee,//1,
-        //    NonMelee = (int)SwingTypeEnum.NonMelee,//2,
-        //    Healing = Melee | NonMelee, //3,
-        //    Unknown4 = 4,//4,
-        //    Unknown8 = 8,//8,
-        //    PowerDrain = NonMelee | Unknown8,//10,
-        //    PowerHealing = Unknown8 | Unknown4 | Melee, //13(int)SwingTypeEnum.PowerHealing,
-        //    Threat = (int)SwingTypeEnum.Threat,//16
-        //    CureDispell = Unknown4 | Threat,//20,
-        //    Pet = 32,//Pet unknown actions, not expected to occur
-        //    PetMelee = Pet | Melee,
-        //    PetNonMelee = Pet | NonMelee
-        //}
-
+        
         enum EverQuestSwingType : int
         {
             None = 0,
@@ -629,6 +616,7 @@ namespace ACT_EverQuest_DPS_Plugin
                     break;
             }
         }
+        
         private void SplitAttackerSkill(ref string attacker, ref string skillType, string[] engNameSkillSplit)
         {
             attacker = string.Empty;    // It wasn't a pet
@@ -666,10 +654,12 @@ namespace ACT_EverQuest_DPS_Plugin
                 }
             }
         }
+        
         private string CharacterNamePersonaReplace(string PersonaString)
         {
             return selfCheck.Match(PersonaString).Success ? ActGlobals.charName : PersonaString;
         }
+        
         void LoadSettings()
         {
             // Add items to the xmlSettings object here...
@@ -709,6 +699,7 @@ namespace ACT_EverQuest_DPS_Plugin
                 }
             }
         }
+        
         void SaveSettings()
         {
             using (FileStream fs = new FileStream(settingsFile, FileMode.Create, FileAccess.Write, FileShare.ReadWrite))
@@ -729,6 +720,7 @@ namespace ACT_EverQuest_DPS_Plugin
                 }
             }
         }
+        
         internal class AposNameFix : IEquatable<AposNameFix>
         {
             string left, right, fullName;
@@ -833,6 +825,7 @@ namespace ACT_EverQuest_DPS_Plugin
                 return fullName;
             }
         }
+        
         private int LoadXmlApostropheNameFix(XmlTextReader xReader)
         {
             int errorCount = 0;
@@ -864,6 +857,7 @@ namespace ACT_EverQuest_DPS_Plugin
             }
             return errorCount;
         }
+        
         private void SaveXmlApostropheNameFix(XmlTextWriter xWriter)
         {
             xWriter.WriteStartElement("ApostropheNameFix");
@@ -878,6 +872,7 @@ namespace ACT_EverQuest_DPS_Plugin
             }
             xWriter.WriteEndElement();
         }
+        
         //void oFormActMain_UpdateCheckClicked()
         //{
         //    try
@@ -905,36 +900,44 @@ namespace ACT_EverQuest_DPS_Plugin
         //        ActGlobals.oFormActMain.WriteExceptionLog(ex, "Plugin Update Check");
         //    }
         //}
+        
         private void cbRecalcWardedHits_MouseHover(object sender, EventArgs e)
         {
             ActGlobals.oFormActMain.SetOptionsHelpText("If enabled, no-damage hits or reduced damage hits immediately following a ward absorbtion will be increased by the absorption amount.  Stoneskin's no-damage hits cannot be recalculated.");
         }
+        
         private void cbMultiDamageIsOne_MouseHover(object sender, EventArgs e)
         {
             ActGlobals.oFormActMain.SetOptionsHelpText("When enabled, an attack that has multiple damage types, such as \"300 crushing, 5 poison and 5 disease damage\" will show up as one total attack: 300/5/5 crushing/poison/disease, internally seen as 310.  If disabled, each damage type will show up as an individual swing, IE three attacks: 300 crushing; 5 poison; 5 disease.  Having a single attack show up as multiple will have consequences when calculating ToHit%.");
         }
+        
         private void lblAncestralSentry_MouseHover(object sender, EventArgs e)
         {
             ActGlobals.oFormActMain.SetOptionsHelpText("The Mystic ability, Ancestral Sentry, will attempt to intercede players near it in a static manner.");
         }
+        
         private void cbSParseConsider_MouseHover(object sender, EventArgs e)
         {
             ActGlobals.oFormActMain.SetOptionsHelpText("The /con command simply adds some text to the log about your target's con-level.  The /whogroup and /whoraid commands will list the members of your group/raid respectively.  Using this option will allow you to quickly add players to the Selective Parsing list.");
         }
+        
         private void AposName_MouseHover(object sender, EventArgs e)
         {
             ActGlobals.oFormActMain.SetOptionsHelpText("Certain mob names with apostrophes in their name will cause the English parser to incorrectly split a combatant name from an ability name.  Use this section to add a full combatant name that should not be split apart.");
         }
+        
         private void cbIncludeInterceptFocus_MouseHover(object sender, EventArgs e)
         {
             ActGlobals.oFormActMain.SetOptionsHelpText("When a channeler per intercepts damage, it receives an attack as focus damage.  Normally this focus damage is ignored and instead parsed as a heal for the channeler.  Enabling this option will also parse the damage done to the pet.");
         }
+        
         private void clbAposName_ItemCheck(object sender, ItemCheckEventArgs e)
         {
             string label = (string)clbAposName.Items[e.Index];
             AposNameFix selectedItem = aposNameList[label];
             selectedItem.Active = e.NewValue == CheckState.Checked;
         }
+        
         private void clbAposName_SelectedIndexChanged(object sender, EventArgs e)
         {
             if (clbAposName.SelectedIndex != -1)
@@ -946,6 +949,7 @@ namespace ACT_EverQuest_DPS_Plugin
                 tbAposNameR.Text = selectedItem.Right;
             }
         }
+        
         private void tbAposName_TextChanged(object sender, EventArgs e)
         {
             string[] engNameSkillSplit = tbAposName.Text.Split(new char[] { '\'' });
@@ -957,6 +961,7 @@ namespace ACT_EverQuest_DPS_Plugin
             tbAposNameL.Text = attacker;
             tbAposNameR.Text = skillType;
         }
+        
         private void btnAposNameAdd_Click(object sender, EventArgs e)
         {
             if (String.IsNullOrEmpty(tbAposNameL.Text) || String.IsNullOrEmpty(tbAposNameR.Text))
@@ -967,6 +972,7 @@ namespace ACT_EverQuest_DPS_Plugin
             AposNameFix newItem = new AposNameFix(tbAposName.Text, tbAposNameL.Text, tbAposNameR.Text);
             AposAddNameFix(newItem);
         }
+        
         private void btnAposNameRemove_Click(object sender, EventArgs e)
         {
             if (aposNameList.ContainsKey(tbAposName.Text))
@@ -975,6 +981,7 @@ namespace ACT_EverQuest_DPS_Plugin
                 clbAposName.Items.Remove(tbAposName.Text);
             }
         }
+        
         private void AposAddNameFix(AposNameFix newItem)
         {
             if (!aposNameList.ContainsKey(newItem.FullName))
@@ -983,14 +990,17 @@ namespace ACT_EverQuest_DPS_Plugin
                 clbAposName.Items.Add(newItem.FullName, newItem.Active);
             }
         }
+        
         private string GetIntCommas()
         {
             return ActGlobals.mainTableShowCommas ? "#,0" : "0";
         }
+        
         private string GetFloatCommas()
         {
             return ActGlobals.mainTableShowCommas ? "#,0.00" : "0.00";
         }
+        
         private void SetupEverQuestEnvironment()
         {
             CultureInfo usCulture = new CultureInfo("en-US");   // This is for SQL syntax; do not change
@@ -1329,6 +1339,7 @@ namespace ACT_EverQuest_DPS_Plugin
             ActGlobals.oFormActMain.ValidateLists();
             ActGlobals.oFormActMain.ValidateTableSetup();
         }
+        
         private string CombatantDataGetCritTypes(CombatantData Data)
         {
             AttackType at;
@@ -1339,6 +1350,7 @@ namespace ACT_EverQuest_DPS_Plugin
             else
                 return String.Empty;
         }
+        
         private string DamageTypeDataGetCritTypes(DamageTypeData Data)
         {
             AttackType at;
@@ -1349,6 +1361,7 @@ namespace ACT_EverQuest_DPS_Plugin
             else
                 return String.Empty;
         }
+        
         private string AttackTypeGetCritTypes(AttackType Data)
         {
             int special = 0;
@@ -1432,6 +1445,7 @@ namespace ACT_EverQuest_DPS_Plugin
 
             return $"{specialCripplingBlowPerc:000.0}%CB-{specialLockedPerc:000.0}%Locked-{specialCriticalPerc:000.0}%C-{specialStrikethroughPerc:000.0}%S-{specialRipostePerc:000.0}%R-{specialFlurryPerc:000.0}%F-{speicalLuckyPerc:000.0}%Lucky-{specialDoubleBowShotPerc:000.0}%DB-{specialTwincastPerc:000.0}%TC-{specialNonDefinedPerc:000.0}%ND";
         }
+        
         private Color GetSwingTypeColor(int SwingType)
         {
             switch (SwingType)
@@ -1453,6 +1467,7 @@ namespace ACT_EverQuest_DPS_Plugin
                     return Color.Black;
             }
         }
+        
         private string EncounterFormatSwitch(EncounterData Data, List<CombatantData> SelectiveAllies, string VarName, string Extra)
         {
             long damage = 0;
@@ -1758,6 +1773,7 @@ namespace ACT_EverQuest_DPS_Plugin
                     return VarName;
             }
         }
+        
         private string GetAttackTypeSwingType(AttackType Data)
         {
             int swingType = 100;
@@ -1774,6 +1790,7 @@ namespace ACT_EverQuest_DPS_Plugin
 
             return swingType.ToString();
         }
+        
         private string GetDamageTypeGrouping(DamageTypeData Data)
         {
             string grouping = string.Empty;
@@ -1810,6 +1827,7 @@ namespace ACT_EverQuest_DPS_Plugin
 
             return grouping;
         }
+        
         private string CombatantFormatSwitch(CombatantData Data, string VarName, string Extra)
         {
             int len = 0;
