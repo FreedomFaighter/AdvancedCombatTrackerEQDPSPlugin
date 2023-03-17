@@ -321,6 +321,7 @@ namespace ACT_EverQuest_DPS_Plugin
         readonly String targetTooFarAway = @"Your target is too far away, get closer!";
         //readonly String tells = @"(?<teller>.+) tells (the|) (?<listener>.+), \'(<message>.+)\'";
         readonly String Evasion = @"(?<attacker>.*) tries to (?<attackType>\S+) (?:(?<victim>(.+)), but \1) (?:(?<evasionType>" + $@"{evasionTypes}" + @"))!(?:[\s][\(](?<evasionSpecial>.+)[\)]){0,1}";
+        readonly String Banestrike = @"You hit (?<victim>.+) for (?<baneDamage>[\d]+) points of physical damage by Banestrike (?<baneAbilityRank>.+\.)";
         readonly Regex dateTimeRegex = new Regex(TimeStamp, RegexOptions.Compiled);
         Regex selfCheck = new Regex(@"((y|Y)ou|(YOU(?:(\b|R))(?:(\b|SELF))))", RegexOptions.Compiled);
         SortedList<string, AposNameFix> aposNameList = new SortedList<string, AposNameFix>();
@@ -397,6 +398,8 @@ namespace ACT_EverQuest_DPS_Plugin
             return currentEQTimeStamp;
         }
 
+
+
         private void PopulateRegexArray()
         {
             ActGlobals.oFormEncounterLogs.LogTypeToColorMapping.Clear();
@@ -432,6 +435,7 @@ namespace ACT_EverQuest_DPS_Plugin
             ActGlobals.oFormEncounterLogs.LogTypeToColorMapping.Add(regexTupleList.Count - 1, regexTupleList[regexTupleList.Count - 1].Item1);
             regexTupleList.Add(new Tuple<Color, Regex>(Color.DeepSkyBlue, new Regex($@"{TimeStamp} {Evasion}", RegexOptions.Compiled)));
             ActGlobals.oFormEncounterLogs.LogTypeToColorMapping.Add(regexTupleList.Count - 1, regexTupleList[regexTupleList.Count - 1].Item1);
+
         }
         void oFormActMain_BeforeLogLineRead(bool isImport, LogLineEventArgs logInfo)
         {
@@ -452,21 +456,33 @@ namespace ACT_EverQuest_DPS_Plugin
             DateTime.TryParseExact(dt, eqDateTimeStampFormat, DateTimeFormatInfo.CurrentInfo, DateTimeStyles.AssumeLocal, out currentEQTimeStamp);
             return currentEQTimeStamp;
         }
-        enum ExtendedSwingTypeEnum : int
+        //enum ExtendedSwingTypeEnum : int
+        //{
+        //    None = 0,
+        //    Melee = (int)SwingTypeEnum.Melee,//1,
+        //    NonMelee = (int)SwingTypeEnum.NonMelee,//2,
+        //    Healing = Melee | NonMelee, //3,
+        //    Unknown4 = 4,//4,
+        //    Unknown8 = 8,//8,
+        //    PowerDrain = NonMelee | Unknown8,//10,
+        //    PowerHealing = Unknown8 | Unknown4 | Melee, //13(int)SwingTypeEnum.PowerHealing,
+        //    Threat = (int)SwingTypeEnum.Threat,//16
+        //    CureDispell = Unknown4 | Threat,//20,
+        //    Pet = 32,//Pet unknown actions, not expected to occur
+        //    PetMelee = Pet | Melee,
+        //    PetNonMelee = Pet | NonMelee
+        //}
+
+        enum EQSwingTypeEnum : int
         {
             None = 0,
-            Melee = (int)SwingTypeEnum.Melee,//1,
-            NonMelee = (int)SwingTypeEnum.NonMelee,//2,
-            Healing = Melee | NonMelee, //3,
-            Unknown4 = 4,//4,
-            Unknown8 = 8,//8,
-            PowerDrain = NonMelee | Unknown8,//10,
-            PowerHealing = Unknown8 | Unknown4 | Melee, //13(int)SwingTypeEnum.PowerHealing,
-            Threat = (int)SwingTypeEnum.Threat,//16
-            CureDispell = Unknown4 | Threat,//20,
-            Pet = 32,//Pet unknown actions, not expected to occur
-            PetMelee = Pet | Melee,
-            PetNonMelee = Pet | NonMelee
+            Melee = 1,
+            NonMelee = 2,
+            InstantHealing = 4,
+            HealOverTime = 8,
+            Bane = 16,
+            PetMelee = 32,
+            PetNonMelee = 64,
         }
 
         private void ParseEverQuestLogLine(Match reMatch, int logMatched)
@@ -1315,7 +1331,7 @@ namespace ACT_EverQuest_DPS_Plugin
                 return AttackTypeGetCritTypes(at);
             }
             else
-                return "-";
+                return String.Empty;
         }
         private string DamageTypeDataGetCritTypes(DamageTypeData Data)
         {
@@ -1325,7 +1341,7 @@ namespace ACT_EverQuest_DPS_Plugin
                 return AttackTypeGetCritTypes(at);
             }
             else
-                return "-";
+                return String.Empty;
         }
         private string AttackTypeGetCritTypes(AttackType Data)
         {
@@ -1344,7 +1360,7 @@ namespace ACT_EverQuest_DPS_Plugin
             for(int i=1; i<=Data.Items.Count; i++)
             {
                 MasterSwing ms = Data.Items[i];
-                if (ms.Special > 0 && ms.Special != "None")
+                if (ms.Special.Length > 0 && ms.Special != "None")
                 {
                     special++;
                     bool cripplingBlowFound = ms.Special.Contains(SpecialCripplingBlow);
@@ -1394,7 +1410,7 @@ namespace ACT_EverQuest_DPS_Plugin
                     if (!(cripplingBlowFound || lockedFound || ms.Critical || strikethroughFound || riposteFound || flurryFound || luckyFound || doubleBowShotFound || twincastFound))
                         specialNonDefined++;
                 }
-            });
+            }
             if(special==0)
                 return String.Empty;
             float specialCripplingBlowPerc = ((float)specialCripplingBlow / (float)special) * 100f;
