@@ -726,7 +726,6 @@ namespace ACT_EverQuest_DPS_Plugin
                     SaveXmlApostropheNameFix(xWriter);  // Create and fill the ApostropheNameFix node
                     xWriter.WriteEndElement();  // </Config>
                     xWriter.WriteEndDocument(); // Tie up loose ends (shouldn't be any)
-                    //xWriter.Flush();    // Flush the file buffer to disk
                 }
             }
         }
