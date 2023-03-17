@@ -8,7 +8,6 @@ using System.Linq;
 using System.Reflection;
 using System.Text;
 using System.Text.RegularExpressions;
-using System.Threading;
 using System.Windows.Forms;
 using System.Xml;
 
@@ -282,6 +281,7 @@ namespace ACT_EverQuest_DPS_Plugin
         private CheckBox cbIncludeInterceptFocus;
         private CheckedListBox clbAposName;
         #endregion
+
         #region class members
         //readonly int pluginId = -1;
         readonly char[] chrApos = new char[] { '\'', '’' };
