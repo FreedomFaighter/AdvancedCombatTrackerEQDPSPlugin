@@ -596,7 +596,8 @@ namespace ACT_EverQuest_DPS_Plugin
             InstantHealing = 4,
             HealOverTime = 8,
             Bane = 16,
-            Pet = 32
+            Pet = 32,
+            Warder = 64,
         }
 
         //    private void ParseEverQuestLogLine(Match reMatch, int logMatched)
