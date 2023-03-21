@@ -285,7 +285,7 @@ namespace ACT_EverQuest_DPS_Plugin
         #region class members
         //readonly int pluginId = -1;
         readonly char[] chrApos = new char[] { '\'', '’' };
-        readonly char[] chrSpaceApos = new char[] { ' ', '\'', '’' };
+        readonly char[] chrSpaceApos = new char[] { ' ', '\'', '’', '`' };
         //List<Tuple<Color, Regex>> regexTupleList = new List<Tuple<Color, Regex>>();
         delegate void matchParse(Match regexMatch);
         List<Tuple<Color, Regex>> regexTupleList = new List<Tuple<Color, Regex>>();
@@ -296,7 +296,7 @@ namespace ACT_EverQuest_DPS_Plugin
         readonly String HealingOverTime = @"(?<healer>.+) healed (?<healingTarget>.+) over time for (?<healingPoints>[\d]+)(?:[\s\(](?<overHealPoints>[\d]+)[\)]){0,1} hit points by (?<healingSpell>.*\.)(?:[\s][\(](?<healingSpecial>.+)[\)]){0,1}";
         readonly String InstantHeal = @"(?<healer>.+) healed (?<healingTarget>.+) for (?<healingPoints>[\d]+)(?:[\s\(](?<overHealPoints>[\d]+)[\)]){0,1} hit points by (?<healingSpell>.*(\.))(?:[\s][\(](?<healingSpecial>.+)[\)]){0,1}";
         readonly String MeleeAttack = @"(?<attacker>.+) (?<attackType>" + $@"{attackTypes}" + @")(|s|es|bed) (?<victim>.+) for (?<damageAmount>[\d]+) (?:point[|s]) of damage.(?:\s\((?<damageSpecial>.+)\)){0,1}";
-        readonly String MissedMeleeAttack = $@"(?<attacker>.+) (?:(tr(ies|y))) to (?<attackType>\S+) (?<victim>.+), but (?:miss(|es))!";
+        readonly String MissedMeleeAttack = @"(?<attacker>.+) (?:tr(?:ies|y)) to (?<attackType>\S+) (?<victim>.+), but (?:miss(?:|es))!(?:\s\((?<damageSpecial>.+)\)){0,1}";
         readonly String PluginName = @"EverQuest Damage Per Second Parser";
         readonly static String PluginSettingsFileName = @"Config\ACT_EverQuest_English_Parser.config.xml";
         readonly String PluginSettingsSectionName = @"Data Correction\EQ English Settings";
@@ -319,7 +319,7 @@ namespace ACT_EverQuest_DPS_Plugin
         readonly String Evasion = @"(?<attacker>.*) tries to (?<attackType>\S+) (?:(?<victim>(.+)), but \1) (?:(?<evasionType>" + $@"{evasionTypes}" + @"))!(?:[\s][\(](?<evasionSpecial>.+)[\)]){0,1}";
         readonly String Banestrike = @"You hit (?<victim>.+) for (?<baneDamage>[\d]+) points of (?<typeOfDamage>.+) by Banestrike (?<baneAbilityRank>.+\.)";
         readonly Regex dateTimeRegex = new Regex(TimeStamp, RegexOptions.Compiled);
-        Regex selfCheck = new Regex(@"((y|Y)ou|(YOU(?:(\b|R))(?:(\b|SELF))))", RegexOptions.Compiled);
+        readonly Regex selfCheck = new Regex(@"((y|Y)ou|(YOU(?:(\b|R))(?:(\b|SELF))))", RegexOptions.Compiled);
         SortedList<string, AposNameFix> aposNameList = new SortedList<string, AposNameFix>();
         TreeNode optionsNode = null;
         Label lblStatus;    // The status label that appears in ACT's Plugin tab
@@ -365,7 +365,7 @@ namespace ACT_EverQuest_DPS_Plugin
             SetupEverQuestEnvironment();   // Not really needed since ACT has this code internalized as well.
             ActGlobals.oFormActMain.BeforeLogLineRead += new LogLineEventDelegate(oFormActMain_BeforeLogLineRead);
             //ActGlobals.oFormActMain.UpdateCheckClicked += new FormActMain.NullDelegate(oFormActMain_UpdateCheckClicked);
-            ActGlobals.oFormActMain.GetDateTimeFromLog += new FormActMain.DateTimeLogParser(parseDateTime);
+            ActGlobals.oFormActMain.GetDateTimeFromLog += new FormActMain.DateTimeLogParser(ParseDateTime);
 
             //if (ActGlobals.oFormActMain.GetAutomaticUpdatesAllowed())   // If ACT is set to automatically check for updates, check for updates to the plugin
             //    new Thread(new ThreadStart(oFormActMain_UpdateCheckClicked)).Start();   // If we don't put this on a separate thread, web latency will delay the plugin init phase
@@ -378,7 +378,7 @@ namespace ACT_EverQuest_DPS_Plugin
         {
             ActGlobals.oFormActMain.BeforeLogLineRead -= oFormActMain_BeforeLogLineRead;
             //ActGlobals.oFormActMain.UpdateCheckClicked -= oFormActMain_UpdateCheckClicked;
-            ActGlobals.oFormActMain.GetDateTimeFromLog -= parseDateTime;
+            ActGlobals.oFormActMain.GetDateTimeFromLog -= ParseDateTime;
 
             if (optionsNode != null)    // If we added our user control to the Options tab, remove it
             {
@@ -390,7 +390,7 @@ namespace ACT_EverQuest_DPS_Plugin
             lblStatus.Text = $@"{PluginName} Plugin Exited";
         }
 
-        private DateTime parseDateTime(String logLine)
+        private DateTime ParseDateTime(String logLine)
         {
             DateTime currentEQTimeStamp;
             DateTime.TryParseExact(dateTimeRegex.Match(logLine).Groups["dateTimeOfLogLine"].Value, eqDateTimeStampFormat, DateTimeFormatInfo.CurrentInfo, DateTimeStyles.AssumeLocal, out currentEQTimeStamp);
@@ -436,7 +436,7 @@ namespace ACT_EverQuest_DPS_Plugin
                 {
                     logInfo.detectedType = i;
                     ParseEverQuestLogLine(regexMatch, i);
-                    return;
+                    break;
                 }
             }
         }
@@ -479,10 +479,14 @@ namespace ACT_EverQuest_DPS_Plugin
                     if (ActGlobals.oFormActMain.SetEncounter(ActGlobals.oFormActMain.LastKnownTime, CharacterNamePersonaReplace(regexMatch.Groups["attacker"].Value), CharacterNamePersonaReplace(regexMatch.Groups["victim"].Value)))
                     {
                         MasterSwing masterSwingMissedMelee = new MasterSwing((int)EverQuestSwingType.Melee
-                            , regexMatch.Groups["damageSpecial"].Success && (regexMatch.Groups["damageSpecial"].Value.Contains(SpecialCritical) ? regexMatch.Groups["damageSpecial"].Value.Contains(SpecialCritical) : false),
-                            regexMatch.Groups["damageSpecial"].Success ? regexMatch.Groups["damageSpecial"].Value : String.Empty
-                        , Dnum.Miss
-                            , ActGlobals.oFormActMain.LastEstimatedTime, ActGlobals.oFormActMain.GlobalTimeSorter, regexMatch.Groups["attackType"].Value, CharacterNamePersonaReplace(regexMatch.Groups["attacker"].Value), "Miss", CharacterNamePersonaReplace(regexMatch.Groups["victim"].Value));
+                            , false
+                            , regexMatch.Groups["damageSpecial"].Success ? regexMatch.Groups["damageSpecial"].Value : String.Empty
+                            , Dnum.Miss
+                            , ActGlobals.oFormActMain.LastEstimatedTime, ActGlobals.oFormActMain.GlobalTimeSorter
+                            , regexMatch.Groups["attackType"].Value
+                            , CharacterNamePersonaReplace(regexMatch.Groups["attacker"].Value)
+                            , "Miss"
+                            , CharacterNamePersonaReplace(regexMatch.Groups["victim"].Value));
                         masterSwingMissedMelee.Tags[logTimestamp] = ActGlobals.oFormActMain.LastKnownTime;
                         ActGlobals.oFormActMain.AddCombatAction(masterSwingMissedMelee);
                     }
@@ -498,10 +502,11 @@ namespace ACT_EverQuest_DPS_Plugin
                     {
                         Dnum damage = new Dnum(Int64.Parse(regexMatch.Groups["damagePoints"].Value), regexMatch.Groups["typeOfDamage"].Value);
                         MasterSwing masterSwingSpellcast = new MasterSwing((int)EverQuestSwingType.NonMelee
-                            , regexMatch.Groups["spellSpecials"].Success && (regexMatch.Groups["spellSpecials"].Value.Contains(SpecialCritical) ? regexMatch.Groups["spellSpecials"].Value.Contains(SpecialCritical) : false)
+                            , regexMatch.Groups["spellSpeicals"].Success ? regexMatch.Groups["spellSpecials"].Value.Contains(SpecialCritical) : false
                             , regexMatch.Groups["spellSpeicals"].Success ? regexMatch.Groups["spellSpeicals"].Value : String.Empty
                             , damage, ActGlobals.oFormActMain.LastEstimatedTime
-                            , ActGlobals.oFormActMain.GlobalTimeSorter, regexMatch.Groups["damageEffect"].Value
+                            , ActGlobals.oFormActMain.GlobalTimeSorter
+                            , regexMatch.Groups["damageEffect"].Value
                             , CharacterNamePersonaReplace(regexMatch.Groups["attacker"].Value)
                             , "Hitpoints"
                             , CharacterNamePersonaReplace(regexMatch.Groups["victim"].Value)
@@ -831,34 +836,6 @@ namespace ACT_EverQuest_DPS_Plugin
             xWriter.WriteEndElement();
         }
 
-        //void oFormActMain_UpdateCheckClicked()
-        //{
-        //    try
-        //    {
-        //        DateTime localDate = ActGlobals.oFormActMain.PluginGetSelfDateUtc(this);
-        //        DateTime remoteDate = ActGlobals.oFormActMain.PluginGetRemoteDateUtc(pluginId);
-        //        ActGlobals.oFormActMain.PluginGetGithubApi(pluginId);
-        //        if (localDate.AddHours(2) < remoteDate)
-        //        {
-        //            DialogResult result = MessageBox.Show($"There is an updated version of the {PluginName} .  Update it now?\n\n(If there is an update to ACT, you should click No and update ACT first.)", "New Version", MessageBoxButtons.YesNo, MessageBoxIcon.Question);
-        //            if (result == DialogResult.Yes)
-        //            {
-        //                FileInfo updatedFile = ActGlobals.oFormActMain.PluginDownload(pluginId);
-        //                ActPluginData pluginData = ActGlobals.oFormActMain.PluginGetSelfData(this);
-        //                pluginData.pluginFile.Delete();
-        //                updatedFile.MoveTo(pluginData.pluginFile.FullName);
-        //                ThreadInvokes.CheckboxSetChecked(ActGlobals.oFormActMain, pluginData.cbEnabled, false);
-        //                Application.DoEvents();
-        //                ThreadInvokes.CheckboxSetChecked(ActGlobals.oFormActMain, pluginData.cbEnabled, true);
-        //            }
-        //        }
-        //    }
-        //    catch (Exception ex)
-        //    {
-        //        ActGlobals.oFormActMain.WriteExceptionLog(ex, "Plugin Update Check");
-        //    }
-        //}
-
         private void cbRecalcWardedHits_MouseHover(object sender, EventArgs e)
         {
             ActGlobals.oFormActMain.SetOptionsHelpText("If enabled, no-damage hits or reduced damage hits immediately following a ward absorbtion will be increased by the absorption amount.  Stoneskin's no-damage hits cannot be recalculated.");
@@ -1079,7 +1056,7 @@ namespace ACT_EverQuest_DPS_Plugin
         {
             {"Auto-Attack (Out)", new CombatantData.DamageTypeDef("Auto-Attack (Out)", -1, Color.DarkGoldenrod)},
             {"Skill/Ability (Out)", new CombatantData.DamageTypeDef("Skill/Ability (Out)", -1, Color.DarkOrange)},
-            {"Outgoing Damage", new CombatantData.DamageTypeDef("Outgoing Damage", 0, Color.Orange)},
+            {"Outgoing Damage", new CombatantData.DamageTypeDef("Outgoing Damage", -1, Color.Orange)},
             {"Instant Healed (Out)", new CombatantData.DamageTypeDef("Instant Healed (Out)", 1, Color.Blue)},
             {"Heal Over Time (Out)", new CombatantData.DamageTypeDef("Heal Over Time (Out)", 1, Color.DarkBlue)},
             {"All Outgoing (Ref)", new CombatantData.DamageTypeDef("All Outgoing (Ref)", 0, Color.Black)}
@@ -1087,27 +1064,28 @@ namespace ACT_EverQuest_DPS_Plugin
             CombatantData.IncomingDamageTypeDataObjects = new Dictionary<string, CombatantData.DamageTypeDef>
         {
             {"Incoming Damage", new CombatantData.DamageTypeDef("Incoming Damage", -1, Color.Red)},
+            {"Incoming NonMelee Damage", new CombatantData.DamageTypeDef("Incoming NonMelee Damage", -1 , Color.DarkRed) },
             {"Instant Healed (Inc)",new CombatantData.DamageTypeDef("Instant Healed (Inc)", 1, Color.LimeGreen)},
             {"Heal Over Time (Inc)",new CombatantData.DamageTypeDef("Heal Over Time (Inc)", 1, Color.DarkGreen)},
             {"All Incoming (Ref)",new CombatantData.DamageTypeDef("All Incoming (Ref)", 0, Color.Black)}
         };
             CombatantData.SwingTypeToDamageTypeDataLinksOutgoing = new SortedDictionary<int, List<string>>
         {
-            {(int)EverQuestSwingType.Melee, new List<string> { "Auto-Attack (Out)", "Outgoing Damage" } },
-            {(int)EverQuestSwingType.NonMelee, new List<string> { "Skill/Ability (Out)", "Outgoing Damage" } },
-            {(int)EverQuestSwingType.InstantHealing, new List<string> { "Instant Healed (Out)" } },
-            {(int)EverQuestSwingType.HealOverTime, new List<string> { "Heal Over Time (Out)" } },
+            {EverQuestSwingType.Melee.GetEverQuestSwingTypeExtensionIntValue(), new List<string> { "Auto-Attack (Out)", "Outgoing Damage" } },
+            {EverQuestSwingType.NonMelee.GetEverQuestSwingTypeExtensionIntValue(), new List<string> { "Skill/Ability (Out)", "Outgoing Damage" } },
+            {EverQuestSwingType.InstantHealing.GetEverQuestSwingTypeExtensionIntValue(), new List<string> { "Instant Healed (Out)" } },
+            {EverQuestSwingType.HealOverTime.GetEverQuestSwingTypeExtensionIntValue(), new List<string> { "Heal Over Time (Out)" } },
         };
             CombatantData.SwingTypeToDamageTypeDataLinksIncoming = new SortedDictionary<int, List<string>>
         {
-            {(int)EverQuestSwingType.Melee, new List<string> { "Incoming Damage" } },
-            {(int)EverQuestSwingType.NonMelee, new List<string> { "Incoming Damage" } },
-            {(int)EverQuestSwingType.InstantHealing, new List<string> { "Instant Healed (Inc)" } },
-            {(int)EverQuestSwingType.HealOverTime, new List<string> { "Instant Healed (Inc)" } },
+            {EverQuestSwingType.Melee.GetEverQuestSwingTypeExtensionIntValue(), new List<string> { "Incoming Damage" } },
+            {EverQuestSwingType.NonMelee.GetEverQuestSwingTypeExtensionIntValue(), new List<string> { "Incoming NonMelee Damage" } },
+            {EverQuestSwingType.InstantHealing.GetEverQuestSwingTypeExtensionIntValue(), new List<string> { "Instant Healed (Inc)" } },
+            {EverQuestSwingType.HealOverTime.GetEverQuestSwingTypeExtensionIntValue(), new List<string> { "Heal Over Time (Inc)" } },
         };
 
-            CombatantData.DamageSwingTypes = new List<int> { (int)EverQuestSwingType.Melee, (int)EverQuestSwingType.NonMelee };
-            CombatantData.HealingSwingTypes = new List<int> { (int)EverQuestSwingType.InstantHealing, (int)EverQuestSwingType.HealOverTime };
+            CombatantData.DamageSwingTypes = new List<int> { EverQuestSwingType.Melee.GetEverQuestSwingTypeExtensionIntValue(), EverQuestSwingType.NonMelee.GetEverQuestSwingTypeExtensionIntValue() };
+            CombatantData.HealingSwingTypes = new List<int> { EverQuestSwingType.InstantHealing.GetEverQuestSwingTypeExtensionIntValue(), EverQuestSwingType.HealOverTime.GetEverQuestSwingTypeExtensionIntValue() };
 
             CombatantData.ExportVariables.Clear();
             CombatantData.ExportVariables.Add("n", new CombatantData.TextExportFormatter("n", "New Line", "Formatting after this element will appear on a new line.", (Data, Extra) => { return "\n"; }));
@@ -1260,7 +1238,6 @@ namespace ACT_EverQuest_DPS_Plugin
             MasterSwing.ColumnDefs.Add("DamageNum", new MasterSwing.ColumnDef("DamageNum", false, "BIGINT", "Damage", (Data) => { return ((long)Data.Damage).ToString(); }, (Data) => { return ((long)Data.Damage).ToString(); }, (Left, Right) => { return Left.Damage.CompareTo(Right.Damage); }));
             MasterSwing.ColumnDefs.Add("Damage", new MasterSwing.ColumnDef("Damage", true, "VARCHAR(128)", "DamageString", (Data) => { return Data.Damage.ToString(); }, (Data) => { return Data.Damage.ToString(); }, (Left, Right) => { return Left.Damage.CompareTo(Right.Damage); }));
             MasterSwing.ColumnDefs.Add("Critical", new MasterSwing.ColumnDef("Critical", false, "BOOLEAN", "Critical", (Data) => { return Data.Critical.ToString(); }, (Data) => { return Data.Critical.ToString(usCulture)[0].ToString(); }, (Left, Right) => { return Left.Critical.CompareTo(Right.Critical); }));
-
             MasterSwing.ColumnDefs.Add("Special", new MasterSwing.ColumnDef("Special", true, "VARCHAR(90)", "Special", (Data) => { return Data.Special == "None" ? String.Empty : Data.Special; }, (Data) => { return Data.Special == "None" ? String.Empty : Data.Special; }, (Left, Right) => { return (Left.Special == "None" ? String.Empty : Left.Special).CompareTo((Right.Special == "None" ? String.Empty : Left.Special)); }));
 
             foreach (KeyValuePair<string, MasterSwing.ColumnDef> pair in MasterSwing.ColumnDefs)
