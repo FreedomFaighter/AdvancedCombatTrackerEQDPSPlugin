@@ -22,4 +22,13 @@ namespace EverQuestDPSPlugin
         PetMeleeOutgoing = Pet | Melee |Outgoing,
         PetNonMeleeOutgoing = Pet | NonMelee | Outgoing
     }
+
+    internal static class EverQuestSwingTypeExtensions
+    {
+        internal static int GetEverQuestSwingTypeExtensionIntValue(this EverQuestSwingType type)
+        {
+            return (int)type;
+        }
+    }
+
 }
