@@ -67,5 +67,6 @@
     <Compile Include="EverQuestDPSPlugin.cs">
       <SubType>UserControl</SubType>
     </Compile>
+    <Compile Include="EverQuestSwingType.cs" />
   </ItemGroup>
 </Project>
