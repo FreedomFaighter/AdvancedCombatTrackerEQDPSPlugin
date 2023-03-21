@@ -1315,6 +1315,7 @@ namespace ACT_EverQuest_DPS_Plugin
                     special++;
                     bool cripplingBlowFound = ms.Special.Contains(SpecialCripplingBlow);
                     bool lockedFound = ms.Special.Contains(SpecialLocked);
+                    bool criticalFound = ms.Special.Contains(SpecialCritical);
                     bool strikethroughFound = ms.Special.Contains(SpecialStrikethrough);
                     bool riposteFound = ms.Special.Contains(SpecialRiposte);
                     bool flurryFound = ms.Special.Contains(SpecialFlurry);
@@ -1329,7 +1330,7 @@ namespace ACT_EverQuest_DPS_Plugin
                     {
                         specialLocked++;
                     }
-                    if (ms.Critical)
+                    if (criticalFound)
                     {
                         specialCritical++;
                     }
@@ -1357,7 +1358,7 @@ namespace ACT_EverQuest_DPS_Plugin
                     {
                         specialTwincast++;
                     }
-                    if (!(cripplingBlowFound || lockedFound || ms.Critical || strikethroughFound || riposteFound || flurryFound || luckyFound || doubleBowShotFound || twincastFound))
+                    if (!cripplingBlowFound && !lockedFound && !criticalFound && !strikethroughFound && !riposteFound && !flurryFound && !luckyFound && !doubleBowShotFound && !twincastFound)
                         specialNonDefined++;
                 }
             }
