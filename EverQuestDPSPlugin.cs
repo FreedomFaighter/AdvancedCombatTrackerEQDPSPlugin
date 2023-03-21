@@ -1,4 +1,5 @@
 ﻿using Advanced_Combat_Tracker;
+using EverQuestDPSPlugin;
 using System;
 using System.Collections.Generic;
 using System.Drawing;
@@ -440,17 +441,6 @@ namespace ACT_EverQuest_DPS_Plugin
             }
         }
 
-        enum EverQuestSwingType : int
-        {
-            Melee = 1,
-            NonMelee = 2,
-            InstantHealing = 4,
-            HealOverTime = 8,
-            Bane = 16,
-            Pet = 32,
-            Warder = 64,
-        }
-
         private void ParseEverQuestLogLine(Match regexMatch, int logMatched)
         {
             switch (logMatched)
@@ -476,7 +466,7 @@ namespace ACT_EverQuest_DPS_Plugin
                 case 1:
                     if (ActGlobals.oFormActMain.SetEncounter(ActGlobals.oFormActMain.LastKnownTime, CharacterNamePersonaReplace(regexMatch.Groups["attacker"].Value), CharacterNamePersonaReplace(regexMatch.Groups["victim"].Value)))
                     {
-                        MasterSwing masterSwingDamageShield = new MasterSwing((regexMatch.Groups["attacker"].Value.Contains("pet") || regexMatch.Groups["attacker"].Value.Contains("warder")) ? (int)EverQuestSwingType.NonMelee : (int)(EverQuestSwingType.Pet | EverQuestSwingType.NonMelee)
+                        MasterSwing masterSwingDamageShield = new MasterSwing((int)EverQuestSwingType.NonMelee
                             , regexMatch.Groups["damageSpecial"].Success && (regexMatch.Groups["damageSpecial"].Value.Contains(SpecialCritical) ? regexMatch.Groups["damageSpecial"].Value.Contains(SpecialCritical) : false), regexMatch.Groups["damageSpecial"].Success ? regexMatch.Groups["damageSpecial"].Value : String.Empty
                             , new Dnum(Int64.Parse(regexMatch.Groups["damagePoints"].Value), regexMatch.Groups["damageShieldType"].Value)
                             , ActGlobals.oFormActMain.LastEstimatedTime, ActGlobals.oFormActMain.GlobalTimeSorter, regexMatch.Groups["damageShieldDamageType"].Value, CharacterNamePersonaReplace(regexMatch.Groups["attacker"].Value), "Hitpoints", CharacterNamePersonaReplace(regexMatch.Groups["victim"].Value));
@@ -488,7 +478,7 @@ namespace ACT_EverQuest_DPS_Plugin
                 case 2:
                     if (ActGlobals.oFormActMain.SetEncounter(ActGlobals.oFormActMain.LastKnownTime, CharacterNamePersonaReplace(regexMatch.Groups["attacker"].Value), CharacterNamePersonaReplace(regexMatch.Groups["victim"].Value)))
                     {
-                        MasterSwing masterSwingMissedMelee = new MasterSwing((regexMatch.Groups["attacker"].Value.Contains("pet") || regexMatch.Groups["attacker"].Value.Contains("warder")) ? (int)EverQuestSwingType.Melee : (int)(EverQuestSwingType.Pet | EverQuestSwingType.Melee)
+                        MasterSwing masterSwingMissedMelee = new MasterSwing((int)EverQuestSwingType.Melee
                             , regexMatch.Groups["damageSpecial"].Success && (regexMatch.Groups["damageSpecial"].Value.Contains(SpecialCritical) ? regexMatch.Groups["damageSpecial"].Value.Contains(SpecialCritical) : false),
                             regexMatch.Groups["damageSpecial"].Success ? regexMatch.Groups["damageSpecial"].Value : String.Empty
                         , Dnum.Miss
@@ -1059,7 +1049,7 @@ namespace ACT_EverQuest_DPS_Plugin
             CombatantData.ColumnDefs.Add("Healed%", new CombatantData.ColumnDef("Healed%", false, "VARCHAR(4)", "HealedPerc", (Data) => { return Data.HealedPercent; }, (Data) => { return Data.HealedPercent; }, (Left, Right) => { return Left.Healed.CompareTo(Right.Healed); }));
             CombatantData.ColumnDefs.Add("CritHeals", new CombatantData.ColumnDef("CritHeals", false, "INT", "CritHeals", (Data) => { return Data.CritHeals.ToString(GetIntCommas()); }, (Data) => { return Data.CritHeals.ToString(); }, (Left, Right) => { return Left.CritHeals.CompareTo(Right.CritHeals); }));
             CombatantData.ColumnDefs.Add("Heals", new CombatantData.ColumnDef("Heals", false, "INT", "Heals", (Data) => { return Data.Heals.ToString(GetIntCommas()); }, (Data) => { return Data.Heals.ToString(); }, (Left, Right) => { return Left.Heals.CompareTo(Right.Heals); }));
-              CombatantData.ColumnDefs.Add("DPS", new CombatantData.ColumnDef("DPS", false, "DOUBLE", "DPS", (Data) => { return Data.DPS.ToString(); }, (Data) => { return Data.DPS.ToString(usCulture); }, (Left, Right) => { return Left.DPS.CompareTo(Right.DPS); }));
+            CombatantData.ColumnDefs.Add("DPS", new CombatantData.ColumnDef("DPS", false, "DOUBLE", "DPS", (Data) => { return Data.DPS.ToString(); }, (Data) => { return Data.DPS.ToString(usCulture); }, (Left, Right) => { return Left.DPS.CompareTo(Right.DPS); }));
             CombatantData.ColumnDefs.Add("EncDPS", new CombatantData.ColumnDef("EncDPS", true, "DOUBLE", "EncDPS", (Data) => { return Data.EncDPS.ToString(); }, (Data) => { return Data.EncDPS.ToString(usCulture); }, (Left, Right) => { return Left.Damage.CompareTo(Right.Damage); }));
             //CombatantData.ColumnDefs.Add("EncHPS", new CombatantData.ColumnDef("EncHPS", true, "DOUBLE", "EncHPS", (Data) => { return Data.EncHPS.ToString(); }, (Data) => { return Data.EncHPS.ToString(usCulture); }, (Left, Right) => { return Left.Healed.CompareTo(Right.Healed); }));
             CombatantData.ColumnDefs.Add("Hits", new CombatantData.ColumnDef("Hits", false, "INT", "Hits", (Data) => { return Data.Hits.ToString(GetIntCommas()); }, (Data) => { return Data.Hits.ToString(); }, (Left, Right) => { return Left.Hits.CompareTo(Right.Hits); }));
@@ -1118,7 +1108,6 @@ namespace ACT_EverQuest_DPS_Plugin
 
             CombatantData.DamageSwingTypes = new List<int> { (int)EverQuestSwingType.Melee, (int)EverQuestSwingType.NonMelee };
             CombatantData.HealingSwingTypes = new List<int> { (int)EverQuestSwingType.InstantHealing, (int)EverQuestSwingType.HealOverTime };
-            // 
 
             CombatantData.ExportVariables.Clear();
             CombatantData.ExportVariables.Add("n", new CombatantData.TextExportFormatter("n", "New Line", "Formatting after this element will appear on a new line.", (Data, Extra) => { return "\n"; }));
