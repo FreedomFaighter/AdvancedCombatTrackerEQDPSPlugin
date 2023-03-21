@@ -434,18 +434,19 @@ namespace ACT_EverQuest_DPS_Plugin
                 Match regexMatch = regexTupleList[i].Item2.Match(logInfo.logLine);
                 if (regexMatch.Success)
                 {
-                    logInfo.detectedType = i;
-                    ParseEverQuestLogLine(regexMatch, i);
+                    logInfo.detectedType = i + 1;
+                    ParseEverQuestLogLine(regexMatch, i + 1);
                     break;
                 }
             }
+            logInfo.detectedType = 0;
         }
 
         private void ParseEverQuestLogLine(Match regexMatch, int logMatched)
         {
             switch (logMatched)
             {
-                case 0:
+                case 1:
                     if (ActGlobals.oFormActMain.SetEncounter(ActGlobals.oFormActMain.LastKnownTime, CharacterNamePersonaReplace(regexMatch.Groups["attacker"].Value), CharacterNamePersonaReplace(regexMatch.Groups["victim"].Value)))
                     {
                         MasterSwing masterSwingMelee = new MasterSwing((int)EverQuestSwingType.Melee
@@ -463,7 +464,7 @@ namespace ACT_EverQuest_DPS_Plugin
                     }
                     break;
                 //Non-melee damage shield
-                case 1:
+                case 2:
                     if (ActGlobals.oFormActMain.SetEncounter(ActGlobals.oFormActMain.LastKnownTime, CharacterNamePersonaReplace(regexMatch.Groups["attacker"].Value), CharacterNamePersonaReplace(regexMatch.Groups["victim"].Value)))
                     {
                         MasterSwing masterSwingDamageShield = new MasterSwing((int)EverQuestSwingType.NonMelee
@@ -475,7 +476,7 @@ namespace ACT_EverQuest_DPS_Plugin
                     }
                     break;
                 //Missed melee
-                case 2:
+                case 3:
                     if (ActGlobals.oFormActMain.SetEncounter(ActGlobals.oFormActMain.LastKnownTime, CharacterNamePersonaReplace(regexMatch.Groups["attacker"].Value), CharacterNamePersonaReplace(regexMatch.Groups["victim"].Value)))
                     {
                         MasterSwing masterSwingMissedMelee = new MasterSwing((int)EverQuestSwingType.Melee
@@ -491,13 +492,13 @@ namespace ACT_EverQuest_DPS_Plugin
                         ActGlobals.oFormActMain.AddCombatAction(masterSwingMissedMelee);
                     }
                     break;
-                case 3:
+                case 4:
                     MasterSwing masterSwingSlain = new MasterSwing(0, false, Dnum.Death, ActGlobals.oFormActMain.LastEstimatedTime, ActGlobals.oFormActMain.GlobalTimeSorter, String.Empty, CharacterNamePersonaReplace(regexMatch.Groups["attacker"].Value), String.Empty, CharacterNamePersonaReplace(regexMatch.Groups["victim"].Value));
                     masterSwingSlain.Tags[logTimestamp] = ActGlobals.oFormActMain.LastKnownTime;
                     ActGlobals.oFormActMain.AddCombatAction(masterSwingSlain);
                     break;
                 //Spell Cast
-                case 4:
+                case 5:
                     if (ActGlobals.oFormActMain.SetEncounter(ActGlobals.oFormActMain.LastKnownTime, CharacterNamePersonaReplace(regexMatch.Groups["attacker"].Value), CharacterNamePersonaReplace(regexMatch.Groups["victim"].Value)))
                     {
                         Dnum damage = new Dnum(Int64.Parse(regexMatch.Groups["damagePoints"].Value), regexMatch.Groups["typeOfDamage"].Value);
@@ -515,12 +516,12 @@ namespace ACT_EverQuest_DPS_Plugin
                         ActGlobals.oFormActMain.AddCombatAction(masterSwingSpellcast);
                     }
                     break;
-                case 5:
+                case 6:
                     //when checking the HistoryRecord the EndTime should be compared against default(DateTime) to determine if it an exact value among other methods such does the default(DateTime) take place before the StartTime for the HistoryRecord
                     //ActGlobals.oFormActMain.ZoneDatabaseAdd(new HistoryRecord(0, ActGlobals.oFormActMain.LastKnownTime, new DateTime(), regexMatch.Groups["zoneName"].Value != String.Empty ? regexMatch.Groups["zoneName"].Value : throw new Exception("Zone regex triggered but zone name not found."), ActGlobals.charName));
                     ActGlobals.oFormActMain.ChangeZone(regexMatch.Groups["zoneName"].Value);
                     break;
-                case 6:
+                case 7:
                     if (ActGlobals.oFormActMain.InCombat)
                     {
                         String healingSpecial = regexMatch.Groups["healingSpecial"].Value;
@@ -539,7 +540,7 @@ namespace ACT_EverQuest_DPS_Plugin
                     }
                     break;
                 //Heal Over Time heal
-                case 7:
+                case 8:
                     if (ActGlobals.oFormActMain.InCombat)
                     {
                         MasterSwing masterSwingHealOverTime = new MasterSwing((int)EverQuestSwingType.HealOverTime
@@ -556,14 +557,14 @@ namespace ACT_EverQuest_DPS_Plugin
                         ActGlobals.oFormActMain.AddCombatAction(masterSwingHealOverTime);
                     }
                     break;
-                case 8:
+                case 9:
                     //_ = ActGlobals.oFormActMain.ZoneDatabase[ActGlobals.oFormActMain.ZoneDatabase[ActGlobals.oFormActMain.ZoneDatabase.Max().Key].Label.Equals(ActGlobals.oFormActMain.CurrentZone) ? ActGlobals.oFormActMain.ZoneDatabase[ActGlobals.oFormActMain.ZoneDatabase.Max().Key].EndTime = ActGlobals.oFormActMain.LastKnownTime : throw new Exception("unable to determine last zone and time from log file")];
                     break;
-                case 9:
+                case 10:
                     MasterSwing masterSwingUnknown = new MasterSwing((int)SwingTypeEnum.NonMelee, false, Dnum.Unknown, ActGlobals.oFormActMain.LastEstimatedTime, ActGlobals.oFormActMain.GlobalTimeSorter, "Unknown", "Unknown", "Unknown", "Unknown");
                     ActGlobals.oFormActMain.AddCombatAction(masterSwingUnknown);
                     break;
-                case 10:
+                case 11:
                     if (ActGlobals.oFormActMain.SetEncounter(ActGlobals.oFormActMain.LastKnownTime, CharacterNamePersonaReplace(regexMatch.Groups["attacker"].Value), CharacterNamePersonaReplace(regexMatch.Groups["victim"].Value)))
                     {
                         MasterSwing masterSwingEvasion = new MasterSwing((regexMatch.Groups["attacker"].Value.Contains("pet") || regexMatch.Groups["attacker"].Value.Contains("warder")) ? (int)EverQuestSwingType.Melee : (int)(EverQuestSwingType.Pet | EverQuestSwingType.Melee)
