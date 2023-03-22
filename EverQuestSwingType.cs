@@ -17,6 +17,7 @@ namespace EverQuestDPSPlugin
         Warder = 64,
         Incoming = 128,
         Outgoing = 256,
+        SpellDamage = 512,
         PetMeleeIncoming = Pet | Melee | Incoming,
         PetNonMeleeIncoming = Pet | NonMelee,
         PetMeleeOutgoing = Pet | Melee |Outgoing,
