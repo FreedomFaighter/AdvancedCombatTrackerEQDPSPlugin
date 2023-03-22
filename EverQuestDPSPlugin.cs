@@ -302,16 +302,16 @@ namespace ACT_EverQuest_DPS_Plugin
         readonly String PluginSettingsSectionName = @"Data Correction\EQ English Settings";
         readonly String SlainMessage = @"(?<attacker>.+) ha(ve|s) slain (?<victim>.+)!";
         readonly String SpecialCripplingBlow = Enum.GetName(typeof(SpecialAttacks), (SpecialAttacks)SpecialAttacks.Crippling_Blow).Replace("_", " ");
-        readonly String SpecialCritical = Enum.GetName(typeof(SpecialAttacks), (SpecialAttacks)SpecialAttacks.Critical).Replace("_", " ");
+        readonly String SpecialCritical = Enum.GetName(typeof(SpecialAttacks), (SpecialAttacks)SpecialAttacks.Critical);
         readonly String SpecialDoubleBowShot = Enum.GetName(typeof(SpecialAttacks), (SpecialAttacks)SpecialAttacks.Double_Bow_Shot).Replace("_", " ");
-        readonly String SpecialFlurry = Enum.GetName(typeof(SpecialAttacks), (SpecialAttacks)SpecialAttacks.Flurry).Replace("_", " ");
-        readonly String SpecialLocked = Enum.GetName(typeof(SpecialAttacks), (SpecialAttacks)SpecialAttacks.Locked).Replace("_", " ");
-        readonly String SpecialLucky = Enum.GetName(typeof(SpecialAttacks), (SpecialAttacks)SpecialAttacks.Lucky).Replace("_", " ");
-        readonly String SpecialRiposte = Enum.GetName(typeof(SpecialAttacks), (SpecialAttacks)SpecialAttacks.Riposte).Replace("_", " ");
-        readonly String SpecialStrikethrough = Enum.GetName(typeof(SpecialAttacks), (SpecialAttacks)SpecialAttacks.Strikethrough).Replace("_", " ");
-        readonly String SpecialTwincast = Enum.GetName(typeof(SpecialAttacks), (SpecialAttacks)SpecialAttacks.Twincast).Replace("_", " ");
-        readonly String SpellDamage = @"(?<attacker>.+) hit (?<victim>.*) for (?<damagePoints>[\d]+) (?:point[|s]) of (?<typeOfDamage>.+) damage by (?<damageEffect>.*)\.(?:[\s][\(](?<healingSpecial>.+)[\)]){0,1}";
-        readonly String SpellDamageOverTime = @"(?<attacker>.+) has taken (?<damagePoints>[\d]+) damage from (?<damageEffect>.*) by (?<victim>.*)\.(?:[\s][\(](?<healingSpecial>.+)[\)]){0,1}";
+        readonly String SpecialFlurry = Enum.GetName(typeof(SpecialAttacks), (SpecialAttacks)SpecialAttacks.Flurry);
+        readonly String SpecialLocked = Enum.GetName(typeof(SpecialAttacks), (SpecialAttacks)SpecialAttacks.Locked);
+        readonly String SpecialLucky = Enum.GetName(typeof(SpecialAttacks), (SpecialAttacks)SpecialAttacks.Lucky);
+        readonly String SpecialRiposte = Enum.GetName(typeof(SpecialAttacks), (SpecialAttacks)SpecialAttacks.Riposte);
+        readonly String SpecialStrikethrough = Enum.GetName(typeof(SpecialAttacks), (SpecialAttacks)SpecialAttacks.Strikethrough);
+        readonly String SpecialTwincast = Enum.GetName(typeof(SpecialAttacks), (SpecialAttacks)SpecialAttacks.Twincast);
+        readonly String SpellDamage = @"(?<attacker>.+) hit (?<victim>.*) for (?<damagePoints>[\d]+) (?:point[|s]) of (?<typeOfDamage>.+) damage by (?<damageEffect>.*)\.(?:[\s][\(](?<spellSpecial>.+)[\)]){0,1}";
+        readonly String SpellDamageOverTime = @"(?<attacker>.+) has taken (?<damagePoints>[\d]+) damage from (?<damageEffect>.*) by (?<victim>.*)\.(?:[\s][\(](?<spellSpecial>.+)[\)]){0,1}";
         static readonly String TimeStamp = @"\[(?<dateTimeOfLogLine>.+)\]";
         readonly String ZoneChange = @"You have entered (?!.*the Drunken Monkey stance adequately)(?<zoneName>.*)\.";
         readonly String LoadingPleaseWait = @"LOADING, PLEASE WAIT...";
@@ -512,8 +512,8 @@ namespace ACT_EverQuest_DPS_Plugin
                     {
                         Dnum damage = new Dnum(Int64.Parse(regexMatch.Groups["damagePoints"].Value), regexMatch.Groups["typeOfDamage"].Value);
                         MasterSwing masterSwingSpellcast = new MasterSwing(EverQuestSwingType.DirectDamageSpell.GetEverQuestSwingTypeExtensionIntValue()
-                            , regexMatch.Groups["spellSpeicals"].Success ? regexMatch.Groups["spellSpecials"].Value.Contains(SpecialCritical) : false
-                            , regexMatch.Groups["spellSpeicals"].Success ? regexMatch.Groups["spellSpeicals"].Value : String.Empty
+                            , regexMatch.Groups["spellSpecial"].Success ? regexMatch.Groups["spellSpecial"].Value.Contains(SpecialCritical) : false
+                            , regexMatch.Groups["spellSpecial"].Success ? regexMatch.Groups["spellSpeical"].Value : String.Empty
                             , damage, ActGlobals.oFormActMain.LastEstimatedTime
                             , ActGlobals.oFormActMain.GlobalTimeSorter
                             , regexMatch.Groups["damageEffect"].Value
@@ -534,20 +534,19 @@ namespace ACT_EverQuest_DPS_Plugin
                 case 7:
                     if (ActGlobals.oFormActMain.InCombat)
                     {
-                        MasterSwing masterSwingInstantHeal = new MasterSwing(
-                            regexMatch.Groups["overTime"].Success ? EverQuestSwingType.HealOverTime.GetEverQuestSwingTypeExtensionIntValue() : EverQuestSwingType.InstantHealing.GetEverQuestSwingTypeExtensionIntValue()
-                            , regexMatch.Groups["healingSpecial"].Value.Contains(SpecialCritical)
-                            , regexMatch.Groups["healingSpecial"].Value
-                            , new Dnum(Int64.Parse(regexMatch.Groups["healingPoints"].Value))
-                            , ActGlobals.oFormActMain.LastEstimatedTime
+                        Dnum damage = new Dnum(Int64.Parse(regexMatch.Groups["damagePoints"].Value), regexMatch.Groups["typeOfDamage"].Value);
+                        MasterSwing masterSwingSpellcast = new MasterSwing(EverQuestSwingType.DirectDamageSpell.GetEverQuestSwingTypeExtensionIntValue()
+                            , regexMatch.Groups["healingSpecial"].Success ? regexMatch.Groups["healingSpecial"].Value.Contains(SpecialCritical) : false
+                            , regexMatch.Groups["healingSpecial"].Success ? regexMatch.Groups["healingSpecial"].Value : String.Empty
+                            , damage, ActGlobals.oFormActMain.LastEstimatedTime
                             , ActGlobals.oFormActMain.GlobalTimeSorter
-                            , regexMatch.Groups["healingSpell"].Value
-                            , CharacterNamePersonaReplace(regexMatch.Groups["healer"].Value)
-                            , "Hitpoints", CharacterNamePersonaReplace(regexMatch.Groups["healingTarget"].Value));
-                        if (regexMatch.Groups["overHealPoints"].Success)
-                            masterSwingInstantHeal.Tags["overheal"] = Int64.Parse(regexMatch.Groups["overHealPoints"].Value);
-                        masterSwingInstantHeal.Tags[logTimestamp] = ActGlobals.oFormActMain.LastKnownTime;
-                        ActGlobals.oFormActMain.AddCombatAction(masterSwingInstantHeal);
+                            , regexMatch.Groups["damageEffect"].Value
+                            , CharacterNamePersonaReplace(regexMatch.Groups["attacker"].Value)
+                            , "Hitpoints"
+                            , CharacterNamePersonaReplace(regexMatch.Groups["victim"].Value)
+                        );
+                        masterSwingSpellcast.Tags[logTimestamp] = ActGlobals.oFormActMain.LastKnownTime;
+                        ActGlobals.oFormActMain.AddCombatAction(masterSwingSpellcast);
                     }
                     break;
                 case 8:
@@ -575,8 +574,8 @@ namespace ACT_EverQuest_DPS_Plugin
                     {
                         Dnum damage = new Dnum(Int64.Parse(regexMatch.Groups["damagePoints"].Value));
                         MasterSwing masterSwingSpellcast = new MasterSwing(EverQuestSwingType.DamageOverTimeSpell.GetEverQuestSwingTypeExtensionIntValue()
-                            , regexMatch.Groups["spellSpecials"].Value.Contains(SpecialCritical)
-                            , regexMatch.Groups["spellSpeicals"].Value
+                            , regexMatch.Groups["spellSpecial"].Value.Contains(SpecialCritical)
+                            , regexMatch.Groups["spellSpecial"].Value
                             , damage, ActGlobals.oFormActMain.LastEstimatedTime
                             , ActGlobals.oFormActMain.GlobalTimeSorter
                             , "Damage over time"
@@ -1081,33 +1080,30 @@ namespace ACT_EverQuest_DPS_Plugin
         };
             CombatantData.IncomingDamageTypeDataObjects = new Dictionary<string, CombatantData.DamageTypeDef>
         {
-                {"Incoming Melee Damage (Inc)", new CombatantData.DamageTypeDef("Incoming Melee Damage (Inc)", -1, Color.Cyan)},
-                {"Incoming NonMelee Damage (Inc)", new CombatantData.DamageTypeDef("Incoming NonMelee Damage (Inc)", -1, Color.Coral) },
-                {"Incoming Direct Damage Spell (Inc)", new CombatantData.DamageTypeDef("Incoming Direct Damage Spell (Inc)", -1, Color.CadetBlue) },
-                {"Incoming Damage Over Time Spell (Inc)", new CombatantData.DamageTypeDef("Incoming Damage Over Time Spell (Inc)", -1, Color.DarkOrchid) },
-                {"Bane (Inc)", new CombatantData.DamageTypeDef("Incoming Bane (Inc)", -1, Color.Sienna) },
+            {"Incoming Damage", new CombatantData.DamageTypeDef("Incoming Damage", -1, Color.Red)},
+            {"Incoming NonMelee Damage", new CombatantData.DamageTypeDef("Incoming NonMelee Damage", -1 , Color.DarkRed) },
+                {"Direct Damage Spell (Inc)", new CombatantData.DamageTypeDef("Direct Damage Spell (Inc)", -1, Color.LightCyan) },
+                {"Damage Over Time Spell (Inc)", new CombatantData.DamageTypeDef("Damage Over Time Spell (Inc)", -1, Color.Orchid) },
             {"Instant Healed (Inc)",new CombatantData.DamageTypeDef("Instant Healed (Inc)", 1, Color.LimeGreen)},
             {"Heal Over Time (Inc)",new CombatantData.DamageTypeDef("Heal Over Time (Inc)", 1, Color.DarkGreen)},
             {"All Incoming (Ref)",new CombatantData.DamageTypeDef("All Incoming (Ref)", 0, Color.Black)}
         };
             CombatantData.SwingTypeToDamageTypeDataLinksOutgoing = new SortedDictionary<int, List<string>>
         {
-            {EverQuestSwingType.Melee.GetEverQuestSwingTypeExtensionIntValue(), new List<string> { "Auto-Attack (Out)", "All Outgoing (Ref)" } },
-            {EverQuestSwingType.NonMelee.GetEverQuestSwingTypeExtensionIntValue(), new List<string> { "Skill/Ability (Out)", "All Outgoing (Ref)" } },
-            {EverQuestSwingType.DirectDamageSpell.GetEverQuestSwingTypeExtensionIntValue(), new List<string> { "Direct Damage Spell (Out)" , "All Outgoing (Ref)" } },
-            {EverQuestSwingType.DamageOverTimeSpell.GetEverQuestSwingTypeExtensionIntValue(), new List<string> { "Damage Over Time Spell (Out)" , "All Outgoing (Ref)" } },
-                {EverQuestSwingType.Bane.GetEverQuestSwingTypeExtensionIntValue(), new List<string>{ "Bane (Out)", "Outgoing Damage" } },
+            {EverQuestSwingType.Melee.GetEverQuestSwingTypeExtensionIntValue(), new List<string> { "Auto-Attack (Out)", "Outgoing Damage" } },
+            {EverQuestSwingType.NonMelee.GetEverQuestSwingTypeExtensionIntValue(), new List<string> { "Skill/Ability (Out)", "Outgoing Damage" } },
+            {EverQuestSwingType.DirectDamageSpell.GetEverQuestSwingTypeExtensionIntValue(), new List<string> { "Direct Damage Spell (Out)" , "Outgoing Damage"} },
+                {EverQuestSwingType.DamageOverTimeSpell.GetEverQuestSwingTypeExtensionIntValue(), new List<string>{"Damage Over Time Spell (Out)", "Outgoing Damage"} },
             {EverQuestSwingType.InstantHealing.GetEverQuestSwingTypeExtensionIntValue(), new List<string> { "Instant Healed (Out)" } },
             {EverQuestSwingType.HealOverTime.GetEverQuestSwingTypeExtensionIntValue(), new List<string> { "Heal Over Time (Out)" } },
         };
             CombatantData.SwingTypeToDamageTypeDataLinksIncoming = new SortedDictionary<int, List<string>>
         {
-            {EverQuestSwingType.Melee.GetEverQuestSwingTypeExtensionIntValue(), new List<string> { "Incoming Melee Damage (Inc)", "All Incoming (Ref)" } },
-            {EverQuestSwingType.NonMelee.GetEverQuestSwingTypeExtensionIntValue(), new List<string> { "Incoming NonMelee Damage (Inc)", "All Incoming (Ref)" } },
-            {EverQuestSwingType.DirectDamageSpell.GetEverQuestSwingTypeExtensionIntValue(), new List<string> { "Incoming Direct Damage Spell (Inc)" , "All Incoming (Ref)" } },
-            {EverQuestSwingType.DamageOverTimeSpell.GetEverQuestSwingTypeExtensionIntValue(), new List<string> { "Incoming Damage Over Time Spell (Inc)", "All Incoming (Ref)" } },
-                {EverQuestSwingType.Bane.GetEverQuestSwingTypeExtensionIntValue(), new List<string>{"Bane (Inc)", "All Incoming (Ref)" } },
+            {EverQuestSwingType.Melee.GetEverQuestSwingTypeExtensionIntValue(), new List<string> { "Incoming Damage" } },
+            {EverQuestSwingType.NonMelee.GetEverQuestSwingTypeExtensionIntValue(), new List<string> { "Incoming NonMelee Damage" } },
+            {EverQuestSwingType.DirectDamageSpell.GetEverQuestSwingTypeExtensionIntValue(), new List<string> { "Direct Damage Spell (Inc)" } },
             {EverQuestSwingType.InstantHealing.GetEverQuestSwingTypeExtensionIntValue(), new List<string> { "Instant Healed (Inc)" } },
+                {EverQuestSwingType.DamageOverTimeSpell.GetEverQuestSwingTypeExtensionIntValue(), new List<string> {"Damage Over Time Spell (Inc)"} },
             {EverQuestSwingType.HealOverTime.GetEverQuestSwingTypeExtensionIntValue(), new List<string> { "Heal Over Time (Inc)" } },
         };
 
@@ -1314,7 +1310,6 @@ namespace ACT_EverQuest_DPS_Plugin
 
         private string AttackTypeGetCritTypes(AttackType Data)
         {
-            int special = 0;
             int specialCripplingBlow = 0;
             int specialLocked = 0;
             int specialCritical = 0;
@@ -1329,23 +1324,23 @@ namespace ACT_EverQuest_DPS_Plugin
             {
                 return critital.Special.Contains(SpecialCritical);
             }).Count();
+            int count = Data.Items.Count;
             if (Data.Items.Count.Equals(0))
                 return String.Empty;
             for (int i = 0; i < Data.Items.Count; i++)
             {
                 MasterSwing ms = Data.Items[i];
                 if (ms.Special.Length > 0 && ms.Special != String.Empty)
-                    {
-                    special++;
-                    bool cripplingBlowFound = ms.Special.Contains(SpecialCripplingBlow);
-                    bool lockedFound = ms.Special.Contains(SpecialLocked);
-                    bool criticalFound = ms.Special.Contains(SpecialCritical);
-                    bool strikethroughFound = ms.Special.Contains(SpecialStrikethrough);
-                    bool riposteFound = ms.Special.Contains(SpecialRiposte);
-                    bool flurryFound = ms.Special.Contains(SpecialFlurry);
-                    bool luckyFound = ms.Special.Contains(SpecialLucky);
-                    bool doubleBowShotFound = ms.Special.Contains(SpecialDoubleBowShot);
-                    bool twincastFound = ms.Special.Contains(SpecialTwincast);
+                {
+                    bool cripplingBlowFound = ms.Special.Contains("Crippling Blow");
+                    bool lockedFound = ms.Special.Contains("Locked");
+                    bool criticalFound = ms.Special.Contains("Critical");
+                    bool strikethroughFound = ms.Special.Contains("Strikethrough");
+                    bool riposteFound = ms.Special.Contains("Riposte");
+                    bool flurryFound = ms.Special.Contains("Flurry");
+                    bool luckyFound = ms.Special.Contains("Lucky");
+                    bool doubleBowShotFound = ms.Special.Contains("Double Bow Shot");
+                    bool twincastFound = ms.Special.Contains("Twincast");
                     if (cripplingBlowFound)
                 {
                         specialCripplingBlow++;
@@ -1382,18 +1377,16 @@ namespace ACT_EverQuest_DPS_Plugin
                         specialNonDefined++;
                 }
             }
-            if (special == 0)
-                return string.Empty;
-            float specialCripplingBlowPerc = ((float)specialCripplingBlow / (float)special) * 100f;
-            float specialLockedPerc = ((float)specialLocked / (float)special) * 100f;
-            float specialCriticalPerc = ((float)specialCritical / (float)special) * 100f;
-            float specialNonDefinedPerc = ((float)specialNonDefined / (float)special) * 100f;
-            float specialStrikethroughPerc = ((float)specialStrikethrough / (float)special) * 100f;
-            float specialRipostePerc = ((float)specialRiposte / (float)special) * 100f;
-            float specialFlurryPerc = ((float)specialFlurry / (float)special) * 100f;
-            float speicalLuckyPerc = ((float)specialLucky / (float)special) * 100f;
-            float specialDoubleBowShotPerc = ((float)specialDoubleBowShot / (float)special) * 100f;
-            float specialTwincastPerc = ((float)specialTwincast / (float)special) * 100f;
+            float specialCripplingBlowPerc = ((float)specialCripplingBlow / (float)count) * 100f;
+            float specialLockedPerc = ((float)specialLocked / (float)count) * 100f;
+            float specialCriticalPerc = ((float)specialCritical / (float)count) * 100f;
+            float specialNonDefinedPerc = ((float)specialNonDefined / (float)count) * 100f;
+            float specialStrikethroughPerc = ((float)specialStrikethrough / (float)count) * 100f;
+            float specialRipostePerc = ((float)specialRiposte / (float)count) * 100f;
+            float specialFlurryPerc = ((float)specialFlurry / (float)count) * 100f;
+            float speicalLuckyPerc = ((float)specialLucky / (float)count) * 100f;
+            float specialDoubleBowShotPerc = ((float)specialDoubleBowShot / (float)count) * 100f;
+            float specialTwincastPerc = ((float)specialTwincast / (float)count) * 100f;
 
             return $"{specialCripplingBlowPerc:000.0}%CB-{specialLockedPerc:000.0}%Locked-{specialCriticalPerc:000.0}%C-{specialStrikethroughPerc:000.0}%S-{specialRipostePerc:000.0}%R-{specialFlurryPerc:000.0}%F-{speicalLuckyPerc:000.0}%Lucky-{specialDoubleBowShotPerc:000.0}%DB-{specialTwincastPerc:000.0}%TC-{specialNonDefinedPerc:000.0}%ND";
         }
