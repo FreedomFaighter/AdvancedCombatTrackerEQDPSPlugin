@@ -310,7 +310,6 @@ namespace ACT_EverQuest_DPS_Plugin
         readonly String SpecialStrikethrough = Enum.GetName(typeof(SpecialAttacks), (SpecialAttacks)SpecialAttacks.Strikethrough).Replace("_", " ");
         readonly String SpecialTwincast = Enum.GetName(typeof(SpecialAttacks), (SpecialAttacks)SpecialAttacks.Twincast).Replace("_", " ");
         readonly String SpellDamage = @"(?<attacker>.+) hit (?<victim>.*) for (?<damagePoints>[\d]+) (?:point[|s]) of (?<typeOfDamage>.+) damage by (?<damageEffect>.*)\.(?:[\s][\(](?<healingSpecial>.+)[\)]){0,1}";
-        readonly String SpellDamageOverTime = @"(?<attacker>.+) has taken (?<damagePoints>[\d]+) damage from (?<damageEffect>.*) by (?<victim>.*)\.(?:[\s][\(](?<healingSpecial>.+)[\)]){0,1}";
         static readonly String TimeStamp = @"\[(?<dateTimeOfLogLine>.+)\]";
         readonly String ZoneChange = @"You have entered (?!.*the Drunken Monkey stance adequately)(?<zoneName>.*)\.";
         readonly String LoadingPleaseWait = @"LOADING, PLEASE WAIT...";
@@ -407,7 +406,7 @@ namespace ACT_EverQuest_DPS_Plugin
             ActGlobals.oFormEncounterLogs.LogTypeToColorMapping.Add(regexTupleList.Count, regexTupleList[regexTupleList.Count - 1].Item1);
             regexTupleList.Add(new Tuple<Color, Regex>(Color.Red, new Regex($@"{TimeStamp} {DamageShield}", RegexOptions.Compiled)));
             ActGlobals.oFormEncounterLogs.LogTypeToColorMapping.Add(regexTupleList.Count, regexTupleList[regexTupleList.Count - 1].Item1);
-            regexTupleList.Add(new Tuple<Color, Regex>(Color.Plum, new Regex($@"{TimeStamp} {MissedMeleeAttack}", RegexOptions.Compiled)));
+            regexTupleList.Add(new Tuple<Color, Regex>(Color.Gray, new Regex($@"{TimeStamp} {MissedMeleeAttack}", RegexOptions.Compiled)));
             ActGlobals.oFormEncounterLogs.LogTypeToColorMapping.Add(regexTupleList.Count, regexTupleList[regexTupleList.Count - 1].Item1);
             regexTupleList.Add(new Tuple<Color, Regex>(Color.Goldenrod, new Regex($@"{TimeStamp} {SlainMessage}", RegexOptions.Compiled)));
             ActGlobals.oFormEncounterLogs.LogTypeToColorMapping.Add(regexTupleList.Count, regexTupleList[regexTupleList.Count - 1].Item1);
@@ -423,9 +422,7 @@ namespace ACT_EverQuest_DPS_Plugin
             ActGlobals.oFormEncounterLogs.LogTypeToColorMapping.Add(regexTupleList.Count, regexTupleList[regexTupleList.Count - 1].Item1);
             regexTupleList.Add(new Tuple<Color, Regex>(Color.DeepSkyBlue, new Regex($@"{TimeStamp} {Evasion}", RegexOptions.Compiled)));
             ActGlobals.oFormEncounterLogs.LogTypeToColorMapping.Add(regexTupleList.Count, regexTupleList[regexTupleList.Count - 1].Item1);
-            regexTupleList.Add(new Tuple<Color, Regex>(Color.LightBlue, new Regex($@"{TimeStamp} {Banestrike}", RegexOptions.Compiled)));
-            ActGlobals.oFormEncounterLogs.LogTypeToColorMapping.Add(regexTupleList.Count, regexTupleList[regexTupleList.Count - 1].Item1);
-            regexTupleList.Add(new Tuple<Color, Regex>(Color.AliceBlue, new Regex($@"{TimeStamp} {SpellDamageOverTime}", RegexOptions.Compiled)));
+            regexTupleList.Add(new Tuple<Color, Regex>(Color.DeepSkyBlue, new Regex($@"{TimeStamp} {Banestrike}", RegexOptions.Compiled)));
             ActGlobals.oFormEncounterLogs.LogTypeToColorMapping.Add(regexTupleList.Count, regexTupleList[regexTupleList.Count - 1].Item1);
         }
 
@@ -510,7 +507,7 @@ namespace ACT_EverQuest_DPS_Plugin
                     if (ActGlobals.oFormActMain.SetEncounter(ActGlobals.oFormActMain.LastKnownTime, CharacterNamePersonaReplace(regexMatch.Groups["attacker"].Value), CharacterNamePersonaReplace(regexMatch.Groups["victim"].Value)))
                     {
                         Dnum damage = new Dnum(Int64.Parse(regexMatch.Groups["damagePoints"].Value), regexMatch.Groups["typeOfDamage"].Value);
-                        MasterSwing masterSwingSpellcast = new MasterSwing(EverQuestSwingType.DirectDamageSpell.GetEverQuestSwingTypeExtensionIntValue()
+                        MasterSwing masterSwingSpellcast = new MasterSwing(EverQuestSwingType.SpellDamage.GetEverQuestSwingTypeExtensionIntValue()
                             , regexMatch.Groups["spellSpeicals"].Success ? regexMatch.Groups["spellSpecials"].Value.Contains(SpecialCritical) : false
                             , regexMatch.Groups["spellSpeicals"].Success ? regexMatch.Groups["spellSpeicals"].Value : String.Empty
                             , damage, ActGlobals.oFormActMain.LastEstimatedTime
@@ -567,24 +564,6 @@ namespace ACT_EverQuest_DPS_Plugin
                             , ActGlobals.oFormActMain.GlobalTimeSorter, regexMatch.Groups["attackType"].Value, CharacterNamePersonaReplace(regexMatch.Groups["attacker"].Value), "Hitpoints", CharacterNamePersonaReplace(regexMatch.Groups["victim"].Value));
                         masterSwingEvasion.Tags[logTimestamp] = ActGlobals.oFormActMain.LastKnownTime;
                         ActGlobals.oFormActMain.AddCombatAction(masterSwingEvasion);
-                    }
-                    break;
-                case 11:
-                    if (ActGlobals.oFormActMain.SetEncounter(ActGlobals.oFormActMain.LastKnownTime, CharacterNamePersonaReplace(regexMatch.Groups["attacker"].Value), CharacterNamePersonaReplace(regexMatch.Groups["victim"].Value)))
-                    {
-                        Dnum damage = new Dnum(Int64.Parse(regexMatch.Groups["damagePoints"].Value));
-                        MasterSwing masterSwingSpellcast = new MasterSwing(EverQuestSwingType.DamageOverTimeSpell.GetEverQuestSwingTypeExtensionIntValue()
-                            , regexMatch.Groups["spellSpecials"].Value.Contains(SpecialCritical)
-                            , regexMatch.Groups["spellSpeicals"].Value
-                            , damage, ActGlobals.oFormActMain.LastEstimatedTime
-                            , ActGlobals.oFormActMain.GlobalTimeSorter
-                            , "Damage over time"
-                            , CharacterNamePersonaReplace(regexMatch.Groups["attacker"].Value)
-                            , "Hitpoints"
-                            , CharacterNamePersonaReplace(regexMatch.Groups["victim"].Value)
-                        );
-                        masterSwingSpellcast.Tags[logTimestamp] = ActGlobals.oFormActMain.LastKnownTime;
-                        ActGlobals.oFormActMain.AddCombatAction(masterSwingSpellcast);
                     }
                     break;
                 default:
@@ -1070,47 +1049,37 @@ namespace ACT_EverQuest_DPS_Plugin
         {
             {"Auto-Attack (Out)", new CombatantData.DamageTypeDef("Auto-Attack (Out)", -1, Color.DarkGoldenrod)},
             {"Skill/Ability (Out)", new CombatantData.DamageTypeDef("Skill/Ability (Out)", -1, Color.DarkOrange)},
-            {"Outgoing Damage", new CombatantData.DamageTypeDef("Outgoing Damage", 0, Color.Orange)},
-                {"Direct Damage Spell (Out)", new CombatantData.DamageTypeDef("Direct Damage Spell (Out)", -1, Color.LightCyan) },
-                {"Damage Over Time Spell (Out)", new CombatantData.DamageTypeDef("Damage Over Time Spell (Out)", -1, Color.ForestGreen) },
-                {"Bane (Out)", new CombatantData.DamageTypeDef("Bane (Out)", -1, Color.LightGreen) },
+            {"Outgoing Damage", new CombatantData.DamageTypeDef("Outgoing Damage", -1, Color.Orange)},
             {"Instant Healed (Out)", new CombatantData.DamageTypeDef("Instant Healed (Out)", 1, Color.Blue)},
             {"Heal Over Time (Out)", new CombatantData.DamageTypeDef("Heal Over Time (Out)", 1, Color.DarkBlue)},
             {"All Outgoing (Ref)", new CombatantData.DamageTypeDef("All Outgoing (Ref)", 0, Color.Black)}
         };
             CombatantData.IncomingDamageTypeDataObjects = new Dictionary<string, CombatantData.DamageTypeDef>
         {
-                {"Incoming Melee Damage (Inc)", new CombatantData.DamageTypeDef("Incoming Melee Damage (Inc)", -1, Color.Cyan)},
-                {"Incoming NonMelee Damage (Inc)", new CombatantData.DamageTypeDef("Incoming NonMelee Damage (Inc)", -1, Color.Coral) },
-                {"Incoming Direct Damage Spell (Inc)", new CombatantData.DamageTypeDef("Incoming Direct Damage Spell (Inc)", -1, Color.CadetBlue) },
-                {"Incoming Damage Over Time Spell (Inc)", new CombatantData.DamageTypeDef("Incoming Damage Over Time Spell (Inc)", -1, Color.DarkOrchid) },
-                {"Bane (Inc)", new CombatantData.DamageTypeDef("Incoming Bane (Inc)", -1, Color.Sienna) },
+            {"Incoming Damage", new CombatantData.DamageTypeDef("Incoming Damage", -1, Color.Red)},
+            {"Incoming NonMelee Damage", new CombatantData.DamageTypeDef("Incoming NonMelee Damage", -1 , Color.DarkRed) },
             {"Instant Healed (Inc)",new CombatantData.DamageTypeDef("Instant Healed (Inc)", 1, Color.LimeGreen)},
             {"Heal Over Time (Inc)",new CombatantData.DamageTypeDef("Heal Over Time (Inc)", 1, Color.DarkGreen)},
             {"All Incoming (Ref)",new CombatantData.DamageTypeDef("All Incoming (Ref)", 0, Color.Black)}
         };
             CombatantData.SwingTypeToDamageTypeDataLinksOutgoing = new SortedDictionary<int, List<string>>
         {
-            {EverQuestSwingType.Melee.GetEverQuestSwingTypeExtensionIntValue(), new List<string> { "Auto-Attack (Out)", "All Outgoing (Ref)" } },
-            {EverQuestSwingType.NonMelee.GetEverQuestSwingTypeExtensionIntValue(), new List<string> { "Skill/Ability (Out)", "All Outgoing (Ref)" } },
-            {EverQuestSwingType.DirectDamageSpell.GetEverQuestSwingTypeExtensionIntValue(), new List<string> { "Direct Damage Spell (Out)" , "All Outgoing (Ref)" } },
-            {EverQuestSwingType.DamageOverTimeSpell.GetEverQuestSwingTypeExtensionIntValue(), new List<string> { "Damage Over Time Spell (Out)" , "All Outgoing (Ref)" } },
-                {EverQuestSwingType.Bane.GetEverQuestSwingTypeExtensionIntValue(), new List<string>{ "Bane (Out)", "Outgoing Damage" } },
+            {EverQuestSwingType.Melee.GetEverQuestSwingTypeExtensionIntValue(), new List<string> { "Auto-Attack (Out)", "Outgoing Damage" } },
+            {EverQuestSwingType.NonMelee.GetEverQuestSwingTypeExtensionIntValue(), new List<string> { "Skill/Ability (Out)", "Outgoing Damage" } },
+                {EverQuestSwingType.SpellDamage.GetEverQuestSwingTypeExtensionIntValue(), new List<string> { "Non-Melee Spell (Out)" , "Outgoing Damage"} },
             {EverQuestSwingType.InstantHealing.GetEverQuestSwingTypeExtensionIntValue(), new List<string> { "Instant Healed (Out)" } },
             {EverQuestSwingType.HealOverTime.GetEverQuestSwingTypeExtensionIntValue(), new List<string> { "Heal Over Time (Out)" } },
         };
             CombatantData.SwingTypeToDamageTypeDataLinksIncoming = new SortedDictionary<int, List<string>>
         {
-            {EverQuestSwingType.Melee.GetEverQuestSwingTypeExtensionIntValue(), new List<string> { "Incoming Melee Damage (Inc)", "All Incoming (Ref)" } },
-            {EverQuestSwingType.NonMelee.GetEverQuestSwingTypeExtensionIntValue(), new List<string> { "Incoming NonMelee Damage (Inc)", "All Incoming (Ref)" } },
-            {EverQuestSwingType.DirectDamageSpell.GetEverQuestSwingTypeExtensionIntValue(), new List<string> { "Incoming Direct Damage Spell (Inc)" , "All Incoming (Ref)" } },
-            {EverQuestSwingType.DamageOverTimeSpell.GetEverQuestSwingTypeExtensionIntValue(), new List<string> { "Incoming Damage Over Time Spell (Inc)", "All Incoming (Ref)" } },
-                {EverQuestSwingType.Bane.GetEverQuestSwingTypeExtensionIntValue(), new List<string>{"Bane (Inc)", "All Incoming (Ref)" } },
+            {EverQuestSwingType.Melee.GetEverQuestSwingTypeExtensionIntValue(), new List<string> { "Incoming Damage" } },
+            {EverQuestSwingType.NonMelee.GetEverQuestSwingTypeExtensionIntValue(), new List<string> { "Incoming NonMelee Damage" } },
+            {EverQuestSwingType.SpellDamage.GetEverQuestSwingTypeExtensionIntValue(), new List<string> { "Non-Melee Spell (Inc)" , "Outgoing Damage"} },
             {EverQuestSwingType.InstantHealing.GetEverQuestSwingTypeExtensionIntValue(), new List<string> { "Instant Healed (Inc)" } },
             {EverQuestSwingType.HealOverTime.GetEverQuestSwingTypeExtensionIntValue(), new List<string> { "Heal Over Time (Inc)" } },
         };
 
-            CombatantData.DamageSwingTypes = new List<int> { EverQuestSwingType.Melee.GetEverQuestSwingTypeExtensionIntValue(), EverQuestSwingType.NonMelee.GetEverQuestSwingTypeExtensionIntValue(), EverQuestSwingType.DirectDamageSpell.GetEverQuestSwingTypeExtensionIntValue(), EverQuestSwingType.DamageOverTimeSpell.GetEverQuestSwingTypeExtensionIntValue(), EverQuestSwingType.Bane.GetEverQuestSwingTypeExtensionIntValue() };
+            CombatantData.DamageSwingTypes = new List<int> { EverQuestSwingType.Melee.GetEverQuestSwingTypeExtensionIntValue(), EverQuestSwingType.NonMelee.GetEverQuestSwingTypeExtensionIntValue(), EverQuestSwingType.SpellDamage.GetEverQuestSwingTypeExtensionIntValue() };
             CombatantData.HealingSwingTypes = new List<int> { EverQuestSwingType.InstantHealing.GetEverQuestSwingTypeExtensionIntValue(), EverQuestSwingType.HealOverTime.GetEverQuestSwingTypeExtensionIntValue() };
 
             CombatantData.ExportVariables.Clear();
