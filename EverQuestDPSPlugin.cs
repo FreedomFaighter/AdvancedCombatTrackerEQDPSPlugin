@@ -296,7 +296,7 @@ namespace ACT_EverQuest_DPS_Plugin
         readonly static String evasionTypes = @"block(|s)|dodge(|s)|parr(ies|y)|riposte(|s)";
         readonly String DamageShield = @"(?<victim>.+) is (?<damageShieldDamageType>\S+) by (?<attacker>.+) (?<damageShieldType>\S+) for (?<damagePoints>[\d]+) points of non-melee damage.";
         readonly String eqDateTimeStampFormat = @"ddd MMM dd HH:mm:ss yyyy";
-        readonly String Heal = @"(?<healer>.+) healed (?<healingTarget>.+) (?<overTime>over time\s){0,1}for (?<healingPoints>[\d]+)(\s\((?<overHealPoints>[\d]+)\)){0,1} hit points by (?<healingSpell>.*)(?:\.)(?:[\s][\(](?<healingSpecial>.+)[\)]){0,1}";
+        readonly String Heal = @"(?<healer>.*?) healed (?<healingTarget>.*?)(?:\s(?<overTime>over time)){0,1} for (?<healingPoints>[\d]+)(?:\s\((?<overHealPoints>[\d]+)\)){0,1} hit point(?:|s) by (?<healingSpell>.*)\.(?:[\s][\(](?<healingSpecial>.+)[\)]){0,1}";
         readonly String MeleeAttack = @"(?<attacker>.+) (?<attackType>" + $@"{attackTypes}" + @")(|s|es|bed) (?<victim>.+) for (?<damageAmount>[\d]+) (?:point[|s]) of damage.(?:\s\((?<damageSpecial>.+)\)){0,1}";
         readonly String MissedMeleeAttack = @"(?<attacker>.+) (?:tr(?:ies|y)) to (?<attackType>\S+) (?<victim>.+), but (?:miss(?:|es))!(?:\s\((?<damageSpecial>.+)\)){0,1}";
         readonly static String PluginSettingsFileName = @"Config\ACT_EverQuest_English_Parser.config.xml";
@@ -1290,6 +1290,10 @@ namespace ACT_EverQuest_DPS_Plugin
             int specialLucky = 0;
             int specialDoubleBowShot = 0;
             int specialTwincast = 0;
+            specialCritical = Data.Items.Where((critital) =>
+            {
+                return critital.Special.Contains(SpecialCritical);
+            }).Count();
             if (Data.Items.Count.Equals(0))
                 return String.Empty;
             for (int i = 0; i < Data.Items.Count; i++)
@@ -1314,10 +1318,6 @@ namespace ACT_EverQuest_DPS_Plugin
                     if (lockedFound)
                     {
                         specialLocked++;
-                    }
-                    if (criticalFound)
-                    {
-                        specialCritical++;
                     }
                     if (strikethroughFound)
                     {
