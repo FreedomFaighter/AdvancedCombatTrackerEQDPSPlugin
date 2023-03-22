@@ -68,5 +68,6 @@
       <SubType>UserControl</SubType>
     </Compile>
     <Compile Include="EverQuestSwingType.cs" />
+    <Compile Include="EverQuest_DPS_Plugin_Localization.cs" />
   </ItemGroup>
 </Project>
