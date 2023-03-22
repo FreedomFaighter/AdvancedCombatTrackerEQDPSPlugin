@@ -2,13 +2,11 @@
 using EverQuestDPSPlugin;
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Drawing;
 using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Reflection;
-using System.Runtime.ConstrainedExecution;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Windows.Forms;
@@ -1337,7 +1335,7 @@ namespace ACT_EverQuest_DPS_Plugin
             {
                 MasterSwing ms = Data.Items[i];
                 if (ms.Special.Length > 0 && ms.Special != String.Empty)
-                {
+                    {
                     special++;
                     bool cripplingBlowFound = ms.Special.Contains(SpecialCripplingBlow);
                     bool lockedFound = ms.Special.Contains(SpecialLocked);
@@ -1349,11 +1347,11 @@ namespace ACT_EverQuest_DPS_Plugin
                     bool doubleBowShotFound = ms.Special.Contains(SpecialDoubleBowShot);
                     bool twincastFound = ms.Special.Contains(SpecialTwincast);
                     if (cripplingBlowFound)
-                    {
+                {
                         specialCripplingBlow++;
                     }
                     if (lockedFound)
-                    {
+            {
                         specialLocked++;
                     }
                     if (strikethroughFound)
