@@ -294,7 +294,7 @@ namespace ACT_EverQuest_DPS_Plugin
         List<Tuple<Color, Regex>> regexTupleList = new List<Tuple<Color, Regex>>();
         readonly static String attackTypes = @"pierce|gore|crush|slash|hit|kick|slam|bash|shoot|strike|bite|grab|punch|scratch|rake|swipe|claw|smack";
         readonly static String evasionTypes = @"block(|s)|dodge(|s)|parr(ies|y)|riposte(|s)";
-        readonly String DamageShield = @"(?<victim>.+) is (?<damageShieldDamageType>\S+) by (?<attacker>.+) (?<damageShieldType>\S+) for (?<damagePoints>[\d]+) points of non-melee damage.";
+        readonly String DamageShield = @"(?<attacker>.+) is (?<damageShieldDamageType>\S+) by (?<victim>.+) (?<damageShieldType>\S+) for (?<damagePoints>[\d]+) points of non-melee damage.";
         readonly String eqDateTimeStampFormat = @"ddd MMM dd HH:mm:ss yyyy";
         readonly String Heal = @"(?<healer>.*?) healed (?<healingTarget>.*?)(?:\s(?<overTime>over time)){0,1} for (?<healingPoints>[\d]+)(?:\s\((?<overHealPoints>[\d]+)\)){0,1} hit point(?:|s) by (?<healingSpell>.*)\.(?:[\s][\(](?<healingSpecial>.+)[\)]){0,1}";
         readonly String MeleeAttack = @"(?<attacker>.+) (?<attackType>" + $@"{attackTypes}" + @")(|s|es|bed) (?<victim>.+) for (?<damageAmount>[\d]+) (?:point[|s]) of damage.(?:\s\((?<damageSpecial>.+)\)){0,1}";
@@ -311,7 +311,7 @@ namespace ACT_EverQuest_DPS_Plugin
         readonly String SpecialRiposte = Enum.GetName(typeof(SpecialAttacks), (SpecialAttacks)SpecialAttacks.Riposte).Replace("_", " ");
         readonly String SpecialStrikethrough = Enum.GetName(typeof(SpecialAttacks), (SpecialAttacks)SpecialAttacks.Strikethrough).Replace("_", " ");
         readonly String SpecialTwincast = Enum.GetName(typeof(SpecialAttacks), (SpecialAttacks)SpecialAttacks.Twincast).Replace("_", " ");
-        readonly String SpellDamage = @"(?<attacker>.+) hit (?<victim>.+) for (?<damagePoints>[\d]+) (?:point[|s]) of (?<typeOfDamage>.+) damage by (?:(?<damageEffect>.*)\.)(?:\s\((?<spellSpeicals>.+)\))";
+        readonly String SpellDamage = @"(?<attacker>.+) hit (?<victim>.*) for (?<damagePoints>[\d]+) (?:point[|s]) of (?<typeOfDamage>.+) damage by (?<damageEffect>.*)\.(?:[\s][\(](?<healingSpecial>.+)[\)]){0,1}";
         static readonly String TimeStamp = @"\[(?<dateTimeOfLogLine>.+)\]";
         readonly String ZoneChange = @"You have entered (?!.*the Drunken Monkey stance adequately)(?<zoneName>.*)\.";
         readonly String LoadingPleaseWait = @"LOADING, PLEASE WAIT...";
@@ -470,9 +470,14 @@ namespace ACT_EverQuest_DPS_Plugin
                     if (ActGlobals.oFormActMain.SetEncounter(ActGlobals.oFormActMain.LastKnownTime, CharacterNamePersonaReplace(regexMatch.Groups["attacker"].Value), CharacterNamePersonaReplace(regexMatch.Groups["victim"].Value)))
                     {
                         MasterSwing masterSwingDamageShield = new MasterSwing(EverQuestSwingType.NonMelee.GetEverQuestSwingTypeExtensionIntValue()
-                            , regexMatch.Groups["damageSpecial"].Success && (regexMatch.Groups["damageSpecial"].Value.Contains(SpecialCritical) ? regexMatch.Groups["damageSpecial"].Value.Contains(SpecialCritical) : false), regexMatch.Groups["damageSpecial"].Success ? regexMatch.Groups["damageSpecial"].Value : String.Empty
+                            , regexMatch.Groups["damageSpecial"].Value.Contains(SpecialCritical)
+                            , regexMatch.Groups["damageSpecial"].Value
                             , new Dnum(Int64.Parse(regexMatch.Groups["damagePoints"].Value))
-                            , ActGlobals.oFormActMain.LastEstimatedTime, ActGlobals.oFormActMain.GlobalTimeSorter, regexMatch.Groups["damageShieldDamageType"].Value, CharacterNamePersonaReplace(regexMatch.Groups["attacker"].Value), "Hitpoints", CharacterNamePersonaReplace(regexMatch.Groups["victim"].Value));
+                            , ActGlobals.oFormActMain.LastEstimatedTime, ActGlobals.oFormActMain.GlobalTimeSorter
+                            , regexMatch.Groups["damageShieldDamageType"].Value
+                            , CharacterNamePersonaReplace(regexMatch.Groups["victim"].Value)
+                            , "Hitpoints"
+                            , CharacterNamePersonaReplace(regexMatch.Groups["attacker"].Value));
                         masterSwingDamageShield.Tags[logTimestamp] = ActGlobals.oFormActMain.LastKnownTime;
                         ActGlobals.oFormActMain.AddCombatAction(masterSwingDamageShield);
                     }
