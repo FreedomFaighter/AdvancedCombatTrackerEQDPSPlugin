@@ -534,16 +534,16 @@ namespace ACT_EverQuest_DPS_Plugin
                 case 7:
                     if (ActGlobals.oFormActMain.InCombat)
                     {
-                        Dnum damage = new Dnum(Int64.Parse(regexMatch.Groups["damagePoints"].Value), regexMatch.Groups["typeOfDamage"].Value);
-                        MasterSwing masterSwingSpellcast = new MasterSwing(EverQuestSwingType.DirectDamageSpell.GetEverQuestSwingTypeExtensionIntValue()
+                        MasterSwing masterSwingSpellcast = new MasterSwing(regexMatch.Groups["overTime"].Success ? EverQuestSwingType.HealOverTime.GetEverQuestSwingTypeExtensionIntValue() : EverQuestSwingType.InstantHealing.GetEverQuestSwingTypeExtensionIntValue()
                             , regexMatch.Groups["healingSpecial"].Success ? regexMatch.Groups["healingSpecial"].Value.Contains(SpecialCritical) : false
                             , regexMatch.Groups["healingSpecial"].Success ? regexMatch.Groups["healingSpecial"].Value : String.Empty
-                            , damage, ActGlobals.oFormActMain.LastEstimatedTime
+                            , new Dnum(Int64.Parse(regexMatch.Groups["healingPoints"].Value))
+                            , ActGlobals.oFormActMain.LastEstimatedTime
                             , ActGlobals.oFormActMain.GlobalTimeSorter
-                            , regexMatch.Groups["damageEffect"].Value
-                            , CharacterNamePersonaReplace(regexMatch.Groups["attacker"].Value)
+                            , regexMatch.Groups["healingSpell"].Value
+                            , CharacterNamePersonaReplace(regexMatch.Groups["healer"].Value)
                             , "Hitpoints"
-                            , CharacterNamePersonaReplace(regexMatch.Groups["victim"].Value)
+                            , CharacterNamePersonaReplace(regexMatch.Groups["healingTarget"].Value)
                         );
                         masterSwingSpellcast.Tags[logTimestamp] = ActGlobals.oFormActMain.LastKnownTime;
                         ActGlobals.oFormActMain.AddCombatAction(masterSwingSpellcast);
