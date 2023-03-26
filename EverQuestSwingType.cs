@@ -23,6 +23,9 @@ namespace EverQuestDPSPlugin
         PetNonMeleeIncoming = Pet | NonMelee,
         PetMeleeOutgoing = Pet | Melee |Outgoing,
         PetNonMeleeOutgoing = Pet | NonMelee | Outgoing
+        Ward = 2048,
+        WardInstantHealing = InstantHealing | Ward,
+        WardHealOverTime = HealOverTime | Ward
     }
 
     internal static class EverQuestSwingTypeExtensions
