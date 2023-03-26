@@ -22,7 +22,7 @@ namespace EverQuestDPSPlugin
         PetMeleeIncoming = Pet | Melee | Incoming,
         PetNonMeleeIncoming = Pet | NonMelee,
         PetMeleeOutgoing = Pet | Melee |Outgoing,
-        PetNonMeleeOutgoing = Pet | NonMelee | Outgoing
+        PetNonMeleeOutgoing = Pet | NonMelee | Outgoing,
         Ward = 2048,
         WardInstantHealing = InstantHealing | Ward,
         WardHealOverTime = HealOverTime | Ward
