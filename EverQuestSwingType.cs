@@ -35,5 +35,4 @@ namespace EverQuestDPSPlugin
             return (int)type;
         }
     }
-
 }
