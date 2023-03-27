@@ -3,7 +3,6 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 
-
 namespace EverQuestDPSPlugin
 {
     internal class EverQuest_DPS_Plugin_Localization
