@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using System.Threading.Tasks;
 
 namespace EverQuestDPSPlugin
 {
@@ -21,7 +20,7 @@ namespace EverQuestDPSPlugin
         DamageOverTimeSpell = 1024,
         PetMeleeIncoming = Pet | Melee | Incoming,
         PetNonMeleeIncoming = Pet | NonMelee,
-        PetMeleeOutgoing = Pet | Melee |Outgoing,
+        PetMeleeOutgoing = Pet | Melee | Outgoing,
         PetNonMeleeOutgoing = Pet | NonMelee | Outgoing,
         Ward = 2048,
         WardInstantHealing = InstantHealing | Ward,
