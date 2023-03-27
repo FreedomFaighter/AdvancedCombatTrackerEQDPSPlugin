@@ -1324,10 +1324,12 @@ namespace ACT_EverQuest_DPS_Plugin
             int specialLucky = 0;
             int specialDoubleBowShot = 0;
             int specialTwincast = 0;
+            
             specialCritical = Data.Items.Where((critital) =>
             {
                 return critital.Special.Contains(SpecialCritical);
             }).Count();
+            
             int count = Data.Items.Count;
             if (Data.Items.Count.Equals(0))
                 return String.Empty;
