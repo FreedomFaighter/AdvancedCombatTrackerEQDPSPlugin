@@ -1287,8 +1287,9 @@ namespace ACT_EverQuest_DPS_Plugin
             }
             else
                 return String.Empty;
-
         }
+
+
 
         private string CombatantDataGetCritTypes(CombatantData Data)
         {
@@ -1329,7 +1330,14 @@ namespace ACT_EverQuest_DPS_Plugin
             {
                 return critital.Special.Contains(SpecialCritical);
             }).Count();
-            
+            specialFlurry = Data.Items.Where((flurry) =>
+            {
+                return flurry.Special.Contains(SpecialFlurry);
+            }).Count();
+            specialLucky = Data.Items.Where((lucky) =>
+            {
+                return lucky.Special.Contains(SpecialLucky);
+            }).Count();
             int count = Data.Items.Count;
             if (Data.Items.Count.Equals(0))
                 return String.Empty;
@@ -1362,14 +1370,6 @@ namespace ACT_EverQuest_DPS_Plugin
                     if (riposteFound)
                     {
                         specialRiposte++;
-                    }
-                    if (flurryFound)
-                    {
-                        specialFlurry++;
-                    }
-                    if (luckyFound)
-                    {
-                        specialLucky++;
                     }
                     if (doubleBowShotFound)
                     {
