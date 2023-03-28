@@ -1325,7 +1325,8 @@ namespace ACT_EverQuest_DPS_Plugin
             int specialLucky = 0;
             int specialDoubleBowShot = 0;
             int specialTwincast = 0;
-            if (Data.Items.Count.Equals(0))
+            int count = Data.Items.Count;
+            if (count.Equals(0))
                 return String.Empty;
             specialCritical = Data.Items.Where((critital) =>
             {
