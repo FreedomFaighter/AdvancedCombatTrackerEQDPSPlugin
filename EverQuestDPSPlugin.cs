@@ -1372,7 +1372,7 @@ namespace ACT_EverQuest_DPS_Plugin
                     !nondefined.Special.Contains(SpecialCripplingBlow) &&
                     !nondefined.Special.Contains(SpecialLucky) &&
                     !nondefined.Special.Contains(SpecialFlurry) &&
-                    !nondefined.Special.Contains(SpecialCritical) 
+                    !nondefined.Special.Contains(SpecialCritical)
                     && nondefined.Special.Length > ActGlobals.ActLocalization.LocalizationStrings["specialAttackTerm-none"].DisplayedText.Length;
 
             }).Count();
