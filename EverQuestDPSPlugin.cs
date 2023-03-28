@@ -1325,7 +1325,8 @@ namespace ACT_EverQuest_DPS_Plugin
             int specialLucky = 0;
             int specialDoubleBowShot = 0;
             int specialTwincast = 0;
-            
+            if (Data.Items.Count.Equals(0))
+                return String.Empty;
             specialCritical = Data.Items.Where((critital) =>
             {
                 return critital.Special.Contains(SpecialCritical);
@@ -1376,8 +1377,6 @@ namespace ACT_EverQuest_DPS_Plugin
 
             }).Count();
 
-            if (Data.Items.Count.Equals(0))
-                return String.Empty;
             float specialCripplingBlowPerc = ((float)specialCripplingBlow / (float)count) * 100f;
             float specialLockedPerc = ((float)specialLocked / (float)count) * 100f;
             float specialCriticalPerc = ((float)specialCritical / (float)count) * 100f;
