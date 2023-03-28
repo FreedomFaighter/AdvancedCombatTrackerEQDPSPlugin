@@ -1338,51 +1338,46 @@ namespace ACT_EverQuest_DPS_Plugin
             {
                 return lucky.Special.Contains(SpecialLucky);
             }).Count();
-            int count = Data.Items.Count;
+            specialCripplingBlow = Data.Items.Where((cripplingBlow) =>
+            {
+                return cripplingBlow.Special.Contains(SpecialCripplingBlow);
+            }).Count();
+            specialLocked = Data.Items.Where((locked) =>
+            {
+                return locked.Special.Contains(SpecialLocked);
+            }).Count();
+            specialStrikethrough = Data.Items.Where((srikethrough) =>
+            {
+                return srikethrough.Special.Contains(SpecialStrikethrough);
+            }).Count();
+            specialRiposte = Data.Items.Where((riposte) =>
+            {
+                return riposte.Special.Contains(SpecialRiposte);
+            }).Count();
+            specialDoubleBowShot = Data.Items.Where((doubleBowShot) =>
+            {
+                return doubleBowShot.Special.Contains(SpecialDoubleBowShot);
+            }).Count();
+            specialTwincast = Data.Items.Where((twincast) =>
+            {
+                return twincast.Special.Contains(SpecialTwincast);
+            }).Count();
+            specialNonDefined = Data.Items.Where((nondefined) =>
+            {
+                return !nondefined.Special.Contains(SpecialTwincast) &&
+                    !nondefined.Special.Contains(SpecialDoubleBowShot) &&
+                    !nondefined.Special.Contains(SpecialRiposte) &&
+                    !nondefined.Special.Contains(SpecialRiposte) &&
+                    !nondefined.Special.Contains(SpecialCripplingBlow) &&
+                    !nondefined.Special.Contains(SpecialLucky) &&
+                    !nondefined.Special.Contains(SpecialFlurry) &&
+                    !nondefined.Special.Contains(SpecialCritical) 
+                    && nondefined.Special.Length > ActGlobals.ActLocalization.LocalizationStrings["specialAttackTerm-none"].DisplayedText.Length;
+
+            }).Count();
+
             if (Data.Items.Count.Equals(0))
                 return String.Empty;
-            for (int i = 0; i < Data.Items.Count; i++)
-            {
-                MasterSwing ms = Data.Items[i];
-                if (ms.Special.Length > 0 && ms.Special != String.Empty)
-                {
-                    bool cripplingBlowFound = ms.Special.Contains("Crippling Blow");
-                    bool lockedFound = ms.Special.Contains("Locked");
-                    bool criticalFound = ms.Special.Contains("Critical");
-                    bool strikethroughFound = ms.Special.Contains("Strikethrough");
-                    bool riposteFound = ms.Special.Contains("Riposte");
-                    bool flurryFound = ms.Special.Contains("Flurry");
-                    bool luckyFound = ms.Special.Contains("Lucky");
-                    bool doubleBowShotFound = ms.Special.Contains("Double Bow Shot");
-                    bool twincastFound = ms.Special.Contains("Twincast");
-                    if (cripplingBlowFound)
-                    {
-                        specialCripplingBlow++;
-                    }
-                    if (lockedFound)
-                    {
-                        specialLocked++;
-                    }
-                    if (strikethroughFound)
-                    {
-                        specialStrikethrough++;
-                    }
-                    if (riposteFound)
-                    {
-                        specialRiposte++;
-                    }
-                    if (doubleBowShotFound)
-                    {
-                        specialDoubleBowShot++;
-                    }
-                    if (twincastFound)
-                    {
-                        specialTwincast++;
-                    }
-                    if (!cripplingBlowFound && !lockedFound && !criticalFound && !strikethroughFound && !riposteFound && !flurryFound && !luckyFound && !doubleBowShotFound && !twincastFound)
-                        specialNonDefined++;
-                }
-            }
             float specialCripplingBlowPerc = ((float)specialCripplingBlow / (float)count) * 100f;
             float specialLockedPerc = ((float)specialLocked / (float)count) * 100f;
             float specialCriticalPerc = ((float)specialCritical / (float)count) * 100f;
