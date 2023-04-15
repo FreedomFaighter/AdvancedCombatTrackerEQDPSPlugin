@@ -39,7 +39,6 @@ namespace ACT_EverQuest_DPS_Plugin
         Magic = 16,
         Corruption = 32
     }
-
     enum SpecialAttacks
     {
         Crippling_Blow = 1,
@@ -52,7 +51,6 @@ namespace ACT_EverQuest_DPS_Plugin
         Double_Bow_Shot = 128,
         Twincast = 256
     }
-
     public class EverQuestDPSPlugin : UserControl, IActPluginV1
     {
         #region Designer generated code (Avoid editing)

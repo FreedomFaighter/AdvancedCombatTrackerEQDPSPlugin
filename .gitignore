@@ -15,4 +15,5 @@ mono_crash.*
 # Build results
 
 [Oo]bj/
-
+[Bb]in/
+.vs/
