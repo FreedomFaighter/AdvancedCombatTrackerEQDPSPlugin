@@ -1,7 +1,5 @@
 ﻿using Advanced_Combat_Tracker;
 using System;
-using System.Collections.Generic;
-using System.Text;
 
 namespace EverQuestDPSPlugin
 {
