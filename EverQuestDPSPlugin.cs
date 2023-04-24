@@ -81,10 +81,6 @@ namespace ACT_EverQuest_DPS_Plugin
         /// </summary>
         private void InitializeComponent()
         {
-            this.cbMultiDamageIsOne = new System.Windows.Forms.CheckBox();
-            this.cbRecalcWardedHits = new System.Windows.Forms.CheckBox();
-            this.tbFixAncestralSentry = new System.Windows.Forms.TextBox();
-            this.lblAncestralSentry = new System.Windows.Forms.Label();
             this.btnAposNameRemove = new System.Windows.Forms.Button();
             this.btnAposNameAdd = new System.Windows.Forms.Button();
             this.tbAposNameR = new System.Windows.Forms.TextBox();
@@ -93,55 +89,7 @@ namespace ACT_EverQuest_DPS_Plugin
             this.label16 = new System.Windows.Forms.Label();
             this.clbAposName = new System.Windows.Forms.CheckedListBox();
             this.cbSParseConsider = new System.Windows.Forms.CheckBox();
-            this.cbIncludeInterceptFocus = new System.Windows.Forms.CheckBox();
             this.SuspendLayout();
-            // 
-            // cbMultiDamageIsOne
-            // 
-            this.cbMultiDamageIsOne.AutoSize = true;
-            this.cbMultiDamageIsOne.Checked = true;
-            this.cbMultiDamageIsOne.CheckState = System.Windows.Forms.CheckState.Checked;
-            this.cbMultiDamageIsOne.Location = new System.Drawing.Point(3, 3);
-            this.cbMultiDamageIsOne.Margin = new System.Windows.Forms.Padding(3, 1, 3, 1);
-            this.cbMultiDamageIsOne.Name = "cbMultiDamageIsOne";
-            this.cbMultiDamageIsOne.Size = new System.Drawing.Size(362, 17);
-            this.cbMultiDamageIsOne.TabIndex = 5;
-            this.cbMultiDamageIsOne.Text = "Record a hit with multiple damage types as a single hit. (Not retroactive)";
-            this.cbMultiDamageIsOne.MouseHover += new System.EventHandler(this.cbMultiDamageIsOne_MouseHover);
-            // 
-            // cbRecalcWardedHits
-            // 
-            this.cbRecalcWardedHits.AutoSize = true;
-            this.cbRecalcWardedHits.Checked = true;
-            this.cbRecalcWardedHits.CheckState = System.Windows.Forms.CheckState.Checked;
-            this.cbRecalcWardedHits.Location = new System.Drawing.Point(3, 22);
-            this.cbRecalcWardedHits.Margin = new System.Windows.Forms.Padding(3, 1, 3, 1);
-            this.cbRecalcWardedHits.Name = "cbRecalcWardedHits";
-            this.cbRecalcWardedHits.Size = new System.Drawing.Size(368, 17);
-            this.cbRecalcWardedHits.TabIndex = 7;
-            this.cbRecalcWardedHits.Text = "Recalculate warded/intercepted hits to their true value.  (Not retroactive)";
-            this.cbRecalcWardedHits.MouseHover += new System.EventHandler(this.cbRecalcWardedHits_MouseHover);
-            // 
-            // tbFixAncestralSentry
-            // 
-            this.tbFixAncestralSentry.Location = new System.Drawing.Point(488, 38);
-            this.tbFixAncestralSentry.Name = "tbFixAncestralSentry";
-            this.tbFixAncestralSentry.Size = new System.Drawing.Size(161, 20);
-            this.tbFixAncestralSentry.TabIndex = 10;
-            this.tbFixAncestralSentry.Text = "Ancestral Sentry";
-            this.tbFixAncestralSentry.MouseHover += new System.EventHandler(this.lblAncestralSentry_MouseHover);
-            // 
-            // lblAncestralSentry
-            // 
-            this.lblAncestralSentry.AutoSize = true;
-            this.lblAncestralSentry.Location = new System.Drawing.Point(3, 41);
-            this.lblAncestralSentry.Margin = new System.Windows.Forms.Padding(3, 1, 3, 1);
-            this.lblAncestralSentry.Name = "lblAncestralSentry";
-            this.lblAncestralSentry.Size = new System.Drawing.Size(388, 13);
-            this.lblAncestralSentry.TabIndex = 9;
-            this.lblAncestralSentry.Text = "\"Ancestral Sentry\" interceding players will appear as a heal under the combatant:" +
-    "";
-            this.lblAncestralSentry.MouseHover += new System.EventHandler(this.lblAncestralSentry_MouseHover);
             // 
             // btnAposNameRemove
             // 
@@ -210,43 +158,20 @@ namespace ACT_EverQuest_DPS_Plugin
             this.clbAposName.Size = new System.Drawing.Size(278, 116);
             this.clbAposName.Sorted = true;
             this.clbAposName.TabIndex = 11;
-            this.clbAposName.ItemCheck += new System.Windows.Forms.ItemCheckEventHandler(this.clbAposName_ItemCheck);
-            this.clbAposName.SelectedIndexChanged += new System.EventHandler(this.clbAposName_SelectedIndexChanged);
-            this.clbAposName.MouseHover += new System.EventHandler(this.AposName_MouseHover);
             // 
             // cbSParseConsider
             // 
-            this.cbSParseConsider.AutoSize = true;
-            this.cbSParseConsider.Checked = true;
-            this.cbSParseConsider.CheckState = System.Windows.Forms.CheckState.Checked;
-            this.cbSParseConsider.Location = new System.Drawing.Point(3, 56);
-            this.cbSParseConsider.Margin = new System.Windows.Forms.Padding(3, 1, 3, 1);
+            this.cbSParseConsider.Location = new System.Drawing.Point(0, 0);
             this.cbSParseConsider.Name = "cbSParseConsider";
-            this.cbSParseConsider.Size = new System.Drawing.Size(479, 17);
-            this.cbSParseConsider.TabIndex = 7;
-            this.cbSParseConsider.Text = "Add characters marked by the /con, /whogroup, /whoraid command to the Selective P" +
-    "arsing list";
-            this.cbSParseConsider.MouseHover += new System.EventHandler(this.cbSParseConsider_MouseHover);
+            this.cbSParseConsider.Size = new System.Drawing.Size(104, 24);
+            this.cbSParseConsider.TabIndex = 22;
             // 
-            // cbIncludeInterceptFocus
-            // 
-            this.cbIncludeInterceptFocus.AutoSize = true;
-            this.cbIncludeInterceptFocus.Location = new System.Drawing.Point(3, 75);
-            this.cbIncludeInterceptFocus.Margin = new System.Windows.Forms.Padding(3, 1, 3, 1);
-            this.cbIncludeInterceptFocus.Name = "cbIncludeInterceptFocus";
-            this.cbIncludeInterceptFocus.Size = new System.Drawing.Size(466, 17);
-            this.cbIncludeInterceptFocus.TabIndex = 18;
-            this.cbIncludeInterceptFocus.Text = "Parse focus damage done to channeler pets. (Skews attacker DPS/ToHit%, Not Retroa" +
-    "ctive)";
-            this.cbIncludeInterceptFocus.MouseHover += new System.EventHandler(this.cbIncludeInterceptFocus_MouseHover);
-            // 
-            // ACT_English_Parser
+            // EverQuestDPSPlugin
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.AutoSize = true;
             this.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink;
-            this.Controls.Add(this.cbIncludeInterceptFocus);
             this.Controls.Add(this.btnAposNameRemove);
             this.Controls.Add(this.btnAposNameAdd);
             this.Controls.Add(this.tbAposNameR);
@@ -254,12 +179,8 @@ namespace ACT_EverQuest_DPS_Plugin
             this.Controls.Add(this.tbAposName);
             this.Controls.Add(this.label16);
             this.Controls.Add(this.clbAposName);
-            this.Controls.Add(this.tbFixAncestralSentry);
-            this.Controls.Add(this.lblAncestralSentry);
-            this.Controls.Add(this.cbMultiDamageIsOne);
-            this.Controls.Add(this.cbRecalcWardedHits);
             this.Controls.Add(this.cbSParseConsider);
-            this.Name = "ACT_English_Parser";
+            this.Name = "EverQuestDPSPlugin";
             this.Size = new System.Drawing.Size(688, 241);
             this.ResumeLayout(false);
             this.PerformLayout();
@@ -267,10 +188,6 @@ namespace ACT_EverQuest_DPS_Plugin
         }
 
         #endregion
-        private CheckBox cbMultiDamageIsOne;
-        private CheckBox cbRecalcWardedHits;
-        private TextBox tbFixAncestralSentry;
-        private Label lblAncestralSentry;
         private Button btnAposNameRemove;
         private Button btnAposNameAdd;
         private TextBox tbAposNameR;
@@ -278,7 +195,6 @@ namespace ACT_EverQuest_DPS_Plugin
         private TextBox tbAposName;
         private Label label16;
         private CheckBox cbSParseConsider;
-        private CheckBox cbIncludeInterceptFocus;
         private CheckedListBox clbAposName;
         #endregion
 
@@ -637,11 +553,6 @@ namespace ACT_EverQuest_DPS_Plugin
 
         void LoadSettings()
         {
-            // Add items to the xmlSettings object here...
-            xmlSettings.AddControlSetting(cbMultiDamageIsOne.Name, cbMultiDamageIsOne);
-            xmlSettings.AddControlSetting(cbRecalcWardedHits.Name, cbRecalcWardedHits);
-            xmlSettings.AddControlSetting(cbIncludeInterceptFocus.Name, cbIncludeInterceptFocus);
-            xmlSettings.AddControlSetting(tbFixAncestralSentry.Name, tbFixAncestralSentry);
             xmlSettings.AddControlSetting(cbSParseConsider.Name, cbSParseConsider);
 
             if (File.Exists(settingsFile))
