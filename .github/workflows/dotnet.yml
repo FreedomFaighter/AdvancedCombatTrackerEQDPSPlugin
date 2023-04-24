@@ -19,6 +19,10 @@ jobs:
         uses: actions/setup-dotnet@v3
         with:
           dotnet-version: ${{ matrix.dotnet-version }}
+      - name: Download ACT dependency
+        uses: teddyking/dependency-action@master
+        with:
+         deps: https://advancedcombattracker.com/download.php?id=57
       - name: Build
         run: dotnet build --configuration Release --no-restore
 
