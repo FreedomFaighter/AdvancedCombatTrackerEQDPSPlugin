@@ -227,7 +227,7 @@ namespace ACT_EverQuest_DPS_Plugin
         readonly String Evasion = @"(?<attacker>.*) tries to (?<attackType>\S+) (?:(?<victim>(.+)), but \1) (?:(?<evasionType>" + $@"{evasionTypes}" + @"))!(?:[\s][\(](?<evasionSpecial>.+)[\)]){0,1}";
         readonly String Banestrike = @"You hit (?<victim>.+) for (?<baneDamage>[\d]+) points of (?<typeOfDamage>.+) by Banestrike (?<baneAbilityRank>.+\.)";
         readonly Regex dateTimeRegex = new Regex(TimeStamp, RegexOptions.Compiled);
-        readonly Regex selfCheck = new Regex(@"((y|Y)ou|(YOU(?:(\b|R))(?:(\b|SELF))))", RegexOptions.Compiled);
+        readonly Regex selfCheck = new Regex(@"((y|Y)ou|(YOU(?:(\b|R))(?:(\b|SELF|self))))", RegexOptions.Compiled);
         readonly String pluginName = "EverQuest Damage Per Second Parser";
         SortedList<string, AposNameFix> aposNameList = new SortedList<string, AposNameFix>();
         TreeNode optionsNode = null;
