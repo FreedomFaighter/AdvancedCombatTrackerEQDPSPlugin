@@ -227,10 +227,9 @@ namespace ACT_EverQuest_DPS_Plugin
 
             try
             {
-                DateTime localDate = ActGlobals.oFormActMain.PluginGetSelfDateUtc(this);
-                DateTime remoteDate = ActGlobals.oFormActMain.PluginGetRemoteDateUtc(pluginId);
-
-                if (localDate.AddHours(2) < remoteDate)
+                Version remoteVersion = new Version(ActGlobals.oFormActMain.PluginGetRemoteVersion(pluginId));
+                Version currentVersion = new Version(((AssemblyVersionAttribute)Attribute.GetCustomAttribute(Assembly.GetAssembly(this.GetType()), typeof(AssemblyVersionAttribute), false)).Version);
+                if (remoteVersion > currentVersion)
                 {
                     DialogResult result = MessageBox.Show($"There is an updated version of the {pluginName}.  Update it now?\n\n(If there is an update to ACT, you should click No and update ACT first.)", "New Version", MessageBoxButtons.YesNo, MessageBoxIcon.Question);
                     if (result == DialogResult.Yes)
