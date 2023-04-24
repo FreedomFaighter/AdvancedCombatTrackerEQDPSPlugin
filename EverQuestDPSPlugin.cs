@@ -755,34 +755,9 @@ namespace ACT_EverQuest_DPS_Plugin
             xWriter.WriteEndElement();
         }
 
-        private void cbRecalcWardedHits_MouseHover(object sender, EventArgs e)
-        {
-            ActGlobals.oFormActMain.SetOptionsHelpText("If enabled, no-damage hits or reduced damage hits immediately following a ward absorbtion will be increased by the absorption amount.  Stoneskin's no-damage hits cannot be recalculated.");
-        }
-
-        private void cbMultiDamageIsOne_MouseHover(object sender, EventArgs e)
-        {
-            ActGlobals.oFormActMain.SetOptionsHelpText("When enabled, an attack that has multiple damage types, such as \"300 crushing, 5 poison and 5 disease damage\" will show up as one total attack: 300/5/5 crushing/poison/disease, internally seen as 310.  If disabled, each damage type will show up as an individual swing, IE three attacks: 300 crushing; 5 poison; 5 disease.  Having a single attack show up as multiple will have consequences when calculating ToHit%.");
-        }
-
-        private void lblAncestralSentry_MouseHover(object sender, EventArgs e)
-        {
-            ActGlobals.oFormActMain.SetOptionsHelpText("The Mystic ability, Ancestral Sentry, will attempt to intercede players near it in a static manner.");
-        }
-
-        private void cbSParseConsider_MouseHover(object sender, EventArgs e)
-        {
-            ActGlobals.oFormActMain.SetOptionsHelpText("The /con command simply adds some text to the log about your target's con-level.  The /whogroup and /whoraid commands will list the members of your group/raid respectively.  Using this option will allow you to quickly add players to the Selective Parsing list.");
-        }
-
         private void AposName_MouseHover(object sender, EventArgs e)
         {
             ActGlobals.oFormActMain.SetOptionsHelpText("Certain mob names with apostrophes in their name will cause the English parser to incorrectly split a combatant name from an ability name.  Use this section to add a full combatant name that should not be split apart.");
-        }
-
-        private void cbIncludeInterceptFocus_MouseHover(object sender, EventArgs e)
-        {
-            ActGlobals.oFormActMain.SetOptionsHelpText("When a channeler per intercepts damage, it receives an attack as focus damage.  Normally this focus damage is ignored and instead parsed as a heal for the channeler.  Enabling this option will also parse the damage done to the pet.");
         }
 
         private void clbAposName_ItemCheck(object sender, ItemCheckEventArgs e)
@@ -849,7 +824,6 @@ namespace ACT_EverQuest_DPS_Plugin
         {
             return ActGlobals.mainTableShowCommas ? "#,0" : "0";
         }
-
 
         private void SetupEverQuestEnvironment()
         {
@@ -1192,8 +1166,6 @@ namespace ACT_EverQuest_DPS_Plugin
             else
                 return String.Empty;
         }
-
-
 
         private string CombatantDataGetCritTypes(CombatantData Data)
         {
