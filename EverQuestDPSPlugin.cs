@@ -22,7 +22,7 @@ using System.Xml;
 [assembly: AssemblyTitle("ACT EverQuest Damage Per Second Parsing")]
 [assembly: AssemblyDescription("Plugin for ACT EverQuest Damage Per Second Parsing")]
 [assembly: AssemblyCompany("Egot")]
-[assembly: AssemblyVersion("0.0.1")]
+[assembly: AssemblyVersion("0.0.0.1")]
 [assembly: AssemblyCopyright("2023")]
 #if DEBUG
 [assembly: AssemblyConfiguration("Debug")]
@@ -147,7 +147,7 @@ namespace ACT_EverQuest_DPS_Plugin
         readonly String Evasion = @"(?<attacker>.*) tries to (?<attackType>\S+) (?:(?<victim>(.+)), but \1) (?:(?<evasionType>" + $@"{evasionTypes}" + @"))!(?:[\s][\(](?<evasionSpecial>.+)[\)]){0,1}";
         readonly String Banestrike = @"You hit (?<victim>.+) for (?<baneDamage>[\d]+) points of (?<typeOfDamage>.+) by Banestrike (?<baneAbilityRank>.+\.)";
         readonly Regex dateTimeRegex = new Regex(TimeStamp, RegexOptions.Compiled);
-        readonly Regex selfCheck = new Regex(@"((y|Y)ou|(YOU(?:(\b|R))(?:(\b|SELF|self))))", RegexOptions.Compiled);
+        readonly Regex selfCheck = new Regex(@"(You|you|yourself|Yourself|YOURSELF|YOU)", RegexOptions.Compiled);
         readonly String pluginName = "EverQuest Damage Per Second Parser";
         SortedList<string, AposNameFix> aposNameList = new SortedList<string, AposNameFix>();
         TreeNode optionsNode = null;
@@ -224,10 +224,12 @@ namespace ACT_EverQuest_DPS_Plugin
         void oFormActMain_UpdateCheckClicked()
         {
             int pluginId = 46;
+
             try
             {
                 DateTime localDate = ActGlobals.oFormActMain.PluginGetSelfDateUtc(this);
                 DateTime remoteDate = ActGlobals.oFormActMain.PluginGetRemoteDateUtc(pluginId);
+
                 if (localDate.AddHours(2) < remoteDate)
                 {
                     DialogResult result = MessageBox.Show($"There is an updated version of the {pluginName}.  Update it now?\n\n(If there is an update to ACT, you should click No and update ACT first.)", "New Version", MessageBoxButtons.YesNo, MessageBoxIcon.Question);
