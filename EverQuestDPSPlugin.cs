@@ -22,7 +22,7 @@ using System.Xml;
 [assembly: AssemblyTitle("ACT EverQuest Damage Per Second Parsing")]
 [assembly: AssemblyDescription("Plugin for ACT EverQuest Damage Per Second Parsing")]
 [assembly: AssemblyCompany("Egot")]
-[assembly: AssemblyVersion("0.0.*")]
+[assembly: AssemblyVersion("0.0.1")]
 [assembly: AssemblyCopyright("2023")]
 #if DEBUG
 [assembly: AssemblyConfiguration("Debug")]
@@ -89,7 +89,6 @@ namespace ACT_EverQuest_DPS_Plugin
             this.tbAposName = new System.Windows.Forms.TextBox();
             this.label16 = new System.Windows.Forms.Label();
             this.clbAposName = new System.Windows.Forms.CheckedListBox();
-            this.cbSParseConsider = new System.Windows.Forms.CheckBox();
             this.SuspendLayout();
             // 
             // btnAposNameRemove
@@ -160,13 +159,6 @@ namespace ACT_EverQuest_DPS_Plugin
             this.clbAposName.Sorted = true;
             this.clbAposName.TabIndex = 11;
             // 
-            // cbSParseConsider
-            // 
-            this.cbSParseConsider.Location = new System.Drawing.Point(0, 0);
-            this.cbSParseConsider.Name = "cbSParseConsider";
-            this.cbSParseConsider.Size = new System.Drawing.Size(104, 24);
-            this.cbSParseConsider.TabIndex = 22;
-            // 
             // EverQuestDPSPlugin
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -180,7 +172,6 @@ namespace ACT_EverQuest_DPS_Plugin
             this.Controls.Add(this.tbAposName);
             this.Controls.Add(this.label16);
             this.Controls.Add(this.clbAposName);
-            this.Controls.Add(this.cbSParseConsider);
             this.Name = "EverQuestDPSPlugin";
             this.Size = new System.Drawing.Size(688, 241);
             this.ResumeLayout(false);
@@ -195,7 +186,6 @@ namespace ACT_EverQuest_DPS_Plugin
         private TextBox tbAposNameL;
         private TextBox tbAposName;
         private Label label16;
-        private CheckBox cbSParseConsider;
         private CheckedListBox clbAposName;
         #endregion
 
@@ -581,8 +571,6 @@ namespace ACT_EverQuest_DPS_Plugin
 
         void LoadSettings()
         {
-            xmlSettings.AddControlSetting(cbSParseConsider.Name, cbSParseConsider);
-
             if (File.Exists(settingsFile))
             {
                 using (FileStream fs = new FileStream(settingsFile, FileMode.Open, FileAccess.Read, FileShare.ReadWrite))
