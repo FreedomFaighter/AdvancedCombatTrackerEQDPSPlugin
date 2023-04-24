@@ -20,9 +20,9 @@ jobs:
         with:
           dotnet-version: ${{ matrix.dotnet-version }}
       - name: Download ACT dependency
-        uses: teddyking/dependency-action@master
+        uses: FreedomFaighter/dependency-action@master
         with:
-         deps: https://advancedcombattracker.com/download.php?id=57
+         deps: https://advancedcombattracker.com/download.php?id=57&extension=.zip
       - name: Build
         run: dotnet build --configuration Release --no-restore
 
