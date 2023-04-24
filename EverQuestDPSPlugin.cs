@@ -9,7 +9,6 @@ using System.Linq;
 using System.Reflection;
 using System.Text;
 using System.Text.RegularExpressions;
-using System.Threading;
 using System.Windows.Forms;
 using System.Xml;
 
@@ -82,6 +81,10 @@ namespace ACT_EverQuest_DPS_Plugin
         /// </summary>
         private void InitializeComponent()
         {
+            this.cbMultiDamageIsOne = new System.Windows.Forms.CheckBox();
+            this.cbRecalcWardedHits = new System.Windows.Forms.CheckBox();
+            this.tbFixAncestralSentry = new System.Windows.Forms.TextBox();
+            this.lblAncestralSentry = new System.Windows.Forms.Label();
             this.btnAposNameRemove = new System.Windows.Forms.Button();
             this.btnAposNameAdd = new System.Windows.Forms.Button();
             this.tbAposNameR = new System.Windows.Forms.TextBox();
@@ -89,7 +92,56 @@ namespace ACT_EverQuest_DPS_Plugin
             this.tbAposName = new System.Windows.Forms.TextBox();
             this.label16 = new System.Windows.Forms.Label();
             this.clbAposName = new System.Windows.Forms.CheckedListBox();
+            this.cbSParseConsider = new System.Windows.Forms.CheckBox();
+            this.cbIncludeInterceptFocus = new System.Windows.Forms.CheckBox();
             this.SuspendLayout();
+            // 
+            // cbMultiDamageIsOne
+            // 
+            this.cbMultiDamageIsOne.AutoSize = true;
+            this.cbMultiDamageIsOne.Checked = true;
+            this.cbMultiDamageIsOne.CheckState = System.Windows.Forms.CheckState.Checked;
+            this.cbMultiDamageIsOne.Location = new System.Drawing.Point(3, 3);
+            this.cbMultiDamageIsOne.Margin = new System.Windows.Forms.Padding(3, 1, 3, 1);
+            this.cbMultiDamageIsOne.Name = "cbMultiDamageIsOne";
+            this.cbMultiDamageIsOne.Size = new System.Drawing.Size(362, 17);
+            this.cbMultiDamageIsOne.TabIndex = 5;
+            this.cbMultiDamageIsOne.Text = "Record a hit with multiple damage types as a single hit. (Not retroactive)";
+            this.cbMultiDamageIsOne.MouseHover += new System.EventHandler(this.cbMultiDamageIsOne_MouseHover);
+            // 
+            // cbRecalcWardedHits
+            // 
+            this.cbRecalcWardedHits.AutoSize = true;
+            this.cbRecalcWardedHits.Checked = true;
+            this.cbRecalcWardedHits.CheckState = System.Windows.Forms.CheckState.Checked;
+            this.cbRecalcWardedHits.Location = new System.Drawing.Point(3, 22);
+            this.cbRecalcWardedHits.Margin = new System.Windows.Forms.Padding(3, 1, 3, 1);
+            this.cbRecalcWardedHits.Name = "cbRecalcWardedHits";
+            this.cbRecalcWardedHits.Size = new System.Drawing.Size(368, 17);
+            this.cbRecalcWardedHits.TabIndex = 7;
+            this.cbRecalcWardedHits.Text = "Recalculate warded/intercepted hits to their true value.  (Not retroactive)";
+            this.cbRecalcWardedHits.MouseHover += new System.EventHandler(this.cbRecalcWardedHits_MouseHover);
+            // 
+            // tbFixAncestralSentry
+            // 
+            this.tbFixAncestralSentry.Location = new System.Drawing.Point(488, 38);
+            this.tbFixAncestralSentry.Name = "tbFixAncestralSentry";
+            this.tbFixAncestralSentry.Size = new System.Drawing.Size(161, 20);
+            this.tbFixAncestralSentry.TabIndex = 10;
+            this.tbFixAncestralSentry.Text = "Ancestral Sentry";
+            this.tbFixAncestralSentry.MouseHover += new System.EventHandler(this.lblAncestralSentry_MouseHover);
+            // 
+            // lblAncestralSentry
+            // 
+            this.lblAncestralSentry.AutoSize = true;
+            this.lblAncestralSentry.Location = new System.Drawing.Point(3, 41);
+            this.lblAncestralSentry.Margin = new System.Windows.Forms.Padding(3, 1, 3, 1);
+            this.lblAncestralSentry.Name = "lblAncestralSentry";
+            this.lblAncestralSentry.Size = new System.Drawing.Size(388, 13);
+            this.lblAncestralSentry.TabIndex = 9;
+            this.lblAncestralSentry.Text = "\"Ancestral Sentry\" interceding players will appear as a heal under the combatant:" +
+    "";
+            this.lblAncestralSentry.MouseHover += new System.EventHandler(this.lblAncestralSentry_MouseHover);
             // 
             // btnAposNameRemove
             // 
@@ -162,12 +214,39 @@ namespace ACT_EverQuest_DPS_Plugin
             this.clbAposName.SelectedIndexChanged += new System.EventHandler(this.clbAposName_SelectedIndexChanged);
             this.clbAposName.MouseHover += new System.EventHandler(this.AposName_MouseHover);
             // 
-            // EverQuestDPSPlugin
+            // cbSParseConsider
+            // 
+            this.cbSParseConsider.AutoSize = true;
+            this.cbSParseConsider.Checked = true;
+            this.cbSParseConsider.CheckState = System.Windows.Forms.CheckState.Checked;
+            this.cbSParseConsider.Location = new System.Drawing.Point(3, 56);
+            this.cbSParseConsider.Margin = new System.Windows.Forms.Padding(3, 1, 3, 1);
+            this.cbSParseConsider.Name = "cbSParseConsider";
+            this.cbSParseConsider.Size = new System.Drawing.Size(479, 17);
+            this.cbSParseConsider.TabIndex = 7;
+            this.cbSParseConsider.Text = "Add characters marked by the /con, /whogroup, /whoraid command to the Selective P" +
+    "arsing list";
+            this.cbSParseConsider.MouseHover += new System.EventHandler(this.cbSParseConsider_MouseHover);
+            // 
+            // cbIncludeInterceptFocus
+            // 
+            this.cbIncludeInterceptFocus.AutoSize = true;
+            this.cbIncludeInterceptFocus.Location = new System.Drawing.Point(3, 75);
+            this.cbIncludeInterceptFocus.Margin = new System.Windows.Forms.Padding(3, 1, 3, 1);
+            this.cbIncludeInterceptFocus.Name = "cbIncludeInterceptFocus";
+            this.cbIncludeInterceptFocus.Size = new System.Drawing.Size(466, 17);
+            this.cbIncludeInterceptFocus.TabIndex = 18;
+            this.cbIncludeInterceptFocus.Text = "Parse focus damage done to channeler pets. (Skews attacker DPS/ToHit%, Not Retroa" +
+    "ctive)";
+            this.cbIncludeInterceptFocus.MouseHover += new System.EventHandler(this.cbIncludeInterceptFocus_MouseHover);
+            // 
+            // ACT_English_Parser
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.AutoSize = true;
             this.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink;
+            this.Controls.Add(this.cbIncludeInterceptFocus);
             this.Controls.Add(this.btnAposNameRemove);
             this.Controls.Add(this.btnAposNameAdd);
             this.Controls.Add(this.tbAposNameR);
@@ -175,7 +254,12 @@ namespace ACT_EverQuest_DPS_Plugin
             this.Controls.Add(this.tbAposName);
             this.Controls.Add(this.label16);
             this.Controls.Add(this.clbAposName);
-            this.Name = "EverQuestDPSPlugin";
+            this.Controls.Add(this.tbFixAncestralSentry);
+            this.Controls.Add(this.lblAncestralSentry);
+            this.Controls.Add(this.cbMultiDamageIsOne);
+            this.Controls.Add(this.cbRecalcWardedHits);
+            this.Controls.Add(this.cbSParseConsider);
+            this.Name = "ACT_English_Parser";
             this.Size = new System.Drawing.Size(688, 241);
             this.ResumeLayout(false);
             this.PerformLayout();
@@ -183,12 +267,18 @@ namespace ACT_EverQuest_DPS_Plugin
         }
 
         #endregion
+        private CheckBox cbMultiDamageIsOne;
+        private CheckBox cbRecalcWardedHits;
+        private TextBox tbFixAncestralSentry;
+        private Label lblAncestralSentry;
         private Button btnAposNameRemove;
         private Button btnAposNameAdd;
         private TextBox tbAposNameR;
         private TextBox tbAposNameL;
         private TextBox tbAposName;
         private Label label16;
+        private CheckBox cbSParseConsider;
+        private CheckBox cbIncludeInterceptFocus;
         private CheckedListBox clbAposName;
         #endregion
 
@@ -276,11 +366,11 @@ namespace ACT_EverQuest_DPS_Plugin
             PopulateRegexArray();
             SetupEverQuestEnvironment();   // Not really needed since ACT has this code internalized as well.
             ActGlobals.oFormActMain.BeforeLogLineRead += new LogLineEventDelegate(oFormActMain_BeforeLogLineRead);
-            ActGlobals.oFormActMain.UpdateCheckClicked += new FormActMain.NullDelegate(oFormActMain_UpdateCheckClicked);
+            //ActGlobals.oFormActMain.UpdateCheckClicked += new FormActMain.NullDelegate(oFormActMain_UpdateCheckClicked);
             ActGlobals.oFormActMain.GetDateTimeFromLog += new FormActMain.DateTimeLogParser(ParseDateTime);
 
-            if (ActGlobals.oFormActMain.GetAutomaticUpdatesAllowed())   // If ACT is set to automatically check for updates, check for updates to the plugin
-                new Thread(new ThreadStart(oFormActMain_UpdateCheckClicked)).Start();   // If we don't put this on a separate thread, web latency will delay the plugin init phase
+            //if (ActGlobals.oFormActMain.GetAutomaticUpdatesAllowed())   // If ACT is set to automatically check for updates, check for updates to the plugin
+            //    new Thread(new ThreadStart(oFormActMain_UpdateCheckClicked)).Start();   // If we don't put this on a separate thread, web latency will delay the plugin init phase
             ActGlobals.oFormActMain.CharacterFileNameRegex = new Regex(@"(?:.+)[\\]eqlog_(?<characterName>\S+)_(?<server>.+).txt", RegexOptions.Compiled);
             ActGlobals.oFormActMain.ZoneChangeRegex = new Regex($@"{ZoneChange}", RegexOptions.Compiled);
             lblStatus.Text = $"{pluginName} Plugin Started";
@@ -289,7 +379,7 @@ namespace ACT_EverQuest_DPS_Plugin
         public void DeInitPlugin()
         {
             ActGlobals.oFormActMain.BeforeLogLineRead -= oFormActMain_BeforeLogLineRead;
-            ActGlobals.oFormActMain.UpdateCheckClicked -= oFormActMain_UpdateCheckClicked;
+            //ActGlobals.oFormActMain.UpdateCheckClicked -= oFormActMain_UpdateCheckClicked;
             ActGlobals.oFormActMain.GetDateTimeFromLog -= ParseDateTime;
 
             if (optionsNode != null)    // If we added our user control to the Options tab, remove it
@@ -548,6 +638,11 @@ namespace ACT_EverQuest_DPS_Plugin
         void LoadSettings()
         {
             // Add items to the xmlSettings object here...
+            xmlSettings.AddControlSetting(cbMultiDamageIsOne.Name, cbMultiDamageIsOne);
+            xmlSettings.AddControlSetting(cbRecalcWardedHits.Name, cbRecalcWardedHits);
+            xmlSettings.AddControlSetting(cbIncludeInterceptFocus.Name, cbIncludeInterceptFocus);
+            xmlSettings.AddControlSetting(tbFixAncestralSentry.Name, tbFixAncestralSentry);
+            xmlSettings.AddControlSetting(cbSParseConsider.Name, cbSParseConsider);
 
             if (File.Exists(settingsFile))
             {
@@ -830,7 +925,7 @@ namespace ACT_EverQuest_DPS_Plugin
             CultureInfo usCulture = new CultureInfo("en-US");   // This is for SQL syntax; do not change
 
             EncounterData.ColumnDefs.Clear();
-            //Do not change the SqlDataName while doing localization
+            //                                                                                      Do not change the SqlDataName while doing localization
             EncounterData.ColumnDefs.Add("EncId", new EncounterData.ColumnDef("EncId", false, "CHAR(8)", "EncId", (Data) => { return string.Empty; }, (Data) => { return Data.EncId; }));
             EncounterData.ColumnDefs.Add("Title", new EncounterData.ColumnDef("Title", true, "VARCHAR(64)", "Title", (Data) => { return Data.Title; }, (Data) => { return Data.Title; }));
             EncounterData.ColumnDefs.Add("StartTime", new EncounterData.ColumnDef("StartTime", true, "TIMESTAMP", "StartTime", (Data) => { return Data.StartTime == DateTime.MaxValue ? "--:--:--" : String.Format("{0} {1}", Data.StartTime.ToShortDateString(), Data.StartTime.ToLongTimeString()); }, (Data) => { return Data.StartTime == DateTime.MaxValue ? "0000-00-00 00:00:00" : Data.StartTime.ToString("u").TrimEnd(new char[] { 'Z' }); }));
@@ -1856,34 +1951,6 @@ namespace ACT_EverQuest_DPS_Plugin
 
                 default:
                     return VarName;
-            }
-        }
-
-        void oFormActMain_UpdateCheckClicked()
-        {
-            int pluginId = 46;
-            try
-            {
-                DateTime localDate = ActGlobals.oFormActMain.PluginGetSelfDateUtc(this);
-                DateTime remoteDate = ActGlobals.oFormActMain.PluginGetRemoteDateUtc(pluginId);
-                if (localDate.AddHours(2) < remoteDate)
-                {
-                    DialogResult result = MessageBox.Show($"There is an updated version of the {pluginName} Plugin.  Update it now?\n\n(If there is an update to ACT, you should click No and update ACT first.)", "New Version", MessageBoxButtons.YesNo, MessageBoxIcon.Question);
-                    if (result == DialogResult.Yes)
-                    {
-                        FileInfo updatedFile = ActGlobals.oFormActMain.PluginDownload(pluginId);
-                        ActPluginData pluginData = ActGlobals.oFormActMain.PluginGetSelfData(this);
-                        pluginData.pluginFile.Delete();
-                        updatedFile.MoveTo(pluginData.pluginFile.FullName);
-                        ThreadInvokes.CheckboxSetChecked(ActGlobals.oFormActMain, pluginData.cbEnabled, false);
-                        Application.DoEvents();
-                        ThreadInvokes.CheckboxSetChecked(ActGlobals.oFormActMain, pluginData.cbEnabled, true);
-                    }
-                }
-            }
-            catch (Exception ex)
-            {
-                ActGlobals.oFormActMain.WriteExceptionLog(ex, "Plugin Update Check");
             }
         }
     }

@@ -70,9 +70,4 @@
     <Compile Include="EverQuestSwingType.cs" />
     <Compile Include="EverQuest_DPS_Plugin_Localization.cs" />
   </ItemGroup>
-  <ItemGroup>
-    <EmbeddedResource Include="EverQuestDPSPlugin.resx">
-      <DependentUpon>EverQuestDPSPlugin.cs</DependentUpon>
-    </EmbeddedResource>
-  </ItemGroup>
 </Project>
