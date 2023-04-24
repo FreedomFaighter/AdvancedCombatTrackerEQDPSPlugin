@@ -16,7 +16,6 @@ jobs:
     steps:
       - uses: actions/checkout@main
       - name: Setup .NET Core SDK ${{ matrix.dotnet-version }}
-        uses: actions/dotnet-install
         uses: actions/setup-dotnet@v3
         with:
           dotnet-version: ${{ matrix.dotnet-version }}
