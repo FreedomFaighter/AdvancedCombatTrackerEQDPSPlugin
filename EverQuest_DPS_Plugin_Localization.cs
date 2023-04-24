@@ -19,7 +19,6 @@ namespace EverQuestDPSPlugin
         internal static void EditLocalizations()
         {
             TryEditLocalization("specialAttackTerm-none", String.Empty); // What appears in the Special column of an attack when the attack is normal
-            TryEditLocalization("actPlugin-name", "EverQuest Damage Per Second Parser");//custom localalization for plugin name
         }
     }
 }
