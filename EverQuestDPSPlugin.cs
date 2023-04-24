@@ -223,7 +223,7 @@ namespace ACT_EverQuest_DPS_Plugin
         }
         void oFormActMain_UpdateCheckClicked()
         {
-            int pluginId = 46;
+            int pluginId = 92;
 
             try
             {
