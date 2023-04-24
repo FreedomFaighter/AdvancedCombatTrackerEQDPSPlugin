@@ -13,7 +13,7 @@
 mono_crash.*
 
 # Build results
-
+.resx
 [Oo]bj/
 [Bb]in/
 .vs/
