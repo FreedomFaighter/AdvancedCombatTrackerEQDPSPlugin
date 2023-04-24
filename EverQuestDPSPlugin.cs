@@ -307,7 +307,7 @@ namespace ACT_EverQuest_DPS_Plugin
                 DateTime remoteDate = ActGlobals.oFormActMain.PluginGetRemoteDateUtc(pluginId);
                 if (localDate.AddHours(2) < remoteDate)
                 {
-                    DialogResult result = MessageBox.Show("There is an updated version of the EQ2 English Parsing Plugin.  Update it now?\n\n(If there is an update to ACT, you should click No and update ACT first.)", "New Version", MessageBoxButtons.YesNo, MessageBoxIcon.Question);
+                    DialogResult result = MessageBox.Show($"There is an updated version of the {pluginName}.  Update it now?\n\n(If there is an update to ACT, you should click No and update ACT first.)", "New Version", MessageBoxButtons.YesNo, MessageBoxIcon.Question);
                     if (result == DialogResult.Yes)
                     {
                         FileInfo updatedFile = ActGlobals.oFormActMain.PluginDownload(pluginId);
