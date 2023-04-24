@@ -9,6 +9,7 @@ using System.Linq;
 using System.Reflection;
 using System.Text;
 using System.Text.RegularExpressions;
+using System.Threading;
 using System.Windows.Forms;
 using System.Xml;
 
@@ -282,11 +283,11 @@ namespace ACT_EverQuest_DPS_Plugin
             PopulateRegexArray();
             SetupEverQuestEnvironment();   // Not really needed since ACT has this code internalized as well.
             ActGlobals.oFormActMain.BeforeLogLineRead += new LogLineEventDelegate(oFormActMain_BeforeLogLineRead);
-            //ActGlobals.oFormActMain.UpdateCheckClicked += new FormActMain.NullDelegate(oFormActMain_UpdateCheckClicked);
+            ActGlobals.oFormActMain.UpdateCheckClicked += new FormActMain.NullDelegate(oFormActMain_UpdateCheckClicked);
             ActGlobals.oFormActMain.GetDateTimeFromLog += new FormActMain.DateTimeLogParser(ParseDateTime);
 
-            //if (ActGlobals.oFormActMain.GetAutomaticUpdatesAllowed())   // If ACT is set to automatically check for updates, check for updates to the plugin
-            //    new Thread(new ThreadStart(oFormActMain_UpdateCheckClicked)).Start();   // If we don't put this on a separate thread, web latency will delay the plugin init phase
+            if (ActGlobals.oFormActMain.GetAutomaticUpdatesAllowed())   // If ACT is set to automatically check for updates, check for updates to the plugin
+               new Thread(new ThreadStart(oFormActMain_UpdateCheckClicked)).Start();   // If we don't put this on a separate thread, web latency will delay the plugin init phase
             ActGlobals.oFormActMain.CharacterFileNameRegex = new Regex(@"(?:.+)[\\]eqlog_(?<characterName>\S+)_(?<server>.+).txt", RegexOptions.Compiled);
             ActGlobals.oFormActMain.ZoneChangeRegex = new Regex($@"{ZoneChange}", RegexOptions.Compiled);
             lblStatus.Text = $"{pluginName} Plugin Started";
@@ -295,7 +296,7 @@ namespace ACT_EverQuest_DPS_Plugin
         public void DeInitPlugin()
         {
             ActGlobals.oFormActMain.BeforeLogLineRead -= oFormActMain_BeforeLogLineRead;
-            //ActGlobals.oFormActMain.UpdateCheckClicked -= oFormActMain_UpdateCheckClicked;
+            ActGlobals.oFormActMain.UpdateCheckClicked -= oFormActMain_UpdateCheckClicked;
             ActGlobals.oFormActMain.GetDateTimeFromLog -= ParseDateTime;
 
             if (optionsNode != null)    // If we added our user control to the Options tab, remove it
@@ -306,6 +307,33 @@ namespace ACT_EverQuest_DPS_Plugin
 
             SaveSettings();
             lblStatus.Text = $@"{pluginName} Plugin Exited";
+        }
+        void oFormActMain_UpdateCheckClicked()
+        {
+            int pluginId = 46;
+            try
+            {
+                DateTime localDate = ActGlobals.oFormActMain.PluginGetSelfDateUtc(this);
+                DateTime remoteDate = ActGlobals.oFormActMain.PluginGetRemoteDateUtc(pluginId);
+                if (localDate.AddHours(2) < remoteDate)
+                {
+                    DialogResult result = MessageBox.Show("There is an updated version of the EQ2 English Parsing Plugin.  Update it now?\n\n(If there is an update to ACT, you should click No and update ACT first.)", "New Version", MessageBoxButtons.YesNo, MessageBoxIcon.Question);
+                    if (result == DialogResult.Yes)
+                    {
+                        FileInfo updatedFile = ActGlobals.oFormActMain.PluginDownload(pluginId);
+                        ActPluginData pluginData = ActGlobals.oFormActMain.PluginGetSelfData(this);
+                        pluginData.pluginFile.Delete();
+                        updatedFile.MoveTo(pluginData.pluginFile.FullName);
+                        ThreadInvokes.CheckboxSetChecked(ActGlobals.oFormActMain, pluginData.cbEnabled, false);
+                        Application.DoEvents();
+                        ThreadInvokes.CheckboxSetChecked(ActGlobals.oFormActMain, pluginData.cbEnabled, true);
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                ActGlobals.oFormActMain.WriteExceptionLog(ex, "Plugin Update Check");
+            }
         }
 
         private DateTime ParseDateTime(String logLine)
