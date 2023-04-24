@@ -13,10 +13,8 @@
         Outgoing = 256,
         DirectDamageSpell = 512,
         DamageOverTimeSpell = 1024,
-        PetMeleeIncoming = Pet | Melee | Incoming,
-        PetNonMeleeIncoming = Pet | NonMelee,
-        PetMeleeOutgoing = Pet | Melee | Outgoing,
-        PetNonMeleeOutgoing = Pet | NonMelee | Outgoing,
+        PetMelee = Pet | Melee,
+        PetNonMelee = Pet | NonMelee,
         Ward = 2048,
         WardInstantHealing = InstantHealing | Ward,
         WardHealOverTime = HealOverTime | Ward

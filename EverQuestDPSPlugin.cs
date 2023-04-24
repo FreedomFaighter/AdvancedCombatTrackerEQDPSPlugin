@@ -7,6 +7,7 @@ using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Reflection;
+using System.Runtime.CompilerServices;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading;
@@ -19,11 +20,7 @@ using System.Xml;
  * Description: Missing from the arsenal of the plugin based Advanced Combat Tracker to track EverQuest's current combat messages.  Ignores chat as that is displayed in game.
  */
 
-[assembly: AssemblyTitle("ACT EverQuest Damage Per Second Parsing")]
-[assembly: AssemblyDescription("Plugin for ACT EverQuest Damage Per Second Parsing")]
-[assembly: AssemblyCompany("Egot")]
-[assembly: AssemblyVersion("0.0.0.1")]
-[assembly: AssemblyCopyright("2023")]
+
 #if DEBUG
 [assembly: AssemblyConfiguration("Debug")]
 #else
@@ -149,6 +146,7 @@ namespace ACT_EverQuest_DPS_Plugin
         readonly Regex dateTimeRegex = new Regex(TimeStamp, RegexOptions.Compiled);
         readonly Regex selfCheck = new Regex(@"(You|you|yourself|Yourself|YOURSELF|YOU)", RegexOptions.Compiled);
         readonly String pluginName = "EverQuest Damage Per Second Parser";
+        readonly String possessivePetString = @"`s pet";
         SortedList<string, AposNameFix> aposNameList = new SortedList<string, AposNameFix>();
         TreeNode optionsNode = null;
         Label lblStatus;    // The status label that appears in ACT's Plugin tab
@@ -228,8 +226,9 @@ namespace ACT_EverQuest_DPS_Plugin
             try
             {
                 Version remoteVersion = new Version(ActGlobals.oFormActMain.PluginGetRemoteVersion(pluginId));
-                Version currentVersion = new Version(((AssemblyVersionAttribute)Attribute.GetCustomAttribute(Assembly.GetAssembly(this.GetType()), typeof(AssemblyVersionAttribute), false)).Version);
-                if (remoteVersion > currentVersion)
+                AssemblyFileVersionAttribute currentVersion = Assembly.GetExecutingAssembly().GetCustomAttribute(typeof(AssemblyFileVersionAttribute)) as AssemblyFileVersionAttribute;
+                Version currentVersionv = new Version(currentVersion.Version);
+                if (remoteVersion > currentVersionv)
                 {
                     DialogResult result = MessageBox.Show($"There is an updated version of the {pluginName}.  Update it now?\n\n(If there is an update to ACT, you should click No and update ACT first.)", "New Version", MessageBoxButtons.YesNo, MessageBoxIcon.Question);
                     if (result == DialogResult.Yes)
@@ -302,6 +301,19 @@ namespace ACT_EverQuest_DPS_Plugin
             logInfo.detectedType = 0;
         }
 
+        Tuple<EverQuestSwingType, String> GetTypeAndNameForPet(String nameToSetTypeTo)
+        {
+            int indexOfPetInCombatantName = nameToSetTypeTo.IndexOf(possessivePetString);
+            if (indexOfPetInCombatantName > 0)
+            {
+                return new Tuple<EverQuestSwingType, String>(EverQuestSwingType.PetMelee, nameToSetTypeTo.Substring(0, indexOfPetInCombatantName));
+            }
+            else
+            {
+                return new Tuple<EverQuestSwingType, String>(EverQuestSwingType.Melee, nameToSetTypeTo);
+            }
+        }
+
         private void ParseEverQuestLogLine(Match regexMatch, int logMatched)
         {
             switch (logMatched)
@@ -309,14 +321,15 @@ namespace ACT_EverQuest_DPS_Plugin
                 case 1:
                     if (ActGlobals.oFormActMain.SetEncounter(ActGlobals.oFormActMain.LastKnownTime, CharacterNamePersonaReplace(regexMatch.Groups["attacker"].Value), CharacterNamePersonaReplace(regexMatch.Groups["victim"].Value)))
                     {
-                        MasterSwing masterSwingMelee = new MasterSwing((int)EverQuestSwingType.Melee
+                        Tuple<EverQuestSwingType, String> attackerAndType = GetTypeAndNameForPet(regexMatch.Groups["attacker"].Value);
+                        MasterSwing masterSwingMelee = new MasterSwing((int)attackerAndType.Item1
                             , regexMatch.Groups["damageSpecial"].Success ? regexMatch.Groups["damageSpecial"].Value.Contains(SpecialCritical) : false
                             , regexMatch.Groups["damageSpecial"].Success ? regexMatch.Groups["damageSpecial"].Value : String.Empty
                             , new Dnum(Int64.Parse(regexMatch.Groups["damageAmount"].Value))
                             , ActGlobals.oFormActMain.LastEstimatedTime
                             , ActGlobals.oFormActMain.GlobalTimeSorter
                             , regexMatch.Groups["attackType"].Value
-                            , CharacterNamePersonaReplace(regexMatch.Groups["attacker"].Value)
+                            , CharacterNamePersonaReplace(attackerAndType.Item2)
                             , "Hitpoints"
                             , CharacterNamePersonaReplace(regexMatch.Groups["victim"].Value));
                         masterSwingMelee.Tags[logTimestamp] = ActGlobals.oFormActMain.LastKnownTime;
@@ -840,6 +853,7 @@ namespace ACT_EverQuest_DPS_Plugin
             {"Bane (Out)", new CombatantData.DamageTypeDef("Bane (Out)", -1, Color.LightGreen) },
             {"Instant Healed (Out)", new CombatantData.DamageTypeDef("Instant Healed (Out)", 1, Color.Blue)},
             {"Heal Over Time (Out)", new CombatantData.DamageTypeDef("Heal Over Time (Out)", 1, Color.DarkBlue)},
+                {"Pet Melee (Out)", new CombatantData.DamageTypeDef("Pet Melee (Out)", -1, Color.GreenYellow)},
             {"All Outgoing (Ref)", new CombatantData.DamageTypeDef("All Outgoing (Ref)", 0, Color.Black)}
         };
             CombatantData.IncomingDamageTypeDataObjects = new Dictionary<string, CombatantData.DamageTypeDef>
@@ -860,6 +874,7 @@ namespace ACT_EverQuest_DPS_Plugin
             {EverQuestSwingType.DamageOverTimeSpell.GetEverQuestSwingTypeExtensionIntValue(), new List<string>{"Damage Over Time Spell (Out)", "Outgoing Damage"} },
             {EverQuestSwingType.InstantHealing.GetEverQuestSwingTypeExtensionIntValue(), new List<string> { "Instant Healed (Out)" } },
             {EverQuestSwingType.HealOverTime.GetEverQuestSwingTypeExtensionIntValue(), new List<string> { "Heal Over Time (Out)" } },
+            {EverQuestSwingType.PetMelee.GetEverQuestSwingTypeExtensionIntValue(), new List<string> { "Pet Melee (Out)" } }
         };
             CombatantData.SwingTypeToDamageTypeDataLinksIncoming = new SortedDictionary<int, List<string>>
         {
@@ -871,7 +886,13 @@ namespace ACT_EverQuest_DPS_Plugin
             {EverQuestSwingType.HealOverTime.GetEverQuestSwingTypeExtensionIntValue(), new List<string> { "Heal Over Time (Inc)" } },
         };
 
-            CombatantData.DamageSwingTypes = new List<int> { EverQuestSwingType.Melee.GetEverQuestSwingTypeExtensionIntValue(), EverQuestSwingType.NonMelee.GetEverQuestSwingTypeExtensionIntValue(), EverQuestSwingType.DirectDamageSpell.GetEverQuestSwingTypeExtensionIntValue(), EverQuestSwingType.DamageOverTimeSpell.GetEverQuestSwingTypeExtensionIntValue(), EverQuestSwingType.Bane.GetEverQuestSwingTypeExtensionIntValue() };
+            CombatantData.DamageSwingTypes = new List<int> { 
+                EverQuestSwingType.Melee.GetEverQuestSwingTypeExtensionIntValue(), 
+                EverQuestSwingType.NonMelee.GetEverQuestSwingTypeExtensionIntValue(), 
+                EverQuestSwingType.DirectDamageSpell.GetEverQuestSwingTypeExtensionIntValue(), 
+                EverQuestSwingType.DamageOverTimeSpell.GetEverQuestSwingTypeExtensionIntValue(), 
+                EverQuestSwingType.Bane.GetEverQuestSwingTypeExtensionIntValue(),
+                EverQuestSwingType.PetMelee.GetEverQuestSwingTypeExtensionIntValue() };
             CombatantData.HealingSwingTypes = new List<int> { EverQuestSwingType.InstantHealing.GetEverQuestSwingTypeExtensionIntValue(), EverQuestSwingType.HealOverTime.GetEverQuestSwingTypeExtensionIntValue() };
 
             CombatantData.ExportVariables.Clear();
