@@ -82,82 +82,17 @@ namespace ACT_EverQuest_DPS_Plugin
         /// </summary>
         private void InitializeComponent()
         {
-            this.btnAposNameRemove = new System.Windows.Forms.Button();
-            this.btnAposNameAdd = new System.Windows.Forms.Button();
-            this.tbAposNameR = new System.Windows.Forms.TextBox();
-            this.tbAposNameL = new System.Windows.Forms.TextBox();
-            this.tbAposName = new System.Windows.Forms.TextBox();
-            this.label16 = new System.Windows.Forms.Label();
-            this.clbAposName = new System.Windows.Forms.CheckedListBox();
+            this.label1 = new System.Windows.Forms.Label();
             this.SuspendLayout();
             // 
-            // btnAposNameRemove
+            // label1
             // 
-            this.btnAposNameRemove.Location = new System.Drawing.Point(559, 215);
-            this.btnAposNameRemove.Name = "btnAposNameRemove";
-            this.btnAposNameRemove.Size = new System.Drawing.Size(126, 23);
-            this.btnAposNameRemove.TabIndex = 17;
-            this.btnAposNameRemove.Text = "Remove Correction";
-            this.btnAposNameRemove.UseVisualStyleBackColor = true;
-            this.btnAposNameRemove.Click += new System.EventHandler(this.btnAposNameRemove_Click);
-            this.btnAposNameRemove.MouseHover += new System.EventHandler(this.AposName_MouseHover);
-            // 
-            // btnAposNameAdd
-            // 
-            this.btnAposNameAdd.Location = new System.Drawing.Point(559, 190);
-            this.btnAposNameAdd.Name = "btnAposNameAdd";
-            this.btnAposNameAdd.Size = new System.Drawing.Size(126, 23);
-            this.btnAposNameAdd.TabIndex = 16;
-            this.btnAposNameAdd.Text = "Add Correction";
-            this.btnAposNameAdd.UseVisualStyleBackColor = true;
-            this.btnAposNameAdd.Click += new System.EventHandler(this.btnAposNameAdd_Click);
-            this.btnAposNameAdd.MouseHover += new System.EventHandler(this.AposName_MouseHover);
-            // 
-            // tbAposNameR
-            // 
-            this.tbAposNameR.Enabled = false;
-            this.tbAposNameR.Location = new System.Drawing.Point(499, 138);
-            this.tbAposNameR.Name = "tbAposNameR";
-            this.tbAposNameR.Size = new System.Drawing.Size(186, 20);
-            this.tbAposNameR.TabIndex = 14;
-            this.tbAposNameR.MouseHover += new System.EventHandler(this.AposName_MouseHover);
-            // 
-            // tbAposNameL
-            // 
-            this.tbAposNameL.Enabled = false;
-            this.tbAposNameL.Location = new System.Drawing.Point(290, 138);
-            this.tbAposNameL.Name = "tbAposNameL";
-            this.tbAposNameL.Size = new System.Drawing.Size(186, 20);
-            this.tbAposNameL.TabIndex = 12;
-            this.tbAposNameL.MouseHover += new System.EventHandler(this.AposName_MouseHover);
-            // 
-            // tbAposName
-            // 
-            this.tbAposName.Location = new System.Drawing.Point(290, 164);
-            this.tbAposName.Name = "tbAposName";
-            this.tbAposName.Size = new System.Drawing.Size(395, 20);
-            this.tbAposName.TabIndex = 15;
-            this.tbAposName.TextChanged += new System.EventHandler(this.tbAposName_TextChanged);
-            this.tbAposName.MouseHover += new System.EventHandler(this.AposName_MouseHover);
-            // 
-            // label16
-            // 
-            this.label16.AutoSize = true;
-            this.label16.Location = new System.Drawing.Point(287, 122);
-            this.label16.Name = "label16";
-            this.label16.Size = new System.Drawing.Size(142, 13);
-            this.label16.TabIndex = 13;
-            this.label16.Text = "Apostrophe name to be fixed";
-            // 
-            // clbAposName
-            // 
-            this.clbAposName.FormattingEnabled = true;
-            this.clbAposName.IntegralHeight = false;
-            this.clbAposName.Location = new System.Drawing.Point(3, 122);
-            this.clbAposName.Name = "clbAposName";
-            this.clbAposName.Size = new System.Drawing.Size(278, 116);
-            this.clbAposName.Sorted = true;
-            this.clbAposName.TabIndex = 11;
+            this.label1.AutoSize = true;
+            this.label1.Location = new System.Drawing.Point(470, 225);
+            this.label1.Name = "label1";
+            this.label1.Size = new System.Drawing.Size(215, 13);
+            this.label1.TabIndex = 18;
+            this.label1.Text = "No settings in parser to configure at this time";
             // 
             // EverQuestDPSPlugin
             // 
@@ -165,28 +100,15 @@ namespace ACT_EverQuest_DPS_Plugin
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.AutoSize = true;
             this.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink;
-            this.Controls.Add(this.btnAposNameRemove);
-            this.Controls.Add(this.btnAposNameAdd);
-            this.Controls.Add(this.tbAposNameR);
-            this.Controls.Add(this.tbAposNameL);
-            this.Controls.Add(this.tbAposName);
-            this.Controls.Add(this.label16);
-            this.Controls.Add(this.clbAposName);
+            this.Controls.Add(this.label1);
             this.Name = "EverQuestDPSPlugin";
-            this.Size = new System.Drawing.Size(688, 241);
+            this.Size = new System.Drawing.Size(688, 238);
             this.ResumeLayout(false);
             this.PerformLayout();
 
         }
 
         #endregion
-        private Button btnAposNameRemove;
-        private Button btnAposNameAdd;
-        private TextBox tbAposNameR;
-        private TextBox tbAposNameL;
-        private TextBox tbAposName;
-        private Label label16;
-        private CheckedListBox clbAposName;
         #endregion
 
         #region class members
@@ -231,6 +153,7 @@ namespace ACT_EverQuest_DPS_Plugin
         TreeNode optionsNode = null;
         Label lblStatus;    // The status label that appears in ACT's Plugin tab
         string settingsFile;
+        private Label label1;
         SettingsSerializer xmlSettings;
         #endregion
 
@@ -747,7 +670,6 @@ namespace ACT_EverQuest_DPS_Plugin
                             {
                                 Active = Boolean.Parse(xReader.GetAttribute("Active"))
                             };
-                            AposAddNameFix(newItem);
                         }
                         catch (Exception ex)
                         {
@@ -780,66 +702,6 @@ namespace ACT_EverQuest_DPS_Plugin
         private void AposName_MouseHover(object sender, EventArgs e)
         {
             ActGlobals.oFormActMain.SetOptionsHelpText("Certain mob names with apostrophes in their name will cause the English parser to incorrectly split a combatant name from an ability name.  Use this section to add a full combatant name that should not be split apart.");
-        }
-
-        private void clbAposName_ItemCheck(object sender, ItemCheckEventArgs e)
-        {
-            string label = (string)clbAposName.Items[e.Index];
-            AposNameFix selectedItem = aposNameList[label];
-            selectedItem.Active = e.NewValue == CheckState.Checked;
-        }
-
-        private void clbAposName_SelectedIndexChanged(object sender, EventArgs e)
-        {
-            if (clbAposName.SelectedIndex != -1)
-            {
-                string label = (string)clbAposName.Items[clbAposName.SelectedIndex];
-                AposNameFix selectedItem = aposNameList[label];
-                tbAposName.Text = selectedItem.FullName;
-                tbAposNameL.Text = selectedItem.Left;
-                tbAposNameR.Text = selectedItem.Right;
-            }
-        }
-
-        private void tbAposName_TextChanged(object sender, EventArgs e)
-        {
-            string[] engNameSkillSplit = tbAposName.Text.Split(new char[] { '\'' });
-            string attacker = string.Empty;
-            string skillType = string.Empty;
-
-            SplitAttackerSkill(ref attacker, ref skillType, engNameSkillSplit);
-
-            tbAposNameL.Text = attacker;
-            tbAposNameR.Text = skillType;
-        }
-
-        private void btnAposNameAdd_Click(object sender, EventArgs e)
-        {
-            if (String.IsNullOrEmpty(tbAposNameL.Text) || String.IsNullOrEmpty(tbAposNameR.Text))
-            {
-                MessageBox.Show("This name does not appear to be split by the parsing engine.", "Invalid Name", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                return;
-            }
-            AposNameFix newItem = new AposNameFix(tbAposName.Text, tbAposNameL.Text, tbAposNameR.Text);
-            AposAddNameFix(newItem);
-        }
-
-        private void btnAposNameRemove_Click(object sender, EventArgs e)
-        {
-            if (aposNameList.ContainsKey(tbAposName.Text))
-            {
-                aposNameList.Remove(tbAposName.Text);
-                clbAposName.Items.Remove(tbAposName.Text);
-            }
-        }
-
-        private void AposAddNameFix(AposNameFix newItem)
-        {
-            if (!aposNameList.ContainsKey(newItem.FullName))
-            {
-                aposNameList.Add(newItem.FullName, newItem);
-                clbAposName.Items.Add(newItem.FullName, newItem.Active);
-            }
         }
 
         private string GetIntCommas()
