@@ -28,28 +28,6 @@ using System.Xml;
 #endif
 namespace ACT_EverQuest_DPS_Plugin
 {
-    enum SpellDamageSave
-    {
-        Fire = 1,
-        Cold = 2,
-        Poison = 4,
-        Disease = 8,
-        Magic = 16,
-        Corruption = 32,
-        Unresistable = 64
-    }
-    enum SpecialAttacks
-    {
-        Crippling_Blow = 1,
-        Critical = 2,
-        Flurry = 4,
-        Locked = 8,
-        Lucky = 16,
-        Riposte = 32,
-        Strikethrough = 64,
-        Double_Bow_Shot = 128,
-        Twincast = 256
-    }
     public class EverQuestDPSPlugin : UserControl, IActPluginV1
     {
         #region Designer generated code (Avoid editing)
