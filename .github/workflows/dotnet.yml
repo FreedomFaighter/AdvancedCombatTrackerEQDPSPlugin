@@ -15,8 +15,9 @@ jobs:
       - name: Setup MSBuild
         uses: microsoft/setup-msbuild@v1.1
       - name: Download ACT dependency
-        uses: FreedomFaighter/dependency-action@master
-        with:
-         deps: https://advancedcombattracker.com/download.php?id=57
+        run: curl https://advancedcombattracker.com/download.php?id=57 --output ACTv3.zip
+        shell: bash
+      - name: Extract ACT files
+        run: 7z x ACTv3.zip
       - name: Build solution
         run: msbuild ACT_EverQuest_DPS_Plugin.sln -t:rebuild -property:Configuration=Release
