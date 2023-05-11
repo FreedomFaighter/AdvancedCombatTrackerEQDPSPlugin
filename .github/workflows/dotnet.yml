@@ -15,7 +15,7 @@ jobs:
       - name: Setup MSBuild
         uses: microsoft/setup-msbuild@v1.1
       - name: Download ACT dependency
-        run: curl https://advancedcombattracker.com/download.php?id=57 --output ACTv3.zip
+        run: wget -O ACTv3.zip https://advancedcombattracker.com/download.php?id=57
         shell: bash
       - name: Extract ACT files
         run: 7z x ACTv3.zip
