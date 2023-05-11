@@ -1,4 +1,4 @@
-![Current Commit Status](https://github.com/FreedomFaighter/ACT_EQ_DPS_Plugin/blob/main/.github/workflows/dotnet.yml/badge.svg)
+![Current Commit Status](https://github.com/FreedomFaighter/ACT_EQ_DPS_Plugin/actions/workflows/dotnet.yml/badge.svg)
 
 ## ACT Plugin
 ### ACT_EQ_DPS_Plugin
