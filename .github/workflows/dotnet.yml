@@ -8,20 +8,15 @@ on: [push]
 jobs:
   build:
 
-    runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        dotnet-version: [ '5.0.10' ]
+    runs-on: windows-2019
 
     steps:
       - uses: actions/checkout@main
-      - name: Setup .NET Core SDK ${{ matrix.dotnet-version }}
-        uses: actions/setup-dotnet@v3
-        with:
-          dotnet-version: ${{ matrix.dotnet-version }}
+      - name: Setup MSBuild
+        uses: actions/setup-msbuild@v1.1
       - name: Download ACT dependency
         uses: FreedomFaighter/dependency-action@master
         with:
          deps: https://advancedcombattracker.com/download.php?id=57
-      - name: Build
-        run: dotnet build --configuration Release --no-restore
+      - name: Build solution
+        run: msbuild ACT_EverQuest_DPS_Plugin.sln -t:rebuild -property:Configuration=Release
