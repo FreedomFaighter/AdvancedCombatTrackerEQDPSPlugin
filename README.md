@@ -1,4 +1,4 @@
-![Current Commit Status](https://github.com/FreedomFaighter/ACT_EQ_DPS_Plugin/actions/workflows/dotnet.yml/badge.svg)
+[![ACT EverQuest DPS Plugin](https://github.com/FreedomFaighter/ACT_EQ_DPS_Plugin/actions/workflows/dotnet.yml/badge.svg)](https://github.com/FreedomFaighter/ACT_EQ_DPS_Plugin/actions/workflows/dotnet.yml)
 
 ## ACT Plugin
 ### ACT_EQ_DPS_Plugin
