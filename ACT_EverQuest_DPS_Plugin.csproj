@@ -59,6 +59,8 @@
     <Compile Include="EverQuestSwingType.cs" />
     <Compile Include="EverQuest_DPS_Plugin_Localization.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="SpecialAttacks.cs" />
+    <Compile Include="SpellDamageSave.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include=".github\workflows\dotnet.yml" />
