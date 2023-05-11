@@ -2,7 +2,7 @@
 
 ## ACT Plugin
 ### ACT_EQ_DPS_Plugin
-Compiles with .NET 4.8
+Compiles with .NET 4.8.1 which is a version unavailable with github actions
 
 Partially developed ACT plugin for parsing EverQuest log files as they are generated.
 
