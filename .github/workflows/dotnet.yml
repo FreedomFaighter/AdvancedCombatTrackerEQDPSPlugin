@@ -13,7 +13,7 @@ jobs:
     steps:
       - uses: actions/checkout@main
       - name: Setup MSBuild
-        uses: actions/setup-msbuild@v1.1
+        uses: microsoft/setup-msbuild@v1.1
       - name: Download ACT dependency
         uses: FreedomFaighter/dependency-action@master
         with:
