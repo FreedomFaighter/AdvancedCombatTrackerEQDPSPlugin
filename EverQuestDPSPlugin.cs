@@ -268,7 +268,6 @@ namespace ACT_EverQuest_DPS_Plugin
 
         void oFormActMain_BeforeLogLineRead(bool isImport, LogLineEventArgs logInfo)
         {
-
             for (int i = 0; i < regexTupleList.Count; i++)
             {
                 Match regexMatch = regexTupleList[i].Item2.Match(logInfo.logLine);
