@@ -125,7 +125,7 @@ namespace ACT_EverQuest_DPS_Plugin
         readonly Regex selfCheck = new Regex(@"(You|you|yourself|Yourself|YOURSELF|YOU)", RegexOptions.Compiled);
         readonly String pluginName = "EverQuest Damage Per Second Parser";
         readonly String possessivePetString = @"`s pet";
-        readonly String fallDamage = @"(?<self>.*) (?:ha[s|ve]) taken (?<pointsOfDamage>[\d]+) (?point[|s]) of fall damage.";
+        readonly String fallDamage = @"(?<victim>.*) (?:ha[s|ve]) taken (?<pointsOfDamage>[\d]+) (?point[|s]) of fall damage.";
         SortedList<string, AposNameFix> aposNameList = new SortedList<string, AposNameFix>();
         TreeNode optionsNode = null;
         Label lblStatus;    // The status label that appears in ACT's Plugin tab
@@ -177,7 +177,7 @@ namespace ACT_EverQuest_DPS_Plugin
             ActGlobals.oFormActMain.GetDateTimeFromLog += new FormActMain.DateTimeLogParser(ParseDateTime);
 
             if (ActGlobals.oFormActMain.GetAutomaticUpdatesAllowed())   // If ACT is set to automatically check for updates, check for updates to the plugin
-               new Thread(new ThreadStart(oFormActMain_UpdateCheckClicked)).Start();   // If we don't put this on a separate thread, web latency will delay the plugin init phase
+                new Thread(new ThreadStart(oFormActMain_UpdateCheckClicked)).Start();   // If we don't put this on a separate thread, web latency will delay the plugin init phase
             ActGlobals.oFormActMain.CharacterFileNameRegex = new Regex(@"(?:.+)[\\]eqlog_(?<characterName>\S+)_(?<server>.+).txt", RegexOptions.Compiled);
             ActGlobals.oFormActMain.ZoneChangeRegex = new Regex($@"{ZoneChange}", RegexOptions.Compiled);
             lblStatus.Text = $"{pluginName} Plugin Started";
@@ -261,6 +261,8 @@ namespace ACT_EverQuest_DPS_Plugin
             regexTupleList.Add(new Tuple<Color, Regex>(Color.LightBlue, new Regex($@"{TimeStamp} {Banestrike}", RegexOptions.Compiled)));
             ActGlobals.oFormEncounterLogs.LogTypeToColorMapping.Add(regexTupleList.Count, regexTupleList[regexTupleList.Count - 1].Item1);
             regexTupleList.Add(new Tuple<Color, Regex>(Color.AliceBlue, new Regex($@"{TimeStamp} {SpellDamageOverTime}", RegexOptions.Compiled)));
+            ActGlobals.oFormEncounterLogs.LogTypeToColorMapping.Add(regexTupleList.Count, regexTupleList[regexTupleList.Count - 1].Item1);
+            regexTupleList.Add(new Tuple<Color, Regex>(Color.PaleVioletRed, new Regex($@"{TimeStamp} {fallDamage}", RegexOptions.Compiled)));
             ActGlobals.oFormEncounterLogs.LogTypeToColorMapping.Add(regexTupleList.Count, regexTupleList[regexTupleList.Count - 1].Item1);
         }
 
@@ -436,6 +438,21 @@ namespace ACT_EverQuest_DPS_Plugin
                         masterSwingSpellcast.Tags[logTimestamp] = ActGlobals.oFormActMain.LastKnownTime;
                         ActGlobals.oFormActMain.AddCombatAction(masterSwingSpellcast);
                     }
+                    break;
+                case 12:
+                    MasterSwing masterSwingFallDamage = new MasterSwing(EverQuestSwingType.NonMelee.GetEverQuestSwingTypeExtensionIntValue(),
+                        false,
+                        String.Empty,
+                         new Dnum(Int64.Parse(regexMatch.Groups["pointsOfDamage"].Value)),
+                         ActGlobals.oFormActMain.LastEstimatedTime,
+                         ActGlobals.oFormActMain.GlobalTimeSorter
+                         , "Fall Damage"
+                         , CharacterNamePersonaReplace("Fall Damage")
+                         , "Hitpoints"
+                         , CharacterNamePersonaReplace(regexMatch.Groups["victim"].Value)
+                    );
+                    masterSwingFallDamage.Tags[logTimestamp] = ActGlobals.oFormActMain.LastKnownTime;
+                    ActGlobals.oFormActMain.AddCombatAction(masterSwingFallDamage);
                     break;
                 default:
                     break;
@@ -865,11 +882,11 @@ namespace ACT_EverQuest_DPS_Plugin
             {EverQuestSwingType.HealOverTime.GetEverQuestSwingTypeExtensionIntValue(), new List<string> { "Heal Over Time (Inc)" } },
         };
 
-            CombatantData.DamageSwingTypes = new List<int> { 
-                EverQuestSwingType.Melee.GetEverQuestSwingTypeExtensionIntValue(), 
-                EverQuestSwingType.NonMelee.GetEverQuestSwingTypeExtensionIntValue(), 
-                EverQuestSwingType.DirectDamageSpell.GetEverQuestSwingTypeExtensionIntValue(), 
-                EverQuestSwingType.DamageOverTimeSpell.GetEverQuestSwingTypeExtensionIntValue(), 
+            CombatantData.DamageSwingTypes = new List<int> {
+                EverQuestSwingType.Melee.GetEverQuestSwingTypeExtensionIntValue(),
+                EverQuestSwingType.NonMelee.GetEverQuestSwingTypeExtensionIntValue(),
+                EverQuestSwingType.DirectDamageSpell.GetEverQuestSwingTypeExtensionIntValue(),
+                EverQuestSwingType.DamageOverTimeSpell.GetEverQuestSwingTypeExtensionIntValue(),
                 EverQuestSwingType.Bane.GetEverQuestSwingTypeExtensionIntValue(),
                 EverQuestSwingType.PetMelee.GetEverQuestSwingTypeExtensionIntValue() };
             CombatantData.HealingSwingTypes = new List<int> { EverQuestSwingType.InstantHealing.GetEverQuestSwingTypeExtensionIntValue(), EverQuestSwingType.HealOverTime.GetEverQuestSwingTypeExtensionIntValue() };
