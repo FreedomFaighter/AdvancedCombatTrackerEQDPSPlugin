@@ -1,4 +1,6 @@
-﻿namespace EverQuestDPSPlugin
+﻿//Currently attack types in view of being parsed
+
+namespace EverQuestDPSPlugin
 {
     internal enum EverQuestSwingType : int
     {
