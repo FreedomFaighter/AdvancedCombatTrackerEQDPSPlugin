@@ -278,7 +278,7 @@ namespace ACT_EverQuest_DPS_Plugin
                     break;
                 }
             }
-            logInfo.detectedType = 0;
+            //logInfo.detectedType = 0;
         }
 
         Tuple<EverQuestSwingType, String> GetTypeAndNameForPet(String nameToSetTypeTo)
