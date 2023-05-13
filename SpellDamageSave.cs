@@ -1,8 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿//Spell damage saves currently known
+//Chromatic is a combination of these enum values and may be Fire | Cold = 3
 
 namespace ACT_EverQuest_DPS_Plugin
 {

@@ -1,9 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
+﻿//Enum describing currently known special attacks that are written to the log file while actions occur in game
+//Currently appear after a combat action in parenthesis as a space seperated string
 namespace ACT_EverQuest_DPS_Plugin
 {
     internal enum SpecialAttacks

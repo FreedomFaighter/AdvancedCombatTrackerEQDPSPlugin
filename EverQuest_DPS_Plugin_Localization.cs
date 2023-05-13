@@ -1,4 +1,6 @@
-﻿using Advanced_Combat_Tracker;
+﻿//Updates to the localization of the log file attacks with no special detected in the parenthesis of the log file are listed as an empty string to indicate no special attack occurred and no parenthesis at the end of the log line were detected by the regex entry
+
+using Advanced_Combat_Tracker;
 using System;
 
 namespace EverQuestDPSPlugin
