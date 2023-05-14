@@ -12,7 +12,7 @@ using System.Text.RegularExpressions;
 using System.Threading;
 using System.Windows.Forms;
 using System.Xml;
-using System.Text.Json;
+
 /*
  * Project: EverQuest DPS Plugin
  * Original: EverQuest 2 English DPS Localization plugin developed by EQAditu
@@ -213,10 +213,10 @@ namespace ACT_EverQuest_DPS_Plugin
                     if (result == DialogResult.Yes)
                     {
                         FileInfo updatedFile = ActGlobals.oFormActMain.PluginDownload(pluginId);
-                        String githubData = ActGlobals.oFormActMain.PluginGetGithubApi(pluginId);
+                        //String githubData = ActGlobals.oFormActMain.PluginGetGithubApi(pluginId);
                         ActPluginData pluginData = ActGlobals.oFormActMain.PluginGetSelfData(this);
                         pluginData.pluginFile.Delete();
-                        updatedFile.MoveTo($"{pluginData.pluginFile.Directory.FullName}\\{JsonDocument.Parse(githubData).RootElement.GetProperty("assets").GetProperty("Name")}");
+                        updatedFile.MoveTo(pluginData.pluginFile.FullName);
                         ThreadInvokes.CheckboxSetChecked(ActGlobals.oFormActMain, pluginData.cbEnabled, false);
                         Application.DoEvents();
                         ThreadInvokes.CheckboxSetChecked(ActGlobals.oFormActMain, pluginData.cbEnabled, true);
