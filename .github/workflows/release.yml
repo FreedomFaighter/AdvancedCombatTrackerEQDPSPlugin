@@ -1,13 +1,17 @@
 name: Release
 
 on:
+  workflow_run:
+    workflows: ["ACT EverQuest DPS Plugin"]
+    types:
+      - completed
   push:
     tags:
       - '*'
 
 jobs:
   deploy:
-    runs-on: windows-latest
+    runs-on: windows-2019
     steps:
       - name: Download artifact
         uses: actions/download-artifact@v2
