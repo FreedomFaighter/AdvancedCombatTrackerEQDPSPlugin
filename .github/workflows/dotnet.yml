@@ -18,5 +18,7 @@ jobs:
         run: Invoke-WebRequest https://advancedcombattracker.com/download.php?id=57 -OutFile ACTv3.zip
       - name: Extract ACT files
         run: 7z x ACTv3.zip
+      - name: Restore packages
+        run: msbuild -p:RestorePackagesConfig=true -t:restore
       - name: Build solution
-        run: msbuild ACT_EverQuest_DPS_Plugin.sln -t:rebuild -property:Configuration=Release
+        run: msbuild ACT_EverQuest_DPS_Plugin.sln -t:build -property:Configuration=Release
