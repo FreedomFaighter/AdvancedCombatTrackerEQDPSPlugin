@@ -63,6 +63,6 @@
     <Compile Include="SpellDamageSave.cs" />
   </ItemGroup>
   <ItemGroup>
-    <None Include=".github\workflows\dotnet.yml" />
+    <None Include=".github\workflows\msbuild.yml" />
   </ItemGroup>
 </Project>
