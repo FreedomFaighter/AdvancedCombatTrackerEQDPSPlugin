@@ -22,3 +22,10 @@ jobs:
         run: msbuild -p:RestorePackagesConfig=true -t:restore
       - name: Build solution
         run: msbuild ACT_EverQuest_DPS_Plugin.sln -t:build -property:Configuration=Release
+  github-example-tags:
+    runs-on: windows-latest
+    steps:
+     - name: GitHub Tag Name example
+       run: |
+         echo "Tag name from GITHUB_REF_NAME: $GITHUB_REF_NAME"
+         echo "Tag name from github.ref_name: ${{  github.ref_name }}"
