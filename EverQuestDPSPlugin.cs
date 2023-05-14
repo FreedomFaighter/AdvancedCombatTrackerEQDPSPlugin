@@ -12,7 +12,7 @@ using System.Text.RegularExpressions;
 using System.Threading;
 using System.Windows.Forms;
 using System.Xml;
-
+using System.Text.Json;
 /*
  * Project: EverQuest DPS Plugin
  * Original: EverQuest 2 English DPS Localization plugin developed by EQAditu
@@ -125,6 +125,7 @@ namespace ACT_EverQuest_DPS_Plugin
         readonly String pluginName = "EverQuest Damage Per Second Parser";
         readonly String possessivePetString = @"`s pet";
         readonly String fallDamage = @"(?<victim>.*) (?:ha[s|ve]) taken (?<pointsOfDamage>[\d]+) (?point[|s]) of fall damage.";
+        bool populationVariance = false;
         SortedList<string, AposNameFix> aposNameList = new SortedList<string, AposNameFix>();
         TreeNode optionsNode = null;
         Label lblStatus;    // The status label that appears in ACT's Plugin tab
@@ -212,9 +213,10 @@ namespace ACT_EverQuest_DPS_Plugin
                     if (result == DialogResult.Yes)
                     {
                         FileInfo updatedFile = ActGlobals.oFormActMain.PluginDownload(pluginId);
+                        String githubData = ActGlobals.oFormActMain.PluginGetGithubApi(pluginId);
                         ActPluginData pluginData = ActGlobals.oFormActMain.PluginGetSelfData(this);
                         pluginData.pluginFile.Delete();
-                        updatedFile.MoveTo(pluginData.pluginFile.FullName);
+                        updatedFile.MoveTo($"{pluginData.pluginFile.Directory.FullName}\\{JsonDocument.Parse(githubData).RootElement.GetProperty("assets").GetProperty("Name")}");
                         ThreadInvokes.CheckboxSetChecked(ActGlobals.oFormActMain, pluginData.cbEnabled, false);
                         Application.DoEvents();
                         ThreadInvokes.CheckboxSetChecked(ActGlobals.oFormActMain, pluginData.cbEnabled, true);
@@ -459,44 +461,6 @@ namespace ACT_EverQuest_DPS_Plugin
             }
         }
 
-        private void SplitAttackerSkill(ref string attacker, ref string skillType, string[] engNameSkillSplit)
-        {
-            attacker = string.Empty;    // It wasn't a pet
-            for (int i = 0; i < engNameSkillSplit.Length; i++)
-            {
-                string str = engNameSkillSplit[i];
-                attacker += "'" + str;      // Join the attacker name pieces together
-                string strNext = string.Empty;
-                if (i + 1 != engNameSkillSplit.Length)
-                {
-                    strNext = engNameSkillSplit[i + 1];
-                }
-                bool valid = false;
-                if (strNext != string.Empty)
-                {
-                    if (strNext.StartsWith("s "))
-                        valid = true;
-                    if (strNext[0] == ' ')
-                    {
-                        if (str[str.Length - 1] == 's' || str[str.Length - 1] == 'z')
-                            valid = true;
-                    }
-                }
-                if (valid)  // Until you find a grammatically correct usage of appostrophes
-                {
-                    skillType = string.Empty;
-                    for (int j = i + 1; j < engNameSkillSplit.Length; j++)
-                    {
-                        skillType += "'" + engNameSkillSplit[j];    // Anything left of the split string is the skillType
-                    }
-                    skillType = skillType.TrimStart(chrSpaceApos);      // Remove the appostrophe and spaces at the begining of the string
-                    if (skillType.StartsWith("s "))
-                        skillType = skillType.Substring(2);
-                    break;
-                }
-            }
-        }
-
         private string CharacterNamePersonaReplace(string PersonaString)
         {
             return selfCheck.Match(PersonaString).Success ? ActGlobals.charName : PersonaString;
@@ -709,11 +673,6 @@ namespace ACT_EverQuest_DPS_Plugin
             xWriter.WriteEndElement();
         }
 
-        private void AposName_MouseHover(object sender, EventArgs e)
-        {
-            ActGlobals.oFormActMain.SetOptionsHelpText("Certain mob names with apostrophes in their name will cause the English parser to incorrectly split a combatant name from an ability name.  Use this section to add a full combatant name that should not be split apart.");
-        }
-
         private string GetIntCommas()
         {
             return ActGlobals.mainTableShowCommas ? "#,0" : "0";
@@ -739,11 +698,7 @@ namespace ACT_EverQuest_DPS_Plugin
             EncounterData.ExportVariables.Clear();
             EncounterData.ExportVariables.Add("n", new EncounterData.TextExportFormatter("n", "New Line", "Formatting after this element will appear on a new line.", (Data, SelectiveAllies, Extra) => { return "\n"; }));
             EncounterData.ExportVariables.Add("t", new EncounterData.TextExportFormatter("t", "Tab Character", "Formatting after this element will appear in a relative column arrangement.  (The formatting example cannot display this properly)", (Data, SelectiveAllies, Extra) => { return "\t"; }));
-            EncounterData.ExportVariables.Add("title", new EncounterData.TextExportFormatter("title", "Encounter Title", "The title of the completed encounter.  This may only be used in Allies formatting.", (Data, SelectiveAllies, Extra) => { return EncounterFormatSwitch(Data, SelectiveAllies, "title", Extra); }));
-            EncounterData.ExportVariables.Add("duration", new EncounterData.TextExportFormatter("duration", "Duration", "The duration of the combatant or the duration of the encounter, displayed as mm:ss", (Data, SelectiveAllies, Extra) => { return EncounterFormatSwitch(Data, SelectiveAllies, "duration", Extra); }));
-            EncounterData.ExportVariables.Add("DURATION", new EncounterData.TextExportFormatter("DURATION", "Short Duration", "The duration of the combatant or encounter displayed in whole seconds.", (Data, SelectiveAllies, Extra) => { return EncounterFormatSwitch(Data, SelectiveAllies, "DURATION", Extra); }));
-            EncounterData.ExportVariables.Add("damage", new EncounterData.TextExportFormatter("damage", "Damage", "The amount of damage from auto-attack, spells, CAs, etc done to other combatants.", (Data, SelectiveAllies, Extra) => { return EncounterFormatSwitch(Data, SelectiveAllies, "damage", Extra); }));
-            
+
             CombatantData.ColumnDefs.Clear();
             CombatantData.ColumnDefs.Add("EncId", new CombatantData.ColumnDef("EncId", false, "CHAR(8)", "EncId", (Data) => { return string.Empty; }, (Data) => { return Data.Parent.EncId; }, (Left, Right) => { return 0; }));
             CombatantData.ColumnDefs.Add("Ally", new CombatantData.ColumnDef("Ally", false, "CHAR(1)", "Ally", (Data) => { return Data.Parent.GetAllies().Contains(Data).ToString(); }, (Data) => { return Data.Parent.GetAllies().Contains(Data) ? "T" : "F"; }, (Left, Right) => { return Left.Parent.GetAllies().Contains(Left).CompareTo(Right.Parent.GetAllies().Contains(Right)); }));
@@ -834,25 +789,10 @@ namespace ACT_EverQuest_DPS_Plugin
             CombatantData.ExportVariables.Clear();
             CombatantData.ExportVariables.Add("n", new CombatantData.TextExportFormatter("n", "New Line", "Formatting after this element will appear on a new line.", (Data, Extra) => { return "\n"; }));
             CombatantData.ExportVariables.Add("t", new CombatantData.TextExportFormatter("t", "Tab Character", "Formatting after this element will appear in a relative column arrangement.  (The formatting example cannot display this properly)", (Data, Extra) => { return "\t"; }));
-            CombatantData.ExportVariables.Add("name", new CombatantData.TextExportFormatter("name", "Name", "The combatant's name.", (Data, Extra) => { return CombatantFormatSwitch(Data, "name", Extra); }));
-            CombatantData.ExportVariables.Add("NAME", new CombatantData.TextExportFormatter("NAME", "Short Name", "The combatant's name shortened to a number of characters after a colon, like: \"NAME:5\"", (Data, Extra) => { return CombatantFormatSwitch(Data, "NAME", Extra); }));
-            CombatantData.ExportVariables.Add("duration", new CombatantData.TextExportFormatter("duration", "Duration", "The duration of the combatant or the duration of the encounter, displayed as mm:ss", (Data, Extra) => { return CombatantFormatSwitch(Data, "duration", Extra); }));
-            CombatantData.ExportVariables.Add("DURATION", new CombatantData.TextExportFormatter("DURATION", "Short Duration", "The duration of the combatant or encounter displayed in whole seconds.", (Data, Extra) => { return CombatantFormatSwitch(Data, "DURATION", Extra); }));
-            CombatantData.ExportVariables.Add("damage", new CombatantData.TextExportFormatter("damage", "Damage", "The amount of damage from auto-attack, spells, CAs, etc done to other combatants.", (Data, Extra) => { return CombatantFormatSwitch(Data, "damage", Extra); }));
-            CombatantData.ExportVariables.Add("damage-m", new CombatantData.TextExportFormatter("damage-m", "Damage M", "Damage divided by 1,000,000 (with two decimal places)", (Data, Extra) => { return CombatantFormatSwitch(Data, "damage-m", Extra); }));
-            CombatantData.ExportVariables.Add("damage-b", new CombatantData.TextExportFormatter("damage-b", "Damage B", "Damage divided by 1,000,000,000 (with two decimal places)", (Data, Extra) => { return CombatantFormatSwitch(Data, "damage-b", Extra); }));
-            CombatantData.ExportVariables.Add("damage-*", new CombatantData.TextExportFormatter("damage-*", "Damage w/suffix", "Damage divided by 1/K/M/B/T/Q (with one decimal places)", (Data, Extra) => { return CombatantFormatSwitch(Data, "damage-*", Extra); }));
-            CombatantData.ExportVariables.Add("DAMAGE-k", new CombatantData.TextExportFormatter("DAMAGE-k", "Short Damage K", "Damage divided by 1,000 (with no decimal places)", (Data, Extra) => { return CombatantFormatSwitch(Data, "DAMAGE-k", Extra); }));
-            CombatantData.ExportVariables.Add("DAMAGE-m", new CombatantData.TextExportFormatter("DAMAGE-m", "Short Damage M", "Damage divided by 1,000,000 (with no decimal places)", (Data, Extra) => { return CombatantFormatSwitch(Data, "DAMAGE-m", Extra); }));
-            CombatantData.ExportVariables.Add("DAMAGE-b", new CombatantData.TextExportFormatter("DAMAGE-b", "Short Damage B", "Damage divided by 1,000,000,000 (with no decimal places)", (Data, Extra) => { return CombatantFormatSwitch(Data, "DAMAGE-b", Extra); }));
-            CombatantData.ExportVariables.Add("DAMAGE-*", new CombatantData.TextExportFormatter("DAMAGE-*", "Short Damage w/suffix", "Damage divided by 1/K/M/B/T/Q (with no decimal places)", (Data, Extra) => { return CombatantFormatSwitch(Data, "DAMAGE-*", Extra); }));
-            CombatantData.ExportVariables.Add("damage%", new CombatantData.TextExportFormatter("damage%", "Damage %", "This value represents the percent share of all damage done by allies in this encounter.", (Data, Extra) => { return CombatantFormatSwitch(Data, "damage%", Extra); }));
-            CombatantData.ExportVariables.Add("dps", new CombatantData.TextExportFormatter("dps", "DPS", "The damage total of the combatant divided by their personal duration, formatted as 12.34", (Data, Extra) => { return CombatantFormatSwitch(Data, "dps", Extra); }));
             
             DamageTypeData.ColumnDefs.Clear();
             DamageTypeData.ColumnDefs.Add("EncId", new DamageTypeData.ColumnDef("EncId", false, "CHAR(8)", "EncId", (Data) => { return string.Empty; }, (Data) => { return Data.Parent.Parent.EncId; }));
             DamageTypeData.ColumnDefs.Add("Combatant", new DamageTypeData.ColumnDef("Combatant", false, "VARCHAR(64)", "Combatant", (Data) => { return Data.Parent.Name; }, (Data) => { return Data.Parent.Name; }));
-            DamageTypeData.ColumnDefs.Add("Grouping", new DamageTypeData.ColumnDef("Grouping", false, "VARCHAR(92)", "Grouping", (Data) => { return string.Empty; }, GetDamageTypeGrouping));
             DamageTypeData.ColumnDefs.Add("Type", new DamageTypeData.ColumnDef("Type", true, "VARCHAR(64)", "Type", (Data) => { return Data.Type; }, (Data) => { return Data.Type; }));
             DamageTypeData.ColumnDefs.Add("StartTime", new DamageTypeData.ColumnDef("StartTime", false, "TIMESTAMP", "StartTime", (Data) => { return Data.StartTime == DateTime.MaxValue ? "--:--:--" : Data.StartTime.ToString("T"); }, (Data) => { return Data.StartTime == DateTime.MaxValue ? "0000-00-00 00:00:00" : Data.StartTime.ToString("u").TrimEnd(new char[] { 'Z' }); }));
             DamageTypeData.ColumnDefs.Add("EndTime", new DamageTypeData.ColumnDef("EndTime", false, "TIMESTAMP", "EndTime", (Data) => { return Data.EndTime == DateTime.MinValue ? "--:--:--" : Data.EndTime.ToString("T"); }, (Data) => { return Data.EndTime == DateTime.MinValue ? "0000-00-00 00:00:00" : Data.EndTime.ToString("u").TrimEnd(new char[] { 'Z' }); }));
@@ -880,7 +820,7 @@ namespace ACT_EverQuest_DPS_Plugin
             AttackType.ColumnDefs.Add("EncId", new AttackType.ColumnDef("EncId", false, "CHAR(8)", "EncId", (Data) => { return string.Empty; }, (Data) => { return Data.Parent.Parent.Parent.EncId; }, (Left, Right) => { return 0; }));
             AttackType.ColumnDefs.Add("Attacker", new AttackType.ColumnDef("Attacker", false, "VARCHAR(64)", "Attacker", (Data) => { return Data.Parent.Outgoing ? Data.Parent.Parent.Name : string.Empty; }, (Data) => { return Data.Parent.Outgoing ? Data.Parent.Parent.Name : string.Empty; }, (Left, Right) => { return 0; }));
             AttackType.ColumnDefs.Add("Victim", new AttackType.ColumnDef("Victim", false, "VARCHAR(64)", "Victim", (Data) => { return Data.Parent.Outgoing ? string.Empty : Data.Parent.Parent.Name; }, (Data) => { return Data.Parent.Outgoing ? string.Empty : Data.Parent.Parent.Name; }, (Left, Right) => { return 0; }));
-            AttackType.ColumnDefs.Add("SwingType", new AttackType.ColumnDef("SwingType", false, "TINYINT", "SwingType", GetAttackTypeSwingType, GetAttackTypeSwingType, (Left, Right) => { return 0; }));
+            AttackType.ColumnDefs.Add("SwingType", new AttackType.ColumnDef("SwingType", false, "TINYINT", "SwingType", GetAttackTypeSwingType, GetAttackTypeSwingType, (Left, Right) => { return GetAttackTypeSwingType(Left).CompareTo(GetAttackTypeSwingType(Right)); }));
             AttackType.ColumnDefs.Add("Type", new AttackType.ColumnDef("Type", true, "VARCHAR(64)", "Type", (Data) => { return Data.Type; }, (Data) => { return Data.Type; }, (Left, Right) => { return Left.Type.CompareTo(Right.Type); }));
             AttackType.ColumnDefs.Add("StartTime", new AttackType.ColumnDef("StartTime", false, "TIMESTAMP", "StartTime", (Data) => { return Data.StartTime == DateTime.MaxValue ? "--:--:--" : Data.StartTime.ToString("T"); }, (Data) => { return Data.StartTime == DateTime.MaxValue ? "0000-00-00 00:00:00" : Data.StartTime.ToString("u").TrimEnd(new char[] { 'Z' }); }, (Left, Right) => { return Left.StartTime.CompareTo(Right.StartTime); }));
             AttackType.ColumnDefs.Add("EndTime", new AttackType.ColumnDef("EndTime", false, "TIMESTAMP", "EndTime", (Data) => { return Data.EndTime == DateTime.MinValue ? "--:--:--" : Data.EndTime.ToString("T"); }, (Data) => { return Data.EndTime == DateTime.MinValue ? "0000-00-00 00:00:00" : Data.EndTime.ToString("u").TrimEnd(new char[] { 'Z' }); }, (Left, Right) => { return Left.EndTime.CompareTo(Right.EndTime); }));
@@ -892,7 +832,7 @@ namespace ACT_EverQuest_DPS_Plugin
             AttackType.ColumnDefs.Add("Average", new AttackType.ColumnDef("Average", true, "DOUBLE", "Average", (Data) => { return Data.Average.ToString(); }, (Data) => { return Data.Average.ToString(usCulture); }, (Left, Right) => { return Left.Average.CompareTo(Right.Average); }));
             AttackType.ColumnDefs.Add("Median", new AttackType.ColumnDef("Median", true, "BIGINT", "Median", (Data) => { return Data.Median.ToString(GetIntCommas()); }, (Data) => { return Data.Median.ToString(); }, (Left, Right) => { return Left.Median.CompareTo(Right.Median); }));
             AttackType.ColumnDefs.Add("Variance", new AttackType.ColumnDef("Variance", true, "DOUBLE", "Variance", AttackTypeGetSampleVariance, AttackTypeGetSampleVariance, (Left, Right) => { return AttackTypeGetSampleVariance(Left).CompareTo(AttackTypeGetSampleVariance(Right)); }));
-           AttackType.ColumnDefs.Add("CritTypes", new AttackType.ColumnDef("CritTypes", true, "VARCHAR(32)", "CritTypes", AttackTypeGetCritTypes, AttackTypeGetCritTypes, (Left, Right) => { return AttackTypeGetCritTypes(Left).CompareTo(AttackTypeGetCritTypes(Right)); }));
+            AttackType.ColumnDefs.Add("CritTypes", new AttackType.ColumnDef("CritTypes", true, "VARCHAR(32)", "CritTypes", AttackTypeGetCritTypes, AttackTypeGetCritTypes, (Left, Right) => { return AttackTypeGetCritTypes(Left).CompareTo(AttackTypeGetCritTypes(Right)); }));
 
 
             MasterSwing.ColumnDefs.Clear();
@@ -922,13 +862,17 @@ namespace ACT_EverQuest_DPS_Plugin
 
         private string AttackTypeGetSampleVariance(AttackType Data)
         {
-            if (Data.Items.Count > 1)
-            {
+            if (populationVariance && Data.Items.Count > 1)
+                return Data.Items.Sum((item) =>
+                {
+                    return Math.Pow(Data.Average - item.Damage, 2.0) / Data.Items.Count;
+                }).ToString();
+
+            else if (!populationVariance && Data.Items.Count > 0)
                 return Data.Items.Sum((item) =>
                 {
                     return Math.Pow(Data.Average - item.Damage, 2.0) / (Data.Items.Count - 1);
                 }).ToString();
-            }
             else
                 return String.Empty;
         }
@@ -1056,573 +1000,23 @@ namespace ACT_EverQuest_DPS_Plugin
             }
         }
 
-        private string EncounterFormatSwitch(EncounterData Data, List<CombatantData> SelectiveAllies, string VarName, string Extra)
-        {
-            long damage = 0;
-            long healed = 0;
-            int swings = 0;
-            int hits = 0;
-            int crits = 0;
-            int heals = 0;
-            int critheals = 0;
-            int cures = 0;
-            int misses = 0;
-            int hitfail = 0;
-            float tohit = 0;
-            double dps = 0;
-            double hps = 0;
-            long healstaken = 0;
-            long damagetaken = 0;
-            int kills = 0;
-            int deaths = 0;
-
-            switch (VarName)
-            {
-                case "maxheal":
-                    return Data.GetMaxHeal(true, false, false);
-                case "MAXHEAL":
-                    return Data.GetMaxHeal(false, false, false);
-                case "maxheal-*":
-                    return Data.GetMaxHeal(true, false, true);
-                case "MAXHEAL-*":
-                    return Data.GetMaxHeal(false, false, true);
-                case "maxhealward":
-                    return Data.GetMaxHeal(true, true, false);
-                case "MAXHEALWARD":
-                    return Data.GetMaxHeal(false, true, false);
-                case "maxhealward-*":
-                    return Data.GetMaxHeal(true, true, true);
-                case "MAXHEALWARD-*":
-                    return Data.GetMaxHeal(false, true, true);
-                case "maxhit":
-                    return Data.GetMaxHit(true, false);
-                case "MAXHIT":
-                    return Data.GetMaxHit(false, false);
-                case "maxhit-*":
-                    return Data.GetMaxHit(true, true);
-                case "MAXHIT-*":
-                    return Data.GetMaxHit(false, true);
-                case "duration":
-                    if (ActGlobals.wallClockDuration)
-                    {
-                        if (Data.Active)
-                        {
-                            if (ActGlobals.oFormActMain.LastEstimatedTime > Data.StartTime)
-                            {
-                                TimeSpan wallDuration = ActGlobals.oFormActMain.LastEstimatedTime - Data.StartTime;
-                                if (wallDuration.Hours == 0)
-                                    return String.Format("{0:00}:{1:00}", wallDuration.Minutes, wallDuration.Seconds);
-                                else
-                                    return String.Format("{0:00}:{1:00}:{2:00}", wallDuration.Hours, wallDuration.Minutes, wallDuration.Seconds);
-                            }
-                            else
-                            {
-                                return "00:00";
-                            }
-                        }
-                        else
-                        {
-                            return Data.DurationS;
-                        }
-                    }
-                    else
-                        return Data.DurationS;
-                case "DURATION":
-                    if (ActGlobals.wallClockDuration)
-                    {
-                        if (Data.Active)
-                        {
-                            if (ActGlobals.oFormActMain.LastEstimatedTime > Data.StartTime)
-                            {
-                                TimeSpan wallDuration = ActGlobals.oFormActMain.LastEstimatedTime - Data.StartTime;
-                                return ((int)wallDuration.TotalSeconds).ToString("0");
-                            }
-                            else
-                            {
-                                return "0";
-                            }
-                        }
-                        else
-                        {
-                            return ((int)Data.Duration.TotalSeconds).ToString("0");
-                        }
-                    }
-                    else
-                        return Data.Duration.TotalSeconds.ToString("0");
-                case "damage":
-                    foreach (CombatantData cd in SelectiveAllies)
-                        damage += cd.Damage;
-                    return damage.ToString();
-                case "damage-m":
-                    foreach (CombatantData cd in SelectiveAllies)
-                        damage += cd.Damage;
-                    return (damage / 1000000.0).ToString("0.00");
-                case "damage-b":
-                    foreach (CombatantData cd in SelectiveAllies)
-                        damage += cd.Damage;
-                    return (damage / 1000000000.0).ToString("0.00");
-                case "damage-*":
-                    foreach (CombatantData cd in SelectiveAllies)
-                        damage += cd.Damage;
-                    return ActGlobals.oFormActMain.CreateDamageString(damage, true, true);
-                case "DAMAGE-k":
-                    foreach (CombatantData cd in SelectiveAllies)
-                        damage += cd.Damage;
-                    return (damage / 1000.0).ToString("0");
-                case "DAMAGE-m":
-                    foreach (CombatantData cd in SelectiveAllies)
-                        damage += cd.Damage;
-                    return (damage / 1000000.0).ToString("0");
-                case "DAMAGE-b":
-                    foreach (CombatantData cd in SelectiveAllies)
-                        damage += cd.Damage;
-                    return (damage / 1000000000.0).ToString("0");
-                case "DAMAGE-*":
-                    foreach (CombatantData cd in SelectiveAllies)
-                        damage += cd.Damage;
-                    return ActGlobals.oFormActMain.CreateDamageString(damage, true, false);
-                case "healed":
-                    foreach (CombatantData cd in SelectiveAllies)
-                        healed += cd.Healed;
-                    return healed.ToString();
-                case "healed-*":
-                    foreach (CombatantData cd in SelectiveAllies)
-                        healed += cd.Healed;
-                    return ActGlobals.oFormActMain.CreateDamageString(healed, true, true);
-                case "swings":
-                    foreach (CombatantData cd in SelectiveAllies)
-                        swings += cd.Swings;
-                    return swings.ToString();
-                case "hits":
-                    foreach (CombatantData cd in SelectiveAllies)
-                        hits += cd.Hits;
-                    return hits.ToString();
-                case "crithits":
-                    foreach (CombatantData cd in SelectiveAllies)
-                        crits += cd.CritHits;
-                    return crits.ToString();
-                case "crithit%":
-                    foreach (CombatantData cd in SelectiveAllies)
-                        crits += cd.CritHits;
-                    foreach (CombatantData cd in SelectiveAllies)
-                        hits += cd.Hits;
-                    float crithitperc = (float)crits / (float)hits;
-                    return crithitperc.ToString("0'%");
-                case "heals":
-                    foreach (CombatantData cd in SelectiveAllies)
-                        heals += cd.Heals;
-                    return heals.ToString();
-                case "critheals":
-                    foreach (CombatantData cd in SelectiveAllies)
-                        critheals += cd.CritHits;
-                    return critheals.ToString();
-                case "critheal%":
-                    foreach (CombatantData cd in SelectiveAllies)
-                        critheals += cd.CritHeals;
-                    foreach (CombatantData cd in SelectiveAllies)
-                        heals += cd.Heals;
-                    float crithealperc = (float)critheals / (float)heals;
-                    return crithealperc.ToString("0'%");
-                case "cures":
-                    foreach (CombatantData cd in SelectiveAllies)
-                        cures += cd.CureDispels;
-                    return cures.ToString();
-                case "misses":
-                    foreach (CombatantData cd in SelectiveAllies)
-                        misses += cd.Misses;
-                    return misses.ToString();
-                case "hitfailed":
-                    foreach (CombatantData cd in SelectiveAllies)
-                        hitfail += cd.Blocked;
-                    return hitfail.ToString();
-                case "TOHIT":
-                    foreach (CombatantData cd in SelectiveAllies)
-                        tohit += cd.ToHit;
-                    tohit /= SelectiveAllies.Count;
-                    return tohit.ToString("0");
-                case "DPS":
-                case "ENCDPS":
-                    foreach (CombatantData cd in SelectiveAllies)
-                        damage += cd.Damage;
-                    dps = damage / Data.Duration.TotalSeconds;
-                    return dps.ToString("0");
-                case "DPS-*":
-                case "ENCDPS-*":
-                    foreach (CombatantData cd in SelectiveAllies)
-                        damage += cd.Damage;
-                    dps = damage / Data.Duration.TotalSeconds;
-                    return ActGlobals.oFormActMain.CreateDamageString((long)dps, true, false);
-                case "DPS-k":
-                case "ENCDPS-k":
-                    foreach (CombatantData cd in SelectiveAllies)
-                        damage += cd.Damage;
-                    dps = damage / Data.Duration.TotalSeconds;
-                    return (dps / 1000.0).ToString("0");
-                case "ENCDPS-m":
-                    foreach (CombatantData cd in SelectiveAllies)
-                        damage += cd.Damage;
-                    dps = damage / Data.Duration.TotalSeconds;
-                    return (dps / 1000000.0).ToString("0");
-                case "ENCHPS":
-                    foreach (CombatantData cd in SelectiveAllies)
-                        healed += cd.Healed;
-                    hps = healed / Data.Duration.TotalSeconds;
-                    return hps.ToString("0");
-                case "ENCHPS-k":
-                    foreach (CombatantData cd in SelectiveAllies)
-                        healed += cd.Healed;
-                    hps = healed / Data.Duration.TotalSeconds;
-                    return (hps / 1000.0).ToString("0");
-                case "ENCHPS-m":
-                    foreach (CombatantData cd in SelectiveAllies)
-                        healed += cd.Healed;
-                    hps = healed / Data.Duration.TotalSeconds;
-                    return (hps / 1000000.0).ToString("0");
-                case "ENCHPS-*":
-                    foreach (CombatantData cd in SelectiveAllies)
-                        healed += cd.Healed;
-                    hps = healed / Data.Duration.TotalSeconds;
-                    return ActGlobals.oFormActMain.CreateDamageString((long)hps, true, false);
-                case "tohit":
-                    foreach (CombatantData cd in SelectiveAllies)
-                        tohit += cd.ToHit;
-                    tohit /= SelectiveAllies.Count;
-                    return tohit.ToString("F");
-                case "dps":
-                case "encdps":
-                    foreach (CombatantData cd in SelectiveAllies)
-                        damage += cd.Damage;
-                    dps = damage / Data.Duration.TotalSeconds;
-                    return dps.ToString("F");
-                case "dps-k":
-                case "encdps-k":
-                    foreach (CombatantData cd in SelectiveAllies)
-                        damage += cd.Damage;
-                    dps = damage / Data.Duration.TotalSeconds;
-                    return (dps / 1000.0).ToString("F");
-                case "encdps-m":
-                    foreach (CombatantData cd in SelectiveAllies)
-                        damage += cd.Damage;
-                    dps = damage / Data.Duration.TotalSeconds;
-                    return (dps / 1000000.0).ToString("F");
-                case "encdps-*":
-                    foreach (CombatantData cd in SelectiveAllies)
-                        damage += cd.Damage;
-                    dps = damage / Data.Duration.TotalSeconds;
-                    return ActGlobals.oFormActMain.CreateDamageString((long)dps, true, true);
-                case "enchps":
-                    foreach (CombatantData cd in SelectiveAllies)
-                        healed += cd.Healed;
-                    hps = healed / Data.Duration.TotalSeconds;
-                    return hps.ToString("F");
-                case "enchps-k":
-                    foreach (CombatantData cd in SelectiveAllies)
-                        healed += cd.Healed;
-                    hps = healed / Data.Duration.TotalSeconds;
-                    return (hps / 1000.0).ToString("F");
-                case "enchps-m":
-                    foreach (CombatantData cd in SelectiveAllies)
-                        healed += cd.Healed;
-                    hps = healed / Data.Duration.TotalSeconds;
-                    return (hps / 1000000.0).ToString("F");
-                case "enchps-*":
-                    foreach (CombatantData cd in SelectiveAllies)
-                        healed += cd.Healed;
-                    hps = healed / Data.Duration.TotalSeconds;
-                    return ActGlobals.oFormActMain.CreateDamageString((long)hps, true, true);
-                case "healstaken":
-                    foreach (CombatantData cd in SelectiveAllies)
-                        healstaken += cd.HealsTaken;
-                    return healstaken.ToString();
-                case "healstaken-*":
-                    foreach (CombatantData cd in SelectiveAllies)
-                        healstaken += cd.HealsTaken;
-                    return ActGlobals.oFormActMain.CreateDamageString(healstaken, true, true);
-                case "damagetaken":
-                    foreach (CombatantData cd in SelectiveAllies)
-                        damagetaken += cd.DamageTaken;
-                    return damagetaken.ToString();
-                case "damagetaken-*":
-                    foreach (CombatantData cd in SelectiveAllies)
-                        damagetaken += cd.DamageTaken;
-                    return ActGlobals.oFormActMain.CreateDamageString(damagetaken, true, true);
-                case "kills":
-                    foreach (CombatantData cd in SelectiveAllies)
-                        kills += cd.Kills;
-                    return kills.ToString();
-                case "deaths":
-                    foreach (CombatantData cd in SelectiveAllies)
-                        deaths += cd.Deaths;
-                    return deaths.ToString();
-                case "title":
-                    return Data.Title;
-
-                default:
-                    return VarName;
-            }
-        }
-
         private string GetAttackTypeSwingType(AttackType Data)
         {
-            int swingType = 100;
-            List<int> swingTypes = new List<int>();
-            List<MasterSwing> cachedItems = new List<MasterSwing>(Data.Items);
-            for (int i = 0; i < cachedItems.Count; i++)
+            int? swingType = null;
+            List<String> swingTypes = Data.Items.Select(o => o.AttackType).Distinct().ToList();
+            List<MasterSwing> cachedItems = new List<MasterSwing>();
+            for (int i = 0; i < Data.Items.Count; i++)
             {
-                MasterSwing s = cachedItems[i];
-                if (swingTypes.Contains(s.SwingType) == false)
-                    swingTypes.Add(s.SwingType);
+                MasterSwing s = Data.Items[i];
+                if (swingTypes.Contains(Data.Items[i].SwingType.ToString()) == false)
+                    swingTypes.Add(Data.Items[i].SwingType.ToString());
             }
             if (swingTypes.Count == 1)
-                swingType = swingTypes[0];
-
-            return swingType.ToString();
-        }
-
-        private string GetDamageTypeGrouping(DamageTypeData Data)
-        {
-            string grouping = string.Empty;
-
-            int swingTypeIndex = 0;
-            if (Data.Outgoing)
-            {
-                grouping += "attacker=" + Data.Parent.Name;
-                foreach (KeyValuePair<int, List<string>> links in CombatantData.SwingTypeToDamageTypeDataLinksOutgoing)
-                {
-                    foreach (string damageTypeLabel in links.Value)
-                    {
-                        if (Data.Type == damageTypeLabel)
-                        {
-                            grouping += String.Format("&swingtype{0}={1}", swingTypeIndex++ == 0 ? string.Empty : swingTypeIndex.ToString(), links.Key);
-                        }
-                    }
-                }
-            }
+                swingType = Data.Items[0].SwingType;
+            if (swingType == null)
+                return String.Empty;
             else
-            {
-                grouping += "victim=" + Data.Parent.Name;
-                foreach (KeyValuePair<int, List<string>> links in CombatantData.SwingTypeToDamageTypeDataLinksIncoming)
-                {
-                    foreach (string damageTypeLabel in links.Value)
-                    {
-                        if (Data.Type == damageTypeLabel)
-                        {
-                            grouping += String.Format("&swingtype{0}={1}", swingTypeIndex++ == 0 ? string.Empty : swingTypeIndex.ToString(), links.Key);
-                        }
-                    }
-                }
-            }
-
-            return grouping;
-        }
-
-        private string CombatantFormatSwitch(CombatantData Data, string VarName, string Extra)
-        {
-            int len = 0;
-            switch (VarName)
-            {
-                case "name":
-                    return Data.Name;
-                case "NAME":
-                    len = Int32.Parse(Extra);
-                    return Data.Name.Length - len > 0 ? Data.Name.Remove(len, Data.Name.Length - len).Trim() : Data.Name;
-                case "NAME3":
-                    len = 3;
-                    return Data.Name.Length - len > 0 ? Data.Name.Remove(len, Data.Name.Length - len).Trim() : Data.Name;
-                case "NAME4":
-                    len = 4;
-                    return Data.Name.Length - len > 0 ? Data.Name.Remove(len, Data.Name.Length - len).Trim() : Data.Name;
-                case "NAME5":
-                    len = 5;
-                    return Data.Name.Length - len > 0 ? Data.Name.Remove(len, Data.Name.Length - len).Trim() : Data.Name;
-                case "NAME6":
-                    len = 6;
-                    return Data.Name.Length - len > 0 ? Data.Name.Remove(len, Data.Name.Length - len).Trim() : Data.Name;
-                case "NAME7":
-                    len = 7;
-                    return Data.Name.Length - len > 0 ? Data.Name.Remove(len, Data.Name.Length - len).Trim() : Data.Name;
-                case "NAME8":
-                    len = 8;
-                    return Data.Name.Length - len > 0 ? Data.Name.Remove(len, Data.Name.Length - len).Trim() : Data.Name;
-                case "NAME9":
-                    len = 9;
-                    return Data.Name.Length - len > 0 ? Data.Name.Remove(len, Data.Name.Length - len).Trim() : Data.Name;
-                case "NAME10":
-                    len = 10;
-                    return Data.Name.Length - len > 0 ? Data.Name.Remove(len, Data.Name.Length - len).Trim() : Data.Name;
-                case "NAME11":
-                    len = 11;
-                    return Data.Name.Length - len > 0 ? Data.Name.Remove(len, Data.Name.Length - len).Trim() : Data.Name;
-                case "NAME12":
-                    len = 12;
-                    return Data.Name.Length - len > 0 ? Data.Name.Remove(len, Data.Name.Length - len).Trim() : Data.Name;
-                case "NAME13":
-                    len = 13;
-                    return Data.Name.Length - len > 0 ? Data.Name.Remove(len, Data.Name.Length - len).Trim() : Data.Name;
-                case "NAME14":
-                    len = 14;
-                    return Data.Name.Length - len > 0 ? Data.Name.Remove(len, Data.Name.Length - len).Trim() : Data.Name;
-                case "NAME15":
-                    len = 15;
-                    return Data.Name.Length - len > 0 ? Data.Name.Remove(len, Data.Name.Length - len).Trim() : Data.Name;
-                case "DURATION":
-                    return Data.Duration.TotalSeconds.ToString("0");
-                case "duration":
-                    return Data.DurationS;
-                case "maxhit":
-                    return Data.GetMaxHit(true, false);
-                case "MAXHIT":
-                    return Data.GetMaxHit(false, false);
-                case "maxhit-*":
-                    return Data.GetMaxHit(true, true);
-                case "MAXHIT-*":
-                    return Data.GetMaxHit(false, true);
-                case "maxheal":
-                    return Data.GetMaxHeal(true, false, false);
-                case "MAXHEAL":
-                    return Data.GetMaxHeal(false, false, false);
-                case "maxheal-*":
-                    return Data.GetMaxHeal(true, false, true);
-                case "MAXHEAL-*":
-                    return Data.GetMaxHeal(false, false, true);
-                case "maxhealward":
-                    return Data.GetMaxHeal(true, true, false);
-                case "MAXHEALWARD":
-                    return Data.GetMaxHeal(false, true, false);
-                case "maxhealward-*":
-                    return Data.GetMaxHeal(true, true, true);
-                case "MAXHEALWARD-*":
-                    return Data.GetMaxHeal(false, true, true);
-                case "damage":
-                    return Data.Damage.ToString();
-                case "damage-k":
-                    return (Data.Damage / 1000.0).ToString("0.00");
-                case "damage-m":
-                    return (Data.Damage / 1000000.0).ToString("0.00");
-                case "damage-b":
-                    return (Data.Damage / 1000000000.0).ToString("0.00");
-                case "damage-*":
-                    return ActGlobals.oFormActMain.CreateDamageString(Data.Damage, true, true);
-                case "DAMAGE-k":
-                    return (Data.Damage / 1000.0).ToString("0");
-                case "DAMAGE-m":
-                    return (Data.Damage / 1000000.0).ToString("0");
-                case "DAMAGE-b":
-                    return (Data.Damage / 1000000000.0).ToString("0");
-                case "DAMAGE-*":
-                    return ActGlobals.oFormActMain.CreateDamageString(Data.Damage, true, false);
-                case "healed":
-                    return Data.Healed.ToString();
-                case "healed-*":
-                    return ActGlobals.oFormActMain.CreateDamageString(Data.Healed, true, true);
-                case "swings":
-                    return Data.Swings.ToString();
-                case "hits":
-                    return Data.Hits.ToString();
-                case "crithits":
-                    return Data.CritHits.ToString();
-                case "critheals":
-                    return Data.CritHeals.ToString();
-                case "crittypes":
-                    return CombatantDataGetCritTypes(Data);
-                case "crithit%":
-                    return Data.CritDamPerc.ToString("0'%");
-                case "critheal%":
-                    return Data.CritHealPerc.ToString("0'%");
-                case "heals":
-                    return Data.Heals.ToString();
-                case "cures":
-                    return Data.CureDispels.ToString();
-                case "misses":
-                    return Data.Misses.ToString();
-                case "hitfailed":
-                    return Data.Blocked.ToString();
-                case "TOHIT":
-                    return Data.ToHit.ToString("0");
-                case "DPS":
-                    return Data.DPS.ToString("0");
-                case "DPS-k":
-                    return (Data.DPS / 1000.0).ToString("0");
-                case "DPS-m":
-                    return (Data.DPS / 1000000.0).ToString("0");
-                case "DPS-*":
-                    return ActGlobals.oFormActMain.CreateDamageString((long)Data.DPS, true, false);
-                case "ENCDPS":
-                    return Data.EncDPS.ToString("0");
-                case "ENCDPS-k":
-                    return (Data.EncDPS / 1000.0).ToString("0");
-                case "ENCDPS-m":
-                    return (Data.EncDPS / 1000000.0).ToString("0");
-                case "ENCDPS-*":
-                    return ActGlobals.oFormActMain.CreateDamageString((long)Data.EncDPS, true, false);
-                case "ENCHPS":
-                    return Data.EncHPS.ToString("0");
-                case "ENCHPS-k":
-                    return (Data.EncHPS / 1000.0).ToString("0");
-                case "ENCHPS-m":
-                    return (Data.EncHPS / 1000000.0).ToString("0");
-                case "ENCHPS-*":
-                    return ActGlobals.oFormActMain.CreateDamageString((long)Data.EncHPS, true, false);
-                case "tohit":
-                    return Data.ToHit.ToString("F");
-                case "dps":
-                    return Data.DPS.ToString("F");
-                case "dps-k":
-                    return (Data.DPS / 1000.0).ToString("F");
-                case "dps-*":
-                    return ActGlobals.oFormActMain.CreateDamageString((long)Data.DPS, true, true);
-                case "encdps":
-                    return Data.EncDPS.ToString("F");
-                case "encdps-k":
-                    return (Data.EncDPS / 1000.0).ToString("F");
-                case "encdps-m":
-                    return (Data.EncDPS / 1000000.0).ToString("F");
-                case "encdps-*":
-                    return ActGlobals.oFormActMain.CreateDamageString((long)Data.EncDPS, true, true);
-                case "enchps":
-                    return Data.EncHPS.ToString("F");
-                case "enchps-k":
-                    return (Data.EncHPS / 1000.0).ToString("F");
-                case "enchps-m":
-                    return (Data.EncHPS / 1000000.0).ToString("F");
-                case "enchps-*":
-                    return ActGlobals.oFormActMain.CreateDamageString((long)Data.EncHPS, true, true);
-                case "healstaken":
-                    return Data.HealsTaken.ToString();
-                case "healstaken-*":
-                    return ActGlobals.oFormActMain.CreateDamageString((long)Data.HealsTaken, true, true);
-                case "damagetaken":
-                    return Data.DamageTaken.ToString();
-                case "damagetaken-*":
-                    return ActGlobals.oFormActMain.CreateDamageString((long)Data.DamageTaken, true, true);
-                case "powerdrain":
-                    return Data.PowerDamage.ToString();
-                case "powerdrain-*":
-                    return ActGlobals.oFormActMain.CreateDamageString((long)Data.PowerDamage, true, true);
-                case "powerheal":
-                    return Data.PowerReplenish.ToString();
-                case "powerheal-*":
-                    return ActGlobals.oFormActMain.CreateDamageString((long)Data.PowerReplenish, true, true);
-                case "kills":
-                    return Data.Kills.ToString();
-                case "deaths":
-                    return Data.Deaths.ToString();
-                case "damage%":
-                    return Data.DamagePercent;
-                case "healed%":
-                    return Data.HealedPercent;
-                case "threatstr":
-                    return Data.GetThreatStr("Threat (Out)");
-                case "threatdelta":
-                    return Data.GetThreatDelta("Threat (Out)").ToString();
-                case "n":
-                    return "\n";
-                case "t":
-                    return "\t";
-
-                default:
-                    return VarName;
-            }
+               return swingType == null ? String.Empty : swingType.ToString();
         }
     }
 }
