@@ -64,5 +64,6 @@
   </ItemGroup>
   <ItemGroup>
     <None Include=".github\workflows\msbuild.yml" />
+    <None Include=".github\workflows\release.yml" />
   </ItemGroup>
 </Project>
