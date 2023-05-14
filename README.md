@@ -1,4 +1,4 @@
-[![ACT EverQuest DPS Plugin](https://github.com/FreedomFaighter/ACT_EQ_DPS_Plugin/actions/workflows/dotnet.yml/badge.svg)](https://github.com/FreedomFaighter/ACT_EQ_DPS_Plugin/actions/workflows/dotnet.yml)
+[![ACT EverQuest DPS Plugin](https://github.com/FreedomFaighter/ACT_EQ_DPS_Plugin/actions/workflows/msbuild.yml/badge.svg)](https://github.com/FreedomFaighter/ACT_EQ_DPS_Plugin/actions/workflows/msbuild.yml)
 
 ## ACT Plugin
 ### ACT_EQ_DPS_Plugin
