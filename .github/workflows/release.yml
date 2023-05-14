@@ -1,37 +1,44 @@
-name: Release
-
 on:
   push:
     # Sequence of patterns matched against refs/tags
     tags:
-      - 'v*' # Push events to matching v*, i.e. v1.0, v20.15.10
+    - '*' # Push events to matching v*, i.e. v1.0, v20.15.10
 
+name: Upload Release Asset
 jobs:
-  deploy:
-    runs-on: windows-latest
+  build:
+
+    runs-on: windows-2019
+
     steps:
-      - name: Download artifact
-        uses: actions/download-artifact@v2
-        with:
-          name: ACT_EQ_DPS_Plugin.dll
-      - name: Create release
+      - uses: actions/checkout@main
+      - name: Setup MSBuild
+        uses: microsoft/setup-msbuild@v1.1
+      - name: Download ACT dependency
+        run: Invoke-WebRequest https://advancedcombattracker.com/download.php?id=57 -OutFile ACTv3.zip
+      - name: Extract ACT files
+        run: 7z x ACTv3.zip
+      - name: Restore packages
+        run: msbuild -p:RestorePackagesConfig=true -t:restore
+      - name: Build solution
+        run: msbuild ACT_EverQuest_DPS_Plugin.sln -t:build -property:Configuration=Release
+      - name: Create Release
         id: create_release
         uses: actions/create-release@v1
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} # This token is provided by Actions, you do not need to create your own token
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           tag_name: ${{ github.ref }}
           release_name: Release ${{ github.ref }}
-          body: TODO
-          draft: true
+          draft: false
           prerelease: false
       - name: Upload Release Asset
-        id: upload-release-asset
+        id: upload-release-asset 
         uses: actions/upload-release-asset@v1
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           upload_url: ${{ steps.create_release.outputs.upload_url }} # This pulls from the CREATE RELEASE step above, referencing it's ID to get its outputs object, which include a `upload_url`. See this blog post for more info: https://jasonet.co/posts/new-features-of-github-actions/#passing-data-to-future-steps 
-          asset_path: ACT_EQ_DPS_Plugin.dll
+          asset_path: .\bin\Release\ACT_EQ_DPS_Plugin.dll
           asset_name: ACT_EQ_DPS_Plugin.dll
-          asset_content_type: application/octet-stream
+          asset_content_type: application/dll
