@@ -10,6 +10,7 @@ using System.Reflection;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading;
+using System.Threading.Tasks;
 using System.Windows.Forms;
 using System.Xml;
 
@@ -56,17 +57,19 @@ namespace ACT_EverQuest_DPS_Plugin
         /// </summary>
         private void InitializeComponent()
         {
-            this.label1 = new System.Windows.Forms.Label();
+            this.varianceChkBx = new System.Windows.Forms.CheckBox();
             this.SuspendLayout();
             // 
-            // label1
+            // varianceChkBx
             // 
-            this.label1.AutoSize = true;
-            this.label1.Location = new System.Drawing.Point(470, 225);
-            this.label1.Name = "label1";
-            this.label1.Size = new System.Drawing.Size(215, 13);
-            this.label1.TabIndex = 18;
-            this.label1.Text = "No settings in parser to configure at this time";
+            this.varianceChkBx.AutoSize = true;
+            this.varianceChkBx.Location = new System.Drawing.Point(14, 21);
+            this.varianceChkBx.Name = "varianceChkBx";
+            this.varianceChkBx.Size = new System.Drawing.Size(320, 17);
+            this.varianceChkBx.TabIndex = 19;
+            this.varianceChkBx.Text = "Population Variance (checked)/Sample Variance (unchecked)";
+            this.varianceChkBx.UseVisualStyleBackColor = true;
+            this.varianceChkBx.CheckedChanged += new System.EventHandler(this.varianceChkBx_CheckedChanged);
             // 
             // EverQuestDPSPlugin
             // 
@@ -74,9 +77,9 @@ namespace ACT_EverQuest_DPS_Plugin
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.AutoSize = true;
             this.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink;
-            this.Controls.Add(this.label1);
+            this.Controls.Add(this.varianceChkBx);
             this.Name = "EverQuestDPSPlugin";
-            this.Size = new System.Drawing.Size(688, 238);
+            this.Size = new System.Drawing.Size(337, 41);
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -130,7 +133,7 @@ namespace ACT_EverQuest_DPS_Plugin
         TreeNode optionsNode = null;
         Label lblStatus;    // The status label that appears in ACT's Plugin tab
         string settingsFile;
-        private Label label1;
+        private CheckBox varianceChkBx;
         SettingsSerializer xmlSettings;
         #endregion
 
@@ -263,8 +266,8 @@ namespace ACT_EverQuest_DPS_Plugin
             ActGlobals.oFormEncounterLogs.LogTypeToColorMapping.Add(regexTupleList.Count, regexTupleList[regexTupleList.Count - 1].Item1);
             regexTupleList.Add(new Tuple<Color, Regex>(Color.AliceBlue, new Regex($@"{TimeStamp} {SpellDamageOverTime}", RegexOptions.Compiled)));
             ActGlobals.oFormEncounterLogs.LogTypeToColorMapping.Add(regexTupleList.Count, regexTupleList[regexTupleList.Count - 1].Item1);
-            regexTupleList.Add(new Tuple<Color, Regex>(Color.PaleVioletRed, new Regex($@"{TimeStamp} {fallDamage}", RegexOptions.Compiled)));
-            ActGlobals.oFormEncounterLogs.LogTypeToColorMapping.Add(regexTupleList.Count, regexTupleList[regexTupleList.Count - 1].Item1);
+            //regexTupleList.Add(new Tuple<Color, Regex>(Color.PaleVioletRed, new Regex($@"{TimeStamp} {fallDamage}", RegexOptions.Compiled)));
+            //ActGlobals.oFormEncounterLogs.LogTypeToColorMapping.Add(regexTupleList.Count, regexTupleList[regexTupleList.Count - 1].Item1);
         }
 
         void oFormActMain_BeforeLogLineRead(bool isImport, LogLineEventArgs logInfo)
@@ -441,21 +444,21 @@ namespace ACT_EverQuest_DPS_Plugin
                         ActGlobals.oFormActMain.AddCombatAction(masterSwingSpellcast);
                     }
                     break;
-                case 12:
-                    MasterSwing masterSwingFallDamage = new MasterSwing(EverQuestSwingType.NonMelee.GetEverQuestSwingTypeExtensionIntValue(),
-                        false,
-                        String.Empty,
-                         new Dnum(Int64.Parse(regexMatch.Groups["pointsOfDamage"].Value)),
-                         ActGlobals.oFormActMain.LastEstimatedTime,
-                         ActGlobals.oFormActMain.GlobalTimeSorter
-                         , "Fall Damage"
-                         , CharacterNamePersonaReplace("Fall Damage")
-                         , "Hitpoints"
-                         , CharacterNamePersonaReplace(regexMatch.Groups["victim"].Value)
-                    );
-                    masterSwingFallDamage.Tags[logTimestamp] = ActGlobals.oFormActMain.LastKnownTime;
-                    ActGlobals.oFormActMain.AddCombatAction(masterSwingFallDamage);
-                    break;
+                //case 12:
+                //    MasterSwing masterSwingFallDamage = new MasterSwing(EverQuestSwingType.NonMelee.GetEverQuestSwingTypeExtensionIntValue(),
+                //        false,
+                //        String.Empty,
+                //         new Dnum(Int64.Parse(regexMatch.Groups["pointsOfDamage"].Value)),
+                //         ActGlobals.oFormActMain.LastEstimatedTime,
+                //         ActGlobals.oFormActMain.GlobalTimeSorter
+                //         , "Fall Damage"
+                //         , CharacterNamePersonaReplace("Fall Damage")
+                //         , "Hitpoints"
+                //         , CharacterNamePersonaReplace(regexMatch.Groups["victim"].Value)
+                //    );
+                //    masterSwingFallDamage.Tags[logTimestamp] = ActGlobals.oFormActMain.LastKnownTime;
+                //    ActGlobals.oFormActMain.AddCombatAction(masterSwingFallDamage);
+                //    break;
                 default:
                     break;
             }
@@ -831,7 +834,7 @@ namespace ACT_EverQuest_DPS_Plugin
             AttackType.ColumnDefs.Add("DPS", new AttackType.ColumnDef("DPS", false, "DOUBLE", "DPS", (Data) => { return Data.DPS.ToString(); }, (Data) => { return Data.DPS.ToString(usCulture); }, (Left, Right) => { return Left.DPS.CompareTo(Right.DPS); }));
             AttackType.ColumnDefs.Add("Average", new AttackType.ColumnDef("Average", true, "DOUBLE", "Average", (Data) => { return Data.Average.ToString(); }, (Data) => { return Data.Average.ToString(usCulture); }, (Left, Right) => { return Left.Average.CompareTo(Right.Average); }));
             AttackType.ColumnDefs.Add("Median", new AttackType.ColumnDef("Median", true, "BIGINT", "Median", (Data) => { return Data.Median.ToString(GetIntCommas()); }, (Data) => { return Data.Median.ToString(); }, (Left, Right) => { return Left.Median.CompareTo(Right.Median); }));
-            AttackType.ColumnDefs.Add("Variance", new AttackType.ColumnDef("Variance", true, "DOUBLE", "Variance", AttackTypeGetSampleVariance, AttackTypeGetSampleVariance, (Left, Right) => { return AttackTypeGetSampleVariance(Left).CompareTo(AttackTypeGetSampleVariance(Right)); }));
+            AttackType.ColumnDefs.Add("Variance", new AttackType.ColumnDef("Variance", true, "DOUBLE", "Variance", AttackTypeGetVariance, AttackTypeGetVariance, (Left, Right) => { return AttackTypeGetVariance(Left).CompareTo(AttackTypeGetVariance(Right)); }));
             AttackType.ColumnDefs.Add("CritTypes", new AttackType.ColumnDef("CritTypes", true, "VARCHAR(32)", "CritTypes", AttackTypeGetCritTypes, AttackTypeGetCritTypes, (Left, Right) => { return AttackTypeGetCritTypes(Left).CompareTo(AttackTypeGetCritTypes(Right)); }));
 
 
@@ -860,7 +863,7 @@ namespace ACT_EverQuest_DPS_Plugin
             ActGlobals.oFormActMain.ValidateTableSetup();
         }
 
-        private string AttackTypeGetSampleVariance(AttackType Data)
+        private string AttackTypeGetVariance(AttackType Data)
         {
             if (populationVariance && Data.Items.Count > 1)
                 return Data.Items.Sum((item) =>
@@ -1017,6 +1020,14 @@ namespace ACT_EverQuest_DPS_Plugin
                 return String.Empty;
             else
                return swingType == null ? String.Empty : swingType.ToString();
+        }
+
+        private void varianceChkBx_CheckedChanged(object sender, EventArgs e)
+        {
+            Task task = new Task(() =>
+            {
+                this.populationVariance = (sender as CheckBox).Checked;
+            });
         }
     }
 }
