@@ -13,28 +13,23 @@ jobs:
   deploy:
     runs-on: windows-2019
     steps:
-      - name: Download artifact
-        uses: actions/download-artifact@v2
-        with:
-          name: ACT_EQ_DPS_Plugin.dll
-      - name: Create release
+      - name: Create Release
         id: create_release
         uses: actions/create-release@v1
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} # This token is provided by Actions, you do not need to create your own token
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           tag_name: ${{ github.ref }}
           release_name: Release ${{ github.ref }}
-          body: TODO
-          draft: true
+          draft: false
           prerelease: false
       - name: Upload Release Asset
-        id: upload-release-asset
+        id: upload-release-asset 
         uses: actions/upload-release-asset@v1
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           upload_url: ${{ steps.create_release.outputs.upload_url }} # This pulls from the CREATE RELEASE step above, referencing it's ID to get its outputs object, which include a `upload_url`. See this blog post for more info: https://jasonet.co/posts/new-features-of-github-actions/#passing-data-to-future-steps 
-          asset_path: ACT_EQ_DPS_Plugin.dll
+          asset_path: ./bin/Release/ACT_EQ_DPS_Plugin.dll
           asset_name: ACT_EQ_DPS_Plugin.dll
-          asset_content_type: application/octet-stream
+          asset_content_type: application/dll
