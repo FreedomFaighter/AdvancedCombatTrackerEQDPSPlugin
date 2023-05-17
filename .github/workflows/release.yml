@@ -2,14 +2,12 @@ on:
   push:
     # Sequence of patterns matched against refs/tags
     tags:
-    - '*' # Push events to matching v*, i.e. v1.0, v20.15.10
-
+    - "0.0.*.*"
+    
 name: Upload Release Asset
 jobs:
   build:
-
     runs-on: windows-2019
-
     steps:
       - uses: actions/checkout@main
       - name: Setup MSBuild
