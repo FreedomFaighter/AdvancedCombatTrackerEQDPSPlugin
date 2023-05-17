@@ -20,6 +20,9 @@ jobs:
         run: msbuild -p:RestorePackagesConfig=true -t:restore
       - name: Build solution
         run: msbuild ACT_EverQuest_DPS_Plugin.sln -t:build -property:Configuration=Release
+  release:
+    runs-on: windows-2019
+    steps:
       - name: Create Release
         id: create_release
         uses: actions/create-release@v1
