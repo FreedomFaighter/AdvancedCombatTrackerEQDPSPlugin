@@ -2,6 +2,7 @@
 using EverQuestDPSPlugin;
 using System;
 using System.Collections.Generic;
+//using System.Diagnostics;
 using System.Drawing;
 using System.Globalization;
 using System.IO;
@@ -12,7 +13,7 @@ using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using System.Xml;
-
+using System.Collections.Concurrent;
 /*
  * Project: EverQuest DPS Plugin
  * Original: EverQuest 2 English DPS Localization plugin developed by EQAditu
@@ -89,8 +90,8 @@ namespace ACT_EverQuest_DPS_Plugin
 
         #region class members
         //readonly int pluginId = -1;
-        readonly char[] chrApos = new char[] { '\'', '’' };
-        readonly char[] chrSpaceApos = new char[] { ' ', '\'', '’', '`' };
+        //readonly char[] chrApos = new char[] { '\'', '’' };
+        //readonly char[] chrSpaceApos = new char[] { ' ', '\'', '’', '`' };
         //List<Tuple<Color, Regex>> regexTupleList = new List<Tuple<Color, Regex>>();
         delegate void matchParse(Match regexMatch);
         List<Tuple<Color, Regex>> regexTupleList = new List<Tuple<Color, Regex>>();
@@ -175,24 +176,33 @@ namespace ACT_EverQuest_DPS_Plugin
             PopulateRegexArray();
             SetupEverQuestEnvironment();   // Not really needed since ACT has this code internalized as well.
             ActGlobals.oFormActMain.BeforeLogLineRead += new LogLineEventDelegate(oFormActMain_BeforeLogLineRead);
-            ActGlobals.oFormActMain.UpdateCheckClicked += new FormActMain.NullDelegate(oFormActMain_UpdateCheckClicked);
+            ActGlobals.oFormActMain.UpdateCheckClicked += new FormActMain.NullDelegate(UpdateCheckClicked);
             ActGlobals.oFormActMain.GetDateTimeFromLog += new FormActMain.DateTimeLogParser(ParseDateTime);
             Task updateCheckClicked = new Task(() =>
             {
-                oFormActMain_UpdateCheckClicked();
+                UpdateCheckClicked();
             });
             if (ActGlobals.oFormActMain.GetAutomaticUpdatesAllowed())   // If ACT is set to automatically check for updates, check for updates to the plugin
                 updateCheckClicked.Start();   // If we don't put this on a separate thread, web latency will delay the plugin init phase
             
             ActGlobals.oFormActMain.CharacterFileNameRegex = new Regex(@"(?:.+)[\\]eqlog_(?<characterName>\S+)_(?<server>.+).txt", RegexOptions.Compiled);
             ActGlobals.oFormActMain.ZoneChangeRegex = new Regex($@"{ZoneChange}", RegexOptions.Compiled);
-            lblStatus.Text = $"{pluginName} Plugin Started";
+
+            ChangeStatusLabel($"{pluginName} Plugin Started").Start();
+        }
+
+        Task ChangeStatusLabel(String newStatusMessage)
+        {
+            return new Task(() =>
+            {
+                lblStatus.Text = newStatusMessage;
+            });
         }
 
         public void DeInitPlugin()
         {
             ActGlobals.oFormActMain.BeforeLogLineRead -= oFormActMain_BeforeLogLineRead;
-            ActGlobals.oFormActMain.UpdateCheckClicked -= oFormActMain_UpdateCheckClicked;
+            ActGlobals.oFormActMain.UpdateCheckClicked -= UpdateCheckClicked;
             ActGlobals.oFormActMain.GetDateTimeFromLog -= ParseDateTime;
 
             if (optionsNode != null)    // If we added our user control to the Options tab, remove it
@@ -202,9 +212,9 @@ namespace ACT_EverQuest_DPS_Plugin
             }
 
             SaveSettings();
-            lblStatus.Text = $@"{pluginName} Plugin Exited";
+            ChangeStatusLabel($"{pluginName} Plugin Exited").Start();
         }
-        void oFormActMain_UpdateCheckClicked()
+        void UpdateCheckClicked()
         {
             int pluginId = 92;
 
@@ -495,11 +505,12 @@ namespace ACT_EverQuest_DPS_Plugin
                     }
                     catch (ArgumentNullException ex)
                     {
-                        lblStatus.Text = "Argument Null for " + ex.ParamName + " with message: " + ex.Message;
+                        ChangeStatusLabel($"Argument Null for {ex.ParamName} with message: {ex.Message}").Start();
+
                     }
                     catch (Exception ex)
                     {
-                        lblStatus.Text = "With message: " + ex.Message;
+                        ChangeStatusLabel($"With message: {ex.Message}").Start();
                     }
                 }
             }
@@ -873,19 +884,19 @@ namespace ACT_EverQuest_DPS_Plugin
             DamageTypeData.ColumnDefs.Add("StartTime", new DamageTypeData.ColumnDef("StartTime", false, "TIMESTAMP", "StartTime", (Data) => { return Data.StartTime == DateTime.MaxValue ? "--:--:--" : Data.StartTime.ToString("T"); }, (Data) => { return Data.StartTime == DateTime.MaxValue ? "0000-00-00 00:00:00" : Data.StartTime.ToString("u").TrimEnd(new char[] { 'Z' }); }));
             DamageTypeData.ColumnDefs.Add("EndTime", new DamageTypeData.ColumnDef("EndTime", false, "TIMESTAMP", "EndTime", (Data) => { return Data.EndTime == DateTime.MinValue ? "--:--:--" : Data.EndTime.ToString("T"); }, (Data) => { return Data.EndTime == DateTime.MinValue ? "0000-00-00 00:00:00" : Data.EndTime.ToString("u").TrimEnd(new char[] { 'Z' }); }));
             DamageTypeData.ColumnDefs.Add("Duration", new DamageTypeData.ColumnDef("Duration", false, "INT", "Duration", (Data) => { return Data.DurationS; }, (Data) => { return Data.Duration.TotalSeconds.ToString("0"); }));
-            DamageTypeData.ColumnDefs.Add("Damage", new DamageTypeData.ColumnDef("Damage", true, "BIGINT", "Damage", (Data) => { return Data.Damage.ToString(GetIntCommas()); }, (Data) => { return Data.Damage.ToString(); }));
+            DamageTypeData.ColumnDefs.Add("Damage", new DamageTypeData.ColumnDef("Damage", true, "BIGINT", "Damage", (Data) => { return Data.Damage.ToString(); }, (Data) => { return Data.Damage.ToString(); }));
             DamageTypeData.ColumnDefs.Add("EncDPS", new DamageTypeData.ColumnDef("EncDPS", true, "DOUBLE", "EncDPS", (Data) => { return Data.EncDPS.ToString(); }, (Data) => { return Data.EncDPS.ToString(usCulture); }));
             DamageTypeData.ColumnDefs.Add("CharDPS", new DamageTypeData.ColumnDef("CharDPS", false, "DOUBLE", "CharDPS", (Data) => { return Data.CharDPS.ToString(); }, (Data) => { return Data.CharDPS.ToString(usCulture); }));
             DamageTypeData.ColumnDefs.Add("DPS", new DamageTypeData.ColumnDef("DPS", false, "DOUBLE", "DPS", (Data) => { return Data.DPS.ToString(); }, (Data) => { return Data.DPS.ToString(usCulture); }));
             DamageTypeData.ColumnDefs.Add("Average", new DamageTypeData.ColumnDef("Average", true, "DOUBLE", "Average", (Data) => { return Data.Average.ToString(); }, (Data) => { return Data.Average.ToString(usCulture); }));
-            DamageTypeData.ColumnDefs.Add("Median", new DamageTypeData.ColumnDef("Median", false, "BIGINT", "Median", (Data) => { return Data.Median.ToString(GetIntCommas()); }, (Data) => { return Data.Median.ToString(); }));
-            DamageTypeData.ColumnDefs.Add("MinHit", new DamageTypeData.ColumnDef("MinHit", true, "BIGINT", "MinHit", (Data) => { return Data.MinHit.ToString(GetIntCommas()); }, (Data) => { return Data.MinHit.ToString(); }));
-            DamageTypeData.ColumnDefs.Add("MaxHit", new DamageTypeData.ColumnDef("MaxHit", true, "BIGINT", "MaxHit", (Data) => { return Data.MaxHit.ToString(GetIntCommas()); }, (Data) => { return Data.MaxHit.ToString(); }));
-            DamageTypeData.ColumnDefs.Add("Hits", new DamageTypeData.ColumnDef("Hits", true, "INT", "Hits", (Data) => { return Data.Hits.ToString(GetIntCommas()); }, (Data) => { return Data.Hits.ToString(); }));
-            DamageTypeData.ColumnDefs.Add("CritHits", new DamageTypeData.ColumnDef("CritHits", false, "INT", "CritHits", (Data) => { return Data.CritHits.ToString(GetIntCommas()); }, (Data) => { return Data.CritHits.ToString(); }));
-            DamageTypeData.ColumnDefs.Add("Avoids", new DamageTypeData.ColumnDef("Avoids", false, "INT", "Blocked", (Data) => { return Data.Blocked.ToString(GetIntCommas()); }, (Data) => { return Data.Blocked.ToString(); }));
-            DamageTypeData.ColumnDefs.Add("Misses", new DamageTypeData.ColumnDef("Misses", false, "INT", "Misses", (Data) => { return Data.Misses.ToString(GetIntCommas()); }, (Data) => { return Data.Misses.ToString(); }));
-            DamageTypeData.ColumnDefs.Add("Swings", new DamageTypeData.ColumnDef("Swings", true, "INT", "Swings", (Data) => { return Data.Swings.ToString(GetIntCommas()); }, (Data) => { return Data.Swings.ToString(); }));
+            DamageTypeData.ColumnDefs.Add("Median", new DamageTypeData.ColumnDef("Median", false, "BIGINT", "Median", (Data) => { return Data.Median.ToString(); }, (Data) => { return Data.Median.ToString(); }));
+            DamageTypeData.ColumnDefs.Add("MinHit", new DamageTypeData.ColumnDef("MinHit", true, "BIGINT", "MinHit", (Data) => { return Data.MinHit.ToString(); }, (Data) => { return Data.MinHit.ToString(); }));
+            DamageTypeData.ColumnDefs.Add("MaxHit", new DamageTypeData.ColumnDef("MaxHit", true, "BIGINT", "MaxHit", (Data) => { return Data.MaxHit.ToString(); }, (Data) => { return Data.MaxHit.ToString(); }));
+            DamageTypeData.ColumnDefs.Add("Hits", new DamageTypeData.ColumnDef("Hits", true, "INT", "Hits", (Data) => { return Data.Hits.ToString(); }, (Data) => { return Data.Hits.ToString(); }));
+            DamageTypeData.ColumnDefs.Add("CritHits", new DamageTypeData.ColumnDef("CritHits", false, "INT", "CritHits", (Data) => { return Data.CritHits.ToString(); }, (Data) => { return Data.CritHits.ToString(); }));
+            DamageTypeData.ColumnDefs.Add("Avoids", new DamageTypeData.ColumnDef("Avoids", false, "INT", "Blocked", (Data) => { return Data.Blocked.ToString(); }, (Data) => { return Data.Blocked.ToString(); }));
+            DamageTypeData.ColumnDefs.Add("Misses", new DamageTypeData.ColumnDef("Misses", false, "INT", "Misses", (Data) => { return Data.Misses.ToString(); }, (Data) => { return Data.Misses.ToString(); }));
+            DamageTypeData.ColumnDefs.Add("Swings", new DamageTypeData.ColumnDef("Swings", true, "INT", "Swings", (Data) => { return Data.Swings.ToString(); }, (Data) => { return Data.Swings.ToString(); }));
             DamageTypeData.ColumnDefs.Add("ToHit", new DamageTypeData.ColumnDef("ToHit", false, "FLOAT", "ToHit", (Data) => { return Data.ToHit.ToString(); }, (Data) => { return Data.ToHit.ToString(); }));
             DamageTypeData.ColumnDefs.Add("AvgDelay", new DamageTypeData.ColumnDef("AvgDelay", false, "FLOAT", "AverageDelay", (Data) => { return Data.AverageDelay.ToString(); }, (Data) => { return Data.AverageDelay.ToString(usCulture); }));
             DamageTypeData.ColumnDefs.Add("Crit%", new DamageTypeData.ColumnDef("Crit%", false, "VARCHAR(8)", "CritPerc", (Data) => { return Data.CritPerc.ToString("0'%"); }, (Data) => { return Data.CritPerc.ToString("0'%"); }));
@@ -905,12 +916,12 @@ namespace ACT_EverQuest_DPS_Plugin
             AttackType.ColumnDefs.Add("EncDPS", new AttackType.ColumnDef("EncDPS", true, "DOUBLE", "EncDPS", (Data) => { return Data.EncDPS.ToString(); }, (Data) => { return Data.EncDPS.ToString(usCulture); }, (Left, Right) => { return Left.EncDPS.CompareTo(Right.EncDPS); }));
             AttackType.ColumnDefs.Add("CharDPS", new AttackType.ColumnDef("CharDPS", false, "DOUBLE", "CharDPS", (Data) => { return Data.CharDPS.ToString(); }, (Data) => { return Data.CharDPS.ToString(usCulture); }, (Left, Right) => { return Left.CharDPS.CompareTo(Right.CharDPS); }));
             AttackType.ColumnDefs.Add("DPS", new AttackType.ColumnDef("DPS", false, "DOUBLE", "DPS", (Data) => { return Data.DPS.ToString(); }, (Data) => { return Data.DPS.ToString(usCulture); }, (Left, Right) => { return Left.DPS.CompareTo(Right.DPS); }));
-            AttackType.ColumnDefs.Add("Average", new AttackType.ColumnDef("Average", true, "DOUBLE", "Average", (Data) => { return Data.Items.Select((item) => item.Damage.Number).Average().ToString(); }, (Data) => { return Data.Items.Select((item) => item.Damage.Number).Average().ToString(usCulture); }, (Left, Right) => { return Left.Items.Select((item) => item.Damage.Number).Average().CompareTo(Right.Items.Select((item) => item.Damage.Number).Average()); }));
+            AttackType.ColumnDefs.Add("Average", new AttackType.ColumnDef("Average", true, "DOUBLE", "Average", (Data) => { return (new ConcurrentQueue<MasterSwing>(Data.Items)).Select((item) => item.Damage.Number).Average().ToString(); }, (Data) => { return (new ConcurrentQueue<MasterSwing>(Data.Items)).Select((item) => item.Damage.Number).Average().ToString(usCulture); }, (Left, Right) => { return (new ConcurrentQueue<MasterSwing>(Left.Items)).Select((item) => item.Damage.Number).Average().CompareTo((new ConcurrentQueue<MasterSwing>(Right.Items)).Select((item) => item.Damage.Number).Average()); }));
             AttackType.ColumnDefs.Add("Median", new AttackType.ColumnDef("Median", true, "BIGINT", "Median", (Data) => { return Data.Median.ToString(GetIntCommas()); }, (Data) => { return Data.Median.ToString(); }, (Left, Right) => { return Left.Median.CompareTo(Right.Median); }));
             AttackType.ColumnDefs.Add("Variance", new AttackType.ColumnDef("Variance", true, "DOUBLE", "Variance", AttackTypeGetVariance, AttackTypeGetVariance, (Left, Right) => { return AttackTypeGetVariance(Left).CompareTo(AttackTypeGetVariance(Right)); }));
             AttackType.ColumnDefs.Add("CritTypes", new AttackType.ColumnDef("CritTypes", true, "VARCHAR(32)", "CritTypes", AttackTypeGetCritTypes, AttackTypeGetCritTypes, (Left, Right) => { return AttackTypeGetCritTypes(Left).CompareTo(AttackTypeGetCritTypes(Right)); }));
-            AttackType.ColumnDefs.Add("Max", new AttackType.ColumnDef("Max", true, "BIGINT", "Max", (Data) => { return Data.Items.Select((item) => item.Damage.Number).Max().ToString();  }, (Data) => { return Data.Items.Select((item) => item.Damage.Number).Max().ToString(); }, (Left, Right) => { return Left.Items.Select((item) => item.Damage.Number).Max().CompareTo(Right.Items.Select((item) => item.Damage.Number).Max()); }));
-            AttackType.ColumnDefs.Add("Min", new AttackType.ColumnDef("Min", true, "BIGINT", "Min", (Data) => { return Data.Items.Select((item) => item.Damage.Number).Min().ToString();  }, (Data) => { return Data.Items.Select((item) => item.Damage.Number).Min().ToString(); }, (Left, Right) => { return Left.Items.Select((item) => item.Damage.Number).Min().CompareTo(Right.Items.Select((item) => item.Damage.Number).Min()); }));
+            AttackType.ColumnDefs.Add("Max", new AttackType.ColumnDef("Max", true, "BIGINT", "Max", (Data) => { return (new ConcurrentQueue<MasterSwing>(Data.Items)).Select((item) => item.Damage.Number).Max().ToString();  }, (Data) => { return (new ConcurrentQueue<MasterSwing>(Data.Items)).Select((item) => item.Damage.Number).Max().ToString(); }, (Left, Right) => { return (new ConcurrentQueue<MasterSwing>(Left.Items)).Select((item) => item.Damage.Number).Min().CompareTo((new ConcurrentQueue<MasterSwing>(Right.Items)).ToList().Select((item) => item.Damage.Number).Min()); }));
+            AttackType.ColumnDefs.Add("Min", new AttackType.ColumnDef("Min", true, "BIGINT", "Min", (Data) => { return (new ConcurrentQueue<MasterSwing>(Data.Items)).Select((item) => item.Damage.Number).Min().ToString();  }, (Data) => { return (new ConcurrentQueue<MasterSwing>(Data.Items)).Select((item) => item.Damage.Number).Min().ToString(); }, (Left, Right) => { return Left.Items.ToList().Select((item) => item.Damage.Number).Min().CompareTo(Right.Items.ToList().Select((item) => item.Damage.Number).Min()); }));
 
             MasterSwing.ColumnDefs.Clear();
             MasterSwing.ColumnDefs.Add("EncId", new MasterSwing.ColumnDef("EncId", false, "CHAR(8)", "EncId", (Data) => { return string.Empty; }, (Data) => { return Data.ParentEncounter.EncId; }, (Left, Right) => { return 0; }));
@@ -1104,10 +1115,10 @@ namespace ACT_EverQuest_DPS_Plugin
                 switch(this.populationVariance)
                 {
                     case true:
-                        lblStatus.Text = "Reporting population variance";
+                        ChangeStatusLabel("Reporting population variance").Start();
                         break;
                     case false:
-                        lblStatus.Text = "Reporting sample variance";
+                        ChangeStatusLabel("Reporting sample variance").Start();
                         break;
                     default:
                         break;
