@@ -127,7 +127,7 @@ namespace ACT_EverQuest_DPS_Plugin
         readonly Regex selfCheck = new Regex(@"(You|you|yourself|Yourself|YOURSELF|YOU)", RegexOptions.Compiled);
         readonly String pluginName = "EverQuest Damage Per Second Parser";
         readonly String possessivePetString = @"`s pet";
-        readonly String fallDamage = @"(?<victim>.*) (?:ha[s|ve]) taken (?<pointsOfDamage>[\d]+) (?point[|s]) of fall damage.";
+//      readonly String fallDamage = @"(?<victim>.*) (?:ha[s|ve]) taken (?<pointsOfDamage>[\d]+) (?point[|s]) of fall damage.";
         bool populationVariance = false;
         SortedList<string, AposNameFix> aposNameList = new SortedList<string, AposNameFix>();
         TreeNode optionsNode = null;
@@ -178,9 +178,13 @@ namespace ACT_EverQuest_DPS_Plugin
             ActGlobals.oFormActMain.BeforeLogLineRead += new LogLineEventDelegate(oFormActMain_BeforeLogLineRead);
             ActGlobals.oFormActMain.UpdateCheckClicked += new FormActMain.NullDelegate(oFormActMain_UpdateCheckClicked);
             ActGlobals.oFormActMain.GetDateTimeFromLog += new FormActMain.DateTimeLogParser(ParseDateTime);
-
+            Task updateCheckClicked = new Task(() =>
+            {
+                oFormActMain_UpdateCheckClicked();
+            });
             if (ActGlobals.oFormActMain.GetAutomaticUpdatesAllowed())   // If ACT is set to automatically check for updates, check for updates to the plugin
-                new Thread(new ThreadStart(oFormActMain_UpdateCheckClicked)).Start();   // If we don't put this on a separate thread, web latency will delay the plugin init phase
+                updateCheckClicked.Start();   // If we don't put this on a separate thread, web latency will delay the plugin init phase
+            
             ActGlobals.oFormActMain.CharacterFileNameRegex = new Regex(@"(?:.+)[\\]eqlog_(?<characterName>\S+)_(?<server>.+).txt", RegexOptions.Compiled);
             ActGlobals.oFormActMain.ZoneChangeRegex = new Regex($@"{ZoneChange}", RegexOptions.Compiled);
             lblStatus.Text = $"{pluginName} Plugin Started";
@@ -1027,7 +1031,19 @@ namespace ACT_EverQuest_DPS_Plugin
             Task task = new Task(() =>
             {
                 this.populationVariance = (sender as CheckBox).Checked;
+                switch(this.populationVariance)
+                {
+                    case true:
+                        lblStatus.Text = "Reporting population variance";
+                        break;
+                    case false:
+                        lblStatus.Text = "Reporting sample variance";
+                        break;
+                    default:
+                        break;
+                }
             });
+            task.Start();
         }
     }
 }
