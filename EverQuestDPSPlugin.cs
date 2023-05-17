@@ -9,7 +9,6 @@ using System.Linq;
 using System.Reflection;
 using System.Text;
 using System.Text.RegularExpressions;
-using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using System.Xml;
@@ -705,6 +704,69 @@ namespace ACT_EverQuest_DPS_Plugin
             EncounterData.ExportVariables.Clear();
             EncounterData.ExportVariables.Add("n", new EncounterData.TextExportFormatter("n", "New Line", "Formatting after this element will appear on a new line.", (Data, SelectiveAllies, Extra) => { return "\n"; }));
             EncounterData.ExportVariables.Add("t", new EncounterData.TextExportFormatter("t", "Tab Character", "Formatting after this element will appear in a relative column arrangement.  (The formatting example cannot display this properly)", (Data, SelectiveAllies, Extra) => { return "\t"; }));
+            EncounterData.ExportVariables.Add("title", new EncounterData.TextExportFormatter("title", "Encounter Title", "The title of the completed encounter.  This may only be used in Allies formatting.", (Data, SelectiveAllies, Extra) => { return EncounterFormatSwitch(Data, SelectiveAllies, "title", Extra); }));
+            EncounterData.ExportVariables.Add("duration", new EncounterData.TextExportFormatter("duration", "Duration", "The duration of the combatant or the duration of the encounter, displayed as mm:ss", (Data, SelectiveAllies, Extra) => { return EncounterFormatSwitch(Data, SelectiveAllies, "duration", Extra); }));
+            EncounterData.ExportVariables.Add("DURATION", new EncounterData.TextExportFormatter("DURATION", "Short Duration", "The duration of the combatant or encounter displayed in whole seconds.", (Data, SelectiveAllies, Extra) => { return EncounterFormatSwitch(Data, SelectiveAllies, "DURATION", Extra); }));
+            EncounterData.ExportVariables.Add("damage", new EncounterData.TextExportFormatter("damage", "Damage", "The amount of damage from auto-attack, spells, CAs, etc done to other combatants.", (Data, SelectiveAllies, Extra) => { return EncounterFormatSwitch(Data, SelectiveAllies, "damage", Extra); }));
+            EncounterData.ExportVariables.Add("damage-m", new EncounterData.TextExportFormatter("damage-m", "Damage M", "Damage divided by 1,000,000 (with two decimal places)", (Data, SelectiveAllies, Extra) => { return EncounterFormatSwitch(Data, SelectiveAllies, "damage-m", Extra); }));
+            EncounterData.ExportVariables.Add("damage-*", new EncounterData.TextExportFormatter("damage-*", "Damage w/suffix", "Damage divided 1/K/M/B/T/Q (with two decimal places)", (Data, SelectiveAllies, Extra) => { return EncounterFormatSwitch(Data, SelectiveAllies, "damage-*", Extra); }));
+            EncounterData.ExportVariables.Add("DAMAGE-k", new EncounterData.TextExportFormatter("DAMAGE-k", "Short Damage K", "Damage divided by 1,000 (with no decimal places)", (Data, SelectiveAllies, Extra) => { return EncounterFormatSwitch(Data, SelectiveAllies, "DAMAGE-k", Extra); }));
+            EncounterData.ExportVariables.Add("DAMAGE-m", new EncounterData.TextExportFormatter("DAMAGE-m", "Short Damage M", "Damage divided by 1,000,000 (with no decimal places)", (Data, SelectiveAllies, Extra) => { return EncounterFormatSwitch(Data, SelectiveAllies, "DAMAGE-m", Extra); }));
+            EncounterData.ExportVariables.Add("DAMAGE-b", new EncounterData.TextExportFormatter("DAMAGE-b", "Short Damage B", "Damage divided by 1,000,000,000 (with no decimal places)", (Data, SelectiveAllies, Extra) => { return EncounterFormatSwitch(Data, SelectiveAllies, "DAMAGE-b", Extra); }));
+            EncounterData.ExportVariables.Add("DAMAGE-*", new EncounterData.TextExportFormatter("DAMAGE-*", "Short Damage w/suffix", "Damage divided by 1/K/M/B/T/Q (with no decimal places)", (Data, SelectiveAllies, Extra) => { return EncounterFormatSwitch(Data, SelectiveAllies, "DAMAGE-*", Extra); }));
+            EncounterData.ExportVariables.Add("dps", new EncounterData.TextExportFormatter("dps", "DPS", "The damage total of the combatant divided by their personal duration, formatted as 12.34", (Data, SelectiveAllies, Extra) => { return EncounterFormatSwitch(Data, SelectiveAllies, "dps", Extra); }));
+            EncounterData.ExportVariables.Add("dps-*", new EncounterData.TextExportFormatter("dps-*", "DPS w/suffix", "The damage total of the combatant divided by their personal duration, formatted as 12.34K", (Data, SelectiveAllies, Extra) => { return EncounterFormatSwitch(Data, SelectiveAllies, "dps-*", Extra); }));
+            EncounterData.ExportVariables.Add("DPS", new EncounterData.TextExportFormatter("DPS", "Short DPS", "The damage total of the combatatant divided by their personal duration, formatted as 12", (Data, SelectiveAllies, Extra) => { return EncounterFormatSwitch(Data, SelectiveAllies, "DPS", Extra); }));
+            EncounterData.ExportVariables.Add("DPS-k", new EncounterData.TextExportFormatter("DPS-k", "DPS K", "DPS divided by 1,000 (with no decimal places)", (Data, SelectiveAllies, Extra) => { return EncounterFormatSwitch(Data, SelectiveAllies, "DPS-k", Extra); }));
+            EncounterData.ExportVariables.Add("DPS-m", new EncounterData.TextExportFormatter("DPS-m", "DPS M", "DPS divided by 1,000,000 (with no decimal places)", (Data, SelectiveAllies, Extra) => { return EncounterFormatSwitch(Data, SelectiveAllies, "DPS-m", Extra); }));
+            EncounterData.ExportVariables.Add("DPS-*", new EncounterData.TextExportFormatter("DPS-*", "DPS w/suffix", "DPS divided by 1/K/M/B/T/Q (with no decimal places)", (Data, SelectiveAllies, Extra) => { return EncounterFormatSwitch(Data, SelectiveAllies, "DPS-*", Extra); }));
+            EncounterData.ExportVariables.Add("encdps", new EncounterData.TextExportFormatter("encdps", "Encounter DPS", "The damage total of the combatant divided by the duration of the encounter, formatted as 12.34 -- This is more commonly used than DPS", (Data, SelectiveAllies, Extra) => { return EncounterFormatSwitch(Data, SelectiveAllies, "encdps", Extra); }));
+            EncounterData.ExportVariables.Add("encdps-*", new EncounterData.TextExportFormatter("encdps-*", "Encounter DPS w/suffix", "The damage total of the combatant divided by the duration of the encounter, formatted as 12.34 -- This is more commonly used than DPS", (Data, SelectiveAllies, Extra) => { return EncounterFormatSwitch(Data, SelectiveAllies, "encdps-*", Extra); }));
+            EncounterData.ExportVariables.Add("ENCDPS", new EncounterData.TextExportFormatter("ENCDPS", "Short Encounter DPS", "The damage total of the combatant divided by the duration of the encounter, formatted as 12 -- This is more commonly used than DPS", (Data, SelectiveAllies, Extra) => { return EncounterFormatSwitch(Data, SelectiveAllies, "ENCDPS", Extra); }));
+            EncounterData.ExportVariables.Add("ENCDPS-k", new EncounterData.TextExportFormatter("ENCDPS-k", "Short Encounter DPS K", "ENCDPS divided by 1,000 (with no decimal places)", (Data, SelectiveAllies, Extra) => { return EncounterFormatSwitch(Data, SelectiveAllies, "ENCDPS-k", Extra); }));
+            EncounterData.ExportVariables.Add("ENCDPS-m", new EncounterData.TextExportFormatter("ENCDPS-m", "Short Encounter DPS M", "ENCDPS divided by 1,000,000 (with no decimal places)", (Data, SelectiveAllies, Extra) => { return EncounterFormatSwitch(Data, SelectiveAllies, "ENCDPS-m", Extra); }));
+            EncounterData.ExportVariables.Add("ENCDPS-*", new EncounterData.TextExportFormatter("ENCDPS-*", "Short Encounter DPS w/suffix", "ENCDPS divided by 1/K/M/B/T/Q (with no decimal places)", (Data, SelectiveAllies, Extra) => { return EncounterFormatSwitch(Data, SelectiveAllies, "ENCDPS-*", Extra); }));
+            EncounterData.ExportVariables.Add("hits", new EncounterData.TextExportFormatter("hits", "Hits", "The number of attack attempts that produced damage.  IE a spell successfully doing damage.", (Data, SelectiveAllies, Extra) => { return EncounterFormatSwitch(Data, SelectiveAllies, "hits", Extra); }));
+            EncounterData.ExportVariables.Add("crithits", new EncounterData.TextExportFormatter("crithits", "Critical Hit Count", "The number of damaging attacks that were critical.", (Data, SelectiveAllies, Extra) => { return EncounterFormatSwitch(Data, SelectiveAllies, "crithits", Extra); }));
+            EncounterData.ExportVariables.Add("crithit%", new EncounterData.TextExportFormatter("crithit%", "Critical Hit Percentage", "The percentage of damaging attacks that were critical.", (Data, SelectiveAllies, Extra) => { return EncounterFormatSwitch(Data, SelectiveAllies, "crithit%", Extra); }));
+            EncounterData.ExportVariables.Add("misses", new EncounterData.TextExportFormatter("misses", "Misses", "The number of auto-attacks or CAs that produced a miss message.", (Data, SelectiveAllies, Extra) => { return EncounterFormatSwitch(Data, SelectiveAllies, "misses", Extra); }));
+            EncounterData.ExportVariables.Add("hitfailed", new EncounterData.TextExportFormatter("hitfailed", "Other Avoid", "Any type of failed attack that was not a miss.  This includes resists, reflects, blocks, dodging, etc.", (Data, SelectiveAllies, Extra) => { return EncounterFormatSwitch(Data, SelectiveAllies, "hitfailed", Extra); }));
+            EncounterData.ExportVariables.Add("swings", new EncounterData.TextExportFormatter("swings", "Swings (Attacks)", "The number of attack attempts.  This includes any auto-attacks or abilities, also including resisted abilities that do no damage.", (Data, SelectiveAllies, Extra) => { return EncounterFormatSwitch(Data, SelectiveAllies, "swings", Extra); }));
+            EncounterData.ExportVariables.Add("tohit", new EncounterData.TextExportFormatter("tohit", "To Hit %", "The percentage of hits to swings as 12.34", (Data, SelectiveAllies, Extra) => { return EncounterFormatSwitch(Data, SelectiveAllies, "tohit", Extra); }));
+            EncounterData.ExportVariables.Add("TOHIT", new EncounterData.TextExportFormatter("TOHIT", "Short To Hit %", "The percentage of hits to swings as 12", (Data, SelectiveAllies, Extra) => { return EncounterFormatSwitch(Data, SelectiveAllies, "TOHIT", Extra); }));
+            EncounterData.ExportVariables.Add("maxhit", new EncounterData.TextExportFormatter("maxhit", "Highest Hit", "The highest single damaging hit formatted as [Combatant-]SkillName-Damage#", (Data, SelectiveAllies, Extra) => { return EncounterFormatSwitch(Data, SelectiveAllies, "maxhit", Extra); }));
+            EncounterData.ExportVariables.Add("MAXHIT", new EncounterData.TextExportFormatter("MAXHIT", "Short Highest Hit", "The highest single damaging hit formatted as [Combatant-]Damage#", (Data, SelectiveAllies, Extra) => { return EncounterFormatSwitch(Data, SelectiveAllies, "MAXHIT", Extra); }));
+            EncounterData.ExportVariables.Add("maxhit-*", new EncounterData.TextExportFormatter("maxhit-*", "Highest Hit w/ suffix", "MaxHit divided by 1/K/M/B/T/Q", (Data, SelectiveAllies, Extra) => { return EncounterFormatSwitch(Data, SelectiveAllies, "maxhit-*", Extra); }));
+            EncounterData.ExportVariables.Add("MAXHIT-*", new EncounterData.TextExportFormatter("MAXHIT-*", "Short Highest Hit w/ suffix", "Short MaxHit divided by 1/K/M/B/T/Q", (Data, SelectiveAllies, Extra) => { return EncounterFormatSwitch(Data, SelectiveAllies, "MAXHIT-*", Extra); }));
+            EncounterData.ExportVariables.Add("healed", new EncounterData.TextExportFormatter("healed", "Healed", "The numerical total of all heals, wards or similar sourced from this combatant.", (Data, SelectiveAllies, Extra) => { return EncounterFormatSwitch(Data, SelectiveAllies, "healed", Extra); }));
+            EncounterData.ExportVariables.Add("enchps", new EncounterData.TextExportFormatter("enchps", "Encounter HPS", "The healing total of the combatant divided by the duration of the encounter, formatted as 12.34", (Data, SelectiveAllies, Extra) => { return EncounterFormatSwitch(Data, SelectiveAllies, "enchps", Extra); }));
+            EncounterData.ExportVariables.Add("enchps-*", new EncounterData.TextExportFormatter("enchps-*", "Encounter HPS w/suffix", "Encounter HPS divided by 1/K/M/B/T/Q", (Data, SelectiveAllies, Extra) => { return EncounterFormatSwitch(Data, SelectiveAllies, "enchps-*", Extra); }));
+            EncounterData.ExportVariables.Add("ENCHPS", new EncounterData.TextExportFormatter("ENCHPS", "Short Encounter HPS", "The healing total of the combatant divided by the duration of the encounter, formatted as 12", (Data, SelectiveAllies, Extra) => { return EncounterFormatSwitch(Data, SelectiveAllies, "ENCHPS", Extra); }));
+            EncounterData.ExportVariables.Add("ENCHPS-k", new EncounterData.TextExportFormatter("ENCHPS-k", "Short ENCHPS K", "ENCHPS divided by 1,000 (with no decimal places)", (Data, SelectiveAllies, Extra) => { return EncounterFormatSwitch(Data, SelectiveAllies, "ENCHPS-k", Extra); }));
+            EncounterData.ExportVariables.Add("ENCHPS-m", new EncounterData.TextExportFormatter("ENCHPS-m", "Short ENCHPS M", "ENCHPS divided by 1,000,000 (with no decimal places)", (Data, SelectiveAllies, Extra) => { return EncounterFormatSwitch(Data, SelectiveAllies, "ENCHPS-m", Extra); }));
+            EncounterData.ExportVariables.Add("ENCHPS-*", new EncounterData.TextExportFormatter("ENCHPS-*", "Short ENCHPS w/suffix", "ENCHPS divided by 1/K/M/B/T/Q (with no decimal places)", (Data, SelectiveAllies, Extra) => { return EncounterFormatSwitch(Data, SelectiveAllies, "ENCHPS-*", Extra); }));
+            EncounterData.ExportVariables.Add("heals", new EncounterData.TextExportFormatter("heals", "Heal Count", "The total number of heals from this combatant.", (Data, SelectiveAllies, Extra) => { return EncounterFormatSwitch(Data, SelectiveAllies, "heals", Extra); }));
+            EncounterData.ExportVariables.Add("critheals", new EncounterData.TextExportFormatter("critheals", "Critical Heal Count", "The number of heals that were critical.", (Data, SelectiveAllies, Extra) => { return EncounterFormatSwitch(Data, SelectiveAllies, "critheals", Extra); }));
+            EncounterData.ExportVariables.Add("critheal%", new EncounterData.TextExportFormatter("critheal%", "Critical Heal Percentage", "The percentage of heals that were critical.", (Data, SelectiveAllies, Extra) => { return EncounterFormatSwitch(Data, SelectiveAllies, "critheal%", Extra); }));
+            EncounterData.ExportVariables.Add("cures", new EncounterData.TextExportFormatter("cures", "Cure or Dispel Count", "The total number of times the combatant cured or dispelled", (Data, SelectiveAllies, Extra) => { return EncounterFormatSwitch(Data, SelectiveAllies, "cures", Extra); }));
+            EncounterData.ExportVariables.Add("maxheal", new EncounterData.TextExportFormatter("maxheal", "Highest Heal", "The highest single healing amount formatted as [Combatant-]SkillName-Healing#", (Data, SelectiveAllies, Extra) => { return EncounterFormatSwitch(Data, SelectiveAllies, "maxheal", Extra); }));
+            EncounterData.ExportVariables.Add("MAXHEAL", new EncounterData.TextExportFormatter("MAXHEAL", "Short Highest Heal", "The highest single healing amount formatted as [Combatant-]Healing#", (Data, SelectiveAllies, Extra) => { return EncounterFormatSwitch(Data, SelectiveAllies, "MAXHEAL", Extra); }));
+            EncounterData.ExportVariables.Add("maxhealward", new EncounterData.TextExportFormatter("maxhealward", "Highest Heal/Ward", "The highest single healing/warding amount formatted as [Combatant-]SkillName-Healing#", (Data, SelectiveAllies, Extra) => { return EncounterFormatSwitch(Data, SelectiveAllies, "maxhealward", Extra); }));
+            EncounterData.ExportVariables.Add("MAXHEALWARD", new EncounterData.TextExportFormatter("MAXHEALWARD", "Short Highest Heal/Ward", "The highest single healing/warding amount formatted as [Combatant-]Healing#", (Data, SelectiveAllies, Extra) => { return EncounterFormatSwitch(Data, SelectiveAllies, "MAXHEALWARD", Extra); }));
+            EncounterData.ExportVariables.Add("maxheal-*", new EncounterData.TextExportFormatter("maxheal-*", "Highest Heal w/ suffix", "Highest Heal divided by 1/K/M/B/T/Q", (Data, SelectiveAllies, Extra) => { return EncounterFormatSwitch(Data, SelectiveAllies, "maxheal-*", Extra); }));
+            EncounterData.ExportVariables.Add("MAXHEAL-*", new EncounterData.TextExportFormatter("MAXHEAL-*", "Short Highest Heal w/ suffix", "Short Highest Heal divided by 1/K/M/B/T/Q", (Data, SelectiveAllies, Extra) => { return EncounterFormatSwitch(Data, SelectiveAllies, "MAXHEAL-*", Extra); }));
+            EncounterData.ExportVariables.Add("maxhealward-*", new EncounterData.TextExportFormatter("maxhealward-*", "Highest Heal/Ward w/ suffix", "Highest Heal/Ward divided by 1/K/M/B/T/Q", (Data, SelectiveAllies, Extra) => { return EncounterFormatSwitch(Data, SelectiveAllies, "maxhealward-*", Extra); }));
+            EncounterData.ExportVariables.Add("MAXHEALWARD-*", new EncounterData.TextExportFormatter("MAXHEALWARD-*", "Short Highest Heal/Ward w/ suffix", "Short Highest Heal/Ward divided by 1/K/M/B/T/Q", (Data, SelectiveAllies, Extra) => { return EncounterFormatSwitch(Data, SelectiveAllies, "MAXHEALWARD-*", Extra); }));
+            EncounterData.ExportVariables.Add("damagetaken", new EncounterData.TextExportFormatter("damagetaken", "Damage Received", "The total amount of damage this combatant received.", (Data, SelectiveAllies, Extra) => { return EncounterFormatSwitch(Data, SelectiveAllies, "damagetaken", Extra); }));
+            EncounterData.ExportVariables.Add("damagetaken-*", new EncounterData.TextExportFormatter("damagetaken-*", "Damage Received w/suffix", "Damage Received divided by 1/K/M/B/T/Q", (Data, SelectiveAllies, Extra) => { return EncounterFormatSwitch(Data, SelectiveAllies, "damagetaken-*", Extra); }));
+            EncounterData.ExportVariables.Add("healstaken", new EncounterData.TextExportFormatter("healstaken", "Healing Received", "The total amount of healing this combatant received.", (Data, SelectiveAllies, Extra) => { return EncounterFormatSwitch(Data, SelectiveAllies, "healstaken", Extra); }));
+            EncounterData.ExportVariables.Add("healstaken-*", new EncounterData.TextExportFormatter("healstaken-*", "Healing Received w/suffix", "Healing Received divided by 1/K/M/B/T/Q", (Data, SelectiveAllies, Extra) => { return EncounterFormatSwitch(Data, SelectiveAllies, "healstaken-*", Extra); }));
+            EncounterData.ExportVariables.Add("powerdrain", new EncounterData.TextExportFormatter("powerdrain", "Power Drain", "The amount of power this combatant drained from others.", (Data, SelectiveAllies, Extra) => { return EncounterFormatSwitch(Data, SelectiveAllies, "powerdrain", Extra); }));
+            EncounterData.ExportVariables.Add("powerdrain-*", new EncounterData.TextExportFormatter("powerdrain-*", "Power Drain w/suffix", "Power Drain divided by 1/K/M/B/T/Q", (Data, SelectiveAllies, Extra) => { return EncounterFormatSwitch(Data, SelectiveAllies, "powerdrain-*", Extra); }));
+            EncounterData.ExportVariables.Add("powerheal", new EncounterData.TextExportFormatter("powerheal", "Power Replenish", "The amount of power this combatant replenished to others.", (Data, SelectiveAllies, Extra) => { return EncounterFormatSwitch(Data, SelectiveAllies, "powerheal", Extra); }));
+            EncounterData.ExportVariables.Add("powerheal-*", new EncounterData.TextExportFormatter("powerheal-*", "Power Replenish w/suffix", "Power Replenish divided by 1/K/M/B/T/Q", (Data, SelectiveAllies, Extra) => { return EncounterFormatSwitch(Data, SelectiveAllies, "powerheal-*", Extra); }));
+            EncounterData.ExportVariables.Add("kills", new EncounterData.TextExportFormatter("kills", "Killing Blows", "The total number of times this character landed a killing blow.", (Data, SelectiveAllies, Extra) => { return EncounterFormatSwitch(Data, SelectiveAllies, "kills", Extra); }));
+            EncounterData.ExportVariables.Add("deaths", new EncounterData.TextExportFormatter("deaths", "Deaths", "The total number of times this character was killed by another.", (Data, SelectiveAllies, Extra) => { return EncounterFormatSwitch(Data, SelectiveAllies, "deaths", Extra); }));
 
             CombatantData.ColumnDefs.Clear();
             CombatantData.ColumnDefs.Add("EncId", new CombatantData.ColumnDef("EncId", false, "CHAR(8)", "EncId", (Data) => { return string.Empty; }, (Data) => { return Data.Parent.EncId; }, (Left, Right) => { return 0; }));
@@ -714,15 +776,18 @@ namespace ACT_EverQuest_DPS_Plugin
             CombatantData.ColumnDefs.Add("EndTime", new CombatantData.ColumnDef("EndTime", false, "TIMESTAMP", "EndTime", (Data) => { return Data.EndTime == DateTime.MinValue ? "--:--:--" : Data.EndTime.ToString("T"); }, (Data) => { return Data.EndTime == DateTime.MinValue ? "0000-00-00 00:00:00" : Data.EndTime.ToString("u").TrimEnd(new char[] { 'Z' }); }, (Left, Right) => { return Left.EndTime.CompareTo(Right.EndTime); }));
             CombatantData.ColumnDefs.Add("Duration", new CombatantData.ColumnDef("Duration", true, "INT", "Duration", (Data) => { return Data.DurationS; }, (Data) => { return Data.Duration.TotalSeconds.ToString("0"); }, (Left, Right) => { return Left.Duration.CompareTo(Right.Duration); }));
             CombatantData.ColumnDefs.Add("Damage", new CombatantData.ColumnDef("Damage", true, "BIGINT", "Damage", (Data) => { return Data.Damage.ToString(GetIntCommas()); }, (Data) => { return Data.Damage.ToString(); }, (Left, Right) => { return Left.Damage.CompareTo(Right.Damage); }));
-            CombatantData.ColumnDefs.Add("Damage%", new CombatantData.ColumnDef("Damage%", true, "DOUBLE", "DamagePercent", (Data) => { return string.Format("{0:000.000}", Data.DamagePercent); }, (Data) => { return string.Format("{0:000.000}", Data.DamagePercent); }, (Left, Right) => { return Left.DamagePercent.CompareTo(Right.DamagePercent); }));
+            CombatantData.ColumnDefs.Add("Damage%", new CombatantData.ColumnDef("Damage%", true, "VARCHAR(4)", "DamagePerc", (Data) => { return Data.DamagePercent; }, (Data) => { return Data.DamagePercent; }, (Left, Right) => { return Left.Damage.CompareTo(Right.Damage); }));
             CombatantData.ColumnDefs.Add("Kills", new CombatantData.ColumnDef("Kills", false, "INT", "Kills", (Data) => { return Data.Kills.ToString(GetIntCommas()); }, (Data) => { return Data.Kills.ToString(); }, (Left, Right) => { return Left.Kills.CompareTo(Right.Kills); }));
             CombatantData.ColumnDefs.Add("Healed", new CombatantData.ColumnDef("Healed", false, "BIGINT", "Healed", (Data) => { return Data.Healed.ToString(GetIntCommas()); }, (Data) => { return Data.Healed.ToString(); }, (Left, Right) => { return Left.Healed.CompareTo(Right.Healed); }));
             CombatantData.ColumnDefs.Add("Healed%", new CombatantData.ColumnDef("Healed%", false, "VARCHAR(4)", "HealedPerc", (Data) => { return Data.HealedPercent; }, (Data) => { return Data.HealedPercent; }, (Left, Right) => { return Left.Healed.CompareTo(Right.Healed); }));
             CombatantData.ColumnDefs.Add("CritHeals", new CombatantData.ColumnDef("CritHeals", false, "INT", "CritHeals", (Data) => { return Data.CritHeals.ToString(GetIntCommas()); }, (Data) => { return Data.CritHeals.ToString(); }, (Left, Right) => { return Left.CritHeals.CompareTo(Right.CritHeals); }));
             CombatantData.ColumnDefs.Add("Heals", new CombatantData.ColumnDef("Heals", false, "INT", "Heals", (Data) => { return Data.Heals.ToString(GetIntCommas()); }, (Data) => { return Data.Heals.ToString(); }, (Left, Right) => { return Left.Heals.CompareTo(Right.Heals); }));
-            CombatantData.ColumnDefs.Add("DPS", new CombatantData.ColumnDef("DPS", false, "DOUBLE", "DPS", (Data) => { return Data.DPS.ToString(); }, (Data) => { return Data.DPS.ToString(usCulture); }, (Left, Right) => { return Left.DPS.CompareTo(Right.DPS); }));
-            CombatantData.ColumnDefs.Add("EncDPS", new CombatantData.ColumnDef("EncDPS", true, "DOUBLE", "EncDPS", (Data) => { return Data.EncDPS.ToString(); }, (Data) => { return Data.EncDPS.ToString(usCulture); }, (Left, Right) => { return Left.EncDPS.CompareTo(Right.EncDPS); }));
-            //CombatantData.ColumnDefs.Add("EncHPS", new CombatantData.ColumnDef("EncHPS", true, "DOUBLE", "EncHPS", (Data) => { return Data.EncHPS.ToString(); }, (Data) => { return Data.EncHPS.ToString(usCulture); }, (Left, Right) => { return Left.EncHPS.CompareTo(Right.EncHPS); }));
+            CombatantData.ColumnDefs.Add("Cures", new CombatantData.ColumnDef("Cures", false, "INT", "CureDispels", (Data) => { return Data.CureDispels.ToString(GetIntCommas()); }, (Data) => { return Data.CureDispels.ToString(); }, (Left, Right) => { return Left.CureDispels.CompareTo(Right.CureDispels); }));
+            CombatantData.ColumnDefs.Add("PowerDrain", new CombatantData.ColumnDef("PowerDrain", true, "BIGINT", "PowerDrain", (Data) => { return Data.PowerDamage.ToString(GetIntCommas()); }, (Data) => { return Data.PowerDamage.ToString(); }, (Left, Right) => { return Left.PowerDamage.CompareTo(Right.PowerDamage); }));
+            CombatantData.ColumnDefs.Add("PowerReplenish", new CombatantData.ColumnDef("PowerReplenish", false, "BIGINT", "PowerReplenish", (Data) => { return Data.PowerReplenish.ToString(GetIntCommas()); }, (Data) => { return Data.PowerReplenish.ToString(); }, (Left, Right) => { return Left.PowerReplenish.CompareTo(Right.PowerReplenish); }));
+            CombatantData.ColumnDefs.Add("DPS", new CombatantData.ColumnDef("DPS", false, "DOUBLE", "DPS", (Data) => { return Data.DPS.ToString(GetFloatCommas()); }, (Data) => { return Data.DPS.ToString(usCulture); }, (Left, Right) => { return Left.DPS.CompareTo(Right.DPS); }));
+            CombatantData.ColumnDefs.Add("EncDPS", new CombatantData.ColumnDef("EncDPS", true, "DOUBLE", "EncDPS", (Data) => { return Data.EncDPS.ToString(GetFloatCommas()); }, (Data) => { return Data.EncDPS.ToString(usCulture); }, (Left, Right) => { return Left.Damage.CompareTo(Right.Damage); }));
+            CombatantData.ColumnDefs.Add("EncHPS", new CombatantData.ColumnDef("EncHPS", true, "DOUBLE", "EncHPS", (Data) => { return Data.EncHPS.ToString(GetFloatCommas()); }, (Data) => { return Data.EncHPS.ToString(usCulture); }, (Left, Right) => { return Left.Healed.CompareTo(Right.Healed); }));
             CombatantData.ColumnDefs.Add("Hits", new CombatantData.ColumnDef("Hits", false, "INT", "Hits", (Data) => { return Data.Hits.ToString(GetIntCommas()); }, (Data) => { return Data.Hits.ToString(); }, (Left, Right) => { return Left.Hits.CompareTo(Right.Hits); }));
             CombatantData.ColumnDefs.Add("CritHits", new CombatantData.ColumnDef("CritHits", false, "INT", "CritHits", (Data) => { return Data.CritHits.ToString(GetIntCommas()); }, (Data) => { return Data.CritHits.ToString(); }, (Left, Right) => { return Left.CritHits.CompareTo(Right.CritHits); }));
             CombatantData.ColumnDefs.Add("Avoids", new CombatantData.ColumnDef("Avoids", false, "INT", "Blocked", (Data) => { return Data.Blocked.ToString(GetIntCommas()); }, (Data) => { return Data.Blocked.ToString(); }, (Left, Right) => { return Left.Blocked.CompareTo(Right.Blocked); }));
@@ -731,7 +796,10 @@ namespace ACT_EverQuest_DPS_Plugin
             CombatantData.ColumnDefs.Add("HealingTaken", new CombatantData.ColumnDef("HealingTaken", false, "BIGINT", "HealsTaken", (Data) => { return Data.HealsTaken.ToString(GetIntCommas()); }, (Data) => { return Data.HealsTaken.ToString(); }, (Left, Right) => { return Left.HealsTaken.CompareTo(Right.HealsTaken); }));
             CombatantData.ColumnDefs.Add("DamageTaken", new CombatantData.ColumnDef("DamageTaken", true, "BIGINT", "DamageTaken", (Data) => { return Data.DamageTaken.ToString(GetIntCommas()); }, (Data) => { return Data.DamageTaken.ToString(); }, (Left, Right) => { return Left.DamageTaken.CompareTo(Right.DamageTaken); }));
             CombatantData.ColumnDefs.Add("Deaths", new CombatantData.ColumnDef("Deaths", true, "INT", "Deaths", (Data) => { return Data.Deaths.ToString(GetIntCommas()); }, (Data) => { return Data.Deaths.ToString(); }, (Left, Right) => { return Left.Deaths.CompareTo(Right.Deaths); }));
-            
+            CombatantData.ColumnDefs.Add("ToHit%", new CombatantData.ColumnDef("ToHit%", false, "FLOAT", "ToHit", (Data) => { return Data.ToHit.ToString(GetFloatCommas()); }, (Data) => { return Data.ToHit.ToString(usCulture); }, (Left, Right) => { return Left.ToHit.CompareTo(Right.ToHit); }));
+            CombatantData.ColumnDefs.Add("CritDam%", new CombatantData.ColumnDef("CritDam%", false, "VARCHAR(8)", "CritDamPerc", (Data) => { return Data.CritDamPerc.ToString("0'%"); }, (Data) => { return Data.CritDamPerc.ToString("0'%"); }, (Left, Right) => { return Left.CritDamPerc.CompareTo(Right.CritDamPerc); }));
+            CombatantData.ColumnDefs.Add("CritHeal%", new CombatantData.ColumnDef("CritHeal%", false, "VARCHAR(8)", "CritHealPerc", (Data) => { return Data.CritHealPerc.ToString("0'%"); }, (Data) => { return Data.CritHealPerc.ToString("0'%"); }, (Left, Right) => { return Left.CritHealPerc.CompareTo(Right.CritHealPerc); }));
+
             CombatantData.ColumnDefs.Add("CritTypes", new CombatantData.ColumnDef("CritTypes", true, "VARCHAR(32)", "CritTypes", CombatantDataGetCritTypes, CombatantDataGetCritTypes, (Left, Right) => { return CombatantDataGetCritTypes(Left).CompareTo(CombatantDataGetCritTypes(Right)); }));
 
             CombatantData.ColumnDefs["Damage"].GetCellForeColor = (Data) => { return Color.DarkRed; };
@@ -790,7 +858,8 @@ namespace ACT_EverQuest_DPS_Plugin
                 EverQuestSwingType.DirectDamageSpell.GetEverQuestSwingTypeExtensionIntValue(),
                 EverQuestSwingType.DamageOverTimeSpell.GetEverQuestSwingTypeExtensionIntValue(),
                 EverQuestSwingType.Bane.GetEverQuestSwingTypeExtensionIntValue(),
-                EverQuestSwingType.PetMelee.GetEverQuestSwingTypeExtensionIntValue() };
+                EverQuestSwingType.PetMelee.GetEverQuestSwingTypeExtensionIntValue() 
+            };
             CombatantData.HealingSwingTypes = new List<int> { EverQuestSwingType.InstantHealing.GetEverQuestSwingTypeExtensionIntValue(), EverQuestSwingType.HealOverTime.GetEverQuestSwingTypeExtensionIntValue() };
 
             CombatantData.ExportVariables.Clear();
@@ -836,11 +905,12 @@ namespace ACT_EverQuest_DPS_Plugin
             AttackType.ColumnDefs.Add("EncDPS", new AttackType.ColumnDef("EncDPS", true, "DOUBLE", "EncDPS", (Data) => { return Data.EncDPS.ToString(); }, (Data) => { return Data.EncDPS.ToString(usCulture); }, (Left, Right) => { return Left.EncDPS.CompareTo(Right.EncDPS); }));
             AttackType.ColumnDefs.Add("CharDPS", new AttackType.ColumnDef("CharDPS", false, "DOUBLE", "CharDPS", (Data) => { return Data.CharDPS.ToString(); }, (Data) => { return Data.CharDPS.ToString(usCulture); }, (Left, Right) => { return Left.CharDPS.CompareTo(Right.CharDPS); }));
             AttackType.ColumnDefs.Add("DPS", new AttackType.ColumnDef("DPS", false, "DOUBLE", "DPS", (Data) => { return Data.DPS.ToString(); }, (Data) => { return Data.DPS.ToString(usCulture); }, (Left, Right) => { return Left.DPS.CompareTo(Right.DPS); }));
-            AttackType.ColumnDefs.Add("Average", new AttackType.ColumnDef("Average", true, "DOUBLE", "Average", (Data) => { return Data.Average.ToString(); }, (Data) => { return Data.Average.ToString(usCulture); }, (Left, Right) => { return Left.Average.CompareTo(Right.Average); }));
+            AttackType.ColumnDefs.Add("Average", new AttackType.ColumnDef("Average", true, "DOUBLE", "Average", (Data) => { return Data.Items.Select((item) => item.Damage.Number).Average().ToString(); }, (Data) => { return Data.Items.Select((item) => item.Damage.Number).Average().ToString(usCulture); }, (Left, Right) => { return Left.Items.Select((item) => item.Damage.Number).Average().CompareTo(Right.Items.Select((item) => item.Damage.Number).Average()); }));
             AttackType.ColumnDefs.Add("Median", new AttackType.ColumnDef("Median", true, "BIGINT", "Median", (Data) => { return Data.Median.ToString(GetIntCommas()); }, (Data) => { return Data.Median.ToString(); }, (Left, Right) => { return Left.Median.CompareTo(Right.Median); }));
             AttackType.ColumnDefs.Add("Variance", new AttackType.ColumnDef("Variance", true, "DOUBLE", "Variance", AttackTypeGetVariance, AttackTypeGetVariance, (Left, Right) => { return AttackTypeGetVariance(Left).CompareTo(AttackTypeGetVariance(Right)); }));
             AttackType.ColumnDefs.Add("CritTypes", new AttackType.ColumnDef("CritTypes", true, "VARCHAR(32)", "CritTypes", AttackTypeGetCritTypes, AttackTypeGetCritTypes, (Left, Right) => { return AttackTypeGetCritTypes(Left).CompareTo(AttackTypeGetCritTypes(Right)); }));
-
+            AttackType.ColumnDefs.Add("Max", new AttackType.ColumnDef("Max", true, "BIGINT", "Max", (Data) => { return Data.Items.Select((item) => item.Damage.Number).Max().ToString();  }, (Data) => { return Data.Items.Select((item) => item.Damage.Number).Max().ToString(); }, (Left, Right) => { return Left.Items.Select((item) => item.Damage.Number).Max().CompareTo(Right.Items.Select((item) => item.Damage.Number).Max()); }));
+            AttackType.ColumnDefs.Add("Min", new AttackType.ColumnDef("Min", true, "BIGINT", "Min", (Data) => { return Data.Items.Select((item) => item.Damage.Number).Min().ToString();  }, (Data) => { return Data.Items.Select((item) => item.Damage.Number).Min().ToString(); }, (Left, Right) => { return Left.Items.Select((item) => item.Damage.Number).Min().CompareTo(Right.Items.Select((item) => item.Damage.Number).Min()); }));
 
             MasterSwing.ColumnDefs.Clear();
             MasterSwing.ColumnDefs.Add("EncId", new MasterSwing.ColumnDef("EncId", false, "CHAR(8)", "EncId", (Data) => { return string.Empty; }, (Data) => { return Data.ParentEncounter.EncId; }, (Left, Right) => { return 0; }));
@@ -1044,6 +1114,336 @@ namespace ACT_EverQuest_DPS_Plugin
                 }
             });
             task.Start();
+        }
+
+        private string EncounterFormatSwitch(EncounterData Data, List<CombatantData> SelectiveAllies, string VarName, string Extra)
+        {
+            long damage = 0;
+            long healed = 0;
+            int swings = 0;
+            int hits = 0;
+            int crits = 0;
+            int heals = 0;
+            int critheals = 0;
+            int cures = 0;
+            int misses = 0;
+            int hitfail = 0;
+            float tohit = 0;
+            double dps = 0;
+            double hps = 0;
+            long healstaken = 0;
+            long damagetaken = 0;
+            long powerdrain = 0;
+            long powerheal = 0;
+            int kills = 0;
+            int deaths = 0;
+
+            switch (VarName)
+            {
+                case "maxheal":
+                    return Data.GetMaxHeal(true, false, false);
+                case "MAXHEAL":
+                    return Data.GetMaxHeal(false, false, false);
+                case "maxheal-*":
+                    return Data.GetMaxHeal(true, false, true);
+                case "MAXHEAL-*":
+                    return Data.GetMaxHeal(false, false, true);
+                case "maxhealward":
+                    return Data.GetMaxHeal(true, true, false);
+                case "MAXHEALWARD":
+                    return Data.GetMaxHeal(false, true, false);
+                case "maxhealward-*":
+                    return Data.GetMaxHeal(true, true, true);
+                case "MAXHEALWARD-*":
+                    return Data.GetMaxHeal(false, true, true);
+                case "maxhit":
+                    return Data.GetMaxHit(true, false);
+                case "MAXHIT":
+                    return Data.GetMaxHit(false, false);
+                case "maxhit-*":
+                    return Data.GetMaxHit(true, true);
+                case "MAXHIT-*":
+                    return Data.GetMaxHit(false, true);
+                case "duration":
+                    if (ActGlobals.wallClockDuration)
+                    {
+                        if (Data.Active)
+                        {
+                            if (ActGlobals.oFormActMain.LastEstimatedTime > Data.StartTime)
+                            {
+                                TimeSpan wallDuration = ActGlobals.oFormActMain.LastEstimatedTime - Data.StartTime;
+                                if (wallDuration.Hours == 0)
+                                    return String.Format("{0:00}:{1:00}", wallDuration.Minutes, wallDuration.Seconds);
+                                else
+                                    return String.Format("{0:00}:{1:00}:{2:00}", wallDuration.Hours, wallDuration.Minutes, wallDuration.Seconds);
+                            }
+                            else
+                            {
+                                return "00:00";
+                            }
+                        }
+                        else
+                        {
+                            return Data.DurationS;
+                        }
+                    }
+                    else
+                        return Data.DurationS;
+                case "DURATION":
+                    if (ActGlobals.wallClockDuration)
+                    {
+                        if (Data.Active)
+                        {
+                            if (ActGlobals.oFormActMain.LastEstimatedTime > Data.StartTime)
+                            {
+                                TimeSpan wallDuration = ActGlobals.oFormActMain.LastEstimatedTime - Data.StartTime;
+                                return ((int)wallDuration.TotalSeconds).ToString("0");
+                            }
+                            else
+                            {
+                                return "0";
+                            }
+                        }
+                        else
+                        {
+                            return ((int)Data.Duration.TotalSeconds).ToString("0");
+                        }
+                    }
+                    else
+                        return Data.Duration.TotalSeconds.ToString("0");
+                case "damage":
+                    foreach (CombatantData cd in SelectiveAllies)
+                        damage += cd.Damage;
+                    return damage.ToString();
+                case "damage-m":
+                    foreach (CombatantData cd in SelectiveAllies)
+                        damage += cd.Damage;
+                    return (damage / 1000000.0).ToString("0.00");
+                case "damage-b":
+                    foreach (CombatantData cd in SelectiveAllies)
+                        damage += cd.Damage;
+                    return (damage / 1000000000.0).ToString("0.00");
+                case "damage-*":
+                    foreach (CombatantData cd in SelectiveAllies)
+                        damage += cd.Damage;
+                    return ActGlobals.oFormActMain.CreateDamageString(damage, true, true);
+                case "DAMAGE-k":
+                    foreach (CombatantData cd in SelectiveAllies)
+                        damage += cd.Damage;
+                    return (damage / 1000.0).ToString("0");
+                case "DAMAGE-m":
+                    foreach (CombatantData cd in SelectiveAllies)
+                        damage += cd.Damage;
+                    return (damage / 1000000.0).ToString("0");
+                case "DAMAGE-b":
+                    foreach (CombatantData cd in SelectiveAllies)
+                        damage += cd.Damage;
+                    return (damage / 1000000000.0).ToString("0");
+                case "DAMAGE-*":
+                    foreach (CombatantData cd in SelectiveAllies)
+                        damage += cd.Damage;
+                    return ActGlobals.oFormActMain.CreateDamageString(damage, true, false);
+                case "healed":
+                    foreach (CombatantData cd in SelectiveAllies)
+                        healed += cd.Healed;
+                    return healed.ToString();
+                case "healed-*":
+                    foreach (CombatantData cd in SelectiveAllies)
+                        healed += cd.Healed;
+                    return ActGlobals.oFormActMain.CreateDamageString(healed, true, true);
+                case "swings":
+                    foreach (CombatantData cd in SelectiveAllies)
+                        swings += cd.Swings;
+                    return swings.ToString();
+                case "hits":
+                    foreach (CombatantData cd in SelectiveAllies)
+                        hits += cd.Hits;
+                    return hits.ToString();
+                case "crithits":
+                    foreach (CombatantData cd in SelectiveAllies)
+                        crits += cd.CritHits;
+                    return crits.ToString();
+                case "crithit%":
+                    foreach (CombatantData cd in SelectiveAllies)
+                        crits += cd.CritHits;
+                    foreach (CombatantData cd in SelectiveAllies)
+                        hits += cd.Hits;
+                    float crithitperc = (float)crits / (float)hits;
+                    return crithitperc.ToString("0'%");
+                case "heals":
+                    foreach (CombatantData cd in SelectiveAllies)
+                        heals += cd.Heals;
+                    return heals.ToString();
+                case "critheals":
+                    foreach (CombatantData cd in SelectiveAllies)
+                        critheals += cd.CritHits;
+                    return critheals.ToString();
+                case "critheal%":
+                    foreach (CombatantData cd in SelectiveAllies)
+                        critheals += cd.CritHeals;
+                    foreach (CombatantData cd in SelectiveAllies)
+                        heals += cd.Heals;
+                    float crithealperc = (float)critheals / (float)heals;
+                    return crithealperc.ToString("0'%");
+                case "cures":
+                    foreach (CombatantData cd in SelectiveAllies)
+                        cures += cd.CureDispels;
+                    return cures.ToString();
+                case "misses":
+                    foreach (CombatantData cd in SelectiveAllies)
+                        misses += cd.Misses;
+                    return misses.ToString();
+                case "hitfailed":
+                    foreach (CombatantData cd in SelectiveAllies)
+                        hitfail += cd.Blocked;
+                    return hitfail.ToString();
+                case "TOHIT":
+                    foreach (CombatantData cd in SelectiveAllies)
+                        tohit += cd.ToHit;
+                    tohit /= SelectiveAllies.Count;
+                    return tohit.ToString("0");
+                case "DPS":
+                case "ENCDPS":
+                    foreach (CombatantData cd in SelectiveAllies)
+                        damage += cd.Damage;
+                    dps = damage / Data.Duration.TotalSeconds;
+                    return dps.ToString("0");
+                case "DPS-*":
+                case "ENCDPS-*":
+                    foreach (CombatantData cd in SelectiveAllies)
+                        damage += cd.Damage;
+                    dps = damage / Data.Duration.TotalSeconds;
+                    return ActGlobals.oFormActMain.CreateDamageString((long)dps, true, false);
+                case "DPS-k":
+                case "ENCDPS-k":
+                    foreach (CombatantData cd in SelectiveAllies)
+                        damage += cd.Damage;
+                    dps = damage / Data.Duration.TotalSeconds;
+                    return (dps / 1000.0).ToString("0");
+                case "ENCDPS-m":
+                    foreach (CombatantData cd in SelectiveAllies)
+                        damage += cd.Damage;
+                    dps = damage / Data.Duration.TotalSeconds;
+                    return (dps / 1000000.0).ToString("0");
+                case "ENCHPS":
+                    foreach (CombatantData cd in SelectiveAllies)
+                        healed += cd.Healed;
+                    hps = healed / Data.Duration.TotalSeconds;
+                    return hps.ToString("0");
+                case "ENCHPS-k":
+                    foreach (CombatantData cd in SelectiveAllies)
+                        healed += cd.Healed;
+                    hps = healed / Data.Duration.TotalSeconds;
+                    return (hps / 1000.0).ToString("0");
+                case "ENCHPS-m":
+                    foreach (CombatantData cd in SelectiveAllies)
+                        healed += cd.Healed;
+                    hps = healed / Data.Duration.TotalSeconds;
+                    return (hps / 1000000.0).ToString("0");
+                case "ENCHPS-*":
+                    foreach (CombatantData cd in SelectiveAllies)
+                        healed += cd.Healed;
+                    hps = healed / Data.Duration.TotalSeconds;
+                    return ActGlobals.oFormActMain.CreateDamageString((long)hps, true, false);
+                case "tohit":
+                    foreach (CombatantData cd in SelectiveAllies)
+                        tohit += cd.ToHit;
+                    tohit /= SelectiveAllies.Count;
+                    return tohit.ToString("F");
+                case "dps":
+                case "encdps":
+                    foreach (CombatantData cd in SelectiveAllies)
+                        damage += cd.Damage;
+                    dps = damage / Data.Duration.TotalSeconds;
+                    return dps.ToString("F");
+                case "dps-k":
+                case "encdps-k":
+                    foreach (CombatantData cd in SelectiveAllies)
+                        damage += cd.Damage;
+                    dps = damage / Data.Duration.TotalSeconds;
+                    return (dps / 1000.0).ToString("F");
+                case "encdps-m":
+                    foreach (CombatantData cd in SelectiveAllies)
+                        damage += cd.Damage;
+                    dps = damage / Data.Duration.TotalSeconds;
+                    return (dps / 1000000.0).ToString("F");
+                case "encdps-*":
+                    foreach (CombatantData cd in SelectiveAllies)
+                        damage += cd.Damage;
+                    dps = damage / Data.Duration.TotalSeconds;
+                    return ActGlobals.oFormActMain.CreateDamageString((long)dps, true, true);
+                case "enchps":
+                    foreach (CombatantData cd in SelectiveAllies)
+                        healed += cd.Healed;
+                    hps = healed / Data.Duration.TotalSeconds;
+                    return hps.ToString("F");
+                case "enchps-k":
+                    foreach (CombatantData cd in SelectiveAllies)
+                        healed += cd.Healed;
+                    hps = healed / Data.Duration.TotalSeconds;
+                    return (hps / 1000.0).ToString("F");
+                case "enchps-m":
+                    foreach (CombatantData cd in SelectiveAllies)
+                        healed += cd.Healed;
+                    hps = healed / Data.Duration.TotalSeconds;
+                    return (hps / 1000000.0).ToString("F");
+                case "enchps-*":
+                    foreach (CombatantData cd in SelectiveAllies)
+                        healed += cd.Healed;
+                    hps = healed / Data.Duration.TotalSeconds;
+                    return ActGlobals.oFormActMain.CreateDamageString((long)hps, true, true);
+                case "healstaken":
+                    foreach (CombatantData cd in SelectiveAllies)
+                        healstaken += cd.HealsTaken;
+                    return healstaken.ToString();
+                case "healstaken-*":
+                    foreach (CombatantData cd in SelectiveAllies)
+                        healstaken += cd.HealsTaken;
+                    return ActGlobals.oFormActMain.CreateDamageString(healstaken, true, true);
+                case "damagetaken":
+                    foreach (CombatantData cd in SelectiveAllies)
+                        damagetaken += cd.DamageTaken;
+                    return damagetaken.ToString();
+                case "damagetaken-*":
+                    foreach (CombatantData cd in SelectiveAllies)
+                        damagetaken += cd.DamageTaken;
+                    return ActGlobals.oFormActMain.CreateDamageString(damagetaken, true, true);
+                case "powerdrain":
+                    foreach (CombatantData cd in SelectiveAllies)
+                        powerdrain += cd.PowerDamage;
+                    return powerdrain.ToString();
+                case "powerdrain-*":
+                    foreach (CombatantData cd in SelectiveAllies)
+                        powerdrain += cd.PowerDamage;
+                    return ActGlobals.oFormActMain.CreateDamageString(powerdrain, true, true);
+                case "powerheal":
+                    foreach (CombatantData cd in SelectiveAllies)
+                        powerheal += cd.PowerReplenish;
+                    return powerheal.ToString();
+                case "powerheal-*":
+                    foreach (CombatantData cd in SelectiveAllies)
+                        powerheal += cd.PowerReplenish;
+                    return ActGlobals.oFormActMain.CreateDamageString(powerheal, true, true);
+                case "kills":
+                    foreach (CombatantData cd in SelectiveAllies)
+                        kills += cd.Kills;
+                    return kills.ToString();
+                case "deaths":
+                    foreach (CombatantData cd in SelectiveAllies)
+                        deaths += cd.Deaths;
+                    return deaths.ToString();
+                case "title":
+                    return Data.Title;
+
+                default:
+                    return VarName;
+            }
+
+
+        }
+        private string GetFloatCommas()
+        {
+            return ActGlobals.mainTableShowCommas ? "#,0.00" : "0.00";
         }
     }
 }
