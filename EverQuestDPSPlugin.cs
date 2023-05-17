@@ -239,7 +239,7 @@ namespace ACT_EverQuest_DPS_Plugin
                             ThreadInvokes.CheckboxSetChecked(ActGlobals.oFormActMain, pluginData.cbEnabled, true);
                             break;
                         case DialogResult.No:
-                            return;
+                            break;
                         default:
                             break;
 
