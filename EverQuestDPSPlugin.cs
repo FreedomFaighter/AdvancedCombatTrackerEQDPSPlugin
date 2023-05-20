@@ -212,7 +212,7 @@ namespace ACT_EverQuest_DPS_Plugin
             }
 
             SaveSettings();
-            ChangeStatusLabel($"{pluginName} Plugin Exited").Start();
+            lblStatus.Text = $"{pluginName} Plugin Exited";
         }
         void UpdateCheckClicked()
         {
@@ -491,11 +491,8 @@ namespace ACT_EverQuest_DPS_Plugin
 
         void LoadSettings()
         {
-            Task addSettings = new Task(() =>
-            {
-                xmlSettings.AddControlSetting(varianceChkBx.Name, varianceChkBx);
-            });
-            addSettings.Start();
+            xmlSettings.AddControlSetting(varianceChkBx.Name, varianceChkBx);
+           
             if (File.Exists(settingsFile))
             {
                 using (FileStream fs = new FileStream(settingsFile, FileMode.Open, FileAccess.Read, FileShare.ReadWrite))
