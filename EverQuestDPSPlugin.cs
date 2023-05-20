@@ -174,7 +174,7 @@ namespace ACT_EverQuest_DPS_Plugin
             LoadSettings();
 
             PopulateRegexArray();
-            SetupEverQuestEnvironment();   // Not really needed since ACT has this code internalized as well.
+            SetupEverQuestEnvironment();
             ActGlobals.oFormActMain.BeforeLogLineRead += new LogLineEventDelegate(oFormActMain_BeforeLogLineRead);
             ActGlobals.oFormActMain.UpdateCheckClicked += new FormActMain.NullDelegate(UpdateCheckClicked);
             ActGlobals.oFormActMain.GetDateTimeFromLog += new FormActMain.DateTimeLogParser(ParseDateTime);
