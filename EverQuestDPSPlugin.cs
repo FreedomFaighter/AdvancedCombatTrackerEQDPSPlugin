@@ -500,7 +500,7 @@ namespace ACT_EverQuest_DPS_Plugin
                 {
                     try
                     {
-                        while (await xReader.Read())
+                        while (xReader.Read())
                         {
                             if (xReader.NodeType == XmlNodeType.Element)
                             {
