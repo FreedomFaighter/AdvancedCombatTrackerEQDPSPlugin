@@ -3,7 +3,7 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.4.33205.214
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ACT_EverQuest_DPS_Plugin", "ACT_EverQuest_DPS_Plugin.csproj", "{1749AF3B-F485-4EA5-9F25-6C8805501A02}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ACT_EverQuest_DPS_Plugin", "ACT_EverQuest_DPS_Plugin\ACT_EverQuest_DPS_Plugin.csproj", "{1749AF3B-F485-4EA5-9F25-6C8805501A02}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ACT_EverQuest_DPS_Plugin_Tests", "..\ACT_EverQuest_DPS_Plugin_Tests\ACT_EverQuest_DPS_Plugin_Tests.csproj", "{EAE31718-D7F3-4117-8C18-B5EFBAF7D912}"
 EndProject
