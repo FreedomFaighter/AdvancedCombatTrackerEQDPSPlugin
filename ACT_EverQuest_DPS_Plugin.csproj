@@ -19,7 +19,7 @@
     <OutputPath>bin\Release\</OutputPath>
     <DefineConstants>TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
-    <WarningLevel>3</WarningLevel>
+    <WarningLevel>4</WarningLevel>
     <Prefer32Bit>false</Prefer32Bit>
   </PropertyGroup>
   <PropertyGroup>
@@ -63,7 +63,7 @@
     <Compile Include="SpellDamageSave.cs" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="..\github\workflows\msbuild.yml" />
-    <None Include="..\.github\workflows\release.yml" />
+    <None Include=".github\workflows\msbuild.yml" />
+    <None Include=".github\workflows\release.yml" />
   </ItemGroup>
 </Project>
