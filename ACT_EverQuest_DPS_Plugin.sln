@@ -5,7 +5,11 @@ VisualStudioVersion = 17.4.33205.214
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ACT_EverQuest_DPS_Plugin", "EverQuestDPSPlugin\ACT_EverQuest_DPS_Plugin.csproj", "{1749AF3B-F485-4EA5-9F25-6C8805501A02}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ACT_EverQuest_DPS_Plugin_Tests", "..\ACT_EverQuest_DPS_Plugin_Tests\ACT_EverQuest_DPS_Plugin_Tests.csproj", "{EAE31718-D7F3-4117-8C18-B5EFBAF7D912}"
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{194B4949-03B0-4708-B447-7EB17C26DB43}"
+	ProjectSection(SolutionItems) = preProject
+		.github\workflows\msbuild.yml = .github\workflows\msbuild.yml
+		.github\workflows\release.yml = .github\workflows\release.yml
+	EndProjectSection
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
