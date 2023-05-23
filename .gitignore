@@ -1,6 +1,4 @@
-# Build results
-.resx
-[Oo]bj/
-[Bb]in/
+EverQuestDPSPlugin/[Oo]bj/
+EverQuestDPSPlugin/[Bb]in/
 .vs/
 /packages
