@@ -303,7 +303,7 @@ namespace ACT_EverQuest_DPS_Plugin
                 }
             }
 #if DEBUG
-            Debug.WriteLine($"No match: {logInfo.logLine}");
+            Debug.WriteLine($"No match: {logInfo.logLine} in {logInfo.detectedZone} detected at {logInfo.detectedTime}");
 #endif
         }
 
