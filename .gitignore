@@ -1,20 +1,4 @@
-﻿
-# User-specific files
-*.rsuser
-*.suo
-*.user
-*.userosscache
-*.sln.docstates
-
-# User-specific files (MonoDevelop/Xamarin Studio)
-*.userprefs
-
-# Mono auto generated files
-mono_crash.*
-
-# Build results
-.resx
-[Oo]bj/
-[Bb]in/
+﻿EverQuestDPSPlugin/[Oo]bj/
+EverQuestDPSPlugin/[Bb]in/
 .vs/
 /packages
