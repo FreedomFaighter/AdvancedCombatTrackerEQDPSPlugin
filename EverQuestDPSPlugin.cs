@@ -2,7 +2,7 @@
 using EverQuestDPSPlugin;
 using System;
 using System.Collections.Generic;
-//using System.Diagnostics;
+using System.Diagnostics;
 using System.Drawing;
 using System.Globalization;
 using System.IO;
@@ -303,7 +303,7 @@ namespace ACT_EverQuest_DPS_Plugin
                 }
             }
 #if DEBUG
-            logInfo.detectedType = 0;
+            Debug.WriteLine($"No match: {logInfo.logLine}");
 #endif
         }
 
