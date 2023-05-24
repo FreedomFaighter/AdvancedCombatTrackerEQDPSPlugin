@@ -936,7 +936,7 @@ namespace ACT_EverQuest_DPS_Plugin
             {
                 return (Left.Tags.ContainsKey("overheal") && Right.Tags.ContainsKey("overheal")) ? ((long)Left.Tags["overheal"]).CompareTo((long)Right.Tags["overheal"]) : 0;
             }));
-
+            MasterSwing.ColumnDefs.Add("Time Δ", new MasterSwing.ColumnDef("Time Δ", true, "BIGINT", "TimeDelta", (Data) => { return (Data.Time - ((DateTime)Data.Tags[logTimestamp])).TotalMilliseconds.ToString(); }, (Data) => { return (Data.Time - ((DateTime)Data.Tags[logTimestamp])).TotalMilliseconds.ToString(); }, (Left, Right) => { return (Left.Time - ((DateTime)Left.Tags[logTimestamp])).CompareTo((Right.Time - ((DateTime)Right.Tags[logTimestamp]))); }));
             foreach (KeyValuePair<string, MasterSwing.ColumnDef> pair in MasterSwing.ColumnDefs)
                 pair.Value.GetCellForeColor = (Data) => { return GetSwingTypeColor(Data.SwingType); };
 
