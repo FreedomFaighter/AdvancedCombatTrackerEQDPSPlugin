@@ -14,11 +14,12 @@ using System.Threading.Tasks;
 using System.Windows.Forms;
 using System.Xml;
 using System.Collections.Concurrent;
+using System.Collections;
 /*
- * Project: EverQuest DPS Plugin
- * Original: EverQuest 2 English DPS Localization plugin developed by EQAditu
- * Description: Missing from the arsenal of the plugin based Advanced Combat Tracker to track EverQuest's current combat messages.  Ignores chat as that is displayed in game.
- */
+* Project: EverQuest DPS Plugin
+* Original: EverQuest 2 English DPS Localization plugin developed by EQAditu
+* Description: Missing from the arsenal of the plugin based Advanced Combat Tracker to track EverQuest's current combat messages.  Ignores chat as that is displayed in game.
+*/
 
 
 #if DEBUG
@@ -175,9 +176,10 @@ namespace ACT_EverQuest_DPS_Plugin
 
             PopulateRegexArray();
             SetupEverQuestEnvironment();
+            ActGlobals.oFormActMain.GetDateTimeFromLog += new FormActMain.DateTimeLogParser(ParseDateTime);
             ActGlobals.oFormActMain.BeforeLogLineRead += new LogLineEventDelegate(oFormActMain_BeforeLogLineRead);
             ActGlobals.oFormActMain.UpdateCheckClicked += new FormActMain.NullDelegate(UpdateCheckClicked);
-            ActGlobals.oFormActMain.GetDateTimeFromLog += new FormActMain.DateTimeLogParser(ParseDateTime);
+            
             Task updateCheckClicked = new Task(() =>
             {
                 UpdateCheckClicked();
@@ -201,9 +203,10 @@ namespace ACT_EverQuest_DPS_Plugin
 
         public void DeInitPlugin()
         {
+            ActGlobals.oFormActMain.GetDateTimeFromLog -= ParseDateTime;
             ActGlobals.oFormActMain.BeforeLogLineRead -= oFormActMain_BeforeLogLineRead;
             ActGlobals.oFormActMain.UpdateCheckClicked -= UpdateCheckClicked;
-            ActGlobals.oFormActMain.GetDateTimeFromLog -= ParseDateTime;
+            
 
             if (optionsNode != null)    // If we added our user control to the Options tab, remove it
             {
@@ -292,6 +295,10 @@ namespace ACT_EverQuest_DPS_Plugin
 
         void oFormActMain_BeforeLogLineRead(bool isImport, LogLineEventArgs logInfo)
         {
+            //regexTupleList.FirstOrDefault((tuple) =>
+            //{
+            //    return (tuple.Item2.Match(logInfo.logLine)).Success;
+            //});
             for (int i = 0; i < regexTupleList.Count; i++)
             {
                 Match regexMatch = regexTupleList[i].Item2.Match(logInfo.logLine);
