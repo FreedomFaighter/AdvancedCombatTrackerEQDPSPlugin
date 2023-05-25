@@ -1,5 +1,4 @@
 ﻿using Advanced_Combat_Tracker;
-using EverQuestDPSPlugin;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -33,7 +32,7 @@ using System.Collections.Concurrent;
 #else
 [assembly: AssemblyConfiguration("Release")]
 #endif
-namespace ACT_EverQuest_DPS_Plugin
+namespace EverQuestDPSPlugin
 {
     public class EverQuestDPSPlugin : UserControl, IActPluginV1
     {

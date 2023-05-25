@@ -1,6 +1,6 @@
 ﻿//Enum describing currently known special attacks that are written to the log file while actions occur in game
 //Currently appear after a combat action in parenthesis as a space seperated string
-namespace ACT_EverQuest_DPS_Plugin
+namespace EverQuestDPSPlugin
 {
     internal enum SpecialAttacks
     {
