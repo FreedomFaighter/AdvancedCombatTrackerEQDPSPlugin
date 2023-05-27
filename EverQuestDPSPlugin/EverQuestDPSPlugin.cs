@@ -102,7 +102,6 @@ namespace EverQuestDPSPlugin
         readonly String MeleeAttack = @"(?<attacker>.+) (?<attackType>" + $@"{attackTypes}" + @")(|s|es|bed) (?<victim>.+) for (?<damageAmount>[\d]+) (?:point[|s]) of damage.(?:\s\((?<damageSpecial>.+)\)){0,1}";
         readonly String MissedMeleeAttack = @"(?<attacker>.+) (?:tr(?:ies|y)) to (?<attackType>\S+) (?<victim>.+), but (?:miss(?:|es))!(?:\s\((?<damageSpecial>.+)\)){0,1}";
         readonly static String PluginSettingsFileName = @"Config\ACT_EverQuest_English_Parser.config.xml";
-        readonly String PluginSettingsSectionName = @"Data Correction\EQ English Settings";
         readonly String SlainMessage = @"(?<attacker>.+) ha(ve|s) slain (?<victim>.+)!";
         readonly String SpecialCripplingBlow = Enum.GetName(typeof(SpecialAttacks), (SpecialAttacks)SpecialAttacks.Crippling_Blow).Replace("_", " ");
         readonly String SpecialCritical = Enum.GetName(typeof(SpecialAttacks), (SpecialAttacks)SpecialAttacks.Critical);
@@ -146,6 +145,7 @@ namespace EverQuestDPSPlugin
             EverQuest_DPS_Plugin_Localization.EditLocalizations();
             settingsFile = Path.Combine(ActGlobals.oFormActMain.AppDataFolder.FullName, PluginSettingsFileName);
             lblStatus = pluginStatusText;   // Hand the status label's reference to our local var
+
             pluginScreenSpace.Controls.Add(this);
             this.Dock = DockStyle.Fill;
 
@@ -160,11 +160,11 @@ namespace EverQuestDPSPlugin
                 // Add our own node to the Data Correction node
                 optionsNode = ActGlobals.oFormActMain.OptionsTreeView.Nodes[dcIndex].Nodes.Add($"{pluginName} Settings");
                 // Register our user control(this) to our newly create node path.  All controls added to the list will be laid out left to right, top to bottom
-                ActGlobals.oFormActMain.OptionsControlSets.Add($@"{PluginSettingsSectionName}", new List<Control> { this });
+                ActGlobals.oFormActMain.OptionsControlSets.Add($"Data Correction\\{pluginName}", new List<Control> { this });
                 Label lblConfig = new Label
                 {
                     AutoSize = true,
-                    Text = "Find the applicable options in the Options tab, Data Correction section."
+                    Text = $"Settings under the {pluginName} tab."
                 };
                 pluginScreenSpace.Controls.Add(lblConfig);
             }
@@ -209,7 +209,7 @@ namespace EverQuestDPSPlugin
             if (optionsNode != null)    // If we added our user control to the Options tab, remove it
             {
                 optionsNode.Remove();
-                ActGlobals.oFormActMain.OptionsControlSets.Remove($@"{PluginSettingsSectionName}");
+                ActGlobals.oFormActMain.OptionsControlSets.Remove($"Data Correction\\{pluginName}");
             }
 
             SaveSettings();
@@ -947,6 +947,19 @@ namespace EverQuestDPSPlugin
 
             ActGlobals.oFormActMain.ValidateLists();
             ActGlobals.oFormActMain.ValidateTableSetup();
+        }
+
+        private double[] BackStep(AttackType Data, int backstep)
+        {
+            if (Data.Items.Count > backstep)
+            {
+                double[] values = new double[Data.Items.Count - backstep];
+                for (int i = 0; i < Data.Items.Count; i++)
+                    values[i] = Data.Items[i + backstep].Damage.Number - Data.Items[i].Damage.Number;
+                return values;
+            }
+            else
+                return new double[0];
         }
 
         private string AttackTypeGetVariance(AttackType Data)
