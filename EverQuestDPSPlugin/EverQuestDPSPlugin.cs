@@ -125,6 +125,7 @@ namespace EverQuestDPSPlugin
         readonly Regex selfCheck = new Regex(@"(You|you|yourself|Yourself|YOURSELF|YOU)", RegexOptions.Compiled);
         readonly String pluginName = "EverQuest Damage Per Second Parser";
         readonly String possessivePetString = @"`s pet";
+        
         //      readonly String fallDamage = @"(?<victim>.*) (?:ha[s|ve]) taken (?<pointsOfDamage>[\d]+) (?point[|s]) of fall damage.";
         bool populationVariance = false;
         SortedList<string, AposNameFix> aposNameList = new SortedList<string, AposNameFix>();
@@ -324,6 +325,12 @@ namespace EverQuestDPSPlugin
             }
         }
 
+        bool checkIfSelf(String nameOfCharacter)
+        {
+            Regex regexSelf = new Regex(@"(it|her|him)self", RegexOptions.Compiled);
+            return nameOfCharacter.Contains("itself") && nameOfCharacter.Contains("herself") && nameOfCharacter.Contains("himself");
+        }
+
         private void ParseEverQuestLogLine(Match regexMatch, int logMatched)
         {
             switch (logMatched)
@@ -413,6 +420,7 @@ namespace EverQuestDPSPlugin
                 case 7:
                     if (ActGlobals.oFormActMain.InCombat)
                     {
+
                         MasterSwing masterSwingHeal = new MasterSwing(regexMatch.Groups["overTime"].Success ? EverQuestSwingType.HealOverTime.GetEverQuestSwingTypeExtensionIntValue() : EverQuestSwingType.InstantHealing.GetEverQuestSwingTypeExtensionIntValue()
                             , regexMatch.Groups["healingSpecial"].Success ? regexMatch.Groups["healingSpecial"].Value.Contains(SpecialCritical) : false
                             , regexMatch.Groups["healingSpecial"].Success ? regexMatch.Groups["healingSpecial"].Value : String.Empty
@@ -422,7 +430,7 @@ namespace EverQuestDPSPlugin
                             , regexMatch.Groups["healingSpell"].Value
                             , CharacterNamePersonaReplace(regexMatch.Groups["healer"].Value)
                             , "Hitpoints"
-                            , CharacterNamePersonaReplace(regexMatch.Groups["healingTarget"].Value)
+                            , checkIfSelf(regexMatch.Groups["healingTarget"].Value) ? CharacterNamePersonaReplace(regexMatch.Groups["healer"].Value) : CharacterNamePersonaReplace(regexMatch.Groups["healingTarget"].Value)
                         );
                         masterSwingHeal.Tags[logTimestamp] = ActGlobals.oFormActMain.LastKnownTime;
                         if (regexMatch.Groups["overHealPoints"].Success)
