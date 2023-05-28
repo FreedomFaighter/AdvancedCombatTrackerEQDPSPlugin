@@ -187,16 +187,15 @@ namespace EverQuestDPSPlugin
 
             ActGlobals.oFormActMain.CharacterFileNameRegex = new Regex(@"(?:.+)[\\]eqlog_(?<characterName>\S+)_(?<server>.+).txt", RegexOptions.Compiled);
             ActGlobals.oFormActMain.ZoneChangeRegex = new Regex($@"{ZoneChange}", RegexOptions.Compiled);
-
-            ChangeStatusLabel($"{pluginName} Plugin Started").Start();
+            ChangelblStatus cls = ChangeStatusLabel;
+            this.lblStatus.Invoke(cls, new object[] { $"{pluginName} Plugin Started" });
+            //ChangeStatusLabel($"{pluginName} Plugin Started").Start();
         }
+        public delegate void ChangelblStatus(String status);
 
-        Task ChangeStatusLabel(String newStatusMessage)
+        public void ChangeStatusLabel(String newStatusMessage)
         {
-            return new Task(() =>
-            {
-                lblStatus.Text = newStatusMessage;
-            });
+            lblStatus.Text = newStatusMessage;
         }
 
         public void DeInitPlugin()
@@ -519,12 +518,13 @@ namespace EverQuestDPSPlugin
                     }
                     catch (ArgumentNullException ex)
                     {
-                        ChangeStatusLabel($"Argument Null for {ex.ParamName} with message: {ex.Message}").Start();
-
+                        ChangelblStatus cls = ChangeStatusLabel;
+                        this.lblStatus.Invoke(cls, new object[] { $"Argument Null for {ex.ParamName} with message: {ex.Message}" });
                     }
                     catch (Exception ex)
                     {
-                        ChangeStatusLabel($"With message: {ex.Message}").Start();
+                        ChangelblStatus cls = ChangeStatusLabel;
+                        this.lblStatus.Invoke(cls, new object[] { $"With message: {ex.Message}" });
                     }
                 }
             }
@@ -1122,22 +1122,20 @@ namespace EverQuestDPSPlugin
 
         private void varianceChkBx_CheckedChanged(object sender, EventArgs e)
         {
-            Task task = new Task(() =>
-            {
                 this.populationVariance = (sender as CheckBox).Checked;
                 switch (this.populationVariance)
                 {
                     case true:
-                        ChangeStatusLabel("Reporting population variance").Start();
+                        ChangelblStatus cls = ChangeStatusLabel;
+                        this.lblStatus.Invoke(cls, new object[] { $"Reporting population variance {pluginName}" });
                         break;
                     case false:
-                        ChangeStatusLabel("Reporting sample variance").Start();
+                        ChangelblStatus fcls = ChangeStatusLabel;
+                        this.lblStatus.Invoke(fcls, new object[] { $"Reporting sample variance {pluginName}" });
                         break;
                     default:
                         break;
                 }
-            });
-            task.Start();
         }
 
         private string EncounterFormatSwitch(EncounterData Data, List<CombatantData> SelectiveAllies, string VarName, string Extra)
