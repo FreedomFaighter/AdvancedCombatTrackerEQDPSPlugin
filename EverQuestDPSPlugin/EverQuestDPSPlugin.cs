@@ -76,7 +76,7 @@ namespace EverQuestDPSPlugin
             this.varianceChkBx.TabIndex = 19;
             this.varianceChkBx.Text = "Population Variance (checked)/Sample Variance (unchecked)";
             this.varianceChkBx.UseVisualStyleBackColor = true;
-            this.varianceChkBx.CheckedChanged += new System.EventHandler(this.varianceChkBx_CheckedChanged);
+            this.varianceChkBx.CheckedChanged += new System.EventHandler(this.VarianceChkBx_CheckedChanged);
             // 
             // EverQuestDPSPlugin
             // 
@@ -197,7 +197,7 @@ namespace EverQuestDPSPlugin
             PopulateRegexArray();
             SetupEverQuestEnvironment();
             ActGlobals.oFormActMain.GetDateTimeFromLog += new FormActMain.DateTimeLogParser(ParseDateTime);
-            ActGlobals.oFormActMain.BeforeLogLineRead += new LogLineEventDelegate(oFormActMain_BeforeLogLineRead);
+            ActGlobals.oFormActMain.BeforeLogLineRead += new LogLineEventDelegate(FormActMain_BeforeLogLineRead);
             ActGlobals.oFormActMain.UpdateCheckClicked += new FormActMain.NullDelegate(UpdateCheckClicked);
             
             Task updateCheckClicked = new Task(() =>
@@ -208,7 +208,7 @@ namespace EverQuestDPSPlugin
                 updateCheckClicked.Start();   // If we don't put this on a separate thread, web latency will delay the plugin init phase
 
             ActGlobals.oFormActMain.CharacterFileNameRegex = new Regex(@"(?:.+)[\\]eqlog_(?<characterName>\S+)_(?<server>.+).txt", RegexOptions.Compiled);
-            ActGlobals.oFormActMain.ZoneChangeRegex = new Regex($@"{ZoneChange}", RegexOptions.Compiled);
+            ActGlobals.oFormActMain.ZoneChangeRegex = new Regex($@"{TimeStamp} {ZoneChange}", RegexOptions.Compiled);
             ChangelblStatus cls = ChangeStatusLabel;
             this.lblStatus.Invoke(cls, new object[] { $"{pluginName} Plugin Started" });
             //ChangeStatusLabel($"{pluginName} Plugin Started").Start();
@@ -223,7 +223,7 @@ namespace EverQuestDPSPlugin
         public void DeInitPlugin()
         {
             ActGlobals.oFormActMain.GetDateTimeFromLog -= ParseDateTime;
-            ActGlobals.oFormActMain.BeforeLogLineRead -= oFormActMain_BeforeLogLineRead;
+            ActGlobals.oFormActMain.BeforeLogLineRead -= FormActMain_BeforeLogLineRead;
             ActGlobals.oFormActMain.UpdateCheckClicked -= UpdateCheckClicked;
             
 
@@ -276,8 +276,7 @@ namespace EverQuestDPSPlugin
 
         private DateTime ParseDateTime(String logLine)
         {
-            DateTime currentEQTimeStamp;
-            DateTime.TryParseExact(dateTimeRegex.Match(logLine).Groups["dateTimeOfLogLine"].Value, eqDateTimeStampFormat, DateTimeFormatInfo.CurrentInfo, DateTimeStyles.AssumeLocal, out currentEQTimeStamp);
+            DateTime.TryParseExact(dateTimeRegex.Match(logLine).Groups["dateTimeOfLogLine"].Value, eqDateTimeStampFormat, DateTimeFormatInfo.CurrentInfo, DateTimeStyles.AssumeLocal, out DateTime currentEQTimeStamp);
             return currentEQTimeStamp;
         }
 
@@ -312,7 +311,7 @@ namespace EverQuestDPSPlugin
             //ActGlobals.oFormEncounterLogs.LogTypeToColorMapping.Add(regexTupleList.Count, regexTupleList[regexTupleList.Count - 1].Item1);
         }
 
-        void oFormActMain_BeforeLogLineRead(bool isImport, LogLineEventArgs logInfo)
+        void FormActMain_BeforeLogLineRead(bool isImport, LogLineEventArgs logInfo)
         {
             //regexTupleList.FirstOrDefault((tuple) =>
             //{
@@ -347,10 +346,10 @@ namespace EverQuestDPSPlugin
         }
 		#endregion
 
-        bool checkIfSelf(String nameOfCharacter)
+        bool CheckIfSelf(String nameOfCharacter)
         {
             Regex regexSelf = new Regex(@"(it|her|him)self", RegexOptions.Compiled);
-            return nameOfCharacter.Contains("itself") && nameOfCharacter.Contains("herself") && nameOfCharacter.Contains("himself");
+            return regexSelf.Match(nameOfCharacter).Success;
         }
 
         private void ParseEverQuestLogLine(Match regexMatch, int logMatched)
@@ -452,7 +451,7 @@ namespace EverQuestDPSPlugin
                             , regexMatch.Groups["healingSpell"].Value
                             , CharacterNamePersonaReplace(regexMatch.Groups["healer"].Value)
                             , "Hitpoints"
-                            , checkIfSelf(regexMatch.Groups["healingTarget"].Value) ? CharacterNamePersonaReplace(regexMatch.Groups["healer"].Value) : CharacterNamePersonaReplace(regexMatch.Groups["healingTarget"].Value)
+                            , CheckIfSelf(regexMatch.Groups["healingTarget"].Value) ? CharacterNamePersonaReplace(regexMatch.Groups["healer"].Value) : CharacterNamePersonaReplace(regexMatch.Groups["healingTarget"].Value)
                         );
                         masterSwingHeal.Tags[logTimestamp] = ActGlobals.oFormActMain.LastKnownTime;
                         if (regexMatch.Groups["overHealPoints"].Success)
@@ -791,9 +790,9 @@ namespace EverQuestDPSPlugin
             EncounterData.ExportVariables.Add("maxhit-*", new EncounterData.TextExportFormatter("maxhit-*", "Highest Hit w/ suffix", "MaxHit divided by 1/K/M/B/T/Q", (Data, SelectiveAllies, Extra) => { return EncounterFormatSwitch(Data, SelectiveAllies, "maxhit-*", Extra); }));
             EncounterData.ExportVariables.Add("MAXHIT-*", new EncounterData.TextExportFormatter("MAXHIT-*", "Short Highest Hit w/ suffix", "Short MaxHit divided by 1/K/M/B/T/Q", (Data, SelectiveAllies, Extra) => { return EncounterFormatSwitch(Data, SelectiveAllies, "MAXHIT-*", Extra); }));
             EncounterData.ExportVariables.Add("healed", new EncounterData.TextExportFormatter("healed", "Healed", "The numerical total of all heals, wards or similar sourced from this combatant.", (Data, SelectiveAllies, Extra) => { return EncounterFormatSwitch(Data, SelectiveAllies, "healed", Extra); }));
-            EncounterData.ExportVariables.Add("enchps", new EncounterData.TextExportFormatter("enchps", "Encounter HPS", "The healing total of the combatant divided by the duration of the encounter, formatted as 12.34", (Data, SelectiveAllies, Extra) => { return EncounterFormatSwitch(Data, SelectiveAllies, "enchps", Extra); }));
-            EncounterData.ExportVariables.Add("enchps-*", new EncounterData.TextExportFormatter("enchps-*", "Encounter HPS w/suffix", "Encounter HPS divided by 1/K/M/B/T/Q", (Data, SelectiveAllies, Extra) => { return EncounterFormatSwitch(Data, SelectiveAllies, "enchps-*", Extra); }));
-            EncounterData.ExportVariables.Add("ENCHPS", new EncounterData.TextExportFormatter("ENCHPS", "Short Encounter HPS", "The healing total of the combatant divided by the duration of the encounter, formatted as 12", (Data, SelectiveAllies, Extra) => { return EncounterFormatSwitch(Data, SelectiveAllies, "ENCHPS", Extra); }));
+            //EncounterData.ExportVariables.Add("enchps", new EncounterData.TextExportFormatter("enchps", "Encounter HPS", "The healing total of the combatant divided by the duration of the encounter, formatted as 12.34", (Data, SelectiveAllies, Extra) => { return EncounterFormatSwitch(Data, SelectiveAllies, "enchps", Extra); }));
+            //EncounterData.ExportVariables.Add("enchps-*", new EncounterData.TextExportFormatter("enchps-*", "Encounter HPS w/suffix", "Encounter HPS divided by 1/K/M/B/T/Q", (Data, SelectiveAllies, Extra) => { return EncounterFormatSwitch(Data, SelectiveAllies, "enchps-*", Extra); }));
+            //EncounterData.ExportVariables.Add("ENCHPS", new EncounterData.TextExportFormatter("ENCHPS", "Short Encounter HPS", "The healing total of the combatant divided by the duration of the encounter, formatted as 12", (Data, SelectiveAllies, Extra) => { return EncounterFormatSwitch(Data, SelectiveAllies, "ENCHPS", Extra); }));
             EncounterData.ExportVariables.Add("heals", new EncounterData.TextExportFormatter("heals", "Heal Count", "The total number of heals from this combatant.", (Data, SelectiveAllies, Extra) => { return EncounterFormatSwitch(Data, SelectiveAllies, "heals", Extra); }));
             EncounterData.ExportVariables.Add("critheals", new EncounterData.TextExportFormatter("critheals", "Critical Heal Count", "The number of heals that were critical.", (Data, SelectiveAllies, Extra) => { return EncounterFormatSwitch(Data, SelectiveAllies, "critheals", Extra); }));
             EncounterData.ExportVariables.Add("critheal%", new EncounterData.TextExportFormatter("critheal%", "Critical Heal Percentage", "The percentage of heals that were critical.", (Data, SelectiveAllies, Extra) => { return EncounterFormatSwitch(Data, SelectiveAllies, "critheal%", Extra); }));
@@ -952,7 +951,7 @@ namespace EverQuestDPSPlugin
             AttackType.ColumnDefs.Add("DPS", new AttackType.ColumnDef("DPS", false, "DOUBLE", "DPS", (Data) => { return Data.DPS.ToString(); }, (Data) => { return Data.DPS.ToString(usCulture); }, (Left, Right) => { return Left.DPS.CompareTo(Right.DPS); }));
             AttackType.ColumnDefs.Add("Average", new AttackType.ColumnDef("Average", true, "DOUBLE", "Average", (Data) => { return (new ConcurrentQueue<MasterSwing>(Data.Items)).Select((item) => item.Damage.Number).Average().ToString(); }, (Data) => { return (new ConcurrentQueue<MasterSwing>(Data.Items)).Select((item) => item.Damage.Number).Average().ToString(usCulture); }, (Left, Right) => { return (new ConcurrentQueue<MasterSwing>(Left.Items)).Select((item) => item.Damage.Number).Average().CompareTo((new ConcurrentQueue<MasterSwing>(Right.Items)).Select((item) => item.Damage.Number).Average()); }));
             AttackType.ColumnDefs.Add("Median", new AttackType.ColumnDef("Median", true, "BIGINT", "Median", (Data) => { return Data.Median.ToString(); }, (Data) => { return Data.Median.ToString(); }, (Left, Right) => { return Left.Median.CompareTo(Right.Median); }));
-            AttackType.ColumnDefs.Add("Variance", new AttackType.ColumnDef("Variance", true, "DOUBLE", "Variance", AttackTypeGetVariance, AttackTypeGetVariance, (Left, Right) => { return AttackTypeGetVariance(Left).CompareTo(AttackTypeGetVariance(Right)); }));
+            AttackType.ColumnDefs.Add("Variance", new AttackType.ColumnDef("Variance", true, "DOUBLE", "Variance", (Data) => { return AttackTypeGetVariance(Data).ToString(); }, (Data) => { return AttackTypeGetVariance(Data).ToString(); }, (Left, Right) => { return AttackTypeGetVariance(Left).CompareTo(AttackTypeGetVariance(Right)); }));
             AttackType.ColumnDefs.Add("CritTypes", new AttackType.ColumnDef("CritTypes", true, "VARCHAR(32)", "CritTypes", AttackTypeGetCritTypes, AttackTypeGetCritTypes, (Left, Right) => { return AttackTypeGetCritTypes(Left).CompareTo(AttackTypeGetCritTypes(Right)); }));
             AttackType.ColumnDefs.Add("Max", new AttackType.ColumnDef("Max", true, "BIGINT", "Max", (Data) => { return (new ConcurrentQueue<MasterSwing>(Data.Items)).Select((item) => item.Damage.Number).Max().ToString(); }, (Data) => { return (new ConcurrentQueue<MasterSwing>(Data.Items)).Select((item) => item.Damage.Number).Max().ToString(); }, (Left, Right) => { return (new ConcurrentQueue<MasterSwing>(Left.Items)).Select((item) => item.Damage.Number).Min().CompareTo((new ConcurrentQueue<MasterSwing>(Right.Items)).ToList().Select((item) => item.Damage.Number).Min()); }));
             AttackType.ColumnDefs.Add("Min", new AttackType.ColumnDef("Min", true, "BIGINT", "Min", (Data) => { return (new ConcurrentQueue<MasterSwing>(Data.Items)).Select((item) => item.Damage.Number).Min().ToString(); }, (Data) => { return (new ConcurrentQueue<MasterSwing>(Data.Items)).Select((item) => item.Damage.Number).Min().ToString(); }, (Left, Right) => { return Left.Items.ToList().Select((item) => item.Damage.Number).Min().CompareTo(Right.Items.ToList().Select((item) => item.Damage.Number).Min()); }));
@@ -992,29 +991,28 @@ namespace EverQuestDPSPlugin
                 return values;
             }
             else
-                return new double[] { default(Double) };
+                return new double[] { default };
         }
 
-        private string AttackTypeGetVariance(AttackType Data)
+        private double AttackTypeGetVariance(AttackType Data)
         {
             if (populationVariance && Data.Items.Count > 1)
                 return Data.Items.Sum((item) =>
                 {
                     return Math.Pow(Data.Average - item.Damage, 2.0) / Data.Items.Count;
-                }).ToString();
+                });
             else if (!populationVariance && Data.Items.Count > 0)
                 return Data.Items.Sum((item) =>
                 {
                     return Math.Pow(Data.Average - item.Damage, 2.0) / (Data.Items.Count - 1);
-                }).ToString();
+                });
             else
-                return String.Empty;
+                return default;
         }
 
         private string CombatantDataGetCritTypes(CombatantData Data)
         {
-            AttackType at;
-            if (Data.AllOut.TryGetValue(ActGlobals.ActLocalization.LocalizationStrings["attackTypeTerm-all"].DisplayedText, out at))
+            if (Data.AllOut.TryGetValue(ActGlobals.ActLocalization.LocalizationStrings["attackTypeTerm-all"].DisplayedText, out AttackType at))
             {
                 return AttackTypeGetCritTypes(at);
             }
@@ -1024,8 +1022,7 @@ namespace EverQuestDPSPlugin
 
         private string DamageTypeDataGetCritTypes(DamageTypeData Data)
         {
-            AttackType at;
-            if (Data.Items.TryGetValue(ActGlobals.ActLocalization.LocalizationStrings["attackTypeTerm-all"].DisplayedText, out at))
+            if (Data.Items.TryGetValue(ActGlobals.ActLocalization.LocalizationStrings["attackTypeTerm-all"].DisplayedText, out AttackType at))
             {
                 return AttackTypeGetCritTypes(at);
             }
@@ -1153,7 +1150,7 @@ namespace EverQuestDPSPlugin
                 return swingType == null ? String.Empty : swingType.ToString();
         }
 
-        private void varianceChkBx_CheckedChanged(object sender, EventArgs e)
+        private void VarianceChkBx_CheckedChanged(object sender, EventArgs e)
         {
                 this.populationVariance = (sender as CheckBox).Checked;
                 switch (this.populationVariance)
@@ -1184,8 +1181,8 @@ namespace EverQuestDPSPlugin
             int misses = 0;
             int hitfail = 0;
             float tohit = 0;
-            double dps = 0;
-            double hps = 0;
+            double dps;
+            double hps;
             long healstaken = 0;
             long damagetaken = 0;
             //long powerdrain = 0;
@@ -1463,22 +1460,6 @@ namespace EverQuestDPSPlugin
                     foreach (CombatantData cd in SelectiveAllies)
                         damagetaken += cd.DamageTaken;
                     return ActGlobals.oFormActMain.CreateDamageString(damagetaken, true, true);
-                //case "powerdrain":
-                //    foreach (CombatantData cd in SelectiveAllies)
-                //        powerdrain += cd.PowerDamage;
-                //    return powerdrain.ToString();
-                //case "powerdrain-*":
-                //    foreach (CombatantData cd in SelectiveAllies)
-                //        powerdrain += cd.PowerDamage;
-                //    return ActGlobals.oFormActMain.CreateDamageString(powerdrain, true, true);
-                //case "powerheal":
-                //    foreach (CombatantData cd in SelectiveAllies)
-                //       powerheal += cd.PowerReplenish;
-                //    return powerheal.ToString();
-                //case "powerheal-*":
-                //    foreach (CombatantData cd in SelectiveAllies)
-                //        powerheal += cd.PowerReplenish;
-                //    return ActGlobals.oFormActMain.CreateDamageString(powerheal, true, true);
                 case "kills":
                     foreach (CombatantData cd in SelectiveAllies)
                         kills += cd.Kills;
@@ -1495,10 +1476,6 @@ namespace EverQuestDPSPlugin
             }
 
 
-        }
-        private string GetFloatCommas()
-        {
-            return ActGlobals.mainTableShowCommas ? "#,0.00" : "0.00";
         }
     }
 }
