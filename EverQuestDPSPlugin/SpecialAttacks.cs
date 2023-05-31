@@ -12,6 +12,7 @@ namespace EverQuestDPSPlugin
         Riposte = 32,
         Strikethrough = 64,
         Double_Bow_Shot = 128,
-        Twincast = 256
+        Twincast = 256,
+        Wild_Rampage = 512,
     }
 }
