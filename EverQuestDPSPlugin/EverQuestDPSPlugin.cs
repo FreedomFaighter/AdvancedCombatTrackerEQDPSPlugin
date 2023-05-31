@@ -128,6 +128,7 @@ namespace EverQuestDPSPlugin
         readonly String SpecialRiposte = Enum.GetName(typeof(SpecialAttacks), (SpecialAttacks)SpecialAttacks.Riposte);
         readonly String SpecialStrikethrough = Enum.GetName(typeof(SpecialAttacks), (SpecialAttacks)SpecialAttacks.Strikethrough);
         readonly String SpecialTwincast = Enum.GetName(typeof(SpecialAttacks), (SpecialAttacks)SpecialAttacks.Twincast);
+        readonly String SpecialWildRampage = Enum.GetName(typeof(SpecialAttacks), (SpecialAttacks)SpecialAttacks.Wild_Rampage).Replace("_", " ");
         readonly String SpellDamage = @"(?<attacker>.+) hit (?<victim>.*) for (?<damagePoints>[\d]+) (?:point[|s]) of (?<typeOfDamage>.+) damage by (?<damageEffect>.*)\.(?:[\s][\(](?<spellSpecial>.+)[\)]){0,1}";
         readonly String SpellDamageOverTime = @"(?<attacker>.+) has taken (?<damagePoints>[\d]+) damage from (?<damageEffect>.*) by (?<victim>.*)\.(?:[\s][\(](?<spellSpecial>.+)[\)]){0,1}";
         static readonly String TimeStamp = @"\[(?<dateTimeOfLogLine>.+)\]";
@@ -1032,6 +1033,7 @@ namespace EverQuestDPSPlugin
 
         private string AttackTypeGetCritTypes(AttackType Data)
         {
+            List<MasterSwing> at = Data.Items;
             int specialCripplingBlow = 0;
             int specialLocked = 0;
             int specialCritical = 0;
@@ -1042,46 +1044,51 @@ namespace EverQuestDPSPlugin
             int specialLucky = 0;
             int specialDoubleBowShot = 0;
             int specialTwincast = 0;
+            int specialWildRampage = 0;
             int count = Data.Items.Count;
             if (count.Equals(0))
                 return String.Empty;
-            specialCritical = Data.Items.Where((critital) =>
+            specialCritical = at.Where((critital) =>
             {
                 return critital.Special.Contains(SpecialCritical);
             }).Count();
-            specialFlurry = Data.Items.Where((flurry) =>
+            specialFlurry = at.Where((flurry) =>
             {
                 return flurry.Special.Contains(SpecialFlurry);
             }).Count();
-            specialLucky = Data.Items.Where((lucky) =>
+            specialLucky = at.Where((lucky) =>
             {
                 return lucky.Special.Contains(SpecialLucky);
             }).Count();
-            specialCripplingBlow = Data.Items.Where((cripplingBlow) =>
+            specialCripplingBlow = at.Where((cripplingBlow) =>
             {
                 return cripplingBlow.Special.Contains(SpecialCripplingBlow);
             }).Count();
-            specialLocked = Data.Items.Where((locked) =>
+            specialLocked = at.Where((locked) =>
             {
                 return locked.Special.Contains(SpecialLocked);
             }).Count();
-            specialStrikethrough = Data.Items.Where((srikethrough) =>
+            specialStrikethrough = at.Where((srikethrough) =>
             {
                 return srikethrough.Special.Contains(SpecialStrikethrough);
             }).Count();
-            specialRiposte = Data.Items.Where((riposte) =>
+            specialRiposte = at.Where((riposte) =>
             {
                 return riposte.Special.Contains(SpecialRiposte);
             }).Count();
-            specialDoubleBowShot = Data.Items.Where((doubleBowShot) =>
+            specialDoubleBowShot = at.Where((doubleBowShot) =>
             {
                 return doubleBowShot.Special.Contains(SpecialDoubleBowShot);
             }).Count();
-            specialTwincast = Data.Items.Where((twincast) =>
+            specialTwincast = at.Where((twincast) =>
             {
                 return twincast.Special.Contains(SpecialTwincast);
             }).Count();
-            specialNonDefined = Data.Items.Where((nondefined) =>
+            specialWildRampage = at.Where((twincast) =>
+            {
+                return twincast.Special.Contains(SpecialWildRampage);
+            }).Count();
+            specialNonDefined = at.Where((nondefined) =>
             {
                 return !nondefined.Special.Contains(SpecialTwincast) &&
                     !nondefined.Special.Contains(SpecialDoubleBowShot) &&
@@ -1090,7 +1097,8 @@ namespace EverQuestDPSPlugin
                     !nondefined.Special.Contains(SpecialCripplingBlow) &&
                     !nondefined.Special.Contains(SpecialLucky) &&
                     !nondefined.Special.Contains(SpecialFlurry) &&
-                    !nondefined.Special.Contains(SpecialCritical)
+                    !nondefined.Special.Contains(SpecialCritical) &&
+                    !nondefined.Special.Contains(SpecialWildRampage)
                     && nondefined.Special.Length > ActGlobals.ActLocalization.LocalizationStrings["specialAttackTerm-none"].DisplayedText.Length;
 
             }).Count();
@@ -1105,8 +1113,9 @@ namespace EverQuestDPSPlugin
             float speicalLuckyPerc = ((float)specialLucky / (float)count) * 100f;
             float specialDoubleBowShotPerc = ((float)specialDoubleBowShot / (float)count) * 100f;
             float specialTwincastPerc = ((float)specialTwincast / (float)count) * 100f;
+            float specialWildRampagePerc = ((float)specialWildRampage / (float)count) * 100f;
 
-            return $"{specialCripplingBlowPerc:000.0}%CB-{specialLockedPerc:000.0}%Locked-{specialCriticalPerc:000.0}%C-{specialStrikethroughPerc:000.0}%S-{specialRipostePerc:000.0}%R-{specialFlurryPerc:000.0}%F-{speicalLuckyPerc:000.0}%Lucky-{specialDoubleBowShotPerc:000.0}%DB-{specialTwincastPerc:000.0}%TC-{specialNonDefinedPerc:000.0}%ND";
+            return $"{specialCripplingBlowPerc:000.0}%CB-{specialLockedPerc:000.0}%Locked-{specialCriticalPerc:000.0}%C-{specialStrikethroughPerc:000.0}%S-{specialRipostePerc:000.0}%R-{specialFlurryPerc:000.0}%F-{speicalLuckyPerc:000.0}%Lucky-{specialDoubleBowShotPerc:000.0}%DB-{specialTwincastPerc:000.0}%TC-{specialWildRampagePerc:000.0}%WR-{specialNonDefinedPerc:000.0}%ND";
         }
 
         private Color GetSwingTypeColor(int SwingType)
