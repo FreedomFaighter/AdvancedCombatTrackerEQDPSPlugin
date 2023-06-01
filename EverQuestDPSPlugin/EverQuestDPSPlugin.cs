@@ -721,11 +721,6 @@ namespace EverQuestDPSPlugin
             xWriter.WriteEndElement();
         }
 
-        //private string GetIntCommas()
-        //{
-        //    return ActGlobals.mainTableShowCommas ? "#,0" : "0";
-        //}
-
         private void SetupEverQuestEnvironment()
         {
             CultureInfo usCulture = new CultureInfo("en-US");   // This is for SQL syntax; do not change
@@ -935,12 +930,12 @@ namespace EverQuestDPSPlugin
             AttackType.ColumnDefs.Add("EncDPS", new AttackType.ColumnDef("EncDPS", true, "DOUBLE", "EncDPS", (Data) => { return Data.EncDPS.ToString(); }, (Data) => { return Data.EncDPS.ToString(usCulture); }, (Left, Right) => { return Left.EncDPS.CompareTo(Right.EncDPS); }));
             AttackType.ColumnDefs.Add("CharDPS", new AttackType.ColumnDef("CharDPS", false, "DOUBLE", "CharDPS", (Data) => { return Data.CharDPS.ToString(); }, (Data) => { return Data.CharDPS.ToString(usCulture); }, (Left, Right) => { return Left.CharDPS.CompareTo(Right.CharDPS); }));
             AttackType.ColumnDefs.Add("DPS", new AttackType.ColumnDef("DPS", false, "DOUBLE", "DPS", (Data) => { return Data.DPS.ToString(); }, (Data) => { return Data.DPS.ToString(usCulture); }, (Left, Right) => { return Left.DPS.CompareTo(Right.DPS); }));
-            AttackType.ColumnDefs.Add("Average", new AttackType.ColumnDef("Average", true, "DOUBLE", "Average", (Data) => { return (new ConcurrentQueue<MasterSwing>(Data.Items)).Select((item) => item.Damage.Number).Average().ToString(); }, (Data) => { return (new ConcurrentQueue<MasterSwing>(Data.Items)).Select((item) => item.Damage.Number).Average().ToString(usCulture); }, (Left, Right) => { return (new ConcurrentQueue<MasterSwing>(Left.Items)).Select((item) => item.Damage.Number).Average().CompareTo((new ConcurrentQueue<MasterSwing>(Right.Items)).Select((item) => item.Damage.Number).Average()); }));
+            AttackType.ColumnDefs.Add("Average", new AttackType.ColumnDef("Average", true, "DOUBLE", "Average", (Data) => { return (new ConcurrentQueue<MasterSwing>(Data.Items)).Select((item) => item.Damage.Number).Where((number) => number > 0).Average().ToString(); }, (Data) => { return (new ConcurrentQueue<MasterSwing>(Data.Items)).Select((item) => item.Damage.Number).Where((number) => number > 0).Average().ToString(usCulture); }, (Left, Right) => { return (new ConcurrentQueue<MasterSwing>(Left.Items)).Select((item) => item.Damage.Number).Where((number) => number > 0).Average().CompareTo((new ConcurrentQueue<MasterSwing>(Right.Items)).Select((item) => item.Damage.Number).Where((number) => number > 0).Average()); }));
             AttackType.ColumnDefs.Add("Median", new AttackType.ColumnDef("Median", true, "BIGINT", "Median", (Data) => { return Data.Median.ToString(); }, (Data) => { return Data.Median.ToString(); }, (Left, Right) => { return Left.Median.CompareTo(Right.Median); }));
-            AttackType.ColumnDefs.Add("Variance", new AttackType.ColumnDef("Variance", true, "DOUBLE", "Variance", (Data) => { return AttackTypeGetVariance(Data).ToString(); }, (Data) => { return AttackTypeGetVariance(Data).ToString(); }, (Left, Right) => { return AttackTypeGetVariance(Left).CompareTo(AttackTypeGetVariance(Right)); }));
+            AttackType.ColumnDefs.Add("StdDev", new AttackType.ColumnDef("StdDev", true, "DOUBLE", "StdDev", (Data) => { return Math.Sqrt(AttackTypeGetVariance(Data)).ToString(); }, (Data) => { return Math.Sqrt(AttackTypeGetVariance(Data)).ToString(); }, (Left, Right) => { return Math.Sqrt(AttackTypeGetVariance(Left)).CompareTo(Math.Sqrt(AttackTypeGetVariance(Right))); }));
             AttackType.ColumnDefs.Add("CritTypes", new AttackType.ColumnDef("CritTypes", true, "VARCHAR(32)", "CritTypes", AttackTypeGetCritTypes, AttackTypeGetCritTypes, (Left, Right) => { return AttackTypeGetCritTypes(Left).CompareTo(AttackTypeGetCritTypes(Right)); }));
-            AttackType.ColumnDefs.Add("Max", new AttackType.ColumnDef("Max", true, "BIGINT", "Max", (Data) => { return (new ConcurrentQueue<MasterSwing>(Data.Items)).Select((item) => item.Damage.Number).Where((damage) => damage > 0).Max().ToString(); }, (Data) => { return (new ConcurrentQueue<MasterSwing>(Data.Items)).Select((item) => item.Damage.Number).Max().ToString(); }, (Left, Right) => { return (new ConcurrentQueue<MasterSwing>(Left.Items)).Select((item) => item.Damage.Number).Min().CompareTo((new ConcurrentQueue<MasterSwing>(Right.Items)).ToList().Select((item) => item.Damage.Number).Min()); }));
-            AttackType.ColumnDefs.Add("Min", new AttackType.ColumnDef("Min", true, "BIGINT", "Min", (Data) => { return (new ConcurrentQueue<MasterSwing>(Data.Items)).Select((item) => item.Damage.Number).Where((damage) => damage > 0).Min().ToString(); }, (Data) => { return (new ConcurrentQueue<MasterSwing>(Data.Items)).Select((item) => item.Damage.Number).Min().ToString(); }, (Left, Right) => { return Left.Items.ToList().Select((item) => item.Damage.Number).Min().CompareTo(Right.Items.ToList().Select((item) => item.Damage.Number).Min()); }));
+            AttackType.ColumnDefs.Add("Max", new AttackType.ColumnDef("Max", true, "BIGINT", "Max", (Data) => { return (new ConcurrentQueue<MasterSwing>(Data.Items)).Select((item) => item.Damage.Number).Where((damage) => damage > 0).Max().ToString(); }, (Data) => { return (new ConcurrentQueue<MasterSwing>(Data.Items)).Select((item) => item.Damage.Number).Where((damage) => damage > 0).Max().ToString(); }, (Left, Right) => { return (new ConcurrentQueue<MasterSwing>(Left.Items)).Select((item) => item.Damage.Number).Where((damage) => damage > 0).Max().CompareTo((new ConcurrentQueue<MasterSwing>(Right.Items)).ToList().Select((item) => item.Damage.Number).Where((damage) => damage > 0).Max()); }));
+            AttackType.ColumnDefs.Add("Min", new AttackType.ColumnDef("Min", true, "BIGINT", "Min", (Data) => { return (new ConcurrentQueue<MasterSwing>(Data.Items)).Select((item) => item.Damage.Number).Where((damage) => damage > 0).Min().ToString(); }, (Data) => { return (new ConcurrentQueue<MasterSwing>(Data.Items)).Select((item) => item.Damage.Number).Where((damage) => damage > 0).Min().ToString(); }, (Left, Right) => { return (new ConcurrentQueue<MasterSwing>(Left.Items)).Select((item) => item.Damage.Number).Where((damage) => damage > 0).Min().CompareTo((new ConcurrentQueue<MasterSwing>(Right.Items)).ToList().Select((item) => item.Damage.Number).Where((damage) => damage > 0).Min()); }));
 
             MasterSwing.ColumnDefs.Clear();
             MasterSwing.ColumnDefs.Add("EncId", new MasterSwing.ColumnDef("EncId", false, "CHAR(8)", "EncId", (Data) => { return string.Empty; }, (Data) => { return Data.ParentEncounter.EncId; }, (Left, Right) => { return 0; }));
@@ -981,16 +976,16 @@ namespace EverQuestDPSPlugin
         }
 
         private double AttackTypeGetVariance(AttackType Data)
-        {
+        {   List<MasterSwing> ms = Data.Items.Where((item) => item.Damage.Number >= 0).ToList();
             if (!populationVariance && Data.Items.Count > 1)
-                return Data.Items.Sum((item) =>
+                return ms.Sum((item) =>
                 {
-                    return Math.Pow(Data.Average - item.Damage, 2.0) / (Data.Items.Count - 1);
+                    return Math.Pow(ms.Select((item) => item.Damage.Number).Average() - item.Damage.Number, 2.0) / (ms.Count - 1);
                 });
             else if (populationVariance && Data.Items.Count > 0)
-                return Data.Items.Sum((item) =>
+                return ms.Sum((item) =>
                 {
-                    return Math.Pow(Data.Average - item.Damage, 2.0) / Data.Items.Count;
+                    return Math.Pow(ms.Select((item) => item.Damage.Number).Average() - item.Damage.Number, 2.0) / ms.Count;
                 });
             else
                 return default;
@@ -1018,7 +1013,7 @@ namespace EverQuestDPSPlugin
 
         private string AttackTypeGetCritTypes(AttackType Data)
         {
-            List<MasterSwing> at = Data.Items;
+            List<MasterSwing> ms = Data.Items.Where((item) => item.Damage >= 0).ToList();
             int specialCripplingBlow = 0;
             int specialLocked = 0;
             int specialCritical = 0;
@@ -1030,50 +1025,50 @@ namespace EverQuestDPSPlugin
             int specialDoubleBowShot = 0;
             int specialTwincast = 0;
             int specialWildRampage = 0;
-            int count = Data.Items.Count;
+            int count = ms.Count;
             if (count.Equals(0))
                 return String.Empty;
-            specialCritical = at.Where((critital) =>
+            specialCritical = ms.Where((critital) =>
             {
                 return critital.Special.Contains(SpecialCritical);
             }).Count();
-            specialFlurry = at.Where((flurry) =>
+            specialFlurry = ms.Where((flurry) =>
             {
                 return flurry.Special.Contains(SpecialFlurry);
             }).Count();
-            specialLucky = at.Where((lucky) =>
+            specialLucky = ms.Where((lucky) =>
             {
                 return lucky.Special.Contains(SpecialLucky);
             }).Count();
-            specialCripplingBlow = at.Where((cripplingBlow) =>
+            specialCripplingBlow = ms.Where((cripplingBlow) =>
             {
                 return cripplingBlow.Special.Contains(SpecialCripplingBlow);
             }).Count();
-            specialLocked = at.Where((locked) =>
+            specialLocked = ms.Where((locked) =>
             {
                 return locked.Special.Contains(SpecialLocked);
             }).Count();
-            specialStrikethrough = at.Where((srikethrough) =>
+            specialStrikethrough = ms.Where((srikethrough) =>
             {
                 return srikethrough.Special.Contains(SpecialStrikethrough);
             }).Count();
-            specialRiposte = at.Where((riposte) =>
+            specialRiposte = ms.Where((riposte) =>
             {
                 return riposte.Special.Contains(SpecialRiposte);
             }).Count();
-            specialDoubleBowShot = at.Where((doubleBowShot) =>
+            specialDoubleBowShot = ms.Where((doubleBowShot) =>
             {
                 return doubleBowShot.Special.Contains(SpecialDoubleBowShot);
             }).Count();
-            specialTwincast = at.Where((twincast) =>
+            specialTwincast = ms.Where((twincast) =>
             {
                 return twincast.Special.Contains(SpecialTwincast);
             }).Count();
-            specialWildRampage = at.Where((twincast) =>
+            specialWildRampage = ms.Where((twincast) =>
             {
                 return twincast.Special.Contains(SpecialWildRampage);
             }).Count();
-            specialNonDefined = at.Where((nondefined) =>
+            specialNonDefined = ms.Where((nondefined) =>
             {
                 return !nondefined.Special.Contains(SpecialTwincast) &&
                     !nondefined.Special.Contains(SpecialDoubleBowShot) &&
