@@ -98,7 +98,7 @@ namespace EverQuestDPSPlugin
         readonly static String evasionTypes = @"block(|s)|dodge(|s)|parr(ies|y)|riposte(|s)";
         readonly String DamageShield = @"(?<attacker>.+) is (?<damageShieldDamageType>\S+) by (?<victim>.+) (?<damageShieldType>\S+) for (?<damagePoints>[\d]+) points of non-melee damage.";
         readonly String eqDateTimeStampFormat = @"ddd MMM dd HH:mm:ss yyyy";
-        readonly String Heal = @"(?<healer>.*?) healed (?<healingTarget>.*?)(?:\s(?<overTime>over time)){0,1} for (?<healingPoints>[\d]+)(?:\s\((?<overHealPoints>[\d]+)\)){0,1} hit point(?:|s) by (?<healingSpell>.*)\.(?:[\s][\(](?<healingSpecial>.+)[\)]){0,1}";
+        readonly String Heal = @"(?<healer>.*?) (?:has been\s?)healed (?<healingTarget>.*?)(?:\s(?<overTime>over time)){0,1} for (?<healingPoints>[\d]+)(?:\s\((?<overHealPoints>[\d]+)\)){0,1} hit point(?:|s) by (?<healingSpell>.*)\.(?:[\s][\(](?<healingSpecial>.+)[\)]){0,1}";
         readonly String MeleeAttack = @"(?<attacker>.+) (?<attackType>" + $@"{attackTypes}" + @")(|s|es|bed) (?<victim>.+) for (?<damageAmount>[\d]+) (?:point[|s]) of damage.(?:\s\((?<damageSpecial>.+)\)){0,1}";
         readonly String MissedMeleeAttack = @"(?<attacker>.+) (?:tr(?:ies|y)) to (?<attackType>\S+) (?<victim>.+), but (?:miss(?:|es))!(?:\s\((?<damageSpecial>.+)\)){0,1}";
         readonly static String PluginSettingsFileName = @"Config\ACT_EverQuest_English_Parser.config.xml";
@@ -307,9 +307,6 @@ namespace EverQuestDPSPlugin
                     break;
                 }
             }
-#if DEBUG
-            Debug.WriteLine($"No match: {logInfo.logLine} in {logInfo.detectedZone} detected at {logInfo.detectedTime}");
-#endif
         }
 
         Tuple<EverQuestSwingType, String> GetTypeAndNameForPet(String nameToSetTypeTo)
@@ -339,17 +336,18 @@ namespace EverQuestDPSPlugin
                 case 1:
                     if (ActGlobals.oFormActMain.SetEncounter(ActGlobals.oFormActMain.LastKnownTime, CharacterNamePersonaReplace(regexMatch.Groups["attacker"].Value), CharacterNamePersonaReplace(regexMatch.Groups["victim"].Value)))
                     {
-                        Tuple<EverQuestSwingType, String> attackerAndType = GetTypeAndNameForPet(regexMatch.Groups["attacker"].Value);
-                        MasterSwing masterSwingMelee = new MasterSwing((int)attackerAndType.Item1
+                        Tuple<EverQuestSwingType, String> attackerAndTypeMelee = GetTypeAndNameForPet(regexMatch.Groups["attacker"].Value);
+                        Tuple<EverQuestSwingType, String> victimAndTypeMelee = GetTypeAndNameForPet(regexMatch.Groups["victim"].Value);
+                        MasterSwing masterSwingMelee = new MasterSwing(((((attackerAndTypeMelee.Item1 & EverQuestSwingType.PetMelee) == EverQuestSwingType.PetMelee) || ((victimAndTypeMelee.Item1 & EverQuestSwingType.PetMelee) == EverQuestSwingType.PetMelee)) ? EverQuestSwingType.PetMelee : EverQuestSwingType.Melee).GetEverQuestSwingTypeExtensionIntValue()
                             , regexMatch.Groups["damageSpecial"].Success ? regexMatch.Groups["damageSpecial"].Value.Contains(SpecialCritical) : false
                             , regexMatch.Groups["damageSpecial"].Success ? regexMatch.Groups["damageSpecial"].Value : String.Empty
                             , new Dnum(Int64.Parse(regexMatch.Groups["damageAmount"].Value))
                             , ActGlobals.oFormActMain.LastEstimatedTime
                             , ActGlobals.oFormActMain.GlobalTimeSorter
                             , regexMatch.Groups["attackType"].Value
-                            , CharacterNamePersonaReplace(attackerAndType.Item2)
+                            , CharacterNamePersonaReplace(attackerAndTypeMelee.Item2)
                             , "Hitpoints"
-                            , CharacterNamePersonaReplace(regexMatch.Groups["victim"].Value));
+                            , CharacterNamePersonaReplace(victimAndTypeMelee.Item2));
                         masterSwingMelee.Tags[logTimestamp] = ActGlobals.oFormActMain.LastKnownTime;
                         ActGlobals.oFormActMain.AddCombatAction(masterSwingMelee);
                     }
@@ -375,19 +373,22 @@ namespace EverQuestDPSPlugin
                 case 3:
                     if (ActGlobals.oFormActMain.SetEncounter(ActGlobals.oFormActMain.LastKnownTime, CharacterNamePersonaReplace(regexMatch.Groups["attacker"].Value), CharacterNamePersonaReplace(regexMatch.Groups["victim"].Value)))
                     {
-                        MasterSwing masterSwingMissedMelee = new MasterSwing(EverQuestSwingType.Melee.GetEverQuestSwingTypeExtensionIntValue()
+                        Tuple<EverQuestSwingType, String> attackerAndTypeMissedMelee = GetTypeAndNameForPet(regexMatch.Groups["attacker"].Value);
+                        Tuple<EverQuestSwingType, String> victimAndTypeMissedMelee = GetTypeAndNameForPet(regexMatch.Groups["victim"].Value);
+                        MasterSwing masterSwingMissedMelee = new MasterSwing(((((attackerAndTypeMissedMelee.Item1 & EverQuestSwingType.PetMelee) == EverQuestSwingType.PetMelee) || ((victimAndTypeMissedMelee.Item1 & EverQuestSwingType.PetMelee) == EverQuestSwingType.PetMelee)) ? EverQuestSwingType.PetMelee : EverQuestSwingType.Melee).GetEverQuestSwingTypeExtensionIntValue()
                             , false
                             , regexMatch.Groups["damageSpecial"].Success ? regexMatch.Groups["damageSpecial"].Value : String.Empty
                             , new Dnum(Dnum.Miss)
                             , ActGlobals.oFormActMain.LastEstimatedTime, ActGlobals.oFormActMain.GlobalTimeSorter
                             , regexMatch.Groups["attackType"].Value
-                            , CharacterNamePersonaReplace(regexMatch.Groups["attacker"].Value)
+                            , CharacterNamePersonaReplace(attackerAndTypeMissedMelee.Item2)
                             , "Miss"
-                            , CharacterNamePersonaReplace(regexMatch.Groups["victim"].Value));
+                            , CharacterNamePersonaReplace(victimAndTypeMissedMelee.Item2));
                         masterSwingMissedMelee.Tags[logTimestamp] = ActGlobals.oFormActMain.LastKnownTime;
                         ActGlobals.oFormActMain.AddCombatAction(masterSwingMissedMelee);
                     }
                     break;
+                //Death message
                 case 4:
                     MasterSwing masterSwingSlain = new MasterSwing(0, false, new Dnum(Dnum.Death), ActGlobals.oFormActMain.LastEstimatedTime, ActGlobals.oFormActMain.GlobalTimeSorter, String.Empty, CharacterNamePersonaReplace(regexMatch.Groups["attacker"].Value), String.Empty, CharacterNamePersonaReplace(regexMatch.Groups["victim"].Value));
                     masterSwingSlain.Tags[logTimestamp] = ActGlobals.oFormActMain.LastKnownTime;
@@ -421,7 +422,6 @@ namespace EverQuestDPSPlugin
                 case 7:
                     if (ActGlobals.oFormActMain.InCombat)
                     {
-
                         MasterSwing masterSwingHeal = new MasterSwing(regexMatch.Groups["overTime"].Success ? EverQuestSwingType.HealOverTime.GetEverQuestSwingTypeExtensionIntValue() : EverQuestSwingType.InstantHealing.GetEverQuestSwingTypeExtensionIntValue()
                             , regexMatch.Groups["healingSpecial"].Success ? regexMatch.Groups["healingSpecial"].Value.Contains(SpecialCritical) : false
                             , regexMatch.Groups["healingSpecial"].Success ? regexMatch.Groups["healingSpecial"].Value : String.Empty
@@ -450,11 +450,19 @@ namespace EverQuestDPSPlugin
                     ActGlobals.oFormActMain.AddCombatAction(masterSwingUnknown);
                     break;
                 case 10:
+                    Tuple<EverQuestSwingType, String> attackerAndTypeEvasion = GetTypeAndNameForPet(regexMatch.Groups["attacker"].Value);
+                    Tuple<EverQuestSwingType, String> victimAndTypeEvasion = GetTypeAndNameForPet(regexMatch.Groups["victim"].Value);
                     if (ActGlobals.oFormActMain.SetEncounter(ActGlobals.oFormActMain.LastKnownTime, CharacterNamePersonaReplace(regexMatch.Groups["attacker"].Value), CharacterNamePersonaReplace(regexMatch.Groups["victim"].Value)))
                     {
-                        MasterSwing masterSwingEvasion = new MasterSwing(EverQuestSwingType.Melee.GetEverQuestSwingTypeExtensionIntValue()
-                            , false, regexMatch.Groups["evasionSpecial"].Value, new Dnum(Dnum.NoDamage, regexMatch.Groups["evasionType"].Value), ActGlobals.oFormActMain.LastEstimatedTime
-                            , ActGlobals.oFormActMain.GlobalTimeSorter, regexMatch.Groups["attackType"].Value, CharacterNamePersonaReplace(regexMatch.Groups["attacker"].Value), "Hitpoints", CharacterNamePersonaReplace(regexMatch.Groups["victim"].Value));
+                        MasterSwing masterSwingEvasion = new MasterSwing(((((attackerAndTypeEvasion.Item1 & EverQuestSwingType.PetMelee) == EverQuestSwingType.PetMelee) || ((victimAndTypeEvasion.Item1 & EverQuestSwingType.PetMelee) == EverQuestSwingType.PetMelee)) ? EverQuestSwingType.PetMelee : EverQuestSwingType.Melee).GetEverQuestSwingTypeExtensionIntValue()
+                            , false, regexMatch.Groups["evasionSpecial"].Value
+                            , new Dnum(Dnum.NoDamage, regexMatch.Groups["evasionType"].Value)
+                            , ActGlobals.oFormActMain.LastEstimatedTime
+                            , ActGlobals.oFormActMain.GlobalTimeSorter
+                            , regexMatch.Groups["attackType"].Value
+                            , CharacterNamePersonaReplace(attackerAndTypeEvasion.Item2)
+                            , "Hitpoints"
+                            , CharacterNamePersonaReplace(victimAndTypeEvasion.Item2));
                         masterSwingEvasion.Tags[logTimestamp] = ActGlobals.oFormActMain.LastKnownTime;
                         ActGlobals.oFormActMain.AddCombatAction(masterSwingEvasion);
                     }
@@ -808,7 +816,7 @@ namespace EverQuestDPSPlugin
             //CombatantData.ColumnDefs.Add("PowerReplenish", new CombatantData.ColumnDef("PowerReplenish", false, "BIGINT", "PowerReplenish", (Data) => { return Data.PowerReplenish.ToString(GetIntCommas()); }, (Data) => { return Data.PowerReplenish.ToString(); }, (Left, Right) => { return Left.PowerReplenish.CompareTo(Right.PowerReplenish); }));
             CombatantData.ColumnDefs.Add("DPS", new CombatantData.ColumnDef("DPS", false, "DOUBLE", "DPS", (Data) => { return Data.DPS.ToString(); }, (Data) => { return Data.DPS.ToString(usCulture); }, (Left, Right) => { return Left.DPS.CompareTo(Right.DPS); }));
             CombatantData.ColumnDefs.Add("EncDPS", new CombatantData.ColumnDef("EncDPS", true, "DOUBLE", "EncDPS", (Data) => { return Data.EncDPS.ToString(); }, (Data) => { return Data.EncDPS.ToString(usCulture); }, (Left, Right) => { return Left.Damage.CompareTo(Right.Damage); }));
-            CombatantData.ColumnDefs.Add("EncHPS", new CombatantData.ColumnDef("EncHPS", true, "DOUBLE", "EncHPS", (Data) => { return Data.EncHPS.ToString(); }, (Data) => { return Data.EncHPS.ToString(usCulture); }, (Left, Right) => { return Left.Healed.CompareTo(Right.Healed); }));
+            //CombatantData.ColumnDefs.Add("EncHPS", new CombatantData.ColumnDef("EncHPS", true, "DOUBLE", "EncHPS", (Data) => { return Data.EncHPS.ToString(); }, (Data) => { return Data.EncHPS.ToString(usCulture); }, (Left, Right) => { return Left.Healed.CompareTo(Right.Healed); }));
             CombatantData.ColumnDefs.Add("Hits", new CombatantData.ColumnDef("Hits", false, "INT", "Hits", (Data) => { return Data.Hits.ToString(); }, (Data) => { return Data.Hits.ToString(); }, (Left, Right) => { return Left.Hits.CompareTo(Right.Hits); }));
             CombatantData.ColumnDefs.Add("CritHits", new CombatantData.ColumnDef("CritHits", false, "INT", "CritHits", (Data) => { return Data.CritHits.ToString(); }, (Data) => { return Data.CritHits.ToString(); }, (Left, Right) => { return Left.CritHits.CompareTo(Right.CritHits); }));
             CombatantData.ColumnDefs.Add("Avoids", new CombatantData.ColumnDef("Avoids", false, "INT", "Blocked", (Data) => { return Data.Blocked.ToString(); }, (Data) => { return Data.Blocked.ToString(); }, (Left, Right) => { return Left.Blocked.CompareTo(Right.Blocked); }));
@@ -820,7 +828,6 @@ namespace EverQuestDPSPlugin
             CombatantData.ColumnDefs.Add("ToHit%", new CombatantData.ColumnDef("ToHit%", false, "FLOAT", "ToHit", (Data) => { return Data.ToHit.ToString(); }, (Data) => { return Data.ToHit.ToString(usCulture); }, (Left, Right) => { return Left.ToHit.CompareTo(Right.ToHit); }));
             CombatantData.ColumnDefs.Add("CritDam%", new CombatantData.ColumnDef("CritDam%", false, "VARCHAR(8)", "CritDamPerc", (Data) => { return Data.CritDamPerc.ToString("0'%"); }, (Data) => { return Data.CritDamPerc.ToString("0'%"); }, (Left, Right) => { return Left.CritDamPerc.CompareTo(Right.CritDamPerc); }));
             CombatantData.ColumnDefs.Add("CritHeal%", new CombatantData.ColumnDef("CritHeal%", false, "VARCHAR(8)", "CritHealPerc", (Data) => { return Data.CritHealPerc.ToString("0'%"); }, (Data) => { return Data.CritHealPerc.ToString("0'%"); }, (Left, Right) => { return Left.CritHealPerc.CompareTo(Right.CritHealPerc); }));
-
             CombatantData.ColumnDefs.Add("CritTypes", new CombatantData.ColumnDef("CritTypes", true, "VARCHAR(32)", "CritTypes", CombatantDataGetCritTypes, CombatantDataGetCritTypes, (Left, Right) => { return CombatantDataGetCritTypes(Left).CompareTo(CombatantDataGetCritTypes(Right)); }));
 
             CombatantData.ColumnDefs["Damage"].GetCellForeColor = (Data) => { return Color.DarkRed; };
@@ -851,6 +858,7 @@ namespace EverQuestDPSPlugin
             {"Damage Over Time Spell (Inc)", new CombatantData.DamageTypeDef("Damage Over Time Spell (Inc)", -1, Color.Orchid) },
             {"Instant Healed (Inc)",new CombatantData.DamageTypeDef("Instant Healed (Inc)", 1, Color.LimeGreen)},
             {"Heal Over Time (Inc)",new CombatantData.DamageTypeDef("Heal Over Time (Inc)", 1, Color.DarkGreen)},
+            {"Pet Melee (Inc)", new CombatantData.DamageTypeDef("Pet Melee (Inc)", -1, Color.Green)},
             {"All Incoming (Ref)",new CombatantData.DamageTypeDef("All Incoming (Ref)", 0, Color.Black)}
         };
             CombatantData.SwingTypeToDamageTypeDataLinksOutgoing = new SortedDictionary<int, List<string>>
@@ -871,6 +879,7 @@ namespace EverQuestDPSPlugin
             {EverQuestSwingType.InstantHealing.GetEverQuestSwingTypeExtensionIntValue(), new List<string> { "Instant Healed (Inc)" } },
             {EverQuestSwingType.DamageOverTimeSpell.GetEverQuestSwingTypeExtensionIntValue(), new List<string> {"Damage Over Time Spell (Inc)"} },
             {EverQuestSwingType.HealOverTime.GetEverQuestSwingTypeExtensionIntValue(), new List<string> { "Heal Over Time (Inc)" } },
+            {EverQuestSwingType.PetMelee.GetEverQuestSwingTypeExtensionIntValue(), new List<string> { "Pet Melee (Inc)" } }
         };
 
             CombatantData.DamageSwingTypes = new List<int> {
@@ -879,7 +888,7 @@ namespace EverQuestDPSPlugin
                 EverQuestSwingType.DirectDamageSpell.GetEverQuestSwingTypeExtensionIntValue(),
                 EverQuestSwingType.DamageOverTimeSpell.GetEverQuestSwingTypeExtensionIntValue(),
                 EverQuestSwingType.Bane.GetEverQuestSwingTypeExtensionIntValue(),
-                EverQuestSwingType.PetMelee.GetEverQuestSwingTypeExtensionIntValue()
+                EverQuestSwingType.PetMelee.GetEverQuestSwingTypeExtensionIntValue(),
             };
             CombatantData.HealingSwingTypes = new List<int> { EverQuestSwingType.InstantHealing.GetEverQuestSwingTypeExtensionIntValue(), EverQuestSwingType.HealOverTime.GetEverQuestSwingTypeExtensionIntValue() };
 
@@ -1147,8 +1156,6 @@ namespace EverQuestDPSPlugin
                     case false:
                         ChangelblStatus fcls = ChangeStatusLabel;
                         this.lblStatus.Invoke(fcls, new object[] { $"Reporting sample variance {pluginName}" });
-                        break;
-                    default:
                         break;
                 }
         }
