@@ -189,15 +189,15 @@ namespace EverQuestDPSPlugin
 
             ActGlobals.oFormActMain.CharacterFileNameRegex = new Regex(@"(?:.+)[\\]eqlog_(?<characterName>\S+)_(?<server>.+).txt", RegexOptions.Compiled);
             ActGlobals.oFormActMain.ZoneChangeRegex = new Regex($@"{TimeStamp} {ZoneChange}", RegexOptions.Compiled);
-            ChangelblStatus cls = ChangeStatusLabel;
-            this.lblStatus.Invoke(cls, new object[] { $"{pluginName} Plugin Started" });
-            //ChangeStatusLabel($"{pluginName} Plugin Started").Start();
-        }
-        public delegate void ChangelblStatus(String status);
-
-        public void ChangeStatusLabel(String newStatusMessage)
-        {
-            lblStatus.Text = newStatusMessage;
+            String lblMessage = $"{pluginName} Plugin Started";
+            if(varianceChkBx.InvokeRequired)
+            {
+                this.lblStatus.Invoke(new Action(() => {
+                    this.lblStatus.Text = lblMessage;
+                }));
+            }
+            else
+                this.lblStatus.Text = lblMessage;
         }
 
         public void DeInitPlugin()
@@ -545,6 +545,10 @@ namespace EverQuestDPSPlugin
                     }
                 }
             }
+            if(varianceChkBx.InvokeRequired)
+                varianceChkBx.Invoke(new Action<object, EventArgs>(VarianceChkBx_CheckedChanged));
+            else
+                this.populationVariance = varianceChkBx.Checked;
         }
 
         void SaveSettings()
