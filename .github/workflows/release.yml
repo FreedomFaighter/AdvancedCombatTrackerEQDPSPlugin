@@ -21,7 +21,7 @@ jobs:
 #      - name: Restore packages
 #        run: msbuild -p:RestorePackagesConfig=true -t:restore
       - name: Build solution
-        run: msbuild ACT_EverQuest_DPS_Plugin.sln -t:build -property:Configuration=Release
+        run: msbuild -t:build -property:Configuration=Release EverQuestDPSPlugin/EverQuestDPSPlugin.csproj 
       - name: Create Release
         id: create_release
         uses: actions/create-release@v1
