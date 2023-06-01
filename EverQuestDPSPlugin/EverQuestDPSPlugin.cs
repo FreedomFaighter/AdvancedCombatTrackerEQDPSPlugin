@@ -982,15 +982,15 @@ namespace EverQuestDPSPlugin
 
         private double AttackTypeGetVariance(AttackType Data)
         {
-            if (populationVariance && Data.Items.Count > 1)
-                return Data.Items.Sum((item) =>
-                {
-                    return Math.Pow(Data.Average - item.Damage, 2.0) / Data.Items.Count;
-                });
-            else if (!populationVariance && Data.Items.Count > 0)
+            if (!populationVariance && Data.Items.Count > 1)
                 return Data.Items.Sum((item) =>
                 {
                     return Math.Pow(Data.Average - item.Damage, 2.0) / (Data.Items.Count - 1);
+                });
+            else if (populationVariance && Data.Items.Count > 0)
+                return Data.Items.Sum((item) =>
+                {
+                    return Math.Pow(Data.Average - item.Damage, 2.0) / Data.Items.Count;
                 });
             else
                 return default;
