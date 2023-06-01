@@ -32,4 +32,4 @@ jobs:
  #       run: msbuild ACT_EverQuest_DPS_Plugin.sln -t:build -property:Configuration=Release
       - name: Build EverQuest DPS Plugin with CSC
         working-directory: EverQuestDPSPlugin
-        run: C:/Program Files (x86)/Microsoft Visual Studio/2019/Enterprise/MSBuild/Current/Bin/Roslyn/csc.exe -d:RELEASE -reference:./Advanced\ Combat\ Tracker.exe -target:library EverQuestDPSPlugin.cs EverQuestSwingType.cs EverQuest_DPS_Plugin_Localization.cs SpecialAttacks.cs SpellDamageSave.cs Properties/AssemblyInfo.cs 
+        run: $env:ProgramFiles(x86)/Microsoft Visual Studio/2019/Enterprise/MSBuild/Current/Bin/Roslyn/csc.exe -d:RELEASE -reference:./Advanced\ Combat\ Tracker.exe -target:library EverQuestDPSPlugin.cs EverQuestSwingType.cs EverQuest_DPS_Plugin_Localization.cs SpecialAttacks.cs SpellDamageSave.cs Properties/AssemblyInfo.cs 
