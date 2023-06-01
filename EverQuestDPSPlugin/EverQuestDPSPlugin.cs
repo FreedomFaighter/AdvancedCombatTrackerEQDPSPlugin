@@ -560,13 +560,11 @@ namespace EverQuestDPSPlugin
                     }
                     catch (ArgumentNullException ex)
                     {
-                        ChangelblStatus cls = ChangeStatusLabel;
-                        this.lblStatus.Invoke(cls, new object[] { $"Argument Null for {ex.ParamName} with message: {ex.Message}" });
+                        this.lblStatus.Invoke(new Action(() => { this.lblStatus.Text = $"Argument Null for {ex.ParamName} with message: {ex.Message}"; }));
                     }
                     catch (Exception ex)
                     {
-                        ChangelblStatus cls = ChangeStatusLabel;
-                        this.lblStatus.Invoke(cls, new object[] { $"With message: {ex.Message}" });
+                        this.lblStatus.Invoke(new Action(() => { this.lblStatus.Text = $"With message: {ex.Message}"; }));
                     }
                 }
             }
@@ -1175,12 +1173,10 @@ namespace EverQuestDPSPlugin
                 switch (this.populationVariance)
                 {
                     case true:
-                        ChangelblStatus cls = ChangeStatusLabel;
-                        this.lblStatus.Invoke(cls, new object[] { $"Reporting population variance {pluginName}" });
+                        this.lblStatus.Invoke(new Action(() => { this.lblStatus.Text = $"Reporting population variance {pluginName}"; } ));
                         break;
                     case false:
-                        ChangelblStatus fcls = ChangeStatusLabel;
-                        this.lblStatus.Invoke(fcls, new object[] { $"Reporting sample variance {pluginName}" });
+                        this.lblStatus.Invoke(new Action(() => { this.lblStatus.Text = $"Reporting sample variance {pluginName}"; }));
                         break;
                 }
         }
