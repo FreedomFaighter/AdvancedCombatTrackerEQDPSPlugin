@@ -341,8 +341,9 @@ namespace EverQuestDPSPlugin
             {
                 //Melee attack
                 case 1:
+
                     if (ActGlobals.oFormActMain.SetEncounter(ActGlobals.oFormActMain.LastKnownTime, CharacterNamePersonaReplace(regexMatch.Groups["attacker"].Value), CharacterNamePersonaReplace(regexMatch.Groups["victim"].Value)))
-                    {
+                    {   
                         Tuple<EverQuestSwingType, String> attackerAndTypeMelee = GetTypeAndNameForPet(regexMatch.Groups["attacker"].Value);
                         Tuple<EverQuestSwingType, String> victimAndTypeMelee = GetTypeAndNameForPet(regexMatch.Groups["victim"].Value);
                         MasterSwing masterSwingMelee = new MasterSwing(((((attackerAndTypeMelee.Item1 & EverQuestSwingType.PetMelee) == EverQuestSwingType.PetMelee) || ((victimAndTypeMelee.Item1 & EverQuestSwingType.PetMelee) == EverQuestSwingType.PetMelee)) ? EverQuestSwingType.PetMelee : EverQuestSwingType.Melee).GetEverQuestSwingTypeExtensionIntValue()
@@ -528,7 +529,8 @@ namespace EverQuestDPSPlugin
         {
             return selfCheck.Match(PersonaString).Success ? ActGlobals.charName : PersonaString;
         }
-
+#region Settings File Read-Aditu's code 1
+//Aditu's Settings File Read with non-explicit closing of the file in code
         void LoadSettings()
         {
             xmlSettings.AddControlSetting(varianceChkBx.Name, varianceChkBx);
@@ -574,7 +576,9 @@ namespace EverQuestDPSPlugin
             else
                 this.populationVariance = varianceChkBx.Checked;
         }
-
+#endregion
+#region Settings Save Aditu's code Region 3
+//Aditu's Settings File Save with non-explicit closing of file
         void SaveSettings()
         {
             using (FileStream fs = new FileStream(settingsFile, FileMode.Create, FileAccess.Write, FileShare.ReadWrite))
@@ -595,7 +599,8 @@ namespace EverQuestDPSPlugin
                 }
             }
         }
-
+#endregion
+#region Aditu's code region 2
         internal class AposNameFix : IEquatable<AposNameFix>
         {
             string left, right, fullName;
@@ -748,7 +753,9 @@ namespace EverQuestDPSPlugin
             }
             xWriter.WriteEndElement();
         }
-
+#endregion
+#region Aditu's Environment setup
+//Modified for some EverQuest specific variables
         private void SetupEverQuestEnvironment()
         {
             CultureInfo usCulture = new CultureInfo("en-US");   // This is for SQL syntax; do not change
@@ -989,7 +996,10 @@ namespace EverQuestDPSPlugin
             ActGlobals.oFormActMain.ValidateLists();
             ActGlobals.oFormActMain.ValidateTableSetup();
         }
-
+#endregion
+#region Statistic processing
+//Statistics specific processing
+//Backstep function for time series processing
         private double[] BackStep(AttackType Data, int backstep)
         {
             if (Data.Items.Count > backstep)
@@ -1002,7 +1012,7 @@ namespace EverQuestDPSPlugin
             else
                 return new double[] { default };
         }
-
+//Variance calculation for attack damage
         private double AttackTypeGetVariance(AttackType Data)
         {   List<MasterSwing> ms = Data.Items.Where((item) => item.Damage.Number >= 0).ToList();
             double average = ms.Select((item) => item.Damage.Number).Average();
@@ -1019,7 +1029,9 @@ namespace EverQuestDPSPlugin
             else
                 return default;
         }
-
+#endregion
+#region Crit type processing
+//modified to display an empty string in the event no special type of attack is detected by the regex processing
         private string CombatantDataGetCritTypes(CombatantData Data)
         {
             if (Data.AllOut.TryGetValue(ActGlobals.ActLocalization.LocalizationStrings["attackTypeTerm-all"].DisplayedText, out AttackType at))
@@ -1038,6 +1050,30 @@ namespace EverQuestDPSPlugin
             }
             else
                 return String.Empty;
+        }
+#endregion
+#region EverQuest specific Crit type processing
+
+        private Color GetSwingTypeColor(int SwingType)
+        {
+            switch (SwingType)
+            {
+                case 1:
+                case 2:
+                    return Color.Crimson;
+                case 3:
+                    return Color.Blue;
+                case 4:
+                    return Color.DarkRed;
+                case 5:
+                    return Color.DarkOrange;
+                case 8:
+                    return Color.DarkOrchid;
+                case 9:
+                    return Color.DodgerBlue;
+                default:
+                    return Color.Black;
+            }
         }
 
         private string AttackTypeGetCritTypes(AttackType Data)
@@ -1126,29 +1162,9 @@ namespace EverQuestDPSPlugin
 
             return $"{specialCripplingBlowPerc:000.0}%CB-{specialLockedPerc:000.0}%Locked-{specialCriticalPerc:000.0}%C-{specialStrikethroughPerc:000.0}%S-{specialRipostePerc:000.0}%R-{specialFlurryPerc:000.0}%F-{speicalLuckyPerc:000.0}%Lucky-{specialDoubleBowShotPerc:000.0}%DB-{specialTwincastPerc:000.0}%TC-{specialWildRampagePerc:000.0}%WR-{specialNonDefinedPerc:000.0}%ND";
         }
+#endregion
 
-        private Color GetSwingTypeColor(int SwingType)
-        {
-            switch (SwingType)
-            {
-                case 1:
-                case 2:
-                    return Color.Crimson;
-                case 3:
-                    return Color.Blue;
-                case 4:
-                    return Color.DarkRed;
-                case 5:
-                    return Color.DarkOrange;
-                case 8:
-                    return Color.DarkOrchid;
-                case 9:
-                    return Color.DodgerBlue;
-                default:
-                    return Color.Black;
-            }
-        }
-
+#region Aditu's attack swing type
         private string GetAttackTypeSwingType(AttackType Data)
         {
             int? swingType = null;
@@ -1167,7 +1183,9 @@ namespace EverQuestDPSPlugin
             else
                 return swingType == null ? String.Empty : swingType.ToString();
         }
-
+#endregion
+#region Variancecheckboxevent
+//checkbox processing event for population or sample variance
         private void VarianceChkBx_CheckedChanged(object sender, EventArgs e)
         {
                 this.populationVariance = (sender as CheckBox).Checked;
@@ -1187,7 +1205,8 @@ namespace EverQuestDPSPlugin
                         break;
                 }
         }
-
+#endregion
+#region AdituEncounterFormatSwitchcode
         private string EncounterFormatSwitch(EncounterData Data, List<CombatantData> SelectiveAllies, string VarName, string Extra)
         {
             long damage = 0;
@@ -1494,8 +1513,7 @@ namespace EverQuestDPSPlugin
                 default:
                     return VarName;
             }
-
-
         }
+#endregion
     }
 }
