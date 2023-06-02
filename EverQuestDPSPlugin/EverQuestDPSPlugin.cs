@@ -233,7 +233,7 @@ namespace EverQuestDPSPlugin
 
         void changeLblStatus(String status)
         {
-            if(varianceChkBx.InvokeRequired)
+            if(lblStatus.InvokeRequired)
             {
                 this.lblStatus.Invoke(new Action(() => {
                     this.lblStatus.Text = status;
