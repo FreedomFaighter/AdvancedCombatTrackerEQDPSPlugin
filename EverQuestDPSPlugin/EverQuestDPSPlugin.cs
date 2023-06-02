@@ -119,7 +119,6 @@ namespace EverQuestDPSPlugin
         readonly String ZoneChange = @"You have entered (?!.*the Drunken Monkey stance adequately)(?<zoneName>.*)\.";
         readonly String LoadingPleaseWait = @"LOADING, PLEASE WAIT...";
         readonly String Unknown = @"(?<Unknown>(u|U)nknown)";
-        readonly String logTimestamp = "logTimestamp";
         readonly String Evasion = @"(?<attacker>.*) tries to (?<attackType>\S+) (?:(?<victim>(.+)), but \1) (?:(?<evasionType>" + $@"{evasionTypes}" + @"))!(?:[\s][\(](?<evasionSpecial>.+)[\)]){0,1}";
         readonly String Banestrike = @"You hit (?<victim>.+) for (?<baneDamage>[\d]+) points of (?<typeOfDamage>.+) by Banestrike (?<baneAbilityRank>.+\.)";
         readonly Regex dateTimeRegex = new Regex(TimeStamp, RegexOptions.Compiled);
@@ -356,8 +355,8 @@ namespace EverQuestDPSPlugin
                             , CharacterNamePersonaReplace(attackerAndTypeMelee.Item2)
                             , "Hitpoints"
                             , CharacterNamePersonaReplace(victimAndTypeMelee.Item2));
-                        masterSwingMelee.Tags[logTimestamp] = ActGlobals.oFormActMain.LastKnownTime;
-                        //ActGlobals.oFormActMain.LastEstimatedTime
+                        masterSwingMelee.Tags.Add("lastKnowTime", ActGlobals.oFormActMain.LastKnownTime);
+                        masterSwingMelee.Tags.Add("lastEstimatedTime", ActGlobals.oFormActMain.LastEstimatedTime);
                         ActGlobals.oFormActMain.AddCombatAction(masterSwingMelee);
                     }
                     break;
@@ -375,7 +374,8 @@ namespace EverQuestDPSPlugin
                             , CharacterNamePersonaReplace(regexMatch.Groups["victim"].Value)
                             , "Hitpoints"
                             , CharacterNamePersonaReplace(regexMatch.Groups["attacker"].Value));
-                        masterSwingDamageShield.Tags[logTimestamp] = ActGlobals.oFormActMain.LastKnownTime;
+                        masterSwingDamageShield.Tags.Add("lastKnowTime", ActGlobals.oFormActMain.LastKnownTime);
+                        masterSwingDamageShield.Tags.Add("lastEstimatedTime", ActGlobals.oFormActMain.LastEstimatedTime);
                         ActGlobals.oFormActMain.AddCombatAction(masterSwingDamageShield);
                     }
                     break;
@@ -395,14 +395,16 @@ namespace EverQuestDPSPlugin
                             , CharacterNamePersonaReplace(attackerAndTypeMissedMelee.Item2)
                             , "Miss"
                             , CharacterNamePersonaReplace(victimAndTypeMissedMelee.Item2));
-                        masterSwingMissedMelee.Tags[logTimestamp] = ActGlobals.oFormActMain.LastKnownTime;
+                        masterSwingMissedMelee.Tags.Add("lastKnowTime", ActGlobals.oFormActMain.LastKnownTime);
+                        masterSwingMissedMelee.Tags.Add("lastEstimatedTime", ActGlobals.oFormActMain.LastEstimatedTime);
                         ActGlobals.oFormActMain.AddCombatAction(masterSwingMissedMelee);
                     }
                     break;
                 //Death message
                 case 4:
                     MasterSwing masterSwingSlain = new MasterSwing(0, false, new Dnum(Dnum.Death), ActGlobals.oFormActMain.LastEstimatedTime, ActGlobals.oFormActMain.GlobalTimeSorter, String.Empty, CharacterNamePersonaReplace(regexMatch.Groups["attacker"].Value), String.Empty, CharacterNamePersonaReplace(regexMatch.Groups["victim"].Value));
-                    masterSwingSlain.Tags[logTimestamp] = ActGlobals.oFormActMain.LastKnownTime;
+                        masterSwingSlain.Tags.Add("lastKnowTime", ActGlobals.oFormActMain.LastKnownTime);
+                        masterSwingSlain.Tags.Add("lastEstimatedTime", ActGlobals.oFormActMain.LastEstimatedTime);
                     ActGlobals.oFormActMain.AddCombatAction(masterSwingSlain);
                     break;
                 //Spell Cast
@@ -421,7 +423,8 @@ namespace EverQuestDPSPlugin
                             , "Hitpoints"
                             , CharacterNamePersonaReplace(regexMatch.Groups["victim"].Value)
                         );
-                        masterSwingSpellcast.Tags[logTimestamp] = ActGlobals.oFormActMain.LastKnownTime;
+                        masterSwingSpellcast.Tags.Add("lastKnowTime", ActGlobals.oFormActMain.LastKnownTime);
+                        masterSwingSpellcast.Tags.Add("lastEstimatedTime", ActGlobals.oFormActMain.LastEstimatedTime);
                         ActGlobals.oFormActMain.AddCombatAction(masterSwingSpellcast);
                     }
                     break;
@@ -445,7 +448,8 @@ namespace EverQuestDPSPlugin
                             , "Hitpoints"
                             , CheckIfSelf(regexMatch.Groups["healingTarget"].Value) ? CharacterNamePersonaReplace(regexMatch.Groups["healer"].Value) : CharacterNamePersonaReplace(regexMatch.Groups["healingTarget"].Value)
                         );
-                        masterSwingHeal.Tags[logTimestamp] = ActGlobals.oFormActMain.LastKnownTime;
+                        masterSwingHeal.Tags.Add("lastKnowTime", ActGlobals.oFormActMain.LastKnownTime);
+                        masterSwingHeal.Tags.Add("lastEstimatedTime", ActGlobals.oFormActMain.LastEstimatedTime);
                         if (regexMatch.Groups["overHealPoints"].Success)
                             masterSwingHeal.Tags["overheal"] = Int64.Parse(regexMatch.Groups["overHealPoints"].Value);
                         ActGlobals.oFormActMain.AddCombatAction(masterSwingHeal);
@@ -475,7 +479,8 @@ namespace EverQuestDPSPlugin
                             , CharacterNamePersonaReplace(attackerAndTypeEvasion.Item2)
                             , "Hitpoints"
                             , CharacterNamePersonaReplace(victimAndTypeEvasion.Item2));
-                        masterSwingEvasion.Tags[logTimestamp] = ActGlobals.oFormActMain.LastKnownTime;
+                        masterSwingEvasion.Tags.Add("lastKnowTime", ActGlobals.oFormActMain.LastKnownTime);
+                        masterSwingEvasion.Tags.Add("lastEstimatedTime", ActGlobals.oFormActMain.LastEstimatedTime);
                         ActGlobals.oFormActMain.AddCombatAction(masterSwingEvasion);
                     }
                     break;
@@ -494,7 +499,8 @@ namespace EverQuestDPSPlugin
                             , "Hitpoints"
                             , CharacterNamePersonaReplace(regexMatch.Groups["victim"].Value)
                         );
-                        masterSwingSpellcast.Tags[logTimestamp] = ActGlobals.oFormActMain.LastKnownTime;
+                        masterSwingSpellcast.Tags.Add("lastKnowTime", ActGlobals.oFormActMain.LastKnownTime);
+                        masterSwingSpellcast.Tags.Add("lastEstimatedTime", ActGlobals.oFormActMain.LastEstimatedTime);
                         ActGlobals.oFormActMain.AddCombatAction(masterSwingSpellcast);
                     }
                     break;
@@ -976,7 +982,7 @@ namespace EverQuestDPSPlugin
             {
                 return (Left.Tags.ContainsKey("overheal") && Right.Tags.ContainsKey("overheal")) ? ((long)Left.Tags["overheal"]).CompareTo((long)Right.Tags["overheal"]) : 0;
             }));
-            MasterSwing.ColumnDefs.Add("Time Δ", new MasterSwing.ColumnDef("Time Δ", true, "BIGINT", "TimeDelta", (Data) => { return (Data.Time - ((DateTime)Data.Tags[logTimestamp])).TotalMilliseconds.ToString(); }, (Data) => { return (Data.Time - ((DateTime)Data.Tags[logTimestamp])).TotalMilliseconds.ToString(); }, (Left, Right) => { return (Left.Time - ((DateTime)Left.Tags[logTimestamp])).CompareTo((Right.Time - ((DateTime)Right.Tags[logTimestamp]))); }));
+            
             foreach (KeyValuePair<string, MasterSwing.ColumnDef> pair in MasterSwing.ColumnDefs)
                 pair.Value.GetCellForeColor = (Data) => { return GetSwingTypeColor(Data.SwingType); };
 
