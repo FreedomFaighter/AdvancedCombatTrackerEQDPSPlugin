@@ -156,12 +156,7 @@ namespace EverQuestDPSPlugin
         {
             InitializeComponent();
         }
-
-		Label lblStatus;    // The status label that appears in ACT's Plugin tab
-		string settingsFile = Path.Combine(ActGlobals.oFormActMain.AppDataFolder.FullName, "Config\\PluginSample.config.xml");
-		SettingsSerializer xmlSettings;
-
-		#region IActPluginV1 Members
+#region Aditu's Plugin initialization with thread safe status label update
         public void InitPlugin(TabPage pluginScreenSpace, Label pluginStatusText)
         {
             EverQuest_DPS_Plugin_Localization.EditLocalizations();
@@ -212,7 +207,8 @@ namespace EverQuestDPSPlugin
             String lblMessage = $"{pluginName} Plugin Started";
             changeLblStatus(lblMessage);
         }
-
+#endregion
+#region Aditu's plugin deinitialization
         public void DeInitPlugin()
         {
             ActGlobals.oFormActMain.GetDateTimeFromLog -= ParseDateTime;
@@ -229,7 +225,8 @@ namespace EverQuestDPSPlugin
             SaveSettings();
             lblStatus.Text = $"{pluginName} Plugin Exited";
         }
-
+#endregion
+#region Thread safe change label method
         void changeLblStatus(String status)
         {
             if(lblStatus.InvokeRequired)
@@ -241,9 +238,8 @@ namespace EverQuestDPSPlugin
             else
                 this.lblStatus.Text = status;
         }
-
-
-        
+#endregion
+#region Aditu's Plugin update code with unique ID and version acquisition code
         void UpdateCheckClicked()
         {
             int pluginId = 92;
@@ -281,7 +277,7 @@ namespace EverQuestDPSPlugin
                 ActGlobals.oFormActMain.WriteExceptionLog(ex, "Plugin Update Check");
             }
         }
-
+#endregion
         private DateTime ParseDateTime(String timeStamp)
         {
             DateTime.TryParseExact(timeStamp, eqDateTimeStampFormat, DateTimeFormatInfo.CurrentInfo, DateTimeStyles.AssumeLocal, out DateTime currentEQTimeStamp);
@@ -779,7 +775,7 @@ namespace EverQuestDPSPlugin
             xWriter.WriteEndElement();
         }
 #endregion
-#region Aditu's Environment setup
+#region Aditu's Environment setup with modifications for pets
 //Modified for some EverQuest specific variables
         private void SetupEverQuestEnvironment()
         {
@@ -1055,7 +1051,7 @@ namespace EverQuestDPSPlugin
                 return default;
         }
 #endregion
-#region Crit type processing
+#region Crit type processing Aditu original with localization modifications
 //modified to display an empty string in the event no special type of attack is detected by the regex processing
         private string CombatantDataGetCritTypes(CombatantData Data)
         {
@@ -1076,8 +1072,6 @@ namespace EverQuestDPSPlugin
             else
                 return String.Empty;
         }
-#endregion
-#region EverQuest specific Crit type processing
 
         private Color GetSwingTypeColor(int SwingType)
         {
@@ -1100,6 +1094,9 @@ namespace EverQuestDPSPlugin
                     return Color.Black;
             }
         }
+
+#endregion
+#region EverQuest specific Crit type processing
 
         private string AttackTypeGetCritTypes(AttackType Data)
         {
@@ -1209,6 +1206,7 @@ namespace EverQuestDPSPlugin
                 return swingType == null ? String.Empty : swingType.ToString();
         }
 #endregion
+
 #region Variancecheckboxevent
 //checkbox processing event for population or sample variance
         private void VarianceChkBx_CheckedChanged(object sender, EventArgs e)
@@ -1231,7 +1229,7 @@ namespace EverQuestDPSPlugin
                 }
         }
 #endregion
-#region AdituEncounterFormatSwitchcode
+#region Aditu EncounterFormatSwitch code
         private string EncounterFormatSwitch(EncounterData Data, List<CombatantData> SelectiveAllies, string VarName, string Extra)
         {
             long damage = 0;
