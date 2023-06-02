@@ -211,14 +211,7 @@ namespace EverQuestDPSPlugin
             ActGlobals.oFormActMain.CharacterFileNameRegex = new Regex(@"(?:.+)[\\]eqlog_(?<characterName>\S+)_(?<server>.+).txt", RegexOptions.Compiled);
             ActGlobals.oFormActMain.ZoneChangeRegex = new Regex($@"{TimeStamp} {ZoneChange}", RegexOptions.Compiled);
             String lblMessage = $"{pluginName} Plugin Started";
-            if(varianceChkBx.InvokeRequired)
-            {
-                this.lblStatus.Invoke(new Action(() => {
-                    this.lblStatus.Text = lblMessage;
-                }));
-            }
-            else
-                this.lblStatus.Text = lblMessage;
+            changeLblStatus(lblMessage);
         }
 
         public void DeInitPlugin()
@@ -237,6 +230,21 @@ namespace EverQuestDPSPlugin
             SaveSettings();
             lblStatus.Text = $"{pluginName} Plugin Exited";
         }
+
+        void changeLblStatus(String status)
+        {
+            if(varianceChkBx.InvokeRequired)
+            {
+                this.lblStatus.Invoke(new Action(() => {
+                    this.lblStatus.Text = status;
+                }));
+            }
+            else
+                this.lblStatus.Text = status;
+        }
+
+
+        
         void UpdateCheckClicked()
         {
             int pluginId = 92;
