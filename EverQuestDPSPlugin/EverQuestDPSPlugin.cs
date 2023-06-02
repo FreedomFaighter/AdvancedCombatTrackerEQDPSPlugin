@@ -262,9 +262,9 @@ namespace EverQuestDPSPlugin
             }
         }
 
-        private DateTime ParseDateTime(String logLine)
+        private DateTime ParseDateTime(String timeStamp)
         {
-            DateTime.TryParseExact(dateTimeRegex.Match(logLine).Groups["dateTimeOfLogLine"].Value, eqDateTimeStampFormat, DateTimeFormatInfo.CurrentInfo, DateTimeStyles.AssumeLocal, out DateTime currentEQTimeStamp);
+            DateTime.TryParseExact(timeStamp, eqDateTimeStampFormat, DateTimeFormatInfo.CurrentInfo, DateTimeStyles.AssumeLocal, out DateTime currentEQTimeStamp);
             return currentEQTimeStamp;
         }
 
@@ -350,13 +350,14 @@ namespace EverQuestDPSPlugin
                             , regexMatch.Groups["damageSpecial"].Success ? regexMatch.Groups["damageSpecial"].Value.Contains(SpecialCritical) : false
                             , regexMatch.Groups["damageSpecial"].Success ? regexMatch.Groups["damageSpecial"].Value : String.Empty
                             , new Dnum(Int64.Parse(regexMatch.Groups["damageAmount"].Value))
-                            , ActGlobals.oFormActMain.LastEstimatedTime
+                            , ParseDateTime(regexMatch.Groups["dateTimeOfLogLine"].Value)
                             , ActGlobals.oFormActMain.GlobalTimeSorter
                             , regexMatch.Groups["attackType"].Value
                             , CharacterNamePersonaReplace(attackerAndTypeMelee.Item2)
                             , "Hitpoints"
                             , CharacterNamePersonaReplace(victimAndTypeMelee.Item2));
                         masterSwingMelee.Tags[logTimestamp] = ActGlobals.oFormActMain.LastKnownTime;
+                        //ActGlobals.oFormActMain.LastEstimatedTime
                         ActGlobals.oFormActMain.AddCombatAction(masterSwingMelee);
                     }
                     break;
@@ -368,7 +369,8 @@ namespace EverQuestDPSPlugin
                             , regexMatch.Groups["damageSpecial"].Value.Contains(SpecialCritical)
                             , regexMatch.Groups["damageSpecial"].Value
                             , new Dnum(Int64.Parse(regexMatch.Groups["damagePoints"].Value))
-                            , ActGlobals.oFormActMain.LastEstimatedTime, ActGlobals.oFormActMain.GlobalTimeSorter
+                            , ParseDateTime(regexMatch.Groups["dateTimeOfLogLine"].Value)
+                            , ActGlobals.oFormActMain.GlobalTimeSorter
                             , regexMatch.Groups["damageShieldDamageType"].Value
                             , CharacterNamePersonaReplace(regexMatch.Groups["victim"].Value)
                             , "Hitpoints"
@@ -387,7 +389,8 @@ namespace EverQuestDPSPlugin
                             , false
                             , regexMatch.Groups["damageSpecial"].Success ? regexMatch.Groups["damageSpecial"].Value : String.Empty
                             , new Dnum(Dnum.Miss)
-                            , ActGlobals.oFormActMain.LastEstimatedTime, ActGlobals.oFormActMain.GlobalTimeSorter
+                            , ParseDateTime(regexMatch.Groups["dateTimeOfLogLine"].Value)
+                            , ActGlobals.oFormActMain.GlobalTimeSorter
                             , regexMatch.Groups["attackType"].Value
                             , CharacterNamePersonaReplace(attackerAndTypeMissedMelee.Item2)
                             , "Miss"
@@ -410,7 +413,8 @@ namespace EverQuestDPSPlugin
                         MasterSwing masterSwingSpellcast = new MasterSwing(EverQuestSwingType.DirectDamageSpell.GetEverQuestSwingTypeExtensionIntValue()
                             , regexMatch.Groups["spellSpecial"].Success ? regexMatch.Groups["spellSpecial"].Value.Contains(SpecialCritical) : false
                             , regexMatch.Groups["spellSpecial"].Success ? regexMatch.Groups["spellSpeical"].Value : String.Empty
-                            , damage, ActGlobals.oFormActMain.LastEstimatedTime
+                            , damage
+                            , ParseDateTime(regexMatch.Groups["dateTimeOfLogLine"].Value)
                             , ActGlobals.oFormActMain.GlobalTimeSorter
                             , regexMatch.Groups["damageEffect"].Value
                             , CharacterNamePersonaReplace(regexMatch.Groups["attacker"].Value)
@@ -434,7 +438,7 @@ namespace EverQuestDPSPlugin
                             , regexMatch.Groups["healingSpecial"].Success ? regexMatch.Groups["healingSpecial"].Value.Contains(SpecialCritical) : false
                             , regexMatch.Groups["healingSpecial"].Success ? regexMatch.Groups["healingSpecial"].Value : String.Empty
                             , new Dnum(Int64.Parse(regexMatch.Groups["healingPoints"].Value))
-                            , ActGlobals.oFormActMain.LastEstimatedTime
+                            , ParseDateTime(regexMatch.Groups["dateTimeOfLogLine"].Value)
                             , ActGlobals.oFormActMain.GlobalTimeSorter
                             , regexMatch.Groups["healingSpell"].Value
                             , CharacterNamePersonaReplace(regexMatch.Groups["healer"].Value)
@@ -454,7 +458,7 @@ namespace EverQuestDPSPlugin
                     MasterSwing masterSwingUnknown = new MasterSwing(EverQuestSwingType.NonMelee.GetEverQuestSwingTypeExtensionIntValue(), false, new Dnum(Dnum.Unknown)
                     {
                         DamageString2 = regexMatch.Value
-                    }, ActGlobals.oFormActMain.LastEstimatedTime, ActGlobals.oFormActMain.GlobalTimeSorter, "Unknown", "Unknown", "Unknown", "Unknown");
+                    }, ParseDateTime(regexMatch.Groups["dateTimeOfLogLine"].Value), ActGlobals.oFormActMain.GlobalTimeSorter, "Unknown", "Unknown", "Unknown", "Unknown");
                     ActGlobals.oFormActMain.AddCombatAction(masterSwingUnknown);
                     break;
                 case 10:
@@ -465,7 +469,7 @@ namespace EverQuestDPSPlugin
                         MasterSwing masterSwingEvasion = new MasterSwing(((((attackerAndTypeEvasion.Item1 & EverQuestSwingType.PetMelee) == EverQuestSwingType.PetMelee) || ((victimAndTypeEvasion.Item1 & EverQuestSwingType.PetMelee) == EverQuestSwingType.PetMelee)) ? EverQuestSwingType.PetMelee : EverQuestSwingType.Melee).GetEverQuestSwingTypeExtensionIntValue()
                             , false, regexMatch.Groups["evasionSpecial"].Value
                             , new Dnum(Dnum.NoDamage, regexMatch.Groups["evasionType"].Value)
-                            , ActGlobals.oFormActMain.LastEstimatedTime
+                            , ParseDateTime(regexMatch.Groups["dateTimeOfLogLine"].Value)
                             , ActGlobals.oFormActMain.GlobalTimeSorter
                             , regexMatch.Groups["attackType"].Value
                             , CharacterNamePersonaReplace(attackerAndTypeEvasion.Item2)
@@ -482,7 +486,8 @@ namespace EverQuestDPSPlugin
                         MasterSwing masterSwingSpellcast = new MasterSwing(EverQuestSwingType.DamageOverTimeSpell.GetEverQuestSwingTypeExtensionIntValue()
                             , regexMatch.Groups["spellSpecial"].Value.Contains(SpecialCritical)
                             , regexMatch.Groups["spellSpecial"].Value
-                            , damage, ActGlobals.oFormActMain.LastEstimatedTime
+                            , damage
+                            , ParseDateTime(regexMatch.Groups["dateTimeOfLogLine"].Value)
                             , ActGlobals.oFormActMain.GlobalTimeSorter
                             , "Damage over time"
                             , CharacterNamePersonaReplace(regexMatch.Groups["attacker"].Value)
@@ -543,11 +548,18 @@ namespace EverQuestDPSPlugin
                     }
                     catch (ArgumentNullException ex)
                     {
-                        this.lblStatus.Invoke(new Action(() => { this.lblStatus.Text = $"Argument Null for {ex.ParamName} with message: {ex.Message}"; }));
+                        if(lblStatus.InvokeRequired)
+                            this.lblStatus.Invoke(new Action(() => { this.lblStatus.Text = $"Argument Null for {ex.ParamName} with message: {ex.Message}"; }));
+                        else
+                            this.lblStatus.Text = $"Argument Null for {ex.ParamName} with message: {ex.Message}";
                     }
                     catch (Exception ex)
                     {
-                        this.lblStatus.Invoke(new Action(() => { this.lblStatus.Text = $"With message: {ex.Message}"; }));
+                        if(lblStatus.InvokeRequired)
+                            this.lblStatus.Invoke(new Action(() => { this.lblStatus.Text = $"With message: {ex.Message}"; }));
+                        else
+                            this.lblStatus.Text = $"With message: {ex.Message}";
+
                     }
                 }
             }
@@ -940,12 +952,12 @@ namespace EverQuestDPSPlugin
             AttackType.ColumnDefs.Add("EncDPS", new AttackType.ColumnDef("EncDPS", true, "DOUBLE", "EncDPS", (Data) => { return Data.EncDPS.ToString(); }, (Data) => { return Data.EncDPS.ToString(usCulture); }, (Left, Right) => { return Left.EncDPS.CompareTo(Right.EncDPS); }));
             AttackType.ColumnDefs.Add("CharDPS", new AttackType.ColumnDef("CharDPS", false, "DOUBLE", "CharDPS", (Data) => { return Data.CharDPS.ToString(); }, (Data) => { return Data.CharDPS.ToString(usCulture); }, (Left, Right) => { return Left.CharDPS.CompareTo(Right.CharDPS); }));
             AttackType.ColumnDefs.Add("DPS", new AttackType.ColumnDef("DPS", false, "DOUBLE", "DPS", (Data) => { return Data.DPS.ToString(); }, (Data) => { return Data.DPS.ToString(usCulture); }, (Left, Right) => { return Left.DPS.CompareTo(Right.DPS); }));
-            AttackType.ColumnDefs.Add("Average", new AttackType.ColumnDef("Average", true, "DOUBLE", "Average", (Data) => { return (new ConcurrentQueue<MasterSwing>(Data.Items)).Select((item) => item.Damage.Number).Where((number) => number > 0).Average().ToString(); }, (Data) => { return (new ConcurrentQueue<MasterSwing>(Data.Items)).Select((item) => item.Damage.Number).Where((number) => number > 0).Average().ToString(usCulture); }, (Left, Right) => { return (new ConcurrentQueue<MasterSwing>(Left.Items)).Select((item) => item.Damage.Number).Where((number) => number > 0).Average().CompareTo((new ConcurrentQueue<MasterSwing>(Right.Items)).Select((item) => item.Damage.Number).Where((number) => number > 0).Average()); }));
+            AttackType.ColumnDefs.Add("Average", new AttackType.ColumnDef("Average", true, "DOUBLE", "Average", (Data) => { return Data.Average.ToString(); }, (Data) => { return Data.Average.ToString(); }, (Left, Right) => { return Left.Average.CompareTo(Right.Average); }));
             AttackType.ColumnDefs.Add("Median", new AttackType.ColumnDef("Median", true, "BIGINT", "Median", (Data) => { return Data.Median.ToString(); }, (Data) => { return Data.Median.ToString(); }, (Left, Right) => { return Left.Median.CompareTo(Right.Median); }));
             AttackType.ColumnDefs.Add("StdDev", new AttackType.ColumnDef("StdDev", true, "DOUBLE", "StdDev", (Data) => { return Math.Sqrt(AttackTypeGetVariance(Data)).ToString(); }, (Data) => { return Math.Sqrt(AttackTypeGetVariance(Data)).ToString(); }, (Left, Right) => { return Math.Sqrt(AttackTypeGetVariance(Left)).CompareTo(Math.Sqrt(AttackTypeGetVariance(Right))); }));
             AttackType.ColumnDefs.Add("CritTypes", new AttackType.ColumnDef("CritTypes", true, "VARCHAR(32)", "CritTypes", AttackTypeGetCritTypes, AttackTypeGetCritTypes, (Left, Right) => { return AttackTypeGetCritTypes(Left).CompareTo(AttackTypeGetCritTypes(Right)); }));
-            AttackType.ColumnDefs.Add("Max", new AttackType.ColumnDef("Max", true, "BIGINT", "Max", (Data) => { return (new ConcurrentQueue<MasterSwing>(Data.Items)).Select((item) => item.Damage.Number).Where((damage) => damage > 0).Max().ToString(); }, (Data) => { return (new ConcurrentQueue<MasterSwing>(Data.Items)).Select((item) => item.Damage.Number).Where((damage) => damage > 0).Max().ToString(); }, (Left, Right) => { return (new ConcurrentQueue<MasterSwing>(Left.Items)).Select((item) => item.Damage.Number).Where((damage) => damage > 0).Max().CompareTo((new ConcurrentQueue<MasterSwing>(Right.Items)).ToList().Select((item) => item.Damage.Number).Where((damage) => damage > 0).Max()); }));
-            AttackType.ColumnDefs.Add("Min", new AttackType.ColumnDef("Min", true, "BIGINT", "Min", (Data) => { return (new ConcurrentQueue<MasterSwing>(Data.Items)).Select((item) => item.Damage.Number).Where((damage) => damage > 0).Min().ToString(); }, (Data) => { return (new ConcurrentQueue<MasterSwing>(Data.Items)).Select((item) => item.Damage.Number).Where((damage) => damage > 0).Min().ToString(); }, (Left, Right) => { return (new ConcurrentQueue<MasterSwing>(Left.Items)).Select((item) => item.Damage.Number).Where((damage) => damage > 0).Min().CompareTo((new ConcurrentQueue<MasterSwing>(Right.Items)).ToList().Select((item) => item.Damage.Number).Where((damage) => damage > 0).Min()); }));
+            AttackType.ColumnDefs.Add("Max", new AttackType.ColumnDef("Max", true, "BIGINT", "Max", (Data) => { return Data.Items.Count > 0 ? Data.Items.Select((item) => item.Damage.Number).Where((damage) => damage > 0).Max().ToString() : String.Empty; }, (Data) => { return Data.Items.Count > 0 ? Data.Items.Select((item) => item.Damage.Number).Where((damage) => damage > 0).Max().ToString() : String.Empty; }, (Left, Right) => { return Left.Items.Count > 0 && Right.Items.Count > 0 ? Left.Items.Select((item) => item.Damage.Number).Where((damage) => damage > 0).Max().CompareTo(Right.Items.Select((item) => item.Damage.Number).Where((damage) => damage > 0).Max()) : 0; }));
+            AttackType.ColumnDefs.Add("Min", new AttackType.ColumnDef("Min", true, "BIGINT", "Min", (Data) => { return Data.Items.Count > 0 ? Data.Items.Select((item) => item.Damage.Number).Where((damage) => damage > 0).Min().ToString() : String.Empty; }, (Data) => { return Data.Items.Count > 0 ? Data.Items.Select((item) => item.Damage.Number).Where((damage) => damage > 0).Min().ToString() : String.Empty; }, (Left, Right) => { return Left.Items.Count > 0 && Right.Items.Count > 0 ? Left.Items.Select((item) => item.Damage.Number).Where((damage) => damage > 0).Min().CompareTo(Right.Items.Select((item) => item.Damage.Number).Where((damage) => damage > 0).Min()) : 0; }));
 
             MasterSwing.ColumnDefs.Clear();
             MasterSwing.ColumnDefs.Add("EncId", new MasterSwing.ColumnDef("EncId", false, "CHAR(8)", "EncId", (Data) => { return string.Empty; }, (Data) => { return Data.ParentEncounter.EncId; }, (Left, Right) => { return 0; }));
@@ -1156,10 +1168,16 @@ namespace EverQuestDPSPlugin
                 switch (this.populationVariance)
                 {
                     case true:
-                        this.lblStatus.Invoke(new Action(() => { this.lblStatus.Text = $"Reporting population variance {pluginName}"; } ));
+                        if(lblStatus.InvokeRequired)
+                            this.lblStatus.Invoke(new Action(() => { this.lblStatus.Text = $"Reporting population variance {pluginName}"; } ));
+                        else
+                            this.lblStatus.Text = $"Reporting population variance {pluginName}";
                         break;
                     case false:
-                        this.lblStatus.Invoke(new Action(() => { this.lblStatus.Text = $"Reporting sample variance {pluginName}"; }));
+                        if(lblStatus.InvokeRequired)
+                            this.lblStatus.Invoke(new Action(() => { this.lblStatus.Text = $"Reporting sample variance {pluginName}"; }));
+                        else
+                            this.lblStatus.Text = $"Reporting sample variance {pluginName}";
                         break;
                 }
         }
