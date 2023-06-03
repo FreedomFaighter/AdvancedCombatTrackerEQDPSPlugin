@@ -140,7 +140,7 @@ namespace EverQuestDPSPlugin
         {
             InitializeComponent();
         }
-#region Aditu's Plugin initialization with thread safe status label update
+
         public void InitPlugin(TabPage pluginScreenSpace, Label pluginStatusText)
         {
             EverQuest_DPS_Plugin_Localization.EditLocalizations();
@@ -191,8 +191,7 @@ namespace EverQuestDPSPlugin
             String lblMessage = $"{pluginName} Plugin Started";
             changeLblStatus(lblMessage);
         }
-#endregion
-#region Aditu's plugin deinitialization
+
         public void DeInitPlugin()
         {
             ActGlobals.oFormActMain.GetDateTimeFromLog -= ParseDateTime;
@@ -209,8 +208,7 @@ namespace EverQuestDPSPlugin
             SaveSettings();
             lblStatus.Text = $"{pluginName} Plugin Exited";
         }
-#endregion
-#region Thread safe change label method
+
         void changeLblStatus(String status)
         {
             if(lblStatus.InvokeRequired)
@@ -222,8 +220,7 @@ namespace EverQuestDPSPlugin
             else
                 this.lblStatus.Text = status;
         }
-#endregion
-#region Aditu's Plugin update code with unique ID and version acquisition code
+
         void UpdateCheckClicked()
         {
             int pluginId = 92;
@@ -261,7 +258,7 @@ namespace EverQuestDPSPlugin
                 ActGlobals.oFormActMain.WriteExceptionLog(ex, "Plugin Update Check");
             }
         }
-#endregion
+
         private DateTime ParseDateTime(String timeStamp)
         {
             DateTime.TryParseExact(timeStamp, eqDateTimeStampFormat, DateTimeFormatInfo.CurrentInfo, DateTimeStyles.AssumeLocal, out DateTime currentEQTimeStamp);
@@ -530,8 +527,7 @@ namespace EverQuestDPSPlugin
         {
             return selfCheck.Match(PersonaString).Success ? ActGlobals.charName : PersonaString;
         }
-#region Settings File Read-Aditu's code 1
-//Aditu's Settings File Read with non-explicit closing of the file in code
+
         void LoadSettings()
         {
             xmlSettings.AddControlSetting(varianceChkBx.Name, varianceChkBx);
@@ -577,9 +573,7 @@ namespace EverQuestDPSPlugin
             else
                 this.populationVariance = varianceChkBx.Checked;
         }
-#endregion
-#region Settings Save Aditu's code Region 3
-//Aditu's Settings File Save with non-explicit closing of file
+
         void SaveSettings()
         {
             using (FileStream fs = new FileStream(settingsFile, FileMode.Create, FileAccess.Write, FileShare.ReadWrite))
@@ -600,8 +594,7 @@ namespace EverQuestDPSPlugin
                 }
             }
         }
-#endregion
-#region Aditu's code region 2
+
         internal class AposNameFix : IEquatable<AposNameFix>
         {
             string left, right, fullName;
@@ -754,9 +747,7 @@ namespace EverQuestDPSPlugin
             }
             xWriter.WriteEndElement();
         }
-#endregion
-#region Aditu's Environment setup with modifications for pets
-//Modified for some EverQuest specific variables
+
         private void SetupEverQuestEnvironment()
         {
             CultureInfo usCulture = new CultureInfo("en-US");   // This is for SQL syntax; do not change
@@ -997,7 +988,7 @@ namespace EverQuestDPSPlugin
             ActGlobals.oFormActMain.ValidateLists();
             ActGlobals.oFormActMain.ValidateTableSetup();
         }
-#endregion
+
 #region Statistic processing
 //Statistics specific processing
 //Backstep function for time series processing
@@ -1031,7 +1022,6 @@ namespace EverQuestDPSPlugin
                 return default;
         }
 #endregion
-#region Crit type processing Aditu original with localization modifications
 //modified to display an empty string in the event no special type of attack is detected by the regex processing
         private string CombatantDataGetCritTypes(CombatantData Data)
         {
@@ -1074,9 +1064,6 @@ namespace EverQuestDPSPlugin
                     return Color.Black;
             }
         }
-
-#endregion
-#region EverQuest specific Crit type processing
 
         private string AttackTypeGetCritTypes(AttackType Data)
         {
@@ -1164,9 +1151,7 @@ namespace EverQuestDPSPlugin
 
             return $"{specialCripplingBlowPerc:000.0}%CB-{specialLockedPerc:000.0}%Locked-{specialCriticalPerc:000.0}%C-{specialStrikethroughPerc:000.0}%S-{specialRipostePerc:000.0}%R-{specialFlurryPerc:000.0}%F-{speicalLuckyPerc:000.0}%Lucky-{specialDoubleBowShotPerc:000.0}%DB-{specialTwincastPerc:000.0}%TC-{specialWildRampagePerc:000.0}%WR-{specialNonDefinedPerc:000.0}%ND";
         }
-#endregion
 
-#region Aditu's attack swing type
         private string GetAttackTypeSwingType(AttackType Data)
         {
             int? swingType = null;
@@ -1185,9 +1170,7 @@ namespace EverQuestDPSPlugin
             else
                 return swingType == null ? String.Empty : swingType.ToString();
         }
-#endregion
 
-#region Variancecheckboxevent
 //checkbox processing event for population or sample variance
         private void VarianceChkBx_CheckedChanged(object sender, EventArgs e)
         {
@@ -1208,8 +1191,7 @@ namespace EverQuestDPSPlugin
                         break;
                 }
         }
-#endregion
-#region Aditu EncounterFormatSwitch code
+
         private string EncounterFormatSwitch(EncounterData Data, List<CombatantData> SelectiveAllies, string VarName, string Extra)
         {
             long damage = 0;
@@ -1517,6 +1499,5 @@ namespace EverQuestDPSPlugin
                     return VarName;
             }
         }
-#endregion
     }
 }
