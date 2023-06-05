@@ -94,7 +94,8 @@ namespace EverQuestDPSPlugin
         //List<Tuple<Color, Regex>> regexTupleList = new List<Tuple<Color, Regex>>();
         delegate void matchParse(Match regexMatch);
         List<Tuple<Color, Regex>> regexTupleList = new List<Tuple<Color, Regex>>();
-        readonly static String attackTypes = @"throw|pierce|gore|crush|slash|hit|kick|slam|bash|shoot|strike|bite|grab|punch|scratch|rake|swipe|claw|smack";
+        //readonly String possesiveDamageShield = "peirced|flames|tormented";
+        readonly static String attackTypes = @"throw|pierce|gore|crush|slash|hit|kick|slam|bash|shoot|strike|bite|grab|punch|scratch|rake|swipe|claw|maul";
         readonly static String evasionTypes = @"block(|s)|dodge(|s)|parr(ies|y)|riposte(|s)";
         readonly String DamageShield = @"(?<attacker>.+) is (?<damageShieldDamageType>\S+) by (?<victim>.+) (?<damageShieldType>\S+) for (?<damagePoints>[\d]+) points of non-melee damage.";
         readonly String eqDateTimeStampFormat = @"ddd MMM dd HH:mm:ss yyyy";
@@ -113,6 +114,7 @@ namespace EverQuestDPSPlugin
         readonly String SpecialStrikethrough = Enum.GetName(typeof(SpecialAttacks), (SpecialAttacks)SpecialAttacks.Strikethrough);
         readonly String SpecialTwincast = Enum.GetName(typeof(SpecialAttacks), (SpecialAttacks)SpecialAttacks.Twincast);
         readonly String SpecialWildRampage = Enum.GetName(typeof(SpecialAttacks), (SpecialAttacks)SpecialAttacks.Wild_Rampage).Replace("_", " ");
+        readonly String SpecialFinishingBlow = Enum.GetName(typeof(SpecialAttacks), (SpecialAttacks)SpecialAttacks.Finishing_Blow).Replace("_", " ");
         readonly String SpellDamage = @"(?<attacker>.+) hit (?<victim>.*) for (?<damagePoints>[\d]+) (?:point[|s]) of (?<typeOfDamage>.+) damage by (?<damageEffect>.*)\.(?:[\s][\(](?<spellSpecial>.+)[\)]){0,1}";
         readonly String SpellDamageOverTime = @"(?<attacker>.+) has taken (?<damagePoints>[\d]+) damage from (?<damageEffect>.*) by (?<victim>.*)\.(?:[\s][\(](?<spellSpecial>.+)[\)]){0,1}";
         static readonly String TimeStamp = @"\[(?<dateTimeOfLogLine>.+)\]";
@@ -211,14 +213,16 @@ namespace EverQuestDPSPlugin
 
         void changeLblStatus(String status)
         {
-            if(lblStatus.InvokeRequired)
-            {
+            switch(lblStatus.InvokeRequired){
+            case true:
                 this.lblStatus.Invoke(new Action(() => {
-                    this.lblStatus.Text = status;
-                }));
-            }
-            else
                 this.lblStatus.Text = status;
+                }));
+                break;
+            case false:
+                this.lblStatus.Text = status;
+                break;
+            }
         }
 
         void UpdateCheckClicked()
@@ -1079,9 +1083,13 @@ namespace EverQuestDPSPlugin
             int specialDoubleBowShot = 0;
             int specialTwincast = 0;
             int specialWildRampage = 0;
+            int specialFinishingBlow = 0;
             int count = ms.Count;
             if (count.Equals(0))
                 return String.Empty;
+            specialFinishingBlow = ms.Where((finishingBlow) => {
+                return finishingBlow.Special.Contains(SpecialFinishingBlow);
+            }).Count();
             specialCritical = ms.Where((critital) =>
             {
                 return critital.Special.Contains(SpecialCritical);
@@ -1127,12 +1135,12 @@ namespace EverQuestDPSPlugin
                 return !nondefined.Special.Contains(SpecialTwincast) &&
                     !nondefined.Special.Contains(SpecialDoubleBowShot) &&
                     !nondefined.Special.Contains(SpecialRiposte) &&
-                    !nondefined.Special.Contains(SpecialRiposte) &&
                     !nondefined.Special.Contains(SpecialCripplingBlow) &&
                     !nondefined.Special.Contains(SpecialLucky) &&
                     !nondefined.Special.Contains(SpecialFlurry) &&
                     !nondefined.Special.Contains(SpecialCritical) &&
-                    !nondefined.Special.Contains(SpecialWildRampage)
+                    !nondefined.Special.Contains(SpecialWildRampage) &&
+                    !nondefined.Special.Contains(SpecialCripplingBlow)
                     && nondefined.Special.Length > ActGlobals.ActLocalization.LocalizationStrings["specialAttackTerm-none"].DisplayedText.Length;
 
             }).Count();
@@ -1148,8 +1156,9 @@ namespace EverQuestDPSPlugin
             float specialDoubleBowShotPerc = ((float)specialDoubleBowShot / (float)count) * 100f;
             float specialTwincastPerc = ((float)specialTwincast / (float)count) * 100f;
             float specialWildRampagePerc = ((float)specialWildRampage / (float)count) * 100f;
+            float specialFinishingBlowPerc = ((float)specialFinishingBlow / (float)count) * 100f;
 
-            return $"{specialCripplingBlowPerc:000.0}%CB-{specialLockedPerc:000.0}%Locked-{specialCriticalPerc:000.0}%C-{specialStrikethroughPerc:000.0}%S-{specialRipostePerc:000.0}%R-{specialFlurryPerc:000.0}%F-{speicalLuckyPerc:000.0}%Lucky-{specialDoubleBowShotPerc:000.0}%DB-{specialTwincastPerc:000.0}%TC-{specialWildRampagePerc:000.0}%WR-{specialNonDefinedPerc:000.0}%ND";
+            return $"{specialCripplingBlowPerc:000.0}%CB-{specialLockedPerc:000.0}%Locked-{specialCriticalPerc:000.0}%C-{specialStrikethroughPerc:000.0}%S-{specialRipostePerc:000.0}%R-{specialFlurryPerc:000.0}%F-{speicalLuckyPerc:000.0}%Lucky-{specialDoubleBowShotPerc:000.0}%DB-{specialTwincastPerc:000.0}%TC-{specialWildRampagePerc:000.0}%WR-{specialFinishingBlow:000.0}%FB-{specialNonDefinedPerc:000.0}%ND";
         }
 
         private string GetAttackTypeSwingType(AttackType Data)
