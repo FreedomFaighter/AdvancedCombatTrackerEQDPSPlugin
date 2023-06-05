@@ -1160,7 +1160,9 @@ namespace EverQuestDPSPlugin
                     !nondefined.Special.Contains(SpecialFlurry) &&
                     !nondefined.Special.Contains(SpecialCritical) &&
                     !nondefined.Special.Contains(SpecialWildRampage) &&
-                    !nondefined.Special.Contains(SpecialCripplingBlow)
+                    !nondefined.Special.Contains(SpecialCripplingBlow) &&
+                    !nondefined.Special.Contains(SpecialStrikethrough) &&
+                    !nondefined.Special.Contains(SpecialFinishingBlow)
                     && nondefined.Special.Length > ActGlobals.ActLocalization.LocalizationStrings["specialAttackTerm-none"].DisplayedText.Length;
 
             }).Count();
