@@ -23,7 +23,7 @@ jobs:
       - name: Setup MSBuild
         uses: microsoft/setup-msbuild@v1.1
       - name: Download ACTv3 file
-        run: Invoke-WebRequest https://advancedcombattracker.com/download.php?id=57 -OutFile ACTv3.zip
+        run: Invoke-WebRequest https://advancedcombattracker.com/download.php?id=57 -OutFile ${{ github.workspace }}\ACTv3.zip
       - name: Extract ACT files
         run: 7z x ${{ github.workspace }}\ACTv3.zip
       - name: Build solution
