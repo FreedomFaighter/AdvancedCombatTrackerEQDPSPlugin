@@ -29,4 +29,4 @@ jobs:
       - name: Extract ACT files
         run: ${{ github.workspace }}\ACTv3-Setup.exe /S
       - name: Build solution
-        run: msbuild -t:build -property:Configuration=Release EverQuestDPSPlugin/EverQuestDPSPlugin.csproj 
+        run: msbuild -t:build -property:Configuration=Release EverQuestDPSPlugin.sln
