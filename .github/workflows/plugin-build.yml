@@ -23,8 +23,8 @@ jobs:
       - name: Setup MSBuild
         uses: microsoft/setup-msbuild@v1.1
       - name: Download ACTv3 file
-        run: Invoke-WebRequest https://advancedcombattracker.com/download.php?id=56 -OutFile ACTv3.exe
+        run: Invoke-WebRequest https://advancedcombattracker.com/download.php?id=56 -OutFile ACTv3-Setup.exe
       - name: Extract ACT files
-        run: ACTv3.exe /S
+        run: ACTv3-Setup.exe /S
       - name: Build solution
         run: msbuild -t:build -property:Configuration=Release EverQuestDPSPlugin/EverQuestDPSPlugin.csproj 
