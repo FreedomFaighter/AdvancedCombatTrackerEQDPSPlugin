@@ -24,6 +24,8 @@ jobs:
         uses: microsoft/setup-msbuild@v1.1
       - name: Download ACTv3 file
         run: Invoke-WebRequest https://advancedcombattracker.com/download.php?id=56 -OutFile ACTv3-Setup.exe
+      - name: Check for downloaded file
+        run: dir
       - name: Extract ACT files
         run: ACTv3-Setup.exe /S
       - name: Build solution
