@@ -1,4 +1,7 @@
 ﻿EverQuestDPSPlugin/[Oo]bj/
 EverQuestDPSPlugin/[Bb]in/
 .vs/
-/packages
+obj/
+bin/
+EverQuestDPSPlugin/EverQuestDPSPlugin.csproj.user
+/UpgradeLog.htm
