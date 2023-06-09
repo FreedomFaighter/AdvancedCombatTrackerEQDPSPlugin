@@ -24,11 +24,7 @@ jobs:
         uses: microsoft/setup-msbuild@v1.1
       - name: Download ACTv3 file
         run: Invoke-WebRequest https://advancedcombattracker.com/download.php?id=57 -OutFile ACTv3.zip
-      - name: List Downloaded to Folder
-        run: dir ${{ github.workspace }}
       - name: Extract ACT files
         run: 7z x ${{ github.workspace }}\ACTv3.zip
-      - name: List folder contents after ACTv3 file extract
-        run: dir ${{ github.workspace }}
       - name: Build solution
         run: msbuild -t:build -property:Configuration=Release EverQuestDPSPlugin.sln
