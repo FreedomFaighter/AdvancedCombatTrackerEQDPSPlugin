@@ -1585,26 +1585,32 @@ namespace EverQuestDPSPlugin
         {
             
             this.nonMatchVisible = (sender as CheckBox).Checked;
-            switch(this.nonMatchVisible)
+            switch((sender as CheckBox).CheckState)
             {
-                case true:
+                case CheckState.Checked:
+                    (sender as CheckBox).Enabled = false;
                     if (this.nm.InvokeRequired)
                         nm.Invoke(new Action(() =>
                         {
-                            nm.Visible = true;
+                            nm.Visible = this.nonMatchVisible;
                         }));
                     else
-                        nm.Visible = true;
+                        nm.Visible = this.nonMatchVisible;
+                    (sender as CheckBox).Enabled = true;
                 break;
-                case false:
+                case CheckState.Unchecked:
+                    (sender as CheckBox).Enabled = false;
                     if (this.nm.InvokeRequired)
                         nm.Invoke(new Action(() =>
                         {
-                            nm.Visible = false;
+                            nm.Visible = this.nonMatchVisible;
                         }));
                     else
-                            nm.Visible = false;
+                            nm.Visible = this.nonMatchVisible;
+                    (sender as CheckBox).Enabled = true;
                 break;
+                case CheckState.Indeterminate:
+                    break;
             }
         }
 #endif

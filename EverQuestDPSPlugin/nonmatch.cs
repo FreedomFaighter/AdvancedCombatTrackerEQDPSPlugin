@@ -22,10 +22,5 @@ namespace EverQuestDPSPlugin
         {
             this.nonMatchList.Items.Add(logline);
         }
-
-        private void listBox1_SelectedIndexChanged(object sender, EventArgs e)
-        {
-
-        }
     }
 }
