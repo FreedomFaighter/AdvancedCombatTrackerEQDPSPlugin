@@ -19,11 +19,6 @@
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
     <Prefer32Bit>false</Prefer32Bit>
-    <AdditionalLibPaths>
-	<HintPath>
-		..\
-	</HintPath>
-    </AdditionalLibPaths>
   </PropertyGroup>
   <PropertyGroup>
     <TargetFrameworkVersion>v4.8</TargetFrameworkVersion>
