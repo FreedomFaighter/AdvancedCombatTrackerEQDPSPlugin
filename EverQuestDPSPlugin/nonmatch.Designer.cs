@@ -38,7 +38,6 @@
             this.nonMatchList.Name = "nonMatchList";
             this.nonMatchList.Size = new System.Drawing.Size(799, 446);
             this.nonMatchList.TabIndex = 1;
-            this.nonMatchList.SelectedIndexChanged += new System.EventHandler(this.listBox1_SelectedIndexChanged);
             // 
             // nonmatch
             // 
