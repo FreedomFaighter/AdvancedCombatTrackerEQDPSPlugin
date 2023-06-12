@@ -1,7 +1,6 @@
 ﻿using Advanced_Combat_Tracker;
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Drawing;
 using System.Globalization;
 using System.IO;
@@ -12,7 +11,6 @@ using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using System.Xml;
-using System.Collections.Concurrent;
 /*
 * Project: EverQuest DPS Plugin
 * Original: EverQuest 2 English DPS Localization plugin developed by EQAditu
@@ -57,6 +55,9 @@ namespace EverQuestDPSPlugin
         private void InitializeComponent()
         {
             this.varianceChkBx = new System.Windows.Forms.CheckBox();
+#if DEBUG
+            this.nonMatchVisibleChkbx = new System.Windows.Forms.CheckBox();
+#endif
             this.SuspendLayout();
             // 
             // varianceChkBx
@@ -69,6 +70,19 @@ namespace EverQuestDPSPlugin
             this.varianceChkBx.Text = "Population Variance (checked)/Sample Variance (unchecked)";
             this.varianceChkBx.UseVisualStyleBackColor = true;
             this.varianceChkBx.CheckedChanged += new System.EventHandler(this.VarianceChkBx_CheckedChanged);
+#if DEBUG
+            // 
+            // nonMatchVisibleChbx
+            // 
+            this.nonMatchVisibleChkbx.AutoSize = true;
+            this.nonMatchVisibleChkbx.Location = new System.Drawing.Point(14, 58);
+            this.nonMatchVisibleChkbx.Name = "nonMatchVisibleChbx";
+            this.nonMatchVisibleChkbx.Size = new System.Drawing.Size(108, 17);
+            this.nonMatchVisibleChkbx.TabIndex = 20;
+            this.nonMatchVisibleChkbx.Text = "NonMatch visible";
+            this.nonMatchVisibleChkbx.UseVisualStyleBackColor = true;
+            this.nonMatchVisibleChkbx.CheckedChanged += new System.EventHandler(this.nonMatchVisible_CheckedChanged);
+#endif
             // 
             // EverQuestDPSPlugin
             // 
@@ -76,16 +90,20 @@ namespace EverQuestDPSPlugin
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.AutoSize = true;
             this.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink;
+#if DEBUG
+            this.Controls.Add(this.nonMatchVisibleChkbx);
+#endif
             this.Controls.Add(this.varianceChkBx);
+            this.MinimumSize = new System.Drawing.Size(200, 400);
             this.Name = "EverQuestDPSPlugin";
-            this.Size = new System.Drawing.Size(337, 41);
+            this.Size = new System.Drawing.Size(337, 400);
             this.ResumeLayout(false);
             this.PerformLayout();
 
         }
 
-        #endregion
-        #endregion
+#endregion
+#endregion
 
         #region class members
         //readonly int pluginId = -1;
@@ -100,7 +118,7 @@ namespace EverQuestDPSPlugin
         readonly String DamageShield = @"(?<attacker>.+) is (?<damageShieldDamageType>\S+) by (?<victim>.+) (?<damageShieldType>\S+) for (?<damagePoints>[\d]+) points of non-melee damage.";
         readonly String eqDateTimeStampFormat = @"ddd MMM dd HH:mm:ss yyyy";
         readonly String Heal = @"(?<healer>.*?) (?:has been\s?)healed (?<healingTarget>.*?)(?:\s(?<overTime>over time)){0,1} for (?<healingPoints>[\d]+)(?:\s\((?<overHealPoints>[\d]+)\)){0,1} hit point(?:|s) by (?<healingSpell>.*)\.(?:[\s][\(](?<healingSpecial>.+)[\)]){0,1}";
-        readonly String MeleeAttack = @"(?<attacker>.+) (?<attackType>" + $@"{attackTypes}" + @")(|s|es|bed) (?<victim>.+) for (?<damageAmount>[\d]+) (?:point[|s]) of damage.(?:\s\((?<damageSpecial>.+)\)){0,1}";
+        readonly String MeleeAttack = @"(?<attacker>.+) (?<attackType>" + $@"{attackTypes}" + @")(|s|es|bed) (?<victim>.+) for (?<damageAmount>[\d]+) (?:(?:point)(?:s|)) of damage.(?:\s\((?<damageSpecial>.+)\)){0,1}";
         readonly String MissedMeleeAttack = @"(?<attacker>.+) (?:tr(?:ies|y)) to (?<attackType>\S+) (?<victim>.+), but (?:miss(?:|es))!(?:\s\((?<damageSpecial>.+)\)){0,1}";
         readonly static String PluginSettingsFileName = @"Config\ACT_EverQuest_English_Parser.config.xml";
         readonly String SlainMessage = @"(?<attacker>.+) ha(ve|s) slain (?<victim>.+)!";
@@ -123,18 +141,24 @@ namespace EverQuestDPSPlugin
         readonly String Unknown = @"(?<Unknown>(u|U)nknown)";
         readonly String Evasion = @"(?<attacker>.*) tries to (?<attackType>\S+) (?:(?<victim>(.+)), but \1) (?:(?<evasionType>" + $@"{evasionTypes}" + @"))!(?:[\s][\(](?<evasionSpecial>.+)[\)]){0,1}";
         readonly String Banestrike = @"You hit (?<victim>.+) for (?<baneDamage>[\d]+) points of (?<typeOfDamage>.+) by Banestrike (?<baneAbilityRank>.+\.)";
-        readonly Regex dateTimeRegex = new Regex(TimeStamp, RegexOptions.Compiled);
+        //readonly Regex dateTimeRegex = new Regex(TimeStamp, RegexOptions.Compiled);
         readonly Regex selfCheck = new Regex(@"(You|you|yourself|Yourself|YOURSELF|YOU)", RegexOptions.Compiled);
         readonly String pluginName = "EverQuest Damage Per Second Parser";
         readonly String possessivePetString = @"`s pet";
-        
+#if DEBUG
+        bool nonMatchVisible = false;
+#endif
         //      readonly String fallDamage = @"(?<victim>.*) (?:ha[s|ve]) taken (?<pointsOfDamage>[\d]+) (?point[|s]) of fall damage.";
         bool populationVariance = false;
+        nonmatch nm = null;
         SortedList<string, AposNameFix> aposNameList = new SortedList<string, AposNameFix>();
         TreeNode optionsNode = null;
         Label lblStatus;    // The status label that appears in ACT's Plugin tab
         string settingsFile;
         private CheckBox varianceChkBx;
+#if DEBUG
+        private CheckBox nonMatchVisibleChkbx;
+#endif
         SettingsSerializer xmlSettings;
         #endregion
 
@@ -171,7 +195,9 @@ namespace EverQuestDPSPlugin
                 };
                 pluginScreenSpace.Controls.Add(lblConfig);
             }
-
+#if DEBUG
+            nm = new nonmatch();
+#endif
             xmlSettings = new SettingsSerializer(this); // Create a new settings serializer and pass it this instance
             LoadSettings();
 
@@ -192,6 +218,7 @@ namespace EverQuestDPSPlugin
             ActGlobals.oFormActMain.ZoneChangeRegex = new Regex($@"{TimeStamp} {ZoneChange}", RegexOptions.Compiled);
             String lblMessage = $"{pluginName} Plugin Started";
             changeLblStatus(lblMessage);
+
         }
 
         public void DeInitPlugin()
@@ -306,16 +333,36 @@ namespace EverQuestDPSPlugin
             //{
             //    return (tuple.Item2.Match(logInfo.logLine)).Success;
             //});
+#if DEBUG
+            bool match = false;
+#endif
             for (int i = 0; i < regexTupleList.Count; i++)
             {
                 Match regexMatch = regexTupleList[i].Item2.Match(logInfo.logLine);
                 if (regexMatch.Success)
                 {
+#if DEBUG
+                    match = true;
+#endif
                     logInfo.detectedType = i + 1;
                     ParseEverQuestLogLine(regexMatch, i + 1);
                     break;
                 }
             }
+#if DEBUG
+            if (!match)
+            {
+                if (this.nm.InvokeRequired)
+                {
+                    this.nm.Invoke(new Action(() =>
+                    {
+                        this.nm.addLogLineToForm(logInfo.logLine);
+                    }));
+                }
+                else
+                    this.nm.addLogLineToForm(logInfo.logLine);
+            }
+#endif
         }
 
         Tuple<EverQuestSwingType, String> GetTypeAndNameForPet(String nameToSetTypeTo)
@@ -535,7 +582,9 @@ namespace EverQuestDPSPlugin
         void LoadSettings()
         {
             xmlSettings.AddControlSetting(varianceChkBx.Name, varianceChkBx);
-           
+#if DEBUG
+            xmlSettings.AddControlSetting(nonMatchVisibleChkbx.Name, nonMatchVisibleChkbx);
+#endif
             if (File.Exists(settingsFile))
             {
                 using (FileStream fs = new FileStream(settingsFile, FileMode.Open, FileAccess.Read, FileShare.ReadWrite))
@@ -1510,5 +1559,39 @@ namespace EverQuestDPSPlugin
                     return VarName;
             }
         }
+#if DEBUG
+        private void nonMatchVisible_CheckedChanged(object sender, EventArgs e)
+        {
+            
+            this.nonMatchVisible = (sender as CheckBox).Checked;
+            switch((sender as CheckBox).CheckState)
+            {
+                case CheckState.Checked:
+                    (sender as CheckBox).Enabled = false;
+                    if (this.nm.InvokeRequired)
+                        nm.Invoke(new Action(() =>
+                        {
+                            nm.Visible = this.nonMatchVisible;
+                        }));
+                    else
+                        nm.Visible = this.nonMatchVisible;
+                    (sender as CheckBox).Enabled = true;
+                break;
+                case CheckState.Unchecked:
+                    (sender as CheckBox).Enabled = false;
+                    if (this.nm.InvokeRequired)
+                        nm.Invoke(new Action(() =>
+                        {
+                            nm.Visible = this.nonMatchVisible;
+                        }));
+                    else
+                            nm.Visible = this.nonMatchVisible;
+                    (sender as CheckBox).Enabled = true;
+                break;
+                case CheckState.Indeterminate:
+                    break;
+            }
+        }
+#endif
     }
 }
