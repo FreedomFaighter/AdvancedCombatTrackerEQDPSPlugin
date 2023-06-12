@@ -9,6 +9,6 @@ Partially developed ACT plugin for parsing EverQuest log files as they are gener
 
 Uses ACT's plugin capabilities to load the parsing plugin into the application and generate parsed data from the character's log file
 
-To enable the non match window compolation from source with the DEBUG flag on is required
+To enable the non match window compolation from source with the DEBUG defined is required
 
 Requires [Advanced Combat Tracker](https://advancedcombattracker.com/) to be installed
