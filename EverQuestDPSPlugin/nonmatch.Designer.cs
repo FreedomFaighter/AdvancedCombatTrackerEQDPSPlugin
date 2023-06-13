@@ -28,6 +28,7 @@
         /// </summary>
         private void InitializeComponent()
         {
+            this.components = new System.ComponentModel.Container();
             this.nonMatchList = new System.Windows.Forms.ListBox();
             this.SuspendLayout();
             // 
