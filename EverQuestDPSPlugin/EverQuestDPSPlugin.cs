@@ -212,7 +212,7 @@ namespace EverQuestDPSPlugin
                 pluginScreenSpace.Controls.Add(lblConfig);
             }
 #if DEBUG
-            nm = new nonmatch();
+            nm = new nonmatch(this);
 #endif
             xmlSettings = new SettingsSerializer(this); // Create a new settings serializer and pass it this instance
             LoadSettings();
@@ -235,6 +235,21 @@ namespace EverQuestDPSPlugin
             String lblMessage = $"{pluginName} Plugin Started";
             changeLblStatus(lblMessage);
 
+        }
+
+        public void ChangeNonmatchFormCheckBox(bool Checked)
+        {
+            if(nonMatchVisibleChkbx.InvokeRequired)
+            {
+                nonMatchVisibleChkbx.Invoke(new Action(() =>
+                {
+                    nonMatchVisibleChkbx.Checked = Checked;
+                }));
+            }
+            else
+            {
+                nonMatchVisibleChkbx.Checked = Checked;
+            }
         }
 
         public void DeInitPlugin()
@@ -1576,8 +1591,8 @@ namespace EverQuestDPSPlugin
 #if DEBUG
         private void nonMatchVisible_CheckedChanged(object sender, EventArgs e)
         {
-            
             this.nonMatchVisible = (sender as CheckBox).Checked;
+            if(nm.IsDisposed) { nm = new nonmatch(this); }
             switch((sender as CheckBox).CheckState)
             {
                 case CheckState.Checked:

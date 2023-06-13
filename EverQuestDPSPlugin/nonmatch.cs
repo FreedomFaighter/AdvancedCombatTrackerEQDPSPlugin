@@ -8,17 +8,30 @@ namespace EverQuestDPSPlugin
     public partial class nonmatch : Form
     {
         List<String> logLine = new List<string>();
-
-        public nonmatch()
+        EverQuestDPSPlugin parentPlugin;
+        public nonmatch(EverQuestDPSPlugin eqdpsp)
         {
             InitializeComponent();
+            parentPlugin = eqdpsp;
 
-
+            FormClosed += new FormClosedEventHandler(new Action<object, FormClosedEventArgs>((o, f) =>
+            {
+                parentPlugin.ChangeNonmatchFormCheckBox(false);
+            }));
         }
+
+
 
         public void addLogLineToForm(String logline)
         {
-            this.nonMatchList.Items.Add(logline);
+            if (nonMatchList.InvokeRequired)
+                nonMatchList.Invoke(new Action(() =>
+                {
+                    nonMatchList.Items.Add(logline);
+                }
+            ));
+            else
+                nonMatchList.Items.Add(logline);
         }
     }
 }
