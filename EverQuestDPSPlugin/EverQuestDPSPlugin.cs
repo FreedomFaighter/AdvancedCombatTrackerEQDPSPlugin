@@ -145,8 +145,9 @@ namespace EverQuestDPSPlugin
         readonly Regex selfCheck = new Regex(@"(You|you|yourself|Yourself|YOURSELF|YOU)", RegexOptions.Compiled);
         readonly String pluginName = "EverQuest Damage Per Second Parser";
         readonly String possessivePetString = @"`s pet";
-        Regex tellsregex = new Regex($@"{TimeStamp} (?<CharacterName>.+) (tells|told|says|said)", RegexOptions.Compiled);
+
 #if DEBUG
+        Regex tellsregex = new Regex($@"{TimeStamp} (?<CharacterName>.+) (tells|told|says|said)", RegexOptions.Compiled);
         bool nonMatchVisible = false;
 #endif
         //      readonly String fallDamage = @"(?<victim>.*) (?:ha[s|ve]) taken (?<pointsOfDamage>[\d]+) (?point[|s]) of fall damage.";
