@@ -130,11 +130,11 @@ namespace EverQuestDPSPlugin
         delegate void matchParse(Match regexMatch);
         List<Tuple<Color, Regex>> regexTupleList = new List<Tuple<Color, Regex>>();
         //readonly String possesiveDamageShield = "peirced|flames|tormented";
-        readonly static String attackTypes = @"throw|pierce|gore|crush|slash|hit|kick|slam|bash|shoot|strike|bite|grab|punch|scratch|rake|swipe|claw|maul";
+        readonly static String attackTypes = @"throw|pierce|gore|crush|slash|hit|kick|slam|bash|shoot|strike|bite|grab|punch|scratch|rake|swipe|claw|maul|smash";
         readonly static String evasionTypes = @"block(|s)|dodge(|s)|parr(ies|y)|riposte(|s)";
         readonly String DamageShield = @"(?<attacker>.+) is (?<damageShieldDamageType>\S+) by (?<victim>.+) (?<damageShieldType>\S+) for (?<damagePoints>[\d]+) points of non-melee damage.";
         readonly String eqDateTimeStampFormat = @"ddd MMM dd HH:mm:ss yyyy";
-        readonly String Heal = @"(?<healer>.*?) (?:has been\s?)healed (?<healingTarget>.*?)(?:\s(?<overTime>over time)){0,1} for (?<healingPoints>[\d]+)(?:\s\((?<overHealPoints>[\d]+)\)){0,1} hit point(?:|s) by (?<healingSpell>.*)\.(?:[\s][\(](?<healingSpecial>.+)[\)]){0,1}";
+        readonly String Heal = @"(?<healer>.+?) (?:has been\s){0,1}healed (?<healingTarget>.+?)(?:\s(?<overTime>over time)){0,1} for (?<healingPoints>[\d]+)(?:\s\((?<overHealPoints>[\d]+)\)){0,1} hit point(?:|s) by (?<healingSpell>.*)\.(?:[\s][\(](?<healingSpecial>.+)[\)]){0,1}";
         readonly String MeleeAttack = @"(?<attacker>.+) (?<attackType>" + $@"{attackTypes}" + @")(|s|es|bed) (?<victim>.+) for (?<damageAmount>[\d]+) (?:(?:point)(?:s|)) of damage.(?:\s\((?<damageSpecial>.+)\)){0,1}";
         readonly String MissedMeleeAttack = @"(?<attacker>.+) (?:tr(?:ies|y)) to (?<attackType>\S+) (?<victim>.+), but (?:miss(?:|es))!(?:\s\((?<damageSpecial>.+)\)){0,1}";
         readonly static String PluginSettingsFileName = @"Config\ACT_EverQuest_English_Parser.config.xml";
@@ -162,6 +162,7 @@ namespace EverQuestDPSPlugin
         readonly Regex selfCheck = new Regex(@"(You|you|yourself|Yourself|YOURSELF|YOU)", RegexOptions.Compiled);
         readonly String pluginName = "EverQuest Damage Per Second Parser";
         readonly String possessivePetString = @"`s pet";
+        Regex tellsregex = new Regex($@"{TimeStamp} (?<CharacterName>.+) (tells|told|says|said)", RegexOptions.Compiled);
 #if DEBUG
         bool nonMatchVisible = false;
 #endif
@@ -367,7 +368,8 @@ namespace EverQuestDPSPlugin
                 }
             }
 #if DEBUG
-            if (!match)
+            Match tellmatch = tellsregex.Match(logInfo.logLine);
+            if (!match && !tellmatch.Success)
             {
                 if (this.nm.InvokeRequired)
                 {
@@ -1035,8 +1037,8 @@ namespace EverQuestDPSPlugin
             AttackType.ColumnDefs.Add("Median", new AttackType.ColumnDef("Median", true, "BIGINT", "Median", (Data) => { return Data.Median.ToString(); }, (Data) => { return Data.Median.ToString(); }, (Left, Right) => { return Left.Median.CompareTo(Right.Median); }));
             AttackType.ColumnDefs.Add("StdDev", new AttackType.ColumnDef("StdDev", true, "DOUBLE", "StdDev", (Data) => { return Math.Sqrt(AttackTypeGetVariance(Data)).ToString(); }, (Data) => { return Math.Sqrt(AttackTypeGetVariance(Data)).ToString(); }, (Left, Right) => { return Math.Sqrt(AttackTypeGetVariance(Left)).CompareTo(Math.Sqrt(AttackTypeGetVariance(Right))); }));
             AttackType.ColumnDefs.Add("CritTypes", new AttackType.ColumnDef("CritTypes", true, "VARCHAR(32)", "CritTypes", AttackTypeGetCritTypes, AttackTypeGetCritTypes, (Left, Right) => { return AttackTypeGetCritTypes(Left).CompareTo(AttackTypeGetCritTypes(Right)); }));
-            AttackType.ColumnDefs.Add("Max", new AttackType.ColumnDef("Max", true, "BIGINT", "Max", (Data) => { return Data.Items.Count > 0 ? Data.Items.Select((item) => item.Damage.Number).Where((damage) => damage > 0).Max().ToString() : String.Empty; }, (Data) => { return Data.Items.Count > 0 ? Data.Items.Select((item) => item.Damage.Number).Where((damage) => damage > 0).Max().ToString() : String.Empty; }, (Left, Right) => { return Left.Items.Count > 0 && Right.Items.Count > 0 ? Left.Items.Select((item) => item.Damage.Number).Where((damage) => damage > 0).Max().CompareTo(Right.Items.Select((item) => item.Damage.Number).Where((damage) => damage > 0).Max()) : 0; }));
-            AttackType.ColumnDefs.Add("Min", new AttackType.ColumnDef("Min", true, "BIGINT", "Min", (Data) => { return Data.Items.Count > 0 ? Data.Items.Select((item) => item.Damage.Number).Where((damage) => damage > 0).Min().ToString() : String.Empty; }, (Data) => { return Data.Items.Count > 0 ? Data.Items.Select((item) => item.Damage.Number).Where((damage) => damage > 0).Min().ToString() : String.Empty; }, (Left, Right) => { return Left.Items.Count > 0 && Right.Items.Count > 0 ? Left.Items.Select((item) => item.Damage.Number).Where((damage) => damage > 0).Min().CompareTo(Right.Items.Select((item) => item.Damage.Number).Where((damage) => damage > 0).Min()) : 0; }));
+            AttackType.ColumnDefs.Add("Max", new AttackType.ColumnDef("Max", true, "BIGINT", "Max", (Data) => { return Data.MaxHit.ToString(); }, (Data) => { return Data.MaxHit.ToString(); }, (Left, Right) => { return Left.MaxHit.CompareTo(Right.MaxHit); }));
+            AttackType.ColumnDefs.Add("Min", new AttackType.ColumnDef("Min", true, "BIGINT", "Min", (Data) => { return Data.MinHit.ToString(); }, (Data) => { return Data.MinHit.ToString(); }, (Left, Right) => { return Left.MinHit.CompareTo(Right.MinHit); }));
 
             MasterSwing.ColumnDefs.Clear();
             MasterSwing.ColumnDefs.Add("EncId", new MasterSwing.ColumnDef("EncId", false, "CHAR(8)", "EncId", (Data) => { return string.Empty; }, (Data) => { return Data.ParentEncounter.EncId; }, (Left, Right) => { return 0; }));
@@ -1081,17 +1083,23 @@ namespace EverQuestDPSPlugin
 //Variance calculation for attack damage
         private double AttackTypeGetVariance(AttackType Data)
         {   List<MasterSwing> ms = Data.Items.Where((item) => item.Damage.Number >= 0).ToList();
-            double average = ms.Select((item) => item.Damage.Number).Average();
+            double average;
             if (!populationVariance && Data.Items.Count > 1)
+            {
+                average = ms.Select((item) => item.Damage.Number).Average();
+                return ms.Sum((item) =>
+                    {
+                        return Math.Pow(average - item.Damage.Number, 2.0);
+                    }) / (ms.Count - 1);
+            }
+            else if (populationVariance && Data.Items.Count > 0)
+            {
+                average = ms.Select((item) => item.Damage.Number).Average();
                 return ms.Sum((item) =>
                 {
                     return Math.Pow(average - item.Damage.Number, 2.0);
-                }) / (ms.Count - 1);
-            else if (populationVariance && Data.Items.Count > 0)
-                return ms.Sum((item) =>
-                {
-                    return Math.Pow(average  - item.Damage.Number, 2.0);
                 }) / ms.Count;
+            }
             else
                 return default;
         }
