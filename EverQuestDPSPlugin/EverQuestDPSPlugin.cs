@@ -149,6 +149,7 @@ namespace EverQuestDPSPlugin
 #if DEBUG
         Regex tellsregex = new Regex($@"{TimeStamp} (?<CharacterName>.+) (tells|told|says|said)", RegexOptions.Compiled);
         bool nonMatchVisible = false;
+        private CheckBox nonMatchVisibleChkbx;
 #endif
         //      readonly String fallDamage = @"(?<victim>.*) (?:ha[s|ve]) taken (?<pointsOfDamage>[\d]+) (?point[|s]) of fall damage.";
         bool populationVariance = false;
@@ -158,9 +159,6 @@ namespace EverQuestDPSPlugin
         Label lblStatus;    // The status label that appears in ACT's Plugin tab
         string settingsFile;
         private CheckBox varianceChkBx;
-#if DEBUG
-        private CheckBox nonMatchVisibleChkbx;
-#endif
         SettingsSerializer xmlSettings;
         #endregion
 
