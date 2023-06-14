@@ -134,11 +134,7 @@ namespace EverQuestDPSPlugin
         readonly static String evasionTypes = @"block(|s)|dodge(|s)|parr(ies|y)|riposte(|s)";
         readonly String DamageShield = @"(?<attacker>.+) is (?<damageShieldDamageType>\S+) by (?<victim>.+) (?<damageShieldType>\S+) for (?<damagePoints>[\d]+) points of non-melee damage.";
         readonly String eqDateTimeStampFormat = @"ddd MMM dd HH:mm:ss yyyy";
-        readonly String Heal = @"(?<healer>.+?) (?:has been\s){0,1}healed (?<healingTarget>.+?)(?:\s(?<overTime>over time)){0,1} for (?<healingPoints>[\d]+)(?:\s\((?<overHealPoints>[\d]+)\)){0,1} hit point(?:|s) by (?<healingSpell>.*)\.(?:[\s][\(](?<healingSpecial>.+)[\)]){0,1}";
-        readonly String MeleeAttack = @"(?<attacker>.+) (?<attackType>" + $@"{attackTypes}" + @")(|s|es|bed) (?<victim>.+) for (?<damageAmount>[\d]+) (?:(?:point)(?:s|)) of damage.(?:\s\((?<damageSpecial>.+)\)){0,1}";
-        readonly String MissedMeleeAttack = @"(?<attacker>.+) (?:tr(?:ies|y)) to (?<attackType>\S+) (?<victim>.+), but (?:miss(?:|es))!(?:\s\((?<damageSpecial>.+)\)){0,1}";
         readonly static String PluginSettingsFileName = @"Config\ACT_EverQuest_English_Parser.config.xml";
-        readonly String SlainMessage = @"(?<attacker>.+) ha(ve|s) slain (?<victim>.+)!";
         readonly String SpecialCripplingBlow = Enum.GetName(typeof(SpecialAttacks), (SpecialAttacks)SpecialAttacks.Crippling_Blow).Replace("_", " ");
         readonly String SpecialCritical = Enum.GetName(typeof(SpecialAttacks), (SpecialAttacks)SpecialAttacks.Critical);
         readonly String SpecialDoubleBowShot = Enum.GetName(typeof(SpecialAttacks), (SpecialAttacks)SpecialAttacks.Double_Bow_Shot).Replace("_", " ");
@@ -150,13 +146,9 @@ namespace EverQuestDPSPlugin
         readonly String SpecialTwincast = Enum.GetName(typeof(SpecialAttacks), (SpecialAttacks)SpecialAttacks.Twincast);
         readonly String SpecialWildRampage = Enum.GetName(typeof(SpecialAttacks), (SpecialAttacks)SpecialAttacks.Wild_Rampage).Replace("_", " ");
         readonly String SpecialFinishingBlow = Enum.GetName(typeof(SpecialAttacks), (SpecialAttacks)SpecialAttacks.Finishing_Blow).Replace("_", " ");
-        readonly String SpellDamage = @"(?<attacker>.+) hit (?<victim>.*) for (?<damagePoints>[\d]+) (?:point[|s]) of (?<typeOfDamage>.+) damage by (?<damageEffect>.*)\.(?:[\s][\(](?<spellSpecial>.+)[\)]){0,1}";
-        readonly String SpellDamageOverTime = @"(?<attacker>.+) has taken (?<damagePoints>[\d]+) damage from (?<damageEffect>.*) by (?<victim>.*)\.(?:[\s][\(](?<spellSpecial>.+)[\)]){0,1}";
         static readonly String TimeStamp = @"\[(?<dateTimeOfLogLine>.+)\]";
         readonly String ZoneChange = @"You have entered (?!.*the Drunken Monkey stance adequately)(?<zoneName>.*)\.";
-        readonly String Unknown = @"(?<Unknown>(u|U)nknown)";
-        readonly String Evasion = @"(?<attacker>.*) tries to (?<attackType>\S+) (?:(?<victim>(.+)), but \1) (?:(?<evasionType>" + $@"{evasionTypes}" + @"))!(?:[\s][\(](?<evasionSpecial>.+)[\)]){0,1}";
-        readonly String Banestrike = @"You hit (?<victim>.+) for (?<baneDamage>[\d]+) points of (?<typeOfDamage>.+) by Banestrike (?<baneAbilityRank>.+\.)";
+        
         //readonly Regex dateTimeRegex = new Regex(TimeStamp, RegexOptions.Compiled);
         readonly Regex selfCheck = new Regex(@"(You|you|yourself|Yourself|YOURSELF|YOU)", RegexOptions.Compiled);
         readonly String pluginName = "EverQuest Damage Per Second Parser";
@@ -329,6 +321,16 @@ namespace EverQuestDPSPlugin
 
         private void PopulateRegexArray()
         {
+             String Heal = @"(?<healer>.+?) (?:has been\s){0,1}healed (?<healingTarget>.+?)(?:\s(?<overTime>over time)){0,1} for (?<healingPoints>[\d]+)(?:\s\((?<overHealPoints>[\d]+)\)){0,1} hit point(?:|s) by (?<healingSpell>.*)\.(?:[\s][\(](?<healingSpecial>.+)[\)]){0,1}";
+             String MeleeAttack = @"(?<attacker>.+) (?<attackType>" + $@"{attackTypes}" + @")(|s|es|bed) (?<victim>.+) for (?<damageAmount>[\d]+) (?:(?:point)(?:s|)) of damage.(?:\s\((?<damageSpecial>.+)\)){0,1}";
+             String MissedMeleeAttack = @"(?<attacker>.+) (?:tr(?:ies|y)) to (?<attackType>\S+) (?<victim>.+), but (?:miss(?:|es))!(?:\s\((?<damageSpecial>.+)\)){0,1}";
+             String Unknown = @"(?<Unknown>(u|U)nknown)";
+             String Evasion = @"(?<attacker>.*) tries to (?<attackType>\S+) (?:(?<victim>(.+)), but \1) (?:(?<evasionType>" + $@"{evasionTypes}" + @"))!(?:[\s][\(](?<evasionSpecial>.+)[\)]){0,1}";
+             String Banestrike = @"You hit (?<victim>.+) for (?<baneDamage>[\d]+) points of (?<typeOfDamage>.+) by Banestrike (?<baneAbilityRank>.+\.)";
+             String SpellDamage = @"(?<attacker>.+) hit (?<victim>.*) for (?<damagePoints>[\d]+) (?:point[|s]) of (?<typeOfDamage>.+) damage by (?<damageEffect>.*)\.(?:[\s][\(](?<spellSpecial>.+)[\)]){0,1}";
+             String SpellDamageOverTime = @"(?<attacker>.+) has taken (?<damagePoints>[\d]+) damage from (?<damageEffect>.*) by (?<victim>.*)\.(?:[\s][\(](?<spellSpecial>.+)[\)]){0,1}";
+             String SlainMessage = @"(?<attacker>.+) ha(ve|s) slain (?<victim>.+)!";
+
             ActGlobals.oFormEncounterLogs.LogTypeToColorMapping.Clear();
             regexTupleList.Add(new Tuple<Color, Regex>(Color.Red, new Regex($@"{TimeStamp} {MeleeAttack}", RegexOptions.Compiled)));
             ActGlobals.oFormEncounterLogs.LogTypeToColorMapping.Add(regexTupleList.Count, regexTupleList[regexTupleList.Count - 1].Item1);
@@ -411,7 +413,7 @@ namespace EverQuestDPSPlugin
 
         bool CheckIfSelf(String nameOfCharacter)
         {
-            Regex regexSelf = new Regex(@"(it|her|him)self", RegexOptions.Compiled);
+            Regex regexSelf = new Regex(@"((it|her|him|them)sel(f|ves))", RegexOptions.Compiled);
             return regexSelf.Match(nameOfCharacter).Success;
         }
 
@@ -434,8 +436,7 @@ namespace EverQuestDPSPlugin
                             , ActGlobals.oFormActMain.GlobalTimeSorter
                             , regexMatch.Groups["attackType"].Value
                             , CharacterNamePersonaReplace(attackerAndTypeMelee.Item2)
-                            , "Hitpoints"
-                            , CharacterNamePersonaReplace(victimAndTypeMelee.Item2));
+                            , "Hitpoints", CheckIfSelf(victimAndTypeMelee.Item2) ? CharacterNamePersonaReplace(attackerAndTypeMelee.Item2) : CharacterNamePersonaReplace(victimAndTypeMelee.Item2));
                         masterSwingMelee.Tags.Add("lastEstimatedTime", ActGlobals.oFormActMain.LastEstimatedTime);
                         ActGlobals.oFormActMain.AddCombatAction(masterSwingMelee);
                     }
