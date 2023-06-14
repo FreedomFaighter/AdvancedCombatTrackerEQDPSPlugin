@@ -456,7 +456,7 @@ namespace EverQuestDPSPlugin
                             , regexMatch.Groups["attackType"].Value
                             , CharacterNamePersonaReplace(attackerAndTypeMissedMelee.Item2)
                             , "Miss"
-                            , CharacterNamePersonaReplace(victimAndTypeMissedMelee.Item2));
+                            , CheckIfSelf(victimAndTypeMissedMelee.Item2) ? CharacterNamePersonaReplace(attackerAndTypeMissedMelee.Item2) : CharacterNamePersonaReplace(victimAndTypeMissedMelee.Item2));
                         masterSwingMissedMelee.Tags.Add("lastEstimatedTime", ActGlobals.oFormActMain.LastEstimatedTime);
                         ActGlobals.oFormActMain.AddCombatAction(masterSwingMissedMelee);
                     }
