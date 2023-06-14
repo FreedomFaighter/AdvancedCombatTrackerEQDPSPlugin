@@ -154,11 +154,25 @@ namespace EverQuestDPSPlugin
         readonly String pluginName = "EverQuest Damage Per Second Parser";
         readonly String possessivePetString = @"`s pet";
 
-#if DEBUG
+
         Regex tellsregex = new Regex($@"{TimeStamp} (?<CharacterName>.+) (tells|told|says|said)", RegexOptions.Compiled);
         bool nonMatchVisible = false;
         private CheckBox nonMatchVisibleChkbx;
-#endif
+        public void ChangeNonmatchFormCheckBox(bool Checked)
+        {
+            if (nonMatchVisibleChkbx.InvokeRequired)
+            {
+                nonMatchVisibleChkbx.Invoke(new Action(() =>
+                {
+                    nonMatchVisibleChkbx.Checked = Checked;
+                }));
+            }
+            else
+            {
+                nonMatchVisibleChkbx.Checked = Checked;
+            }
+        }
+
         //      readonly String fallDamage = @"(?<victim>.*) (?:ha[s|ve]) taken (?<pointsOfDamage>[\d]+) (?point[|s]) of fall damage.";
         bool populationVariance = false;
         nonmatch nm = null;
@@ -203,9 +217,9 @@ namespace EverQuestDPSPlugin
                 };
                 pluginScreenSpace.Controls.Add(lblConfig);
             }
-#if DEBUG
+
             nm = new nonmatch(this);
-#endif
+
             xmlSettings = new SettingsSerializer(this); // Create a new settings serializer and pass it this instance
             LoadSettings();
 
@@ -229,20 +243,7 @@ namespace EverQuestDPSPlugin
 
         }
 
-        public void ChangeNonmatchFormCheckBox(bool Checked)
-        {
-            if(nonMatchVisibleChkbx.InvokeRequired)
-            {
-                nonMatchVisibleChkbx.Invoke(new Action(() =>
-                {
-                    nonMatchVisibleChkbx.Checked = Checked;
-                }));
-            }
-            else
-            {
-                nonMatchVisibleChkbx.Checked = Checked;
-            }
-        }
+ 
 
         public void DeInitPlugin()
         {
@@ -364,23 +365,18 @@ namespace EverQuestDPSPlugin
             //{
             //    return (tuple.Item2.Match(logInfo.logLine)).Success;
             //});
-#if DEBUG
             bool match = false;
-#endif
             for (int i = 0; i < regexTupleList.Count; i++)
             {
                 Match regexMatch = regexTupleList[i].Item2.Match(logInfo.logLine);
                 if (regexMatch.Success)
                 {
-#if DEBUG
                     match = true;
-#endif
                     logInfo.detectedType = i + 1;
                     ParseEverQuestLogLine(regexMatch, i + 1);
                     break;
                 }
             }
-#if DEBUG
             Match tellmatch = tellsregex.Match(logInfo.logLine);
             if (!match && !tellmatch.Success)
             {
@@ -394,7 +390,6 @@ namespace EverQuestDPSPlugin
                 else
                     this.nm.addLogLineToForm(logInfo.logLine);
             }
-#endif
         }
 
         Tuple<EverQuestSwingType, String> GetTypeAndNameForPet(String nameToSetTypeTo)
@@ -603,9 +598,7 @@ namespace EverQuestDPSPlugin
         void LoadSettings()
         {
             xmlSettings.AddControlSetting(varianceChkBx.Name, varianceChkBx);
-#if DEBUG
             xmlSettings.AddControlSetting(nonMatchVisibleChkbx.Name, nonMatchVisibleChkbx);
-#endif
             if (File.Exists(settingsFile))
             {
                 using (FileStream fs = new FileStream(settingsFile, FileMode.Open, FileAccess.Read, FileShare.ReadWrite))
