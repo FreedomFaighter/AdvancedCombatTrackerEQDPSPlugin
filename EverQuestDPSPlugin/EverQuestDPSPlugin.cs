@@ -380,17 +380,16 @@ namespace EverQuestDPSPlugin
             Match possessiveMatch = possesive.Match(nameToSetTypeTo);
             if (possessiveMatch.Success)
             {
-                int indexOfPossesiveOfInCombatantName = nameToSetTypeTo.IndexOf(possessivePetString);
                 if(possessiveMatch.Groups["possesiveOf"].Value.Equals("pet"))
-                    return new Tuple<EverQuestSwingType, String>(EverQuestSwingType.Pet, nameToSetTypeTo.Substring(0, indexOfPossesiveOfInCombatantName));
+                    return new Tuple<EverQuestSwingType, String>(EverQuestSwingType.Pet, nameToSetTypeTo.Substring(0, possessiveMatch.Index));
                 else if (possessiveMatch.Groups["possesiveOf"].Value.Equals("warder"))
-                    return new Tuple<EverQuestSwingType, String>(EverQuestSwingType.Warder, nameToSetTypeTo.Substring(0, indexOfPossesiveOfInCombatantName));
+                    return new Tuple<EverQuestSwingType, String>(EverQuestSwingType.Warder, nameToSetTypeTo.Substring(0, possessiveMatch.Index));
                 else if (possessiveMatch.Groups["possesiveOf"].Value.Equals("ward"))
-                    return new Tuple<EverQuestSwingType, String>(EverQuestSwingType.Ward, nameToSetTypeTo.Substring(0, indexOfPossesiveOfInCombatantName));
+                    return new Tuple<EverQuestSwingType, String>(EverQuestSwingType.Ward, nameToSetTypeTo.Substring(0, possessiveMatch.Index));
                 else
                 {
                     AddLogLineToNonMatch($@"{ActGlobals.oFormActMain.LastLogLine}");
-                    return new Tuple<EverQuestSwingType, String>(0, nameToSetTypeTo.Substring(0, indexOfPossesiveOfInCombatantName)); ;
+                    return new Tuple<EverQuestSwingType, String>(0, nameToSetTypeTo.Substring(0, possessiveMatch.Index)); ;
                 }
             }
             else
@@ -416,9 +415,9 @@ namespace EverQuestDPSPlugin
                     {   
                         Tuple<EverQuestSwingType, String> attackerAndTypeMelee = GetTypeAndNameForPet(regexMatch.Groups["attacker"].Value);
                         Tuple<EverQuestSwingType, String> victimAndTypeMelee = GetTypeAndNameForPet(regexMatch.Groups["victim"].Value);
-                        MasterSwing masterSwingMelee = new MasterSwing(((((attackerAndTypeMelee.Item1 & EverQuestSwingType.Pet) == EverQuestSwingType.PetMelee) 
+                        MasterSwing masterSwingMelee = new MasterSwing(((((attackerAndTypeMelee.Item1 & EverQuestSwingType.Pet) == EverQuestSwingType.Pet) 
                             || ((victimAndTypeMelee.Item1 & EverQuestSwingType.Pet) == EverQuestSwingType.Pet)) 
-                            ? EverQuestSwingType.Pet : EverQuestSwingType.Melee).GetEverQuestSwingTypeExtensionIntValue()
+                            ? EverQuestSwingType.PetMelee : EverQuestSwingType.Melee).GetEverQuestSwingTypeExtensionIntValue()
                             , regexMatch.Groups["damageSpecial"].Success ? regexMatch.Groups["damageSpecial"].Value.Contains(SpecialCritical) : false
                             , regexMatch.Groups["damageSpecial"].Success ? regexMatch.Groups["damageSpecial"].Value : String.Empty
                             , new Dnum(Int64.Parse(regexMatch.Groups["damageAmount"].Value))
