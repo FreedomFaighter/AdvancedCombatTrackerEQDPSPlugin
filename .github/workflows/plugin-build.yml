@@ -28,7 +28,7 @@ jobs:
       - name: Download ACTv3 file
         run: Invoke-WebRequest ${{ env.ACTDownloadURI }} -OutFile ${{ github.workspace }}\${{ env.ACTFileName }}
       - name: Extract ACT files
-        run: 7x x {{ github.workspace }}\${{ env.ACTFileName }}
+        run: 7z x {{ github.workspace }}\${{ env.ACTFileName }}
       - name: Setup Nuget
         uses: nuget/setup-nuget@v1
       - name: Restore nuget packages
