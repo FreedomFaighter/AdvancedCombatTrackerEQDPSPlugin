@@ -4,7 +4,6 @@ namespace EverQuestDPSPlugin.Structs
     internal struct SpecialAttacks
     {
         internal bool CripplingBlow;
-        //bool Critical;
         internal bool Flurry;
         internal bool Locked;
         internal bool Lucky;
