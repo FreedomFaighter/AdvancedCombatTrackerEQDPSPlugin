@@ -36,4 +36,4 @@ jobs:
       - name: Build solution
         run: msbuild -t:build -property:Configuration=Release EverQuestDPSPlugin.sln
       - name: Test Solution
-        run: mstest /testcontainer:.\EQDPSPluginUnitTests\bin\Debug\EQDPSPluginUnitTests.dll
+        run: $(vswhere -property installationPath)\Common7\IDE\MSTest.exe /testcontainer:.\EQDPSPluginUnitTests\bin\Debug\EQDPSPluginUnitTests.dll
