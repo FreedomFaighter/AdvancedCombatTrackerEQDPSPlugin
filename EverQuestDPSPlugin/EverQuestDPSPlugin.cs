@@ -103,24 +103,20 @@ namespace EverQuestDPSPlugin
 
         #region class members
         delegate void matchParse(Match regexMatch);
-        List<Tuple<Color, Regex>> regexTupleList = new List<Tuple<Color, Regex>>();
+        List<Tuple<Color, Regex>> regexTupleList;
         Regex selfCheck;
         Regex possesive;
         Regex tellsregex;
-        bool nonMatchVisible = false;
-        bool populationVariance;
-        nonmatch nm;
-        SortedList<string, AposNameFix> aposNameList = new SortedList<string, AposNameFix>();
+        bool nonMatchVisible = false; //for keep track of whether or not the non matching form is displayed
+        bool populationVariance; //for keeping track of whether population variance or sample variance is displayed
+        nonmatch nm; //Form for non regex matching log lines
+        SortedList<string, AposNameFix> aposNameList;
         TreeNode optionsNode = null;
         Label lblStatus;    // The status label that appears in ACT's Plugin tab
         string settingsFile;
         private CheckBox varianceChkBx;
         private CheckBox nonMatchVisibleChkbx;
         SettingsSerializer xmlSettings;
-
-
-        //      readonly String fallDamage = @"(?<victim>.*) (?:ha[s|ve]) taken (?<pointsOfDamage>[\d]+) (?point[|s]) of fall damage.";
-
         #endregion
 
         public EverQuestDPSPlugin()
@@ -157,8 +153,8 @@ namespace EverQuestDPSPlugin
                 pluginScreenSpace.Controls.Add(lblConfig);
             }
 
-            
 
+            aposNameList = new SortedList<string, AposNameFix>();
             xmlSettings = new SettingsSerializer(this); // Create a new settings serializer and pass it this instance
             nm = new nonmatch(this);
             LoadSettings();
@@ -272,6 +268,7 @@ namespace EverQuestDPSPlugin
             possesive = new Regex(EverQuestDPSPluginResource.possessiveString, RegexOptions.Compiled);
             tellsregex = new Regex(regexString("(?<CharacterName>.+) (tells|told|says|said)"), RegexOptions.Compiled);
             selfCheck = new Regex(@"(You|you|yourself|Yourself|YOURSELF|YOU)", RegexOptions.Compiled);
+            regexTupleList = new List<Tuple<Color, Regex>>();
             ActGlobals.oFormEncounterLogs.LogTypeToColorMapping.Clear();
             regexTupleList.Add(new Tuple<Color, Regex>(Color.Red, new Regex(regexString(MeleeAttack), RegexOptions.Compiled)));
             ActGlobals.oFormEncounterLogs.LogTypeToColorMapping.Add(regexTupleList.Count, regexTupleList[regexTupleList.Count - 1].Item1);
