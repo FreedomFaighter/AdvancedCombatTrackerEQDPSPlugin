@@ -124,6 +124,15 @@ namespace EverQuestDPSPlugin {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to ddd MMM dd HH:mm:ss yyyy.
+        /// </summary>
+        internal static string eqDateTimeStampFormat {
+            get {
+                return ResourceManager.GetString("eqDateTimeStampFormat", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to block(|s)|dodge(|s)|parr(ies|y)|riposte(|s).
         /// </summary>
         internal static string evasionTypes {
@@ -214,11 +223,11 @@ namespace EverQuestDPSPlugin {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to `s pet.
+        ///   Looks up a localized string similar to `s (?&lt;possesiveOf&gt;.+).
         /// </summary>
-        internal static string possessivePetString {
+        internal static string possessiveString {
             get {
-                return ResourceManager.GetString("possessivePetString", resourceCulture);
+                return ResourceManager.GetString("possessiveString", resourceCulture);
             }
         }
         
@@ -264,6 +273,15 @@ namespace EverQuestDPSPlugin {
         internal static string Strikethrough {
             get {
                 return ResourceManager.GetString("Strikethrough", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to \[(?&lt;dateTimeOfLogLine&gt;.+)\].
+        /// </summary>
+        internal static string TimeStamp {
+            get {
+                return ResourceManager.GetString("TimeStamp", resourceCulture);
             }
         }
         
