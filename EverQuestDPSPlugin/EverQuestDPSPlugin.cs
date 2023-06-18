@@ -421,21 +421,6 @@ namespace EverQuestDPSPlugin
             return regexSelf.Match(nameOfCharacter).Success;
         }
 
-        EverQuestSwingType CharacterPossesiveTypeAttack(EverQuestSwingType possessiveOf, EverQuestSwingType everQuestAttackType)
-        {
-            switch(possessiveOf)
-            {
-                case EverQuestSwingType.Pet:
-                    return EverQuestSwingType.Pet | everQuestAttackType;
-                case EverQuestSwingType.Warder:
-                    return EverQuestSwingType.Warder| everQuestAttackType;
-                case EverQuestSwingType.Ward:
-                    return EverQuestSwingType.Ward| everQuestAttackType;
-                default:
-                    return everQuestAttackType;
-            }
-        }
-
         private void ParseEverQuestLogLine(Match regexMatch, int logMatched)
         {
             switch (logMatched)
