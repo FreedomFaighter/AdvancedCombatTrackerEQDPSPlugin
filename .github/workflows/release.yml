@@ -10,18 +10,26 @@ name: Upload Release Asset
 jobs:
   build-and-create-release:
     runs-on: windows-2019
+    env:
+      ACTFileName: 'ACTv3.zip'
+      ACTDownloadURI: 'https://advancedcombattracker.com/download.php?id=57'
+      EQDPSPluginUnitTestLibraryPath: '.\EQDPSPluginUnitTests\bin\Release\EQDPSPluginUnitTests.dll'
     steps:
       - uses: actions/checkout@main
       - name: Setup MSBuild
         uses: microsoft/setup-msbuild@v1.1
       - name: Download ACTv3 file
-        run: Invoke-WebRequest https://advancedcombattracker.com/download.php?id=57 -OutFile ${{ github.workspace }}\ACTv3.zip
+        run: Invoke-WebRequest ${{env.ACTDownloadURI}} -OutFile ${{github.workspace}}\${{env.ACTFileName}}
       - name: Extract ACT files
-        run: 7z x ${{ github.workspace }}\ACTv3.zip
-#      - name: Restore packages
-#        run: msbuild -p:RestorePackagesConfig=true -t:restore
+        run: 7z x ${{github.workspace}}\${{env.ACTFileName}}
+      - name: Setup Nuget
+        uses: nuget/setup-nuget@v1
+      - name: Restore nuget packages
+        run: nuget restore EverQuestDPSPlugin.sln
       - name: Build solution
-        run: msbuild -t:build -property:Configuration=Release EverQuestDPSPlugin/EverQuestDPSPlugin.csproj 
+        run: msbuild -t:build -property:Configuration=Release EverQuestDPSPlugin.sln
+      - name: Test solution
+        run: '& "$(vswhere -property installationPath)\Common7\IDE\MSTest.exe" /testcontainer:${{env.EQDPSPluginUnitTestLibraryPath}}'
       - name: Create Release
         id: create_release
         uses: actions/create-release@v1
