@@ -10,7 +10,7 @@ using System.Runtime.InteropServices;
 [assembly: AssemblyCulture("")]
 [assembly: AssemblyTitle("ACT EverQuest Damage Per Second Parsing")]
 [assembly: AssemblyDescription("Plugin for ACT EverQuest Damage Per Second Parsing, based on: https://github.com/EQAditu/AdvancedCombatTracker")]
-
+[assembly: AssemblyCompany("Egot")]
 // Setting ComVisible to false makes the types in this assembly not visible 
 // to COM components.  If you need to access a type in this assembly from 
 // COM, set the ComVisible attribute to true on that type.
