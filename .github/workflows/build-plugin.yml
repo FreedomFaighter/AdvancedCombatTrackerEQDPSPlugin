@@ -19,16 +19,15 @@ jobs:
   build:
     runs-on: windows-2019
     env:
-      ACTFileName: 'ACTv3.zip'
       ACTDownloadURI: 'https://advancedcombattracker.com/download.php?id=57'
     steps:
       - uses: actions/checkout@main
       - name: Setup MSBuild
         uses: microsoft/setup-msbuild@v1.1
       - name: Download ACTv3 file
-        run: Invoke-WebRequest ${{ env.ACTDownloadURI }} -OutFile {{ github.workspace }}\{{ env.ACTFileName }}
+        run: Invoke-WebRequest ${{ env.ACTDownloadURI }} -OutFile {{ env.ACTFileName }}\ACTv3.zip
       - name: Extract ACT files
-        run: 7z x {{ github.workspace }}\{{ env.ACTFileName }}
+        run: 7z x {{ github.workspace }}\ACTv3.zip
       - name: Setup Nuget
         uses: nuget/setup-nuget@v1
       - name: Restore nuget packages
