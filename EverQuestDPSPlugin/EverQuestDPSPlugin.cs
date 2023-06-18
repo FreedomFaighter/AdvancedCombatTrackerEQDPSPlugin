@@ -98,8 +98,8 @@ namespace EverQuestDPSPlugin
 
         }
 
-#endregion
-#endregion
+        #endregion
+        #endregion
 
         #region class members
         delegate void matchParse(Match regexMatch);
@@ -158,13 +158,13 @@ namespace EverQuestDPSPlugin
             xmlSettings = new SettingsSerializer(this); // Create a new settings serializer and pass it this instance
             nm = new nonmatch(this);
             LoadSettings();
-            
+
             PopulateRegexArray();
             SetupEverQuestEnvironment();
             ActGlobals.oFormActMain.GetDateTimeFromLog += new FormActMain.DateTimeLogParser(ParseDateTime);
             ActGlobals.oFormActMain.BeforeLogLineRead += new LogLineEventDelegate(FormActMain_BeforeLogLineRead);
             ActGlobals.oFormActMain.UpdateCheckClicked += new FormActMain.NullDelegate(UpdateCheckClicked);
-            
+
             Task updateCheckClicked = new Task(() =>
             {
                 UpdateCheckClicked();
@@ -198,15 +198,17 @@ namespace EverQuestDPSPlugin
 
         void changeLblStatus(String status)
         {
-            switch(lblStatus.InvokeRequired){
-            case true:
-                this.lblStatus.Invoke(new Action(() => {
-                this.lblStatus.Text = status;
-                }));
-                break;
-            case false:
-                this.lblStatus.Text = status;
-                break;
+            switch (lblStatus.InvokeRequired)
+            {
+                case true:
+                    this.lblStatus.Invoke(new Action(() =>
+                    {
+                        this.lblStatus.Text = status;
+                    }));
+                    break;
+                case false:
+                    this.lblStatus.Text = status;
+                    break;
             }
         }
 
@@ -320,7 +322,7 @@ namespace EverQuestDPSPlugin
             Match possessiveMatch = possesive.Match(nameToSetTypeTo);
             if (possessiveMatch.Success)
             {
-                if(possessiveMatch.Groups["possesiveOf"].Value.Equals("pet"))
+                if (possessiveMatch.Groups["possesiveOf"].Value.Equals("pet"))
                     return new Tuple<EverQuestSwingType, String>(EverQuestSwingType.Pet, nameToSetTypeTo.Substring(0, possessiveMatch.Index));
                 else if (possessiveMatch.Groups["possesiveOf"].Value.Equals("warder"))
                     return new Tuple<EverQuestSwingType, String>(EverQuestSwingType.Warder, nameToSetTypeTo.Substring(0, possessiveMatch.Index));
@@ -352,11 +354,11 @@ namespace EverQuestDPSPlugin
                 case 1:
 
                     if (ActGlobals.oFormActMain.SetEncounter(ActGlobals.oFormActMain.LastKnownTime, CharacterNamePersonaReplace(regexMatch.Groups["attacker"].Value), CharacterNamePersonaReplace(regexMatch.Groups["victim"].Value)))
-                    {   
+                    {
                         Tuple<EverQuestSwingType, String> attackerAndTypeMelee = GetTypeAndNameForPet(regexMatch.Groups["attacker"].Value);
                         Tuple<EverQuestSwingType, String> victimAndTypeMelee = GetTypeAndNameForPet(regexMatch.Groups["victim"].Value);
-                        MasterSwing masterSwingMelee = new MasterSwing(((((attackerAndTypeMelee.Item1 & EverQuestSwingType.Pet) == EverQuestSwingType.Pet) 
-                            || ((victimAndTypeMelee.Item1 & EverQuestSwingType.Pet) == EverQuestSwingType.Pet)) 
+                        MasterSwing masterSwingMelee = new MasterSwing(((((attackerAndTypeMelee.Item1 & EverQuestSwingType.Pet) == EverQuestSwingType.Pet)
+                            || ((victimAndTypeMelee.Item1 & EverQuestSwingType.Pet) == EverQuestSwingType.Pet))
                             ? EverQuestSwingType.PetMelee : EverQuestSwingType.Melee).GetEverQuestSwingTypeExtensionIntValue()
                             , regexMatch.Groups["damageSpecial"].Success ? regexMatch.Groups["damageSpecial"].Value.Contains(EverQuestDPSPluginResource.Critical) : false
                             , regexMatch.Groups["damageSpecial"].Success ? regexMatch.Groups["damageSpecial"].Value : String.Empty
@@ -411,7 +413,7 @@ namespace EverQuestDPSPlugin
                 //Death message
                 case 4:
                     MasterSwing masterSwingSlain = new MasterSwing(0, false, new Dnum(Dnum.Death), ActGlobals.oFormActMain.LastEstimatedTime, ActGlobals.oFormActMain.GlobalTimeSorter, String.Empty, CharacterNamePersonaReplace(regexMatch.Groups["attacker"].Value), String.Empty, CharacterNamePersonaReplace(regexMatch.Groups["victim"].Value));
-                        masterSwingSlain.Tags.Add("lastEstimatedTime", ActGlobals.oFormActMain.LastEstimatedTime);
+                    masterSwingSlain.Tags.Add("lastEstimatedTime", ActGlobals.oFormActMain.LastEstimatedTime);
                     ActGlobals.oFormActMain.AddCombatAction(masterSwingSlain);
                     break;
                 //Spell Cast
@@ -539,14 +541,14 @@ namespace EverQuestDPSPlugin
                     }
                     catch (ArgumentNullException ex)
                     {
-                        if(lblStatus.InvokeRequired)
+                        if (lblStatus.InvokeRequired)
                             this.lblStatus.Invoke(new Action(() => { this.lblStatus.Text = $"Argument Null for {ex.ParamName} with message: {ex.Message}"; }));
                         else
                             this.lblStatus.Text = $"Argument Null for {ex.ParamName} with message: {ex.Message}";
                     }
                     catch (Exception ex)
                     {
-                        if(lblStatus.InvokeRequired)
+                        if (lblStatus.InvokeRequired)
                             this.lblStatus.Invoke(new Action(() => { this.lblStatus.Text = $"With message: {ex.Message}"; }));
                         else
                             this.lblStatus.Text = $"With message: {ex.Message}";
@@ -554,7 +556,7 @@ namespace EverQuestDPSPlugin
                     }
                 }
             }
-            if(varianceChkBx.InvokeRequired)
+            if (varianceChkBx.InvokeRequired)
                 varianceChkBx.Invoke(new Action<object, EventArgs>(VarianceChkBx_CheckedChanged));
             else
                 this.populationVariance = varianceChkBx.Checked;
@@ -968,7 +970,7 @@ namespace EverQuestDPSPlugin
             {
                 return (Left.Tags.ContainsKey("overheal") && Right.Tags.ContainsKey("overheal")) ? ((long)Left.Tags["overheal"]).CompareTo((long)Right.Tags["overheal"]) : 0;
             }));
-            
+
             foreach (KeyValuePair<string, MasterSwing.ColumnDef> pair in MasterSwing.ColumnDefs)
                 pair.Value.GetCellForeColor = (Data) => { return GetSwingTypeColor(Data.SwingType); };
 
@@ -976,9 +978,9 @@ namespace EverQuestDPSPlugin
             ActGlobals.oFormActMain.ValidateTableSetup();
         }
 
-#region Statistic processing
-//Statistics specific processing
-//Backstep function for time series processing
+        #region Statistic processing
+        //Statistics specific processing
+        //Backstep function for time series processing
         private double[] BackStep(AttackType Data, int backstep)
         {
             if (Data.Items.Count > backstep)
@@ -991,9 +993,10 @@ namespace EverQuestDPSPlugin
             else
                 return new double[] { default };
         }
-//Variance calculation for attack damage
+        //Variance calculation for attack damage
         private double AttackTypeGetVariance(AttackType Data)
-        {   List<MasterSwing> ms = Data.Items.Where((item) => item.Damage.Number >= 0).ToList();
+        {
+            List<MasterSwing> ms = Data.Items.Where((item) => item.Damage.Number >= 0).ToList();
             double average;
             if (!populationVariance && Data.Items.Count > 1)
             {
@@ -1014,8 +1017,8 @@ namespace EverQuestDPSPlugin
             else
                 return default;
         }
-#endregion
-//modified to display an empty string in the event no special type of attack is detected by the regex processing
+        #endregion
+        //modified to display an empty string in the event no special type of attack is detected by the regex processing
         private string CombatantDataGetCritTypes(CombatantData Data)
         {
             if (Data.AllOut.TryGetValue(ActGlobals.ActLocalization.LocalizationStrings["attackTypeTerm-all"].DisplayedText, out AttackType at))
@@ -1074,9 +1077,9 @@ namespace EverQuestDPSPlugin
             int WildRampageCount = 0;
             int FinishingBlowCount = 0;
             int count = ms.Count;
-            if (count.Equals(0))
-                return String.Empty;
-            FinishingBlowCount = ms.Where((finishingBlow) => {
+
+            FinishingBlowCount = ms.Where((finishingBlow) =>
+            {
                 return finishingBlow.Special.Contains(EverQuestDPSPluginResource.FinishingBlow);
             }).Count();
             CriticalCount = ms.Where((critital) =>
@@ -1201,22 +1204,22 @@ namespace EverQuestDPSPlugin
         //checkbox processing event for population or sample variance
         private void VarianceChkBx_CheckedChanged(object sender, EventArgs e)
         {
-                this.populationVariance = (sender as CheckBox).Checked;
-                switch (this.populationVariance)
-                {
-                    case true:
-                        if(lblStatus.InvokeRequired)
-                            this.lblStatus.Invoke(new Action(() => { this.lblStatus.Text = $"Reporting population variance {EverQuestDPSPluginResource.pluginName}"; } ));
-                        else
-                            this.lblStatus.Text = $"Reporting population variance {EverQuestDPSPluginResource.pluginName}";
-                        break;
-                    case false:
-                        if(lblStatus.InvokeRequired)
-                            this.lblStatus.Invoke(new Action(() => { this.lblStatus.Text = $"Reporting sample variance {EverQuestDPSPluginResource.pluginName}"; }));
-                        else
-                            this.lblStatus.Text = $"Reporting sample variance {EverQuestDPSPluginResource.pluginName}";
-                        break;
-                }
+            this.populationVariance = (sender as CheckBox).Checked;
+            switch (this.populationVariance)
+            {
+                case true:
+                    if (lblStatus.InvokeRequired)
+                        this.lblStatus.Invoke(new Action(() => { this.lblStatus.Text = $"Reporting population variance {EverQuestDPSPluginResource.pluginName}"; }));
+                    else
+                        this.lblStatus.Text = $"Reporting population variance {EverQuestDPSPluginResource.pluginName}";
+                    break;
+                case false:
+                    if (lblStatus.InvokeRequired)
+                        this.lblStatus.Invoke(new Action(() => { this.lblStatus.Text = $"Reporting sample variance {EverQuestDPSPluginResource.pluginName}"; }));
+                    else
+                        this.lblStatus.Text = $"Reporting sample variance {EverQuestDPSPluginResource.pluginName}";
+                    break;
+            }
         }
 
         private void nonMatchVisible_CheckedChanged(object sender, EventArgs e)
@@ -1559,6 +1562,6 @@ namespace EverQuestDPSPlugin
                     return VarName;
             }
         }
- 
+
     }
 }
