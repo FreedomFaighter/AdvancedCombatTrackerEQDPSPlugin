@@ -10,7 +10,6 @@ namespace EverQuestDPSPluginUnitTests
     [TestFixture]
     public class PluginEnumUnitTests
     {
-        [Test]
-        public void 
+
     }
 }
