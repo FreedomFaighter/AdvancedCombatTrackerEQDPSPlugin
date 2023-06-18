@@ -24,12 +24,5 @@ namespace EQDPSPluginUnitTests
         {
             Assert.AreEqual(EverQuestSwingType.Ward.CharacterPossesiveTypeAttack(EverQuestSwingType.HealOverTime), EverQuestSwingType.WardHealOverTime);
         }
-
-        private EverQuestDPSPlugin.EverQuestDPSPlugin _everQuestDPSPlugin;
-
-        public PluginEnumUnitTests()
-        {
-            _everQuestDPSPlugin = new EverQuestDPSPlugin.EverQuestDPSPlugin();
-        }
     }
 }
