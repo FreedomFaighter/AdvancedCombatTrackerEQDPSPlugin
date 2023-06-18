@@ -70,6 +70,15 @@ namespace EverQuestDPSPlugin {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to You hit (?&lt;victim&gt;.+) for (?&lt;baneDamage&gt;[\d]+) points of (?&lt;typeOfDamage&gt;.+) by Banestrike (?&lt;baneAbilityRank&gt;.+\.).
+        /// </summary>
+        internal static string Banestrike {
+            get {
+                return ResourceManager.GetString("Banestrike", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Crippling Blow.
         /// </summary>
         internal static string CripplingBlow {
@@ -84,6 +93,15 @@ namespace EverQuestDPSPlugin {
         internal static string Critical {
             get {
                 return ResourceManager.GetString("Critical", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to (?&lt;attacker&gt;.+) is (?&lt;damageShieldDamageType&gt;\S+) by (?&lt;victim&gt;.+) (?&lt;damageShieldType&gt;\S+) for (?&lt;damagePoints&gt;[\d]+) points of non-melee damage..
+        /// </summary>
+        internal static string DamageShield {
+            get {
+                return ResourceManager.GetString("DamageShield", resourceCulture);
             }
         }
         
@@ -133,6 +151,15 @@ namespace EverQuestDPSPlugin {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to (?&lt;healer&gt;.+?) (?:has been\s){0,1}healed (?&lt;healingTarget&gt;.+?)(?:\s(?&lt;overTime&gt;over time)){0,1} for (?&lt;healingPoints&gt;[\d]+)(?:\s\((?&lt;overHealPoints&gt;[\d]+)\)){0,1} hit point(?:|s) by (?&lt;healingSpell&gt;.*)\.(?:[\s][\(](?&lt;healingSpecial&gt;.+)[\)]){0,1}.
+        /// </summary>
+        internal static string Heal {
+            get {
+                return ResourceManager.GetString("Heal", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Locked.
         /// </summary>
         internal static string Locked {
@@ -151,11 +178,38 @@ namespace EverQuestDPSPlugin {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to (?&lt;attacker&gt;.+) (?:tr(?:ies|y)) to (?&lt;attackType&gt;\S+) (?&lt;victim&gt;.+), but (?:miss(?:|es))!(?:\s\((?&lt;damageSpecial&gt;.+)\)){0,1}.
+        /// </summary>
+        internal static string MissedMeleeAttack {
+            get {
+                return ResourceManager.GetString("MissedMeleeAttack", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to 92.
+        /// </summary>
+        internal static string pluginId {
+            get {
+                return ResourceManager.GetString("pluginId", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to EverQuest Damage Per Second Parser.
         /// </summary>
         internal static string pluginName {
             get {
                 return ResourceManager.GetString("pluginName", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Config\ACT_EverQuest_English_Parser.config.xml.
+        /// </summary>
+        internal static string PluginSettingsFileName {
+            get {
+                return ResourceManager.GetString("PluginSettingsFileName", resourceCulture);
             }
         }
         
@@ -178,6 +232,33 @@ namespace EverQuestDPSPlugin {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to (?&lt;attacker&gt;.+) ha(ve|s) slain (?&lt;victim&gt;.+)!.
+        /// </summary>
+        internal static string SlainMessage {
+            get {
+                return ResourceManager.GetString("SlainMessage", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to (?&lt;attacker&gt;.+) hit (?&lt;victim&gt;.*) for (?&lt;damagePoints&gt;[\d]+) (?:point[|s]) of (?&lt;typeOfDamage&gt;.+) damage by (?&lt;damageEffect&gt;.*)\.(?:[\s][\(](?&lt;spellSpecial&gt;.+)[\)]){0,1}.
+        /// </summary>
+        internal static string SpellDamage {
+            get {
+                return ResourceManager.GetString("SpellDamage", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to (?&lt;attacker&gt;.+) has taken (?&lt;damagePoints&gt;[\d]+) damage from (?&lt;damageEffect&gt;.*) by (?&lt;victim&gt;.*)\.(?:[\s][\(](?&lt;spellSpecial&gt;.+)[\)]){0,1}.
+        /// </summary>
+        internal static string SpellDamageOverTime {
+            get {
+                return ResourceManager.GetString("SpellDamageOverTime", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Strikethrough.
         /// </summary>
         internal static string Strikethrough {
@@ -196,11 +277,29 @@ namespace EverQuestDPSPlugin {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to (?&lt;Unknown&gt;(u|U)nknown).
+        /// </summary>
+        internal static string Unknown {
+            get {
+                return ResourceManager.GetString("Unknown", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Wild Rampage.
         /// </summary>
         internal static string WildRampage {
             get {
                 return ResourceManager.GetString("WildRampage", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to You have entered (?!.*the Drunken Monkey stance adequately)(?&lt;zoneName&gt;.*)..
+        /// </summary>
+        internal static string ZoneChange {
+            get {
+                return ResourceManager.GetString("ZoneChange", resourceCulture);
             }
         }
     }

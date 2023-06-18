@@ -120,11 +120,17 @@
   <data name="attackTypes" xml:space="preserve">
     <value>backstab|throw|pierce|gore|crush|slash|hit|kick|slam|bash|shoot|strike|bite|grab|punch|scratch|rake|swipe|claw|maul|smash|frenzy</value>
   </data>
+  <data name="Banestrike" xml:space="preserve">
+    <value>You hit (?&lt;victim&gt;.+) for (?&lt;baneDamage&gt;[\d]+) points of (?&lt;typeOfDamage&gt;.+) by Banestrike (?&lt;baneAbilityRank&gt;.+\.)</value>
+  </data>
   <data name="CripplingBlow" xml:space="preserve">
     <value>Crippling Blow</value>
   </data>
   <data name="Critical" xml:space="preserve">
     <value>Critical</value>
+  </data>
+  <data name="DamageShield" xml:space="preserve">
+    <value>(?&lt;attacker&gt;.+) is (?&lt;damageShieldDamageType&gt;\S+) by (?&lt;victim&gt;.+) (?&lt;damageShieldType&gt;\S+) for (?&lt;damagePoints&gt;[\d]+) points of non-melee damage.</value>
   </data>
   <data name="DamageSpecial" xml:space="preserve">
     <value>damageSpecial</value>
@@ -141,14 +147,26 @@
   <data name="Flurry" xml:space="preserve">
     <value>Flurry</value>
   </data>
+  <data name="Heal" xml:space="preserve">
+    <value>(?&lt;healer&gt;.+?) (?:has been\s){0,1}healed (?&lt;healingTarget&gt;.+?)(?:\s(?&lt;overTime&gt;over time)){0,1} for (?&lt;healingPoints&gt;[\d]+)(?:\s\((?&lt;overHealPoints&gt;[\d]+)\)){0,1} hit point(?:|s) by (?&lt;healingSpell&gt;.*)\.(?:[\s][\(](?&lt;healingSpecial&gt;.+)[\)]){0,1}</value>
+  </data>
   <data name="Locked" xml:space="preserve">
     <value>Locked</value>
   </data>
   <data name="Lucky" xml:space="preserve">
     <value>Lucky</value>
   </data>
+  <data name="MissedMeleeAttack" xml:space="preserve">
+    <value>(?&lt;attacker&gt;.+) (?:tr(?:ies|y)) to (?&lt;attackType&gt;\S+) (?&lt;victim&gt;.+), but (?:miss(?:|es))!(?:\s\((?&lt;damageSpecial&gt;.+)\)){0,1}</value>
+  </data>
+  <data name="pluginId" xml:space="preserve">
+    <value>92</value>
+  </data>
   <data name="pluginName" xml:space="preserve">
     <value>EverQuest Damage Per Second Parser</value>
+  </data>
+  <data name="PluginSettingsFileName" xml:space="preserve">
+    <value>Config\ACT_EverQuest_English_Parser.config.xml</value>
   </data>
   <data name="possessivePetString" xml:space="preserve">
     <value>`s pet</value>
@@ -156,13 +174,28 @@
   <data name="Riposte" xml:space="preserve">
     <value>Riposte</value>
   </data>
+  <data name="SlainMessage" xml:space="preserve">
+    <value>(?&lt;attacker&gt;.+) ha(ve|s) slain (?&lt;victim&gt;.+)!</value>
+  </data>
+  <data name="SpellDamage" xml:space="preserve">
+    <value>(?&lt;attacker&gt;.+) hit (?&lt;victim&gt;.*) for (?&lt;damagePoints&gt;[\d]+) (?:point[|s]) of (?&lt;typeOfDamage&gt;.+) damage by (?&lt;damageEffect&gt;.*)\.(?:[\s][\(](?&lt;spellSpecial&gt;.+)[\)]){0,1}</value>
+  </data>
+  <data name="SpellDamageOverTime" xml:space="preserve">
+    <value>(?&lt;attacker&gt;.+) has taken (?&lt;damagePoints&gt;[\d]+) damage from (?&lt;damageEffect&gt;.*) by (?&lt;victim&gt;.*)\.(?:[\s][\(](?&lt;spellSpecial&gt;.+)[\)]){0,1}</value>
+  </data>
   <data name="Strikethrough" xml:space="preserve">
     <value>Strikethrough</value>
   </data>
   <data name="Twincast" xml:space="preserve">
     <value>Twincast</value>
   </data>
+  <data name="Unknown" xml:space="preserve">
+    <value>(?&lt;Unknown&gt;(u|U)nknown)</value>
+  </data>
   <data name="WildRampage" xml:space="preserve">
     <value>Wild Rampage</value>
+  </data>
+  <data name="ZoneChange" xml:space="preserve">
+    <value>You have entered (?!.*the Drunken Monkey stance adequately)(?&lt;zoneName&gt;.*).</value>
   </data>
 </root>
