@@ -138,6 +138,9 @@
   <data name="DoubleBowShot" xml:space="preserve">
     <value>Double Bow Shot</value>
   </data>
+  <data name="eqDateTimeStampFormat" xml:space="preserve">
+    <value>ddd MMM dd HH:mm:ss yyyy</value>
+  </data>
   <data name="evasionTypes" xml:space="preserve">
     <value>block(|s)|dodge(|s)|parr(ies|y)|riposte(|s)</value>
   </data>
@@ -168,8 +171,8 @@
   <data name="PluginSettingsFileName" xml:space="preserve">
     <value>Config\ACT_EverQuest_English_Parser.config.xml</value>
   </data>
-  <data name="possessivePetString" xml:space="preserve">
-    <value>`s pet</value>
+  <data name="possessiveString" xml:space="preserve">
+    <value>`s (?&lt;possesiveOf&gt;.+)</value>
   </data>
   <data name="Riposte" xml:space="preserve">
     <value>Riposte</value>
@@ -185,6 +188,9 @@
   </data>
   <data name="Strikethrough" xml:space="preserve">
     <value>Strikethrough</value>
+  </data>
+  <data name="TimeStamp" xml:space="preserve">
+    <value>\[(?&lt;dateTimeOfLogLine&gt;.+)\]</value>
   </data>
   <data name="Twincast" xml:space="preserve">
     <value>Twincast</value>

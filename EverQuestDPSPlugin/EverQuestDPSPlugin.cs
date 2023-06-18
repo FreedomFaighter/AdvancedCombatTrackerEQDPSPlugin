@@ -119,41 +119,12 @@ namespace EverQuestDPSPlugin
 #endregion
 
         #region class members
-        //readonly int pluginId = -1;
-        //readonly char[] chrApos = new char[] { '\'', '’' };
-        //readonly char[] chrSpaceApos = new char[] { ' ', '\'', '’', '`' };
-        //List<Tuple<Color, Regex>> regexTupleList = new List<Tuple<Color, Regex>>();
         delegate void matchParse(Match regexMatch);
         List<Tuple<Color, Regex>> regexTupleList = new List<Tuple<Color, Regex>>();
-        //readonly String possesiveDamageShield = "peirced|flames|tormented";
-        //readonly static String evasionTypes = @"block(|s)|dodge(|s)|parr(ies|y)|riposte(|s)";
-        readonly String eqDateTimeStampFormat = @"ddd MMM dd HH:mm:ss yyyy";
-        readonly String SpecialCripplingBlow = Enum.GetName(typeof(SpecialAttacks), (SpecialAttacks)SpecialAttacks.Crippling_Blow).Replace("_", " ");
-        static readonly String TimeStamp = @"\[(?<dateTimeOfLogLine>.+)\]";
-        //readonly String ZoneChange = @"You have entered (?!.*the Drunken Monkey stance adequately)(?<zoneName>.*)\.";
-        readonly Regex selfCheck = new Regex(@"(You|you|yourself|Yourself|YOURSELF|YOU)", RegexOptions.Compiled);
-        readonly String possessivePetString = @"`s (?<possesiveOf>.+)";
+        Regex selfCheck;
         Regex possesive;
-
-        Regex tellsregex = new Regex($@"{TimeStamp} (?<CharacterName>.+) (tells|told|says|said)", RegexOptions.Compiled);
+        Regex tellsregex;
         bool nonMatchVisible = false;
-        
-        public void ChangeNonmatchFormCheckBox(bool Checked)
-        {
-            if (nonMatchVisibleChkbx.InvokeRequired)
-            {
-                nonMatchVisibleChkbx.Invoke(new Action(() =>
-                {
-                    nonMatchVisibleChkbx.Checked = Checked;
-                }));
-            }
-            else
-            {
-                nonMatchVisibleChkbx.Checked = Checked;
-            }
-        }
-
-        //      readonly String fallDamage = @"(?<victim>.*) (?:ha[s|ve]) taken (?<pointsOfDamage>[\d]+) (?point[|s]) of fall damage.";
         bool populationVariance;
         nonmatch nm;
         SortedList<string, AposNameFix> aposNameList = new SortedList<string, AposNameFix>();
@@ -163,6 +134,10 @@ namespace EverQuestDPSPlugin
         private CheckBox varianceChkBx;
         private CheckBox nonMatchVisibleChkbx;
         SettingsSerializer xmlSettings;
+
+
+        //      readonly String fallDamage = @"(?<victim>.*) (?:ha[s|ve]) taken (?<pointsOfDamage>[\d]+) (?point[|s]) of fall damage.";
+
         #endregion
 
         public EverQuestDPSPlugin()
@@ -219,7 +194,7 @@ namespace EverQuestDPSPlugin
                 updateCheckClicked.Start();   // If we don't put this on a separate thread, web latency will delay the plugin init phase
 
             ActGlobals.oFormActMain.CharacterFileNameRegex = new Regex(@"(?:.+)[\\]eqlog_(?<characterName>\S+)_(?<server>.+).txt", RegexOptions.Compiled);
-            ActGlobals.oFormActMain.ZoneChangeRegex = new Regex($@"{TimeStamp} {EverQuestDPSPluginResource.ZoneChange}", RegexOptions.Compiled);
+            ActGlobals.oFormActMain.ZoneChangeRegex = new Regex(regexString(EverQuestDPSPluginResource.ZoneChange), RegexOptions.Compiled);
             String lblMessage = $"{EverQuestDPSPluginResource.pluginName} Plugin Started";
             changeLblStatus(lblMessage);
 
@@ -295,51 +270,48 @@ namespace EverQuestDPSPlugin
 
         private DateTime ParseDateTime(String timeStamp)
         {
-            DateTime.TryParseExact(timeStamp, eqDateTimeStampFormat, DateTimeFormatInfo.CurrentInfo, DateTimeStyles.AssumeLocal, out DateTime currentEQTimeStamp);
+            DateTime.TryParseExact(timeStamp, EverQuestDPSPluginResource.eqDateTimeStampFormat, DateTimeFormatInfo.CurrentInfo, DateTimeStyles.AssumeLocal, out DateTime currentEQTimeStamp);
             return currentEQTimeStamp;
+        }
+
+        private String regexString(String regex)
+        {
+            if (regex == null)
+                throw new ArgumentNullException("Missing value for regex");
+            else
+                return $@"{EverQuestDPSPluginResource.TimeStamp} {regex}";
         }
 
         private void PopulateRegexArray()
         {
             String MeleeAttack = @"(?<attacker>.+) (?<attackType>" + $@"{EverQuestDPSPluginResource.attackTypes}" + @")(|s|es|bed) (?<victim>.+) for (?<damageAmount>[\d]+) (?:(?:point)(?:s|)) of damage.(?:\s\((?<damageSpecial>.+)\)){0,1}";
             String Evasion = @"(?<attacker>.*) tries to (?<attackType>\S+) (?:(?<victim>(.+)), but \1) (?:(?<evasionType>" + $@"{EverQuestDPSPluginResource.evasionTypes}" + @"))!(?:[\s][\(](?<evasionSpecial>.+)[\)]){0,1}";
-            possesive = new Regex(possessivePetString, RegexOptions.Compiled);
+            possesive = new Regex(EverQuestDPSPluginResource.possessiveString, RegexOptions.Compiled);
+            tellsregex = new Regex(regexString("(?<CharacterName>.+) (tells|told|says|said)"), RegexOptions.Compiled);
+            selfCheck = new Regex(@"(You|you|yourself|Yourself|YOURSELF|YOU)", RegexOptions.Compiled);
             ActGlobals.oFormEncounterLogs.LogTypeToColorMapping.Clear();
-            regexTupleList.Add(new Tuple<Color, Regex>(Color.Red, new Regex($@"{TimeStamp} {MeleeAttack}", RegexOptions.Compiled)));
+            regexTupleList.Add(new Tuple<Color, Regex>(Color.Red, new Regex(regexString(MeleeAttack), RegexOptions.Compiled)));
             ActGlobals.oFormEncounterLogs.LogTypeToColorMapping.Add(regexTupleList.Count, regexTupleList[regexTupleList.Count - 1].Item1);
-            regexTupleList.Add(new Tuple<Color, Regex>(Color.ForestGreen, new Regex($@"{TimeStamp} {EverQuestDPSPluginResource.DamageShield}", RegexOptions.Compiled)));
+            regexTupleList.Add(new Tuple<Color, Regex>(Color.ForestGreen, new Regex(regexString(EverQuestDPSPluginResource.DamageShield), RegexOptions.Compiled)));
             ActGlobals.oFormEncounterLogs.LogTypeToColorMapping.Add(regexTupleList.Count, regexTupleList[regexTupleList.Count - 1].Item1);
-            regexTupleList.Add(new Tuple<Color, Regex>(Color.Plum, new Regex($@"{TimeStamp} {EverQuestDPSPluginResource.MissedMeleeAttack}", RegexOptions.Compiled)));
+            regexTupleList.Add(new Tuple<Color, Regex>(Color.Plum, new Regex(regexString(EverQuestDPSPluginResource.MissedMeleeAttack), RegexOptions.Compiled)));
             ActGlobals.oFormEncounterLogs.LogTypeToColorMapping.Add(regexTupleList.Count, regexTupleList[regexTupleList.Count - 1].Item1);
-            regexTupleList.Add(new Tuple<Color, Regex>(Color.Goldenrod, new Regex($@"{TimeStamp} {EverQuestDPSPluginResource.SlainMessage}", RegexOptions.Compiled)));
+            regexTupleList.Add(new Tuple<Color, Regex>(Color.Goldenrod, new Regex(regexString(EverQuestDPSPluginResource.SlainMessage), RegexOptions.Compiled)));
             ActGlobals.oFormEncounterLogs.LogTypeToColorMapping.Add(regexTupleList.Count, regexTupleList[regexTupleList.Count - 1].Item1);
-            regexTupleList.Add(new Tuple<Color, Regex>(Color.Red, new Regex($@"{TimeStamp} {EverQuestDPSPluginResource.SpellDamage}", RegexOptions.Compiled)));
+            regexTupleList.Add(new Tuple<Color, Regex>(Color.Red, new Regex(regexString(EverQuestDPSPluginResource.SpellDamage), RegexOptions.Compiled)));
             ActGlobals.oFormEncounterLogs.LogTypeToColorMapping.Add(regexTupleList.Count, regexTupleList[regexTupleList.Count - 1].Item1);
-            regexTupleList.Add(new Tuple<Color, Regex>(Color.Maroon, new Regex($@"{TimeStamp} {EverQuestDPSPluginResource.ZoneChange}", RegexOptions.Compiled)));
+            regexTupleList.Add(new Tuple<Color, Regex>(Color.Maroon, new Regex(regexString(EverQuestDPSPluginResource.ZoneChange), RegexOptions.Compiled)));
             ActGlobals.oFormEncounterLogs.LogTypeToColorMapping.Add(regexTupleList.Count, regexTupleList[regexTupleList.Count - 1].Item1);
-            regexTupleList.Add(new Tuple<Color, Regex>(Color.DarkBlue, new Regex($@"{TimeStamp} {EverQuestDPSPluginResource.Heal}", RegexOptions.Compiled)));
+            regexTupleList.Add(new Tuple<Color, Regex>(Color.DarkBlue, new Regex(regexString(EverQuestDPSPluginResource.Heal), RegexOptions.Compiled)));
             ActGlobals.oFormEncounterLogs.LogTypeToColorMapping.Add(regexTupleList.Count, regexTupleList[regexTupleList.Count - 1].Item1);
-            regexTupleList.Add(new Tuple<Color, Regex>(Color.Silver, new Regex($@"{TimeStamp} {EverQuestDPSPluginResource.Unknown}", RegexOptions.Compiled)));
+            regexTupleList.Add(new Tuple<Color, Regex>(Color.Silver, new Regex(regexString(EverQuestDPSPluginResource.Unknown), RegexOptions.Compiled)));
             ActGlobals.oFormEncounterLogs.LogTypeToColorMapping.Add(regexTupleList.Count, regexTupleList[regexTupleList.Count - 1].Item1);
-            regexTupleList.Add(new Tuple<Color, Regex>(Color.DeepSkyBlue, new Regex($@"{TimeStamp} {Evasion}", RegexOptions.Compiled)));
+            regexTupleList.Add(new Tuple<Color, Regex>(Color.DeepSkyBlue, new Regex(regexString(Evasion), RegexOptions.Compiled)));
             ActGlobals.oFormEncounterLogs.LogTypeToColorMapping.Add(regexTupleList.Count, regexTupleList[regexTupleList.Count - 1].Item1);
-            regexTupleList.Add(new Tuple<Color, Regex>(Color.LightBlue, new Regex($@"{TimeStamp} {EverQuestDPSPluginResource.Banestrike}", RegexOptions.Compiled)));
+            regexTupleList.Add(new Tuple<Color, Regex>(Color.LightBlue, new Regex(regexString(EverQuestDPSPluginResource.Banestrike), RegexOptions.Compiled)));
             ActGlobals.oFormEncounterLogs.LogTypeToColorMapping.Add(regexTupleList.Count, regexTupleList[regexTupleList.Count - 1].Item1);
-            regexTupleList.Add(new Tuple<Color, Regex>(Color.AliceBlue, new Regex($@"{TimeStamp} {EverQuestDPSPluginResource.SpellDamageOverTime}", RegexOptions.Compiled)));
+            regexTupleList.Add(new Tuple<Color, Regex>(Color.AliceBlue, new Regex(regexString(EverQuestDPSPluginResource.SpellDamageOverTime), RegexOptions.Compiled)));
             ActGlobals.oFormEncounterLogs.LogTypeToColorMapping.Add(regexTupleList.Count, regexTupleList[regexTupleList.Count - 1].Item1);
-        }
-
-        void AddLogLineToNonMatch(String message)
-        {
-            if (nm.InvokeRequired)
-            {
-                nm.Invoke(new Action(() =>
-                {
-                    nm.addLogLineToForm(message);
-                }));
-            }
-            else
-                nm.addLogLineToForm(message);
         }
 
         void FormActMain_BeforeLogLineRead(bool isImport, LogLineEventArgs logInfo)
@@ -1145,7 +1117,7 @@ namespace EverQuestDPSPlugin
             }).Count();
             CripplingBlowCount = ms.Where((cripplingBlow) =>
             {
-                return cripplingBlow.Special.Contains(SpecialCripplingBlow);
+                return cripplingBlow.Special.Contains(EverQuestDPSPluginResource.CripplingBlow);
             }).Count();
             LockedCount = ms.Where((locked) =>
             {
@@ -1222,8 +1194,35 @@ namespace EverQuestDPSPlugin
             else
                 return swingType == null ? String.Empty : swingType.ToString();
         }
+        #region User Interface Update code
+        public void ChangeNonmatchFormCheckBox(bool Checked)
+        {
+            if (nonMatchVisibleChkbx.InvokeRequired)
+            {
+                nonMatchVisibleChkbx.Invoke(new Action(() =>
+                {
+                    nonMatchVisibleChkbx.Checked = Checked;
+                }));
+            }
+            else
+            {
+                nonMatchVisibleChkbx.Checked = Checked;
+            }
+        }
 
-//checkbox processing event for population or sample variance
+        void AddLogLineToNonMatch(String message)
+        {
+            if (nm.InvokeRequired)
+            {
+                nm.Invoke(new Action(() =>
+                {
+                    nm.addLogLineToForm(message);
+                }));
+            }
+            else
+                nm.addLogLineToForm(message);
+        }
+        //checkbox processing event for population or sample variance
         private void VarianceChkBx_CheckedChanged(object sender, EventArgs e)
         {
                 this.populationVariance = (sender as CheckBox).Checked;
@@ -1276,7 +1275,7 @@ namespace EverQuestDPSPlugin
                     break;
             }
         }
-
+        #endregion
         private string EncounterFormatSwitch(EncounterData Data, List<CombatantData> SelectiveAllies, string VarName, string Extra)
         {
             long damage = 0;
