@@ -62,6 +62,11 @@
     <Compile Include="EverQuestDPSPlugin.cs">
       <SubType>UserControl</SubType>
     </Compile>
+    <Compile Include="EverQuestDPSPluginResource.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>EverQuestDPSPluginResource.resx</DependentUpon>
+    </Compile>
     <Compile Include="EverQuestSwingType.cs" />
     <Compile Include="EverQuest_DPS_Plugin_Localization.cs" />
     <Compile Include="Interfaces\IEverQuestDPSPlugin.cs" />
@@ -78,6 +83,10 @@
   <ItemGroup>
     <EmbeddedResource Include="EverQuestDPSPlugin.resx">
       <DependentUpon>EverQuestDPSPlugin.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="EverQuestDPSPluginResource.resx">
+      <Generator>ResXFileCodeGenerator</Generator>
+      <LastGenOutput>EverQuestDPSPluginResource.Designer.cs</LastGenOutput>
     </EmbeddedResource>
     <EmbeddedResource Include="nonmatch.resx">
       <DependentUpon>nonmatch.cs</DependentUpon>
