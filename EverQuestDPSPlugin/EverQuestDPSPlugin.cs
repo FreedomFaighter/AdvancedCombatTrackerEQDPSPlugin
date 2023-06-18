@@ -126,27 +126,12 @@ namespace EverQuestDPSPlugin
         delegate void matchParse(Match regexMatch);
         List<Tuple<Color, Regex>> regexTupleList = new List<Tuple<Color, Regex>>();
         //readonly String possesiveDamageShield = "peirced|flames|tormented";
-        readonly static String evasionTypes = @"block(|s)|dodge(|s)|parr(ies|y)|riposte(|s)";
-        readonly String DamageShield = @"(?<attacker>.+) is (?<damageShieldDamageType>\S+) by (?<victim>.+) (?<damageShieldType>\S+) for (?<damagePoints>[\d]+) points of non-melee damage.";
+        //readonly static String evasionTypes = @"block(|s)|dodge(|s)|parr(ies|y)|riposte(|s)";
         readonly String eqDateTimeStampFormat = @"ddd MMM dd HH:mm:ss yyyy";
-        readonly static String PluginSettingsFileName = @"Config\ACT_EverQuest_English_Parser.config.xml";
         readonly String SpecialCripplingBlow = Enum.GetName(typeof(SpecialAttacks), (SpecialAttacks)SpecialAttacks.Crippling_Blow).Replace("_", " ");
-        readonly String SpecialCritical = Enum.GetName(typeof(SpecialAttacks), (SpecialAttacks)SpecialAttacks.Critical);
-        readonly String SpecialDoubleBowShot = Enum.GetName(typeof(SpecialAttacks), (SpecialAttacks)SpecialAttacks.Double_Bow_Shot).Replace("_", " ");
-        readonly String SpecialFlurry = Enum.GetName(typeof(SpecialAttacks), (SpecialAttacks)SpecialAttacks.Flurry);
-        readonly String SpecialLocked = Enum.GetName(typeof(SpecialAttacks), (SpecialAttacks)SpecialAttacks.Locked);
-        readonly String SpecialLucky = Enum.GetName(typeof(SpecialAttacks), (SpecialAttacks)SpecialAttacks.Lucky);
-        readonly String SpecialRiposte = Enum.GetName(typeof(SpecialAttacks), (SpecialAttacks)SpecialAttacks.Riposte);
-        readonly String SpecialStrikethrough = Enum.GetName(typeof(SpecialAttacks), (SpecialAttacks)SpecialAttacks.Strikethrough);
-        readonly String SpecialTwincast = Enum.GetName(typeof(SpecialAttacks), (SpecialAttacks)SpecialAttacks.Twincast);
-        readonly String SpecialWildRampage = Enum.GetName(typeof(SpecialAttacks), (SpecialAttacks)SpecialAttacks.Wild_Rampage).Replace("_", " ");
-        readonly String SpecialFinishingBlow = Enum.GetName(typeof(SpecialAttacks), (SpecialAttacks)SpecialAttacks.Finishing_Blow).Replace("_", " ");
         static readonly String TimeStamp = @"\[(?<dateTimeOfLogLine>.+)\]";
-        readonly String ZoneChange = @"You have entered (?!.*the Drunken Monkey stance adequately)(?<zoneName>.*)\.";
-        
-        //readonly Regex dateTimeRegex = new Regex(TimeStamp, RegexOptions.Compiled);
+        //readonly String ZoneChange = @"You have entered (?!.*the Drunken Monkey stance adequately)(?<zoneName>.*)\.";
         readonly Regex selfCheck = new Regex(@"(You|you|yourself|Yourself|YOURSELF|YOU)", RegexOptions.Compiled);
-        readonly String pluginName = "EverQuest Damage Per Second Parser";
         readonly String possessivePetString = @"`s (?<possesiveOf>.+)";
         Regex possesive;
 
@@ -188,7 +173,7 @@ namespace EverQuestDPSPlugin
         public void InitPlugin(TabPage pluginScreenSpace, Label pluginStatusText)
         {
             EverQuest_DPS_Plugin_Localization.EditLocalizations();
-            settingsFile = Path.Combine(ActGlobals.oFormActMain.AppDataFolder.FullName, PluginSettingsFileName);
+            settingsFile = Path.Combine(ActGlobals.oFormActMain.AppDataFolder.FullName, EverQuestDPSPluginResource.PluginSettingsFileName);
             lblStatus = pluginStatusText;   // Hand the status label's reference to our local var
 
             pluginScreenSpace.Controls.Add(this);
@@ -203,13 +188,13 @@ namespace EverQuestDPSPlugin
             if (dcIndex != -1)
             {
                 // Add our own node to the Data Correction node
-                optionsNode = ActGlobals.oFormActMain.OptionsTreeView.Nodes[dcIndex].Nodes.Add($"{pluginName} Settings");
+                optionsNode = ActGlobals.oFormActMain.OptionsTreeView.Nodes[dcIndex].Nodes.Add($"{EverQuestDPSPluginResource.pluginName} Settings");
                 // Register our user control(this) to our newly create node path.  All controls added to the list will be laid out left to right, top to bottom
-                ActGlobals.oFormActMain.OptionsControlSets.Add($"Data Correction\\{pluginName}", new List<Control> { this });
+                ActGlobals.oFormActMain.OptionsControlSets.Add($"Data Correction\\{EverQuestDPSPluginResource.pluginName}", new List<Control> { this });
                 Label lblConfig = new Label
                 {
                     AutoSize = true,
-                    Text = $"Settings under the {pluginName} tab."
+                    Text = $"Settings under the {EverQuestDPSPluginResource.pluginName} tab."
                 };
                 pluginScreenSpace.Controls.Add(lblConfig);
             }
@@ -234,8 +219,8 @@ namespace EverQuestDPSPlugin
                 updateCheckClicked.Start();   // If we don't put this on a separate thread, web latency will delay the plugin init phase
 
             ActGlobals.oFormActMain.CharacterFileNameRegex = new Regex(@"(?:.+)[\\]eqlog_(?<characterName>\S+)_(?<server>.+).txt", RegexOptions.Compiled);
-            ActGlobals.oFormActMain.ZoneChangeRegex = new Regex($@"{TimeStamp} {ZoneChange}", RegexOptions.Compiled);
-            String lblMessage = $"{pluginName} Plugin Started";
+            ActGlobals.oFormActMain.ZoneChangeRegex = new Regex($@"{TimeStamp} {EverQuestDPSPluginResource.ZoneChange}", RegexOptions.Compiled);
+            String lblMessage = $"{EverQuestDPSPluginResource.pluginName} Plugin Started";
             changeLblStatus(lblMessage);
 
         }
@@ -249,12 +234,12 @@ namespace EverQuestDPSPlugin
             if (optionsNode != null)    // If we added our user control to the Options tab, remove it
             {
                 optionsNode.Remove();
-                ActGlobals.oFormActMain.OptionsControlSets.Remove($"Data Correction\\{pluginName}");
+                ActGlobals.oFormActMain.OptionsControlSets.Remove($"Data Correction\\{EverQuestDPSPluginResource.pluginName}");
             }
 
             SaveSettings();
             nm.Close();
-            lblStatus.Text = $"{pluginName} Plugin Exited";
+            lblStatus.Text = $"{EverQuestDPSPluginResource.pluginName} Plugin Exited";
         }
 
         void changeLblStatus(String status)
@@ -273,8 +258,7 @@ namespace EverQuestDPSPlugin
 
         void UpdateCheckClicked()
         {
-            int pluginId = 92;
-
+            int pluginId = int.Parse(EverQuestDPSPluginResource.pluginId);
             try
             {
                 Version remoteVersion = new Version(ActGlobals.oFormActMain.PluginGetRemoteVersion(pluginId));
@@ -282,7 +266,7 @@ namespace EverQuestDPSPlugin
                 Version currentVersionv = new Version(currentVersion.Version);
                 if (remoteVersion > currentVersionv)
                 {
-                    DialogResult result = MessageBox.Show($"There is an updated version of the {pluginName}.  Update it now?\n\n(If there is an update to ACT, you should click No and update ACT first.)", "New Version", MessageBoxButtons.YesNo, MessageBoxIcon.Question);
+                    DialogResult result = MessageBox.Show($"There is an updated version of the {EverQuestDPSPluginResource.pluginName}.  Update it now?\n\n(If there is an update to ACT, you should click No and update ACT first.)", "New Version", MessageBoxButtons.YesNo, MessageBoxIcon.Question);
                     switch (result)
                     {
                         case DialogResult.Yes:
@@ -317,38 +301,31 @@ namespace EverQuestDPSPlugin
 
         private void PopulateRegexArray()
         {
-            String Heal = @"(?<healer>.+?) (?:has been\s){0,1}healed (?<healingTarget>.+?)(?:\s(?<overTime>over time)){0,1} for (?<healingPoints>[\d]+)(?:\s\((?<overHealPoints>[\d]+)\)){0,1} hit point(?:|s) by (?<healingSpell>.*)\.(?:[\s][\(](?<healingSpecial>.+)[\)]){0,1}";
             String MeleeAttack = @"(?<attacker>.+) (?<attackType>" + $@"{EverQuestDPSPluginResource.attackTypes}" + @")(|s|es|bed) (?<victim>.+) for (?<damageAmount>[\d]+) (?:(?:point)(?:s|)) of damage.(?:\s\((?<damageSpecial>.+)\)){0,1}";
-            String MissedMeleeAttack = @"(?<attacker>.+) (?:tr(?:ies|y)) to (?<attackType>\S+) (?<victim>.+), but (?:miss(?:|es))!(?:\s\((?<damageSpecial>.+)\)){0,1}";
-            String Unknown = @"(?<Unknown>(u|U)nknown)";
-            String Evasion = @"(?<attacker>.*) tries to (?<attackType>\S+) (?:(?<victim>(.+)), but \1) (?:(?<evasionType>" + $@"{evasionTypes}" + @"))!(?:[\s][\(](?<evasionSpecial>.+)[\)]){0,1}";
-            String Banestrike = @"You hit (?<victim>.+) for (?<baneDamage>[\d]+) points of (?<typeOfDamage>.+) by Banestrike (?<baneAbilityRank>.+\.)";
-            String SpellDamage = @"(?<attacker>.+) hit (?<victim>.*) for (?<damagePoints>[\d]+) (?:point[|s]) of (?<typeOfDamage>.+) damage by (?<damageEffect>.*)\.(?:[\s][\(](?<spellSpecial>.+)[\)]){0,1}";
-            String SpellDamageOverTime = @"(?<attacker>.+) has taken (?<damagePoints>[\d]+) damage from (?<damageEffect>.*) by (?<victim>.*)\.(?:[\s][\(](?<spellSpecial>.+)[\)]){0,1}";
-            String SlainMessage = @"(?<attacker>.+) ha(ve|s) slain (?<victim>.+)!";
+            String Evasion = @"(?<attacker>.*) tries to (?<attackType>\S+) (?:(?<victim>(.+)), but \1) (?:(?<evasionType>" + $@"{EverQuestDPSPluginResource.evasionTypes}" + @"))!(?:[\s][\(](?<evasionSpecial>.+)[\)]){0,1}";
             possesive = new Regex(possessivePetString, RegexOptions.Compiled);
             ActGlobals.oFormEncounterLogs.LogTypeToColorMapping.Clear();
             regexTupleList.Add(new Tuple<Color, Regex>(Color.Red, new Regex($@"{TimeStamp} {MeleeAttack}", RegexOptions.Compiled)));
             ActGlobals.oFormEncounterLogs.LogTypeToColorMapping.Add(regexTupleList.Count, regexTupleList[regexTupleList.Count - 1].Item1);
-            regexTupleList.Add(new Tuple<Color, Regex>(Color.ForestGreen, new Regex($@"{TimeStamp} {DamageShield}", RegexOptions.Compiled)));
+            regexTupleList.Add(new Tuple<Color, Regex>(Color.ForestGreen, new Regex($@"{TimeStamp} {EverQuestDPSPluginResource.DamageShield}", RegexOptions.Compiled)));
             ActGlobals.oFormEncounterLogs.LogTypeToColorMapping.Add(regexTupleList.Count, regexTupleList[regexTupleList.Count - 1].Item1);
-            regexTupleList.Add(new Tuple<Color, Regex>(Color.Plum, new Regex($@"{TimeStamp} {MissedMeleeAttack}", RegexOptions.Compiled)));
+            regexTupleList.Add(new Tuple<Color, Regex>(Color.Plum, new Regex($@"{TimeStamp} {EverQuestDPSPluginResource.MissedMeleeAttack}", RegexOptions.Compiled)));
             ActGlobals.oFormEncounterLogs.LogTypeToColorMapping.Add(regexTupleList.Count, regexTupleList[regexTupleList.Count - 1].Item1);
-            regexTupleList.Add(new Tuple<Color, Regex>(Color.Goldenrod, new Regex($@"{TimeStamp} {SlainMessage}", RegexOptions.Compiled)));
+            regexTupleList.Add(new Tuple<Color, Regex>(Color.Goldenrod, new Regex($@"{TimeStamp} {EverQuestDPSPluginResource.SlainMessage}", RegexOptions.Compiled)));
             ActGlobals.oFormEncounterLogs.LogTypeToColorMapping.Add(regexTupleList.Count, regexTupleList[regexTupleList.Count - 1].Item1);
-            regexTupleList.Add(new Tuple<Color, Regex>(Color.Red, new Regex($@"{TimeStamp} {SpellDamage}", RegexOptions.Compiled)));
+            regexTupleList.Add(new Tuple<Color, Regex>(Color.Red, new Regex($@"{TimeStamp} {EverQuestDPSPluginResource.SpellDamage}", RegexOptions.Compiled)));
             ActGlobals.oFormEncounterLogs.LogTypeToColorMapping.Add(regexTupleList.Count, regexTupleList[regexTupleList.Count - 1].Item1);
-            regexTupleList.Add(new Tuple<Color, Regex>(Color.Maroon, new Regex($@"{TimeStamp} {ZoneChange}", RegexOptions.Compiled)));
+            regexTupleList.Add(new Tuple<Color, Regex>(Color.Maroon, new Regex($@"{TimeStamp} {EverQuestDPSPluginResource.ZoneChange}", RegexOptions.Compiled)));
             ActGlobals.oFormEncounterLogs.LogTypeToColorMapping.Add(regexTupleList.Count, regexTupleList[regexTupleList.Count - 1].Item1);
-            regexTupleList.Add(new Tuple<Color, Regex>(Color.DarkBlue, new Regex($@"{TimeStamp} {Heal}", RegexOptions.Compiled)));
+            regexTupleList.Add(new Tuple<Color, Regex>(Color.DarkBlue, new Regex($@"{TimeStamp} {EverQuestDPSPluginResource.Heal}", RegexOptions.Compiled)));
             ActGlobals.oFormEncounterLogs.LogTypeToColorMapping.Add(regexTupleList.Count, regexTupleList[regexTupleList.Count - 1].Item1);
-            regexTupleList.Add(new Tuple<Color, Regex>(Color.Silver, new Regex($@"{TimeStamp} {Unknown}", RegexOptions.Compiled)));
+            regexTupleList.Add(new Tuple<Color, Regex>(Color.Silver, new Regex($@"{TimeStamp} {EverQuestDPSPluginResource.Unknown}", RegexOptions.Compiled)));
             ActGlobals.oFormEncounterLogs.LogTypeToColorMapping.Add(regexTupleList.Count, regexTupleList[regexTupleList.Count - 1].Item1);
             regexTupleList.Add(new Tuple<Color, Regex>(Color.DeepSkyBlue, new Regex($@"{TimeStamp} {Evasion}", RegexOptions.Compiled)));
             ActGlobals.oFormEncounterLogs.LogTypeToColorMapping.Add(regexTupleList.Count, regexTupleList[regexTupleList.Count - 1].Item1);
-            regexTupleList.Add(new Tuple<Color, Regex>(Color.LightBlue, new Regex($@"{TimeStamp} {Banestrike}", RegexOptions.Compiled)));
+            regexTupleList.Add(new Tuple<Color, Regex>(Color.LightBlue, new Regex($@"{TimeStamp} {EverQuestDPSPluginResource.Banestrike}", RegexOptions.Compiled)));
             ActGlobals.oFormEncounterLogs.LogTypeToColorMapping.Add(regexTupleList.Count, regexTupleList[regexTupleList.Count - 1].Item1);
-            regexTupleList.Add(new Tuple<Color, Regex>(Color.AliceBlue, new Regex($@"{TimeStamp} {SpellDamageOverTime}", RegexOptions.Compiled)));
+            regexTupleList.Add(new Tuple<Color, Regex>(Color.AliceBlue, new Regex($@"{TimeStamp} {EverQuestDPSPluginResource.SpellDamageOverTime}", RegexOptions.Compiled)));
             ActGlobals.oFormEncounterLogs.LogTypeToColorMapping.Add(regexTupleList.Count, regexTupleList[regexTupleList.Count - 1].Item1);
         }
 
@@ -430,7 +407,7 @@ namespace EverQuestDPSPlugin
                         MasterSwing masterSwingMelee = new MasterSwing(((((attackerAndTypeMelee.Item1 & EverQuestSwingType.Pet) == EverQuestSwingType.Pet) 
                             || ((victimAndTypeMelee.Item1 & EverQuestSwingType.Pet) == EverQuestSwingType.Pet)) 
                             ? EverQuestSwingType.PetMelee : EverQuestSwingType.Melee).GetEverQuestSwingTypeExtensionIntValue()
-                            , regexMatch.Groups["damageSpecial"].Success ? regexMatch.Groups["damageSpecial"].Value.Contains(SpecialCritical) : false
+                            , regexMatch.Groups["damageSpecial"].Success ? regexMatch.Groups["damageSpecial"].Value.Contains(EverQuestDPSPluginResource.Critical) : false
                             , regexMatch.Groups["damageSpecial"].Success ? regexMatch.Groups["damageSpecial"].Value : String.Empty
                             , new Dnum(Int64.Parse(regexMatch.Groups["damageAmount"].Value))
                             , ParseDateTime(regexMatch.Groups["dateTimeOfLogLine"].Value)
@@ -447,7 +424,7 @@ namespace EverQuestDPSPlugin
                     if (ActGlobals.oFormActMain.SetEncounter(ActGlobals.oFormActMain.LastKnownTime, CharacterNamePersonaReplace(regexMatch.Groups["attacker"].Value), CharacterNamePersonaReplace(regexMatch.Groups["victim"].Value)))
                     {
                         MasterSwing masterSwingDamageShield = new MasterSwing(EverQuestSwingType.NonMelee.GetEverQuestSwingTypeExtensionIntValue()
-                            , regexMatch.Groups["damageSpecial"].Value.Contains(SpecialCritical)
+                            , regexMatch.Groups["damageSpecial"].Value.Contains(EverQuestDPSPluginResource.Critical)
                             , regexMatch.Groups["damageSpecial"].Value
                             , new Dnum(Int64.Parse(regexMatch.Groups["damagePoints"].Value))
                             , ParseDateTime(regexMatch.Groups["dateTimeOfLogLine"].Value)
@@ -492,7 +469,7 @@ namespace EverQuestDPSPlugin
                     {
                         Dnum damage = new Dnum(Int64.Parse(regexMatch.Groups["damagePoints"].Value), regexMatch.Groups["typeOfDamage"].Value);
                         MasterSwing masterSwingSpellcast = new MasterSwing(EverQuestSwingType.DirectDamageSpell.GetEverQuestSwingTypeExtensionIntValue()
-                            , regexMatch.Groups["spellSpecial"].Success ? regexMatch.Groups["spellSpecial"].Value.Contains(SpecialCritical) : false
+                            , regexMatch.Groups["spellSpecial"].Success ? regexMatch.Groups["spellSpecial"].Value.Contains(EverQuestDPSPluginResource.Critical) : false
                             , regexMatch.Groups["spellSpecial"].Success ? regexMatch.Groups["spellSpeical"].Value : String.Empty
                             , damage
                             , ParseDateTime(regexMatch.Groups["dateTimeOfLogLine"].Value)
@@ -516,7 +493,7 @@ namespace EverQuestDPSPlugin
                     if (ActGlobals.oFormActMain.InCombat)
                     {
                         MasterSwing masterSwingHeal = new MasterSwing(regexMatch.Groups["overTime"].Success ? EverQuestSwingType.HealOverTime.GetEverQuestSwingTypeExtensionIntValue() : EverQuestSwingType.InstantHealing.GetEverQuestSwingTypeExtensionIntValue()
-                            , regexMatch.Groups["healingSpecial"].Success ? regexMatch.Groups["healingSpecial"].Value.Contains(SpecialCritical) : false
+                            , regexMatch.Groups["healingSpecial"].Success ? regexMatch.Groups["healingSpecial"].Value.Contains(EverQuestDPSPluginResource.Critical) : false
                             , regexMatch.Groups["healingSpecial"].Success ? regexMatch.Groups["healingSpecial"].Value : String.Empty
                             , new Dnum(Int64.Parse(regexMatch.Groups["healingPoints"].Value))
                             , ParseDateTime(regexMatch.Groups["dateTimeOfLogLine"].Value)
@@ -562,7 +539,7 @@ namespace EverQuestDPSPlugin
                     {
                         Dnum damage = new Dnum(Int64.Parse(regexMatch.Groups["damagePoints"].Value));
                         MasterSwing masterSwingSpellcast = new MasterSwing(EverQuestSwingType.DamageOverTimeSpell.GetEverQuestSwingTypeExtensionIntValue()
-                            , regexMatch.Groups["spellSpecial"].Value.Contains(SpecialCritical)
+                            , regexMatch.Groups["spellSpecial"].Value.Contains(EverQuestDPSPluginResource.Critical)
                             , regexMatch.Groups["spellSpecial"].Value
                             , damage
                             , ParseDateTime(regexMatch.Groups["dateTimeOfLogLine"].Value)
@@ -1136,95 +1113,95 @@ namespace EverQuestDPSPlugin
         private string AttackTypeGetCritTypes(AttackType Data)
         {
             List<MasterSwing> ms = Data.Items.ToList().Where((item) => item.Damage >= 0).ToList();
-            int specialCripplingBlow = 0;
-            int specialLocked = 0;
-            int specialCritical = 0;
-            int specialStrikethrough = 0;
-            int specialRiposte = 0;
-            int specialNonDefined = 0;
-            int specialFlurry = 0;
-            int specialLucky = 0;
-            int specialDoubleBowShot = 0;
-            int specialTwincast = 0;
-            int specialWildRampage = 0;
-            int specialFinishingBlow = 0;
+            int CripplingBlowCount = 0;
+            int LockedCount = 0;
+            int CriticalCount = 0;
+            int StrikethroughCount = 0;
+            int RiposteCount = 0;
+            int NonDefinedCount = 0;
+            int FlurryCount = 0;
+            int LuckyCount = 0;
+            int DoubleBowShotCount = 0;
+            int TwincastCount = 0;
+            int WildRampageCount = 0;
+            int FinishingBlowCount = 0;
             int count = ms.Count;
             if (count.Equals(0))
                 return String.Empty;
-            specialFinishingBlow = ms.Where((finishingBlow) => {
-                return finishingBlow.Special.Contains(SpecialFinishingBlow);
+            FinishingBlowCount = ms.Where((finishingBlow) => {
+                return finishingBlow.Special.Contains(EverQuestDPSPluginResource.FinishingBlow);
             }).Count();
-            specialCritical = ms.Where((critital) =>
+            CriticalCount = ms.Where((critital) =>
             {
-                return critital.Special.Contains(SpecialCritical);
+                return critital.Special.Contains(EverQuestDPSPluginResource.Critical);
             }).Count();
-            specialFlurry = ms.Where((flurry) =>
+            FlurryCount = ms.Where((flurry) =>
             {
-                return flurry.Special.Contains(SpecialFlurry);
+                return flurry.Special.Contains(EverQuestDPSPluginResource.Flurry);
             }).Count();
-            specialLucky = ms.Where((lucky) =>
+            LuckyCount = ms.Where((lucky) =>
             {
-                return lucky.Special.Contains(SpecialLucky);
+                return lucky.Special.Contains(EverQuestDPSPluginResource.Lucky);
             }).Count();
-            specialCripplingBlow = ms.Where((cripplingBlow) =>
+            CripplingBlowCount = ms.Where((cripplingBlow) =>
             {
                 return cripplingBlow.Special.Contains(SpecialCripplingBlow);
             }).Count();
-            specialLocked = ms.Where((locked) =>
+            LockedCount = ms.Where((locked) =>
             {
-                return locked.Special.Contains(SpecialLocked);
+                return locked.Special.Contains(EverQuestDPSPluginResource.Locked);
             }).Count();
-            specialStrikethrough = ms.Where((srikethrough) =>
+            StrikethroughCount = ms.Where((srikethrough) =>
             {
-                return srikethrough.Special.Contains(SpecialStrikethrough);
+                return srikethrough.Special.Contains(EverQuestDPSPluginResource.Strikethrough);
             }).Count();
-            specialRiposte = ms.Where((riposte) =>
+            RiposteCount = ms.Where((riposte) =>
             {
-                return riposte.Special.Contains(SpecialRiposte);
+                return riposte.Special.Contains(EverQuestDPSPluginResource.Riposte);
             }).Count();
-            specialDoubleBowShot = ms.Where((doubleBowShot) =>
+            DoubleBowShotCount = ms.Where((doubleBowShot) =>
             {
-                return doubleBowShot.Special.Contains(SpecialDoubleBowShot);
+                return doubleBowShot.Special.Contains(EverQuestDPSPluginResource.DoubleBowShot);
             }).Count();
-            specialTwincast = ms.Where((twincast) =>
+            TwincastCount = ms.Where((twincast) =>
             {
-                return twincast.Special.Contains(SpecialTwincast);
+                return twincast.Special.Contains(EverQuestDPSPluginResource.Twincast);
             }).Count();
-            specialWildRampage = ms.Where((twincast) =>
+            WildRampageCount = ms.Where((twincast) =>
             {
-                return twincast.Special.Contains(SpecialWildRampage);
+                return twincast.Special.Contains(EverQuestDPSPluginResource.WildRampage);
             }).Count();
-            specialNonDefined = ms.Where((nondefined) =>
+            NonDefinedCount = ms.Where((nondefined) =>
             {
-                return !nondefined.Special.Contains(SpecialTwincast) &&
-                    !nondefined.Special.Contains(SpecialDoubleBowShot) &&
-                    !nondefined.Special.Contains(SpecialRiposte) &&
-                    !nondefined.Special.Contains(SpecialCripplingBlow) &&
-                    !nondefined.Special.Contains(SpecialLucky) &&
-                    !nondefined.Special.Contains(SpecialFlurry) &&
-                    !nondefined.Special.Contains(SpecialCritical) &&
-                    !nondefined.Special.Contains(SpecialWildRampage) &&
-                    !nondefined.Special.Contains(SpecialCripplingBlow) &&
-                    !nondefined.Special.Contains(SpecialStrikethrough) &&
-                    !nondefined.Special.Contains(SpecialFinishingBlow)
+                return !nondefined.Special.Contains(EverQuestDPSPluginResource.Twincast) &&
+                    !nondefined.Special.Contains(EverQuestDPSPluginResource.DoubleBowShot) &&
+                    !nondefined.Special.Contains(EverQuestDPSPluginResource.Riposte) &&
+                    !nondefined.Special.Contains(EverQuestDPSPluginResource.CripplingBlow) &&
+                    !nondefined.Special.Contains(EverQuestDPSPluginResource.Lucky) &&
+                    !nondefined.Special.Contains(EverQuestDPSPluginResource.Flurry) &&
+                    !nondefined.Special.Contains(EverQuestDPSPluginResource.Critical) &&
+                    !nondefined.Special.Contains(EverQuestDPSPluginResource.WildRampage) &&
+                    !nondefined.Special.Contains(EverQuestDPSPluginResource.CripplingBlow) &&
+                    !nondefined.Special.Contains(EverQuestDPSPluginResource.Strikethrough) &&
+                    !nondefined.Special.Contains(EverQuestDPSPluginResource.FinishingBlow)
                     && nondefined.Special.Length > ActGlobals.ActLocalization.LocalizationStrings["specialAttackTerm-none"].DisplayedText.Length;
 
             }).Count();
 
-            float specialCripplingBlowPerc = ((float)specialCripplingBlow / (float)count) * 100f;
-            float specialLockedPerc = ((float)specialLocked / (float)count) * 100f;
-            float specialCriticalPerc = ((float)specialCritical / (float)count) * 100f;
-            float specialNonDefinedPerc = ((float)specialNonDefined / (float)count) * 100f;
-            float specialStrikethroughPerc = ((float)specialStrikethrough / (float)count) * 100f;
-            float specialRipostePerc = ((float)specialRiposte / (float)count) * 100f;
-            float specialFlurryPerc = ((float)specialFlurry / (float)count) * 100f;
-            float speicalLuckyPerc = ((float)specialLucky / (float)count) * 100f;
-            float specialDoubleBowShotPerc = ((float)specialDoubleBowShot / (float)count) * 100f;
-            float specialTwincastPerc = ((float)specialTwincast / (float)count) * 100f;
-            float specialWildRampagePerc = ((float)specialWildRampage / (float)count) * 100f;
-            float specialFinishingBlowPerc = ((float)specialFinishingBlow / (float)count) * 100f;
+            float CripplingBlowPerc = ((float)CripplingBlowCount / (float)count) * 100f;
+            float LockedPerc = ((float)LockedCount / (float)count) * 100f;
+            float CriticalPerc = ((float)CriticalCount / (float)count) * 100f;
+            float NonDefinedPerc = ((float)NonDefinedCount / (float)count) * 100f;
+            float StrikethroughPerc = ((float)StrikethroughCount / (float)count) * 100f;
+            float RipostePerc = ((float)RiposteCount / (float)count) * 100f;
+            float FlurryPerc = ((float)FlurryCount / (float)count) * 100f;
+            float LuckyPerc = ((float)LuckyCount / (float)count) * 100f;
+            float DoubleBowShotPerc = ((float)DoubleBowShotCount / (float)count) * 100f;
+            float TwincastPerc = ((float)TwincastCount / (float)count) * 100f;
+            float WildRampagePerc = ((float)WildRampageCount / (float)count) * 100f;
+            float FinishingBlowPerc = ((float)FinishingBlowCount / (float)count) * 100f;
 
-            return $"{specialCripplingBlowPerc:000.0}%CB-{specialLockedPerc:000.0}%Locked-{specialCriticalPerc:000.0}%C-{specialStrikethroughPerc:000.0}%S-{specialRipostePerc:000.0}%R-{specialFlurryPerc:000.0}%F-{speicalLuckyPerc:000.0}%Lucky-{specialDoubleBowShotPerc:000.0}%DB-{specialTwincastPerc:000.0}%TC-{specialWildRampagePerc:000.0}%WR-{specialFinishingBlow:000.0}%FB-{specialNonDefinedPerc:000.0}%ND";
+            return $"{CripplingBlowPerc:000.0}%CB-{LockedPerc:000.0}%Locked-{CriticalPerc:000.0}%C-{StrikethroughPerc:000.0}%S-{RipostePerc:000.0}%R-{FlurryPerc:000.0}%F-{LuckyPerc:000.0}%Lucky-{DoubleBowShotPerc:000.0}%DB-{TwincastPerc:000.0}%TC-{WildRampagePerc:000.0}%WR-{FinishingBlowPerc:000.0}%FB-{NonDefinedPerc:000.0}%ND";
         }
 
         private string GetAttackTypeSwingType(AttackType Data)
@@ -1254,15 +1231,15 @@ namespace EverQuestDPSPlugin
                 {
                     case true:
                         if(lblStatus.InvokeRequired)
-                            this.lblStatus.Invoke(new Action(() => { this.lblStatus.Text = $"Reporting population variance {pluginName}"; } ));
+                            this.lblStatus.Invoke(new Action(() => { this.lblStatus.Text = $"Reporting population variance {EverQuestDPSPluginResource.pluginName}"; } ));
                         else
-                            this.lblStatus.Text = $"Reporting population variance {pluginName}";
+                            this.lblStatus.Text = $"Reporting population variance {EverQuestDPSPluginResource.pluginName}";
                         break;
                     case false:
                         if(lblStatus.InvokeRequired)
-                            this.lblStatus.Invoke(new Action(() => { this.lblStatus.Text = $"Reporting sample variance {pluginName}"; }));
+                            this.lblStatus.Invoke(new Action(() => { this.lblStatus.Text = $"Reporting sample variance {EverQuestDPSPluginResource.pluginName}"; }));
                         else
-                            this.lblStatus.Text = $"Reporting sample variance {pluginName}";
+                            this.lblStatus.Text = $"Reporting sample variance {EverQuestDPSPluginResource.pluginName}";
                         break;
                 }
         }

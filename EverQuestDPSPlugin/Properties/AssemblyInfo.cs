@@ -30,5 +30,5 @@ using System.Runtime.InteropServices;
 [assembly: AssemblyVersion("0.0.0.25")]
 [assembly: AssemblyFileVersion("0.0.0.25")]
 //[assembly: AssemblyVersion("0.0.0.24")]
-[assembly: AssemblyFileVersion("0.0.1.24")]
+[assembly: AssemblyFileVersion("0.0.1.25")]
 [assembly: InternalsVisibleTo("EQDPSPluginUnitTests")]
