@@ -1,0 +1,36 @@
+# This workflow will build a .NET project
+# For more information see: https://docs.github.com/en/actions/automating-builds-and-tests/building-and-testing-net
+
+name: ACT EverQuest DPS Plugin
+
+on:
+  push:
+    branches:
+      - '*'
+    tags-ignore:
+      - '*'
+  pull_request:
+    branches: [ main ]
+
+  # Allows you to run this workflow manually from the Actions tab
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: windows-2019
+    steps:
+      - uses: actions/checkout@main
+      - name: Setup MSBuild
+        uses: microsoft/setup-msbuild@v1.1
+      - name: Download ACTv3 file
+        run: Invoke-WebRequest https://advancedcombattracker.com/download.php?id=57 -OutFile ${{ github.workspace }}\ACTv3.zip
+      - name: Extract ACT files
+        run: Expand-Archive -Path ${{ github.workspace }}\ACTv3.zip -DestinationPath .\
+      - name: Setup Nuget
+        uses: nuget/setup-nuget@v1
+      - name: Restore nuget packages
+        run: nuget restore EverQuestDPSPlugin.sln
+      - name: Build solution
+        run: msbuild -t:build -property:Configuration=Release EverQuestDPSPlugin.sln
+      - name: Test Solution
+        run: mstest /testcontainer:.\EQDPSPluginUnitTests\bin\Debug\EQDPSPluginUnitTests.dll
