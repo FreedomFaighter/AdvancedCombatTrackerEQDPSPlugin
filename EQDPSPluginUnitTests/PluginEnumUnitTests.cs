@@ -7,19 +7,19 @@ namespace EQDPSPluginUnitTests
     [TestClass]
     public sealed class PluginEnumUnitTests
     {
-        [TestMethod]
+        [TestMethod("MeleeAndPetEnumCharacterPossesiveType")]
         public void TestMeleeAndPetEnumCharacterPossesiveTypeAttackMethod()
         {
             Assert.AreEqual(EverQuestSwingType.Pet.CharacterPossesiveTypeAttack(EverQuestSwingType.Melee), EverQuestSwingType.PetMelee);
         }
 
-        [TestMethod]
+        [TestMethod("InstantHealingAndWardEnumCharacterPossessiveType")]
         public void TestInstantHealingAndWardEnumCharacterPossessiveTypeAttackMethod()
         {
             Assert.AreEqual(EverQuestSwingType.Ward.CharacterPossesiveTypeAttack(EverQuestSwingType.InstantHealing), EverQuestSwingType.WardInstantHealing);
         }
 
-        [TestMethod]
+        [TestMethod("HealingOverTimeAndWardEnumCharacterPossessive")]
         public void TestHealingOverTimeAndWardEnumCharacterPossessiveTypeAttackMethod()
         {
             Assert.AreEqual(EverQuestSwingType.Ward.CharacterPossesiveTypeAttack(EverQuestSwingType.HealOverTime), EverQuestSwingType.WardHealOverTime);
