@@ -25,6 +25,12 @@ jobs:
       - name: Download ACTv3 file
         run: Invoke-WebRequest https://advancedcombattracker.com/download.php?id=57 -OutFile ${{ github.workspace }}\ACTv3.zip
       - name: Extract ACT files
-        run: 7z x ${{ github.workspace }}\ACTv3.zip
+        run: Expand-Archive -Path ${{ github.workspace }}\ACTv3.zip -DestinationPath .\
+      - name: Setup Nuget
+        uses: nuget/setup-nuget@v1
+      - name: Restore nuget packages
+        run: nuget restore EverQuestDPSPlugin.sln
       - name: Build solution
         run: msbuild -t:build -property:Configuration=Release EverQuestDPSPlugin.sln
+      - name: Test Solution
+        run: mstest /testcontainer:.\EQDPSPluginUnitTests\bin\Debug\EQDPSPluginUnitTests.dll

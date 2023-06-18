@@ -8,3 +8,5 @@ bin/
 EverQuestDPSPlugin/EverQuestDPSPlugin.csproj.user
 /UpgradeLog.htm
 /packages/NUnit.3.13.3
+/packages
+TestResults/

@@ -1,6 +1,4 @@
-﻿//Currently attack types in view of being parsed
-
-namespace EverQuestDPSPlugin
+﻿namespace EverQuestDPSPlugin
 {
     internal enum EverQuestSwingType : int
     {
@@ -27,6 +25,21 @@ namespace EverQuestDPSPlugin
         internal static int GetEverQuestSwingTypeExtensionIntValue(this EverQuestSwingType type)
         {
             return (int)type;
+        }
+
+        public static EverQuestSwingType CharacterPossesiveTypeAttack(this EverQuestSwingType possessiveOf, EverQuestSwingType everQuestAttackType)
+        {
+            switch (possessiveOf)
+            {
+                case EverQuestSwingType.Pet:
+                    return EverQuestSwingType.Pet | everQuestAttackType;
+                case EverQuestSwingType.Warder:
+                    return EverQuestSwingType.Warder | everQuestAttackType;
+                case EverQuestSwingType.Ward:
+                    return EverQuestSwingType.Ward | everQuestAttackType;
+                default:
+                    return everQuestAttackType;
+            }
         }
     }
 }
