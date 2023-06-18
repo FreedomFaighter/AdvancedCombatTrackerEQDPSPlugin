@@ -1,4 +1,5 @@
 ﻿using Advanced_Combat_Tracker;
+using EverQuestDPSPlugin.Interfaces;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -34,7 +35,7 @@ using System.Xml;
 
 namespace EverQuestDPSPlugin
 {
-    public class EverQuestDPSPlugin : UserControl, IActPluginV1
+    public class EverQuestDPSPlugin : UserControl, IActPluginV1, IEverQuestDPSPlugin
     {
 		#region Designer Created Code (Avoid editing)
         #region Designer generated code (Avoid editing)
@@ -168,8 +169,8 @@ namespace EverQuestDPSPlugin
         }
 
         //      readonly String fallDamage = @"(?<victim>.*) (?:ha[s|ve]) taken (?<pointsOfDamage>[\d]+) (?point[|s]) of fall damage.";
-        bool populationVariance = false;
-        nonmatch nm = null;
+        bool populationVariance;
+        nonmatch nm;
         SortedList<string, AposNameFix> aposNameList = new SortedList<string, AposNameFix>();
         TreeNode optionsNode = null;
         Label lblStatus;    // The status label that appears in ACT's Plugin tab
@@ -637,7 +638,7 @@ namespace EverQuestDPSPlugin
                 varianceChkBx.Invoke(new Action<object, EventArgs>(VarianceChkBx_CheckedChanged));
             else
                 this.populationVariance = varianceChkBx.Checked;
-            ChangeNonmatchFormCheckBox(nonMatchVisibleChkbx.Checked);
+            nonMatchVisible_CheckedChanged(nonMatchVisibleChkbx, new EventArgs());
         }
 
         void SaveSettings()

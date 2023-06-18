@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Windows.Forms;
 using System.Collections.Generic;
+using EverQuestDPSPlugin.Interfaces;
 
 namespace EverQuestDPSPlugin
 {
@@ -8,19 +9,17 @@ namespace EverQuestDPSPlugin
     public partial class nonmatch : Form
     {
         List<String> logLine = new List<string>();
-        EverQuestDPSPlugin parentPlugin;
+        IEverQuestDPSPlugin pluginControl;
         public nonmatch(EverQuestDPSPlugin eqdpsp)
         {
             InitializeComponent();
-            parentPlugin = eqdpsp;
+            pluginControl = eqdpsp;
 
             FormClosed += new FormClosedEventHandler(new Action<object, FormClosedEventArgs>((o, f) =>
             {
-                parentPlugin.ChangeNonmatchFormCheckBox(false);
+                pluginControl.ChangeNonmatchFormCheckBox(false);
             }));
         }
-
-
 
         public void addLogLineToForm(String logline)
         {
