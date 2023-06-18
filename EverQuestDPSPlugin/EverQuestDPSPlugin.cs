@@ -151,7 +151,7 @@ namespace EverQuestDPSPlugin
 
         Regex tellsregex = new Regex($@"{TimeStamp} (?<CharacterName>.+) (tells|told|says|said)", RegexOptions.Compiled);
         bool nonMatchVisible = false;
-        private CheckBox nonMatchVisibleChkbx;
+        
         public void ChangeNonmatchFormCheckBox(bool Checked)
         {
             if (nonMatchVisibleChkbx.InvokeRequired)
@@ -175,6 +175,7 @@ namespace EverQuestDPSPlugin
         Label lblStatus;    // The status label that appears in ACT's Plugin tab
         string settingsFile;
         private CheckBox varianceChkBx;
+        private CheckBox nonMatchVisibleChkbx;
         SettingsSerializer xmlSettings;
         #endregion
 
@@ -212,11 +213,12 @@ namespace EverQuestDPSPlugin
                 pluginScreenSpace.Controls.Add(lblConfig);
             }
 
-            nm = new nonmatch(this);
+            
 
             xmlSettings = new SettingsSerializer(this); // Create a new settings serializer and pass it this instance
+            nm = new nonmatch(this);
             LoadSettings();
-
+            
             PopulateRegexArray();
             SetupEverQuestEnvironment();
             ActGlobals.oFormActMain.GetDateTimeFromLog += new FormActMain.DateTimeLogParser(ParseDateTime);
@@ -241,10 +243,11 @@ namespace EverQuestDPSPlugin
 
         public void DeInitPlugin()
         {
+            
+
             ActGlobals.oFormActMain.GetDateTimeFromLog -= ParseDateTime;
             ActGlobals.oFormActMain.BeforeLogLineRead -= FormActMain_BeforeLogLineRead;
             ActGlobals.oFormActMain.UpdateCheckClicked -= UpdateCheckClicked;
-            
 
             if (optionsNode != null)    // If we added our user control to the Options tab, remove it
             {
@@ -253,6 +256,7 @@ namespace EverQuestDPSPlugin
             }
 
             SaveSettings();
+            nm.Close();
             lblStatus.Text = $"{pluginName} Plugin Exited";
         }
 
@@ -350,8 +354,6 @@ namespace EverQuestDPSPlugin
             ActGlobals.oFormEncounterLogs.LogTypeToColorMapping.Add(regexTupleList.Count, regexTupleList[regexTupleList.Count - 1].Item1);
             regexTupleList.Add(new Tuple<Color, Regex>(Color.AliceBlue, new Regex($@"{TimeStamp} {SpellDamageOverTime}", RegexOptions.Compiled)));
             ActGlobals.oFormEncounterLogs.LogTypeToColorMapping.Add(regexTupleList.Count, regexTupleList[regexTupleList.Count - 1].Item1);
-            //regexTupleList.Add(new Tuple<Color, Regex>(Color.PaleVioletRed, new Regex($@"{TimeStamp} {fallDamage}", RegexOptions.Compiled)));
-            //ActGlobals.oFormEncounterLogs.LogTypeToColorMapping.Add(regexTupleList.Count, regexTupleList[regexTupleList.Count - 1].Item1);
         }
 
         void AddLogLineToNonMatch(String message)
@@ -369,10 +371,6 @@ namespace EverQuestDPSPlugin
 
         void FormActMain_BeforeLogLineRead(bool isImport, LogLineEventArgs logInfo)
         {
-            //regexTupleList.FirstOrDefault((tuple) =>
-            //{
-            //    return (tuple.Item2.Match(logInfo.logLine)).Success;
-            //});
             bool match = false;
             for (int i = 0; i < regexTupleList.Count; i++)
             {
@@ -639,6 +637,7 @@ namespace EverQuestDPSPlugin
                 varianceChkBx.Invoke(new Action<object, EventArgs>(VarianceChkBx_CheckedChanged));
             else
                 this.populationVariance = varianceChkBx.Checked;
+            ChangeNonmatchFormCheckBox(nonMatchVisibleChkbx.Checked);
         }
 
         void SaveSettings()
@@ -1272,6 +1271,39 @@ namespace EverQuestDPSPlugin
                 }
         }
 
+        private void nonMatchVisible_CheckedChanged(object sender, EventArgs e)
+        {
+            this.nonMatchVisible = (sender as CheckBox).Checked;
+            if (nm == null || nm.IsDisposed) { nm = new nonmatch(this); }
+            switch (this.nonMatchVisible)
+            {
+                case true:
+                    (sender as CheckBox).Enabled = false;
+                    if (this.nm.InvokeRequired)
+                        nm.Invoke(new Action(() =>
+                        {
+                            nm.Visible = this.nonMatchVisible;
+                        }));
+                    else
+                        nm.Visible = this.nonMatchVisible;
+                    (sender as CheckBox).Enabled = true;
+                    break;
+                case false:
+                    (sender as CheckBox).Enabled = false;
+                    if (this.nm.InvokeRequired)
+                        nm.Invoke(new Action(() =>
+                        {
+                            nm.Visible = this.nonMatchVisible;
+                        }));
+                    else
+                        nm.Visible = this.nonMatchVisible;
+                    (sender as CheckBox).Enabled = true;
+                    break;
+                default:
+                    break;
+            }
+        }
+
         private string EncounterFormatSwitch(EncounterData Data, List<CombatantData> SelectiveAllies, string VarName, string Extra)
         {
             long damage = 0;
@@ -1579,37 +1611,6 @@ namespace EverQuestDPSPlugin
                     return VarName;
             }
         }
-        private void nonMatchVisible_CheckedChanged(object sender, EventArgs e)
-        {
-            this.nonMatchVisible = (sender as CheckBox).Checked;
-            if(nm.IsDisposed) { nm = new nonmatch(this); }
-            switch((sender as CheckBox).CheckState)
-            {
-                case CheckState.Checked:
-                    (sender as CheckBox).Enabled = false;
-                    if (this.nm.InvokeRequired)
-                        nm.Invoke(new Action(() =>
-                        {
-                            nm.Visible = this.nonMatchVisible;
-                        }));
-                    else
-                        nm.Visible = this.nonMatchVisible;
-                    (sender as CheckBox).Enabled = true;
-                break;
-                case CheckState.Unchecked:
-                    (sender as CheckBox).Enabled = false;
-                    if (this.nm.InvokeRequired)
-                        nm.Invoke(new Action(() =>
-                        {
-                            nm.Visible = this.nonMatchVisible;
-                        }));
-                    else
-                            nm.Visible = this.nonMatchVisible;
-                    (sender as CheckBox).Enabled = true;
-                break;
-                case CheckState.Indeterminate:
-                    break;
-            }
-        }
+ 
     }
 }
