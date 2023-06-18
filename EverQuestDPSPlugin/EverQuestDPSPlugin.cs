@@ -1140,7 +1140,7 @@ namespace EverQuestDPSPlugin
 
         private string AttackTypeGetCritTypes(AttackType Data)
         {
-            List<MasterSwing> ms = Data.Items.Where((item) => item.Damage >= 0).ToList();
+            List<MasterSwing> ms = Data.Items.ToList().Where((item) => item.Damage >= 0).ToList();
             int specialCripplingBlow = 0;
             int specialLocked = 0;
             int specialCritical = 0;
