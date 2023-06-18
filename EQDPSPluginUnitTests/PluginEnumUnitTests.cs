@@ -24,5 +24,11 @@ namespace EQDPSPluginUnitTests
         {
             Assert.AreEqual(EverQuestSwingType.Ward.CharacterPossesiveTypeAttack(EverQuestSwingType.HealOverTime), EverQuestSwingType.WardHealOverTime);
         }
+
+        [TestMethod("MeleeAndCharacterEnumCharacterPossesive")]
+        public void TestMeleeAndCharacterEnumCharacterPossesiveTypeAttackMethod()
+        {
+            Assert.AreEqual(((EverQuestSwingType)0).CharacterPossesiveTypeAttack(EverQuestSwingType.Melee), EverQuestSwingType.Melee);
+        }
     }
 }
