@@ -1081,7 +1081,7 @@ namespace EverQuestDPSPlugin
             }).Count();
             CriticalCount = ms.Where((critital) =>
             {
-                return critital.Special.Contains(EverQuestDPSPluginResource.Critical);
+                return critital.Critical;
             }).Count();
             FlurryCount = ms.Where((flurry) =>
             {
