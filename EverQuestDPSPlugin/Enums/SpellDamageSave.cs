@@ -11,6 +11,5 @@ namespace EverQuestDPSPlugin.Enums
         Disease = 8,
         Magic = 16,
         Corruption = 32,
-        Unresistable = 64
     }
 }
