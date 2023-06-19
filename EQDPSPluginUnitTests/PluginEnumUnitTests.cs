@@ -30,5 +30,17 @@ namespace EQDPSPluginUnitTests
         {
             Assert.AreEqual(((EverQuestSwingType)0).CharacterPossesiveTypeAttack(EverQuestSwingType.Melee), EverQuestSwingType.Melee);
         }
+
+        [TestMethod("NonMeleeAndCharacterEnumCharacterPossesive")]
+        public void TestNonMeleeAndCharacterEnumCharacterPossesiveTypeAttackMethod()
+        {
+            Assert.AreEqual(((EverQuestSwingType)0).CharacterPossesiveTypeAttack(EverQuestSwingType.NonMelee), EverQuestSwingType.NonMelee);
+        }
+
+        [TestMethod("MeleeIncomingAndPetEnumCharacterPossessive")]
+        public void TestMeleeIncomingAndPetEnumCharacterPossessiveTypeAttackMethod()
+        {
+            Assert.AreEqual(EverQuestSwingType.Pet.CharacterPossesiveTypeAttack(EverQuestSwingType.Melee | EverQuestSwingType.Incoming), EverQuestSwingType.Incoming | EverQuestSwingType.Melee);
+        }
     }
 }
