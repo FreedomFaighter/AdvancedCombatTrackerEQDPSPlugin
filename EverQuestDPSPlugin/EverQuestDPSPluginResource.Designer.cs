@@ -241,7 +241,7 @@ namespace EverQuestDPSPlugin {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to (?&lt;attacker&gt;.+) ha(ve|s) slain (?&lt;victim&gt;.+)!.
+        ///   Looks up a localized string similar to (?&lt;attacker&gt;.+) (?:(ha(ve|s) been slain by|have slain)) (?&lt;victim&gt;.+)!.
         /// </summary>
         internal static string SlainMessage {
             get {
@@ -273,6 +273,15 @@ namespace EverQuestDPSPlugin {
         internal static string Strikethrough {
             get {
                 return ResourceManager.GetString("Strikethrough", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to (?&lt;CharacterName&gt;.+) (tells|told|say(|s)|said).
+        /// </summary>
+        internal static string tellsRegex {
+            get {
+                return ResourceManager.GetString("tellsRegex", resourceCulture);
             }
         }
         
