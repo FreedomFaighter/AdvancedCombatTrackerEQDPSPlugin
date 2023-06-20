@@ -67,49 +67,66 @@ namespace EverQuestDPSPlugin
         {
             this.varianceChkBx = new System.Windows.Forms.CheckBox();
             this.nonMatchVisibleChkbx = new System.Windows.Forms.CheckBox();
+            this.label1 = new System.Windows.Forms.Label();
+            this.richTextBox1 = new System.Windows.Forms.RichTextBox();
             this.SuspendLayout();
             // 
             // varianceChkBx
             // 
             this.varianceChkBx.AutoSize = true;
-            this.varianceChkBx.Location = new System.Drawing.Point(14, 21);
+            this.varianceChkBx.Location = new System.Drawing.Point(19, 26);
+            this.varianceChkBx.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
             this.varianceChkBx.Name = "varianceChkBx";
-            this.varianceChkBx.Size = new System.Drawing.Size(320, 17);
+            this.varianceChkBx.Size = new System.Drawing.Size(398, 20);
             this.varianceChkBx.TabIndex = 19;
             this.varianceChkBx.Text = "Population Variance (checked)/Sample Variance (unchecked)";
             this.varianceChkBx.UseVisualStyleBackColor = true;
             this.varianceChkBx.CheckedChanged += new System.EventHandler(this.VarianceChkBx_CheckedChanged);
             // 
-            // nonMatchVisibleChbx
+            // nonMatchVisibleChkbx
             // 
             this.nonMatchVisibleChkbx.AutoSize = true;
-            this.nonMatchVisibleChkbx.Location = new System.Drawing.Point(14, 58);
-            this.nonMatchVisibleChkbx.Name = "nonMatchVisibleChbx";
-            this.nonMatchVisibleChkbx.Size = new System.Drawing.Size(108, 17);
+            this.nonMatchVisibleChkbx.Location = new System.Drawing.Point(19, 71);
+            this.nonMatchVisibleChkbx.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
+            this.nonMatchVisibleChkbx.Name = "nonMatchVisibleChkbx";
+            this.nonMatchVisibleChkbx.Size = new System.Drawing.Size(132, 20);
             this.nonMatchVisibleChkbx.TabIndex = 20;
             this.nonMatchVisibleChkbx.Text = "NonMatch visible";
             this.nonMatchVisibleChkbx.UseVisualStyleBackColor = true;
             this.nonMatchVisibleChkbx.CheckedChanged += new System.EventHandler(this.nonMatchVisible_CheckedChanged);
             // 
+            // label1
+            // 
+            this.label1.AutoSize = true;
+            this.label1.Location = new System.Drawing.Point(19, 134);
+            this.label1.Name = "label1";
+            this.label1.Size = new System.Drawing.Size(54, 16);
+            this.label1.TabIndex = 21;
+            this.label1.Text = "License";
+            // 
+            // richTextBox1
+            // 
+            this.richTextBox1.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
+            this.richTextBox1.Location = new System.Drawing.Point(22, 171);
+            this.richTextBox1.Name = "richTextBox1";
+            this.richTextBox1.Size = new System.Drawing.Size(375, 305);
+            this.richTextBox1.TabIndex = 22;
+            this.richTextBox1.Text = "";
+            // 
             // EverQuestDPSPlugin
             // 
-			this.textBox1.Location = new System.Drawing.Point(6, 16);
-			this.textBox1.Name = "textBox1";
-			this.textBox1.Size = new System.Drawing.Size(431, 20);
-			this.textBox1.TabIndex = 1;
-			this.textBox1.Text = "Sample TextBox that has its value stored to the settings file automatically.";
-			// 
-			// PluginSample
-			// 
-            this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
+            this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 16F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.AutoSize = true;
             this.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink;
+            this.Controls.Add(this.richTextBox1);
+            this.Controls.Add(this.label1);
             this.Controls.Add(this.nonMatchVisibleChkbx);
             this.Controls.Add(this.varianceChkBx);
-            this.MinimumSize = new System.Drawing.Size(200, 400);
+            this.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
+            this.MinimumSize = new System.Drawing.Size(267, 492);
             this.Name = "EverQuestDPSPlugin";
-            this.Size = new System.Drawing.Size(337, 400);
+            this.Size = new System.Drawing.Size(421, 492);
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -133,6 +150,8 @@ namespace EverQuestDPSPlugin
         string settingsFile;
         private CheckBox varianceChkBx;
         private CheckBox nonMatchVisibleChkbx;
+        private Label label1;
+        private RichTextBox richTextBox1;
         SettingsSerializer xmlSettings;
         #endregion
 
@@ -193,7 +212,13 @@ namespace EverQuestDPSPlugin
             ActGlobals.oFormActMain.ZoneChangeRegex = new Regex(regexString(EverQuestDPSPluginResource.ZoneChange), RegexOptions.Compiled);
             String lblMessage = $"{EverQuestDPSPluginResource.pluginName} Plugin Started";
             changeLblStatus(lblMessage);
-
+            if (richTextBox1.InvokeRequired)
+                richTextBox1.Invoke(new Action(() =>
+                {
+                    richTextBox1.Text = EverQuestDPSPluginResource.LICENSE;
+                }));
+            else
+                richTextBox1.Text = EverQuestDPSPluginResource.LICENSE;
         }
 
         public void DeInitPlugin()

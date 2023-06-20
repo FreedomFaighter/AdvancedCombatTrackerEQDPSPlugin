@@ -87,9 +87,13 @@
     <EmbeddedResource Include="EverQuestDPSPluginResource.resx">
       <Generator>ResXFileCodeGenerator</Generator>
       <LastGenOutput>EverQuestDPSPluginResource.Designer.cs</LastGenOutput>
+      <SubType>Designer</SubType>
     </EmbeddedResource>
     <EmbeddedResource Include="nonmatch.resx">
       <DependentUpon>nonmatch.cs</DependentUpon>
     </EmbeddedResource>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\LICENSE.txt" />
   </ItemGroup>
 </Project>
