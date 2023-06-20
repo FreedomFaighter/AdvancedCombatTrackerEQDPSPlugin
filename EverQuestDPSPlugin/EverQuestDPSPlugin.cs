@@ -1179,7 +1179,7 @@ namespace EverQuestDPSPlugin
         private string GetAttackTypeSwingType(AttackType Data)
         {
             int? swingType = null;
-            List<String> swingTypes = Data.Items.Select(o => o.AttackType).Distinct().ToList();
+            List<String> swingTypes = Data.Items.ToList().Select(o => o.AttackType).Distinct().ToList();
             List<MasterSwing> cachedItems = new List<MasterSwing>();
             for (int i = 0; i < Data.Items.Count; i++)
             {
