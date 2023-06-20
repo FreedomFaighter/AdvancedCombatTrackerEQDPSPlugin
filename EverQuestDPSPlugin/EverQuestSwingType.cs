@@ -1,6 +1,6 @@
 ﻿namespace EverQuestDPSPlugin
 {
-    internal enum EverQuestSwingType : int
+    public enum EverQuestSwingType : int
     {
         Melee = 1,
         NonMelee = 2,
@@ -13,14 +13,18 @@
         Outgoing = 256,
         DirectDamageSpell = 512,
         DamageOverTimeSpell = 1024,
+        Ward = 2048,
         PetMelee = Pet | Melee,
         PetNonMelee = Pet | NonMelee,
-        Ward = 2048,
         WardInstantHealing = InstantHealing | Ward,
-        WardHealOverTime = HealOverTime | Ward
+        WardHealOverTime = HealOverTime | Ward,
+        WarderMelee = Warder | Melee,
+        WarderNonMelee = Warder | NonMelee,
+        WarderDirectDamageSpell = Warder | DirectDamageSpell,
+        WarderDamageOverTimeSpell = Warder | DamageOverTimeSpell,
     }
 
-    internal static class EverQuestSwingTypeExtensions
+    public static class EverQuestSwingTypeExtensions
     {
         internal static int GetEverQuestSwingTypeExtensionIntValue(this EverQuestSwingType type)
         {
