@@ -144,6 +144,7 @@ namespace EverQuestDPSPlugin
         private Label label1;
         private RichTextBox richTextBox1;
         SettingsSerializer xmlSettings;
+        object varianceChkBxLockObject = new object();
         #endregion
 
         public EverQuestDPSPlugin()
@@ -1041,24 +1042,27 @@ namespace EverQuestDPSPlugin
         {
             List<MasterSwing> ms = Data.Items.Where((item) => item.Damage.Number >= 0).ToList();
             double average;
-            if (!populationVariance && Data.Items.Count > 1)
+            lock (varianceChkBxLockObject)
             {
-                average = ms.Select((item) => item.Damage.Number).Average();
-                return ms.Sum((item) =>
+                if (!populationVariance && Data.Items.Count > 1)
+                {
+                    average = ms.Select((item) => item.Damage.Number).Average();
+                    return ms.Sum((item) =>
+                        {
+                            return Math.Pow(average - item.Damage.Number, 2.0);
+                        }) / (ms.Count - 1);
+                }
+                else if (populationVariance && Data.Items.Count > 0)
+                {
+                    average = ms.Select((item) => item.Damage.Number).Average();
+                    return ms.Sum((item) =>
                     {
                         return Math.Pow(average - item.Damage.Number, 2.0);
-                    }) / (ms.Count - 1);
+                    }) / ms.Count;
+                }
+                else
+                    return default;
             }
-            else if (populationVariance && Data.Items.Count > 0)
-            {
-                average = ms.Select((item) => item.Damage.Number).Average();
-                return ms.Sum((item) =>
-                {
-                    return Math.Pow(average - item.Damage.Number, 2.0);
-                }) / ms.Count;
-            }
-            else
-                return default;
         }
         #endregion
         //modified to display an empty string in the event no special type of attack is detected by the regex processing
@@ -1247,7 +1251,8 @@ namespace EverQuestDPSPlugin
         //checkbox processing event for population or sample variance
         private void VarianceChkBx_CheckedChanged(object sender, EventArgs e)
         {
-            this.populationVariance = (sender as CheckBox).Checked;
+            lock(varianceChkBxLockObject)
+                this.populationVariance = (sender as CheckBox).Checked;
             switch (this.populationVariance)
             {
                 case true:
