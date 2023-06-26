@@ -390,9 +390,14 @@ namespace EverQuestDPSPlugin
                     {
                         Tuple<EverQuestSwingType, String> attackerAndTypeMelee = GetTypeAndNameForPet(regexMatch.Groups["attacker"].Value);
                         Tuple<EverQuestSwingType, String> victimAndTypeMelee = GetTypeAndNameForPet(regexMatch.Groups["victim"].Value);
-                        MasterSwing masterSwingMelee = new MasterSwing(((((attackerAndTypeMelee.Item1 & EverQuestSwingType.Pet) == EverQuestSwingType.Pet)
-                            || ((victimAndTypeMelee.Item1 & EverQuestSwingType.Pet) == EverQuestSwingType.Pet))
-                            ? EverQuestSwingType.PetMelee : EverQuestSwingType.Melee).GetEverQuestSwingTypeExtensionIntValue()
+                        EverQuestSwingType everQuestSwingTypeToParse;
+                        if (((attackerAndTypeMelee.Item1 & EverQuestSwingType.Pet) == EverQuestSwingType.Pet) || ((victimAndTypeMelee.Item1 & EverQuestSwingType.Pet) == EverQuestSwingType.Pet))
+                            everQuestSwingTypeToParse = EverQuestSwingType.PetMelee;
+                        else if (((attackerAndTypeMelee.Item1 & EverQuestSwingType.Pet) == EverQuestSwingType.Pet) || ((victimAndTypeMelee.Item1 & EverQuestSwingType.Warder) == EverQuestSwingType.Warder))
+                            everQuestSwingTypeToParse = EverQuestSwingType.WarderMelee;
+                        else
+                            everQuestSwingTypeToParse = EverQuestSwingType.Melee;
+                        MasterSwing masterSwingMelee = new MasterSwing(everQuestSwingTypeToParse.GetEverQuestSwingTypeExtensionIntValue()
                             , regexMatch.Groups["damageSpecial"].Success ? regexMatch.Groups["damageSpecial"].Value.Contains(EverQuestDPSPluginResource.Critical) : false
                             , regexMatch.Groups["damageSpecial"].Success ? regexMatch.Groups["damageSpecial"].Value : String.Empty
                             , new Dnum(Int64.Parse(regexMatch.Groups["damageAmount"].Value))
@@ -892,6 +897,7 @@ namespace EverQuestDPSPlugin
             {"Instant Healed (Out)", new CombatantData.DamageTypeDef("Instant Healed (Out)", 1, Color.Blue)},
             {"Heal Over Time (Out)", new CombatantData.DamageTypeDef("Heal Over Time (Out)", 1, Color.DarkBlue)},
                 {"Pet Melee (Out)", new CombatantData.DamageTypeDef("Pet Melee (Out)", -1, Color.GreenYellow)},
+                {"Warder Melee (Out)", new CombatantData.DamageTypeDef("Warder Melee (Out)", -1, Color.Aqua)},
             {"All Outgoing (Ref)", new CombatantData.DamageTypeDef("All Outgoing (Ref)", 0, Color.Black)}
         };
             CombatantData.IncomingDamageTypeDataObjects = new Dictionary<string, CombatantData.DamageTypeDef>
@@ -903,6 +909,7 @@ namespace EverQuestDPSPlugin
             {"Instant Healed (Inc)",new CombatantData.DamageTypeDef("Instant Healed (Inc)", 1, Color.LimeGreen)},
             {"Heal Over Time (Inc)",new CombatantData.DamageTypeDef("Heal Over Time (Inc)", 1, Color.DarkGreen)},
             {"Pet Melee (Inc)", new CombatantData.DamageTypeDef("Pet Melee (Inc)", -1, Color.Green)},
+                {"Warder Melee (Inc)", new CombatantData.DamageTypeDef("Warder Melee (Inc)", -1, Color.Lavender)},
             {"All Incoming (Ref)",new CombatantData.DamageTypeDef("All Incoming (Ref)", 0, Color.Black)}
         };
             CombatantData.SwingTypeToDamageTypeDataLinksOutgoing = new SortedDictionary<int, List<string>>
@@ -913,7 +920,8 @@ namespace EverQuestDPSPlugin
             {EverQuestSwingType.DamageOverTimeSpell.GetEverQuestSwingTypeExtensionIntValue(), new List<string>{"Damage Over Time Spell (Out)", "Outgoing Damage"} },
             {EverQuestSwingType.InstantHealing.GetEverQuestSwingTypeExtensionIntValue(), new List<string> { "Instant Healed (Out)" } },
             {EverQuestSwingType.HealOverTime.GetEverQuestSwingTypeExtensionIntValue(), new List<string> { "Heal Over Time (Out)" } },
-            {EverQuestSwingType.PetMelee.GetEverQuestSwingTypeExtensionIntValue(), new List<string> { "Pet Melee (Out)" } }
+            {EverQuestSwingType.PetMelee.GetEverQuestSwingTypeExtensionIntValue(), new List<string> { "Pet Melee (Out)" } },
+            {EverQuestSwingType.WarderMelee.GetEverQuestSwingTypeExtensionIntValue(), new List<string> { "Warder Melee (Out)" } }
         };
             CombatantData.SwingTypeToDamageTypeDataLinksIncoming = new SortedDictionary<int, List<string>>
         {
@@ -923,7 +931,8 @@ namespace EverQuestDPSPlugin
             {EverQuestSwingType.InstantHealing.GetEverQuestSwingTypeExtensionIntValue(), new List<string> { "Instant Healed (Inc)" } },
             {EverQuestSwingType.DamageOverTimeSpell.GetEverQuestSwingTypeExtensionIntValue(), new List<string> {"Damage Over Time Spell (Inc)"} },
             {EverQuestSwingType.HealOverTime.GetEverQuestSwingTypeExtensionIntValue(), new List<string> { "Heal Over Time (Inc)" } },
-            {EverQuestSwingType.PetMelee.GetEverQuestSwingTypeExtensionIntValue(), new List<string> { "Pet Melee (Inc)" } }
+            {EverQuestSwingType.PetMelee.GetEverQuestSwingTypeExtensionIntValue(), new List<string> { "Pet Melee (Inc)" } },
+            {EverQuestSwingType.WarderMelee.GetEverQuestSwingTypeExtensionIntValue(), new List<string> { "Warder Melee (Inc)" } }
         };
 
             CombatantData.DamageSwingTypes = new List<int> {
@@ -933,6 +942,7 @@ namespace EverQuestDPSPlugin
                 EverQuestSwingType.DamageOverTimeSpell.GetEverQuestSwingTypeExtensionIntValue(),
                 EverQuestSwingType.Bane.GetEverQuestSwingTypeExtensionIntValue(),
                 EverQuestSwingType.PetMelee.GetEverQuestSwingTypeExtensionIntValue(),
+                EverQuestSwingType.WarderMelee.GetEverQuestSwingTypeExtensionIntValue(),
             };
             CombatantData.HealingSwingTypes = new List<int> { EverQuestSwingType.InstantHealing.GetEverQuestSwingTypeExtensionIntValue(), EverQuestSwingType.HealOverTime.GetEverQuestSwingTypeExtensionIntValue() };
 
