@@ -16,6 +16,8 @@
         Ward = 2048,
         PetMelee = Pet | Melee,
         PetNonMelee = Pet | NonMelee,
+        PetInstantHeal = Pet | InstantHealing,
+        PetHealOverTime = Pet | HealOverTime,
         WardInstantHealing = InstantHealing | Ward,
         WardHealOverTime = HealOverTime | Ward,
         WarderMelee = Warder | Melee,
