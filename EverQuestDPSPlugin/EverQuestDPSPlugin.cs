@@ -340,16 +340,18 @@ namespace EverQuestDPSPlugin
             Match possessiveMatch = possesive.Match(nameToSetTypeTo);
             if (possessiveMatch.Success)
             {
-                if (possessiveMatch.Groups["possesiveOf"].Value.Equals("pet"))
-                    return new Tuple<EverQuestSwingType, String>(EverQuestSwingType.Pet, nameToSetTypeTo.Substring(0, possessiveMatch.Index));
-                else if (possessiveMatch.Groups["possesiveOf"].Value.Equals("warder"))
-                    return new Tuple<EverQuestSwingType, String>(EverQuestSwingType.Warder, nameToSetTypeTo.Substring(0, possessiveMatch.Index));
-                else if (possessiveMatch.Groups["possesiveOf"].Value.Equals("ward"))
-                    return new Tuple<EverQuestSwingType, String>(EverQuestSwingType.Ward, nameToSetTypeTo.Substring(0, possessiveMatch.Index));
-                else
+                switch(possessiveMatch.Groups[0].Value)
                 {
-                    AddLogLineToNonMatch($@"{ActGlobals.oFormActMain.LastLogLine}");
-                    return new Tuple<EverQuestSwingType, String>(0, nameToSetTypeTo.Substring(0, possessiveMatch.Index)); ;
+                    case "pet":
+                        return new Tuple<EverQuestSwingType, String>(EverQuestSwingType.Pet, nameToSetTypeTo.Substring(0, possessiveMatch.Index));
+                    case "warder":
+                        return new Tuple<EverQuestSwingType, String>(EverQuestSwingType.Warder, nameToSetTypeTo.Substring(0, possessiveMatch.Index));
+                    case "ward":
+                        return new Tuple<EverQuestSwingType, String>(EverQuestSwingType.Ward, nameToSetTypeTo.Substring(0, possessiveMatch.Index));
+                    case "familiar":
+                        return new Tuple<EverQuestSwingType, string>(EverQuestSwingType.Familiar, nameToSetTypeTo.Substring(0, possessiveMatch.Index));
+                    default:
+                        return new Tuple<EverQuestSwingType, String>(0, nameToSetTypeTo.Substring(0, possessiveMatch.Index));
                 }
             }
             else
@@ -817,7 +819,7 @@ namespace EverQuestDPSPlugin
             CultureInfo usCulture = new CultureInfo("en-US");   // This is for SQL syntax; do not change
 
             EncounterData.ColumnDefs.Clear();
-            //                                                                                      Do not change the SqlDataName while doing localization
+            //Do not change the SqlDataName while doing localization
             EncounterData.ColumnDefs.Add("EncId", new EncounterData.ColumnDef("EncId", false, "CHAR(8)", "EncId", (Data) => { return string.Empty; }, (Data) => { return Data.EncId; }));
             EncounterData.ColumnDefs.Add("Title", new EncounterData.ColumnDef("Title", true, "VARCHAR(64)", "Title", (Data) => { return Data.Title; }, (Data) => { return Data.Title; }));
             EncounterData.ColumnDefs.Add("StartTime", new EncounterData.ColumnDef("StartTime", true, "TIMESTAMP", "StartTime", (Data) => { return Data.StartTime == DateTime.MaxValue ? "--:--:--" : String.Format("{0} {1}", Data.StartTime.ToShortDateString(), Data.StartTime.ToLongTimeString()); }, (Data) => { return Data.StartTime == DateTime.MaxValue ? "0000-00-00 00:00:00" : Data.StartTime.ToString("u").TrimEnd(new char[] { 'Z' }); }));
@@ -1042,7 +1044,30 @@ namespace EverQuestDPSPlugin
             MasterSwing.ColumnDefs.Add("AttackType", new MasterSwing.ColumnDef("AttackType", true, "VARCHAR(64)", "AttackType", (Data) => { return Data.AttackType; }, (Data) => { return Data.AttackType; }, (Left, Right) => { return Left.AttackType.CompareTo(Right.AttackType); }));
             MasterSwing.ColumnDefs.Add("DamageType", new MasterSwing.ColumnDef("DamageType", true, "VARCHAR(64)", "DamageType", (Data) => { return Data.DamageType; }, (Data) => { return Data.DamageType; }, (Left, Right) => { return Left.DamageType.CompareTo(Right.DamageType); }));
             MasterSwing.ColumnDefs.Add("Victim", new MasterSwing.ColumnDef("Victim", true, "VARCHAR(64)", "Victim", (Data) => { return Data.Victim; }, (Data) => { return Data.Victim; }, (Left, Right) => { return Left.Victim.CompareTo(Right.Victim); }));
-            MasterSwing.ColumnDefs.Add("DamageNum", new MasterSwing.ColumnDef("DamageNum", false, "BIGINT", "Damage", (Data) => { return ((long)Data.Damage).ToString(); }, (Data) => { return ((long)Data.Damage).ToString(); }, (Left, Right) => { return Left.Damage.CompareTo(Right.Damage); }));
+            MasterSwing.ColumnDefs.Add("DamageNum", new MasterSwing.ColumnDef("DamageNum", false, "BIGINT", "Damage", (Data) => {
+                switch((long)Data.Damage)
+                {
+                    case -1:
+                        return String.Empty;
+                    default:
+                        return ((long)Data.Damage).ToString();
+                }
+            }
+            , 
+            (Data) => {
+                switch ((long)Data.Damage)
+                {
+                    case -1:
+                        return String.Empty;
+                    default:
+                        return ((long)Data.Damage).ToString();
+                }
+            }, 
+            (Left, Right) => { 
+                return Left.Damage.CompareTo(Right.Damage); 
+            }
+            )
+                );
             MasterSwing.ColumnDefs.Add("Damage", new MasterSwing.ColumnDef("Damage", true, "VARCHAR(128)", "DamageString", (Data) => { return Data.Damage.ToString(); }, (Data) => { return Data.Damage.ToString(); }, (Left, Right) => { return Left.Damage.CompareTo(Right.Damage); }));
             MasterSwing.ColumnDefs.Add("Critical", new MasterSwing.ColumnDef("Critical", false, "BOOLEAN", "Critical", (Data) => { return Data.Critical.ToString(); }, (Data) => { return Data.Critical.ToString(usCulture)[0].ToString(); }, (Left, Right) => { return Left.Critical.CompareTo(Right.Critical); }));
             MasterSwing.ColumnDefs.Add("Special", new MasterSwing.ColumnDef("Special", true, "VARCHAR(90)", "Special", (Data) => { return Data.Special; }, (Data) => { return Data.Special; }, (Left, Right) => { return Left.Special.CompareTo(Left.Special); }));
@@ -1101,6 +1126,7 @@ namespace EverQuestDPSPlugin
             }
         }
         #endregion
+
         //modified to display an empty string in the event no special type of attack is detected by the regex processing
         private string CombatantDataGetCritTypes(CombatantData Data)
         {
@@ -1256,6 +1282,7 @@ namespace EverQuestDPSPlugin
             else
                 return swingType == null ? String.Empty : swingType.ToString();
         }
+
         #region User Interface Update code
         void changeLblStatus(String status)
         {
@@ -1355,6 +1382,7 @@ namespace EverQuestDPSPlugin
             }
         }
         #endregion
+
         private string EncounterFormatSwitch(EncounterData Data, List<CombatantData> SelectiveAllies, string VarName, string Extra)
         {
             long damage = 0;
