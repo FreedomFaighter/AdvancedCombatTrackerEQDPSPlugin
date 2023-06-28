@@ -17,6 +17,8 @@ namespace EQDPSPluginUnitTests
         [DataRow(EverQuestSwingType.WarderNonMelee, EverQuestSwingType.Warder | EverQuestSwingType.NonMelee)]
         [DataRow(EverQuestSwingType.WarderDirectDamageSpell, EverQuestSwingType.Warder | EverQuestSwingType.DirectDamageSpell)]
         [DataRow(EverQuestSwingType.WarderDamageOverTimeSpell, EverQuestSwingType.Warder | EverQuestSwingType.DamageOverTimeSpell)]
+        [DataRow(EverQuestSwingType.WardHealOverTime, EverQuestSwingType.Ward | EverQuestSwingType.HealOverTime)]
+        [DataRow(EverQuestSwingType.WardInstantHealing, EverQuestSwingType.Ward | EverQuestSwingType.InstantHealing)]
         public void EnumEqualityTests(EverQuestSwingType composite, EverQuestSwingType rawComposite)
         {
             Assert.AreEqual(composite, rawComposite);
