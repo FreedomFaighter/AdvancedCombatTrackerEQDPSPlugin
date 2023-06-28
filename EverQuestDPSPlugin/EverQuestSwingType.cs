@@ -14,6 +14,8 @@
         DirectDamageSpell = 512,
         DamageOverTimeSpell = 1024,
         Ward = 2048,
+        Familiar = 4096,
+        FamiliarDirectSpellDamage= Familiar | DirectDamageSpell,
         PetMelee = Pet | Melee,
         PetNonMelee = Pet | NonMelee,
         PetInstantHeal = Pet | InstantHealing,
