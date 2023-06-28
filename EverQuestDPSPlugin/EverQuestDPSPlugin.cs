@@ -450,7 +450,6 @@ namespace EverQuestDPSPlugin
                                 damage,
                                 "damageShieldDamageType",
                                 "Hitpoints");
-                        masterSwingDamageShield.Tags.Add("lastEstimatedTime", ActGlobals.oFormActMain.LastEstimatedTime);
                         ActGlobals.oFormActMain.AddCombatAction(masterSwingDamageShield);
                     }
                     break;
