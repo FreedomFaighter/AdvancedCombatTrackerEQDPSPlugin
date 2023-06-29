@@ -6,10 +6,10 @@ using System.Runtime.InteropServices;
 // associated with an assembly.
 [assembly: AssemblyProduct("EverQuest Damage Per Second Plugin for ACT")]
 [assembly: AssemblyCopyright("Copyright © 2023")]
-[assembly: AssemblyTrademark("")]
-[assembly: AssemblyCulture("")]
 [assembly: AssemblyTitle("ACT EverQuest Damage Per Second Parsing")]
 [assembly: AssemblyDescription("Plugin for ACT EverQuest Damage Per Second Parsing, based on: https://github.com/EQAditu/AdvancedCombatTracker")]
+[assembly: AssemblyCulture("en-US")]
+
 // Setting ComVisible to false makes the types in this assembly not visible 
 // to COM components.  If you need to access a type in this assembly from 
 // COM, set the ComVisible attribute to true on that type.
@@ -25,4 +25,4 @@ using System.Runtime.InteropServices;
 //      Build Number
 //      Revision
 //
-[assembly: AssemblyFileVersion("0.0.1.37")]
+[assembly: AssemblyFileVersion("0.0.1.38")]

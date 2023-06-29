@@ -1089,7 +1089,7 @@ namespace EverQuestDPSPlugin
             }));
 
             foreach (KeyValuePair<string, MasterSwing.ColumnDef> pair in MasterSwing.ColumnDefs)
-                pair.Value.GetCellForeColor = (Data) => { return GetSwingTypeColor(Data.SwingType); };
+                pair.Value.GetCellForeColor = (Data) => { return GetSwingTypeColor((EverQuestSwingType)Data.SwingType); };
 
             ActGlobals.oFormActMain.ValidateLists();
             ActGlobals.oFormActMain.ValidateTableSetup();
@@ -1160,23 +1160,40 @@ namespace EverQuestDPSPlugin
                 return String.Empty;
         }
 
-        private Color GetSwingTypeColor(int SwingType)
+        private Color GetSwingTypeColor(EverQuestSwingType eqst)
         {
-            switch (SwingType)
+            switch (eqst)
             {
-                case 1:
-                case 2:
-                    return Color.Crimson;
-                case 3:
-                    return Color.Blue;
-                case 4:
-                    return Color.DarkRed;
-                case 5:
-                    return Color.DarkOrange;
-                case 8:
-                    return Color.DarkOrchid;
-                case 9:
+                case EverQuestSwingType.Melee:
+                    return Color.DarkViolet;
+                case EverQuestSwingType.NonMelee:
+                    return Color.DarkSlateGray;
+                case EverQuestSwingType.InstantHealing:
                     return Color.DodgerBlue;
+                case EverQuestSwingType.HealOverTime:
+                    return Color.GreenYellow;
+                case EverQuestSwingType.Bane:
+                    return Color.Honeydew;
+                case EverQuestSwingType.WardInstantHealing:
+                    return Color.LemonChiffon;
+                case EverQuestSwingType.WardHealOverTime:
+                    return Color.LightSeaGreen;
+                case EverQuestSwingType.DamageOverTimeSpell:
+                    return Color.Olive;
+                case EverQuestSwingType.DirectDamageSpell:
+                    return Color.Yellow;
+                case EverQuestSwingType.PetMelee:
+                    return Color.Violet;
+                case EverQuestSwingType.PetNonMelee:
+                    return Color.CornflowerBlue;
+                case EverQuestSwingType.WarderMelee:
+                    return Color.MistyRose;
+                case EverQuestSwingType.WarderNonMelee:
+                    return Color.GreenYellow;
+                case EverQuestSwingType.WarderDirectDamageSpell:
+                    return Color.ForestGreen;
+                case EverQuestSwingType.WarderDamageOverTimeSpell:
+                    return Color.Thistle;
                 default:
                     return Color.Black;
             }
