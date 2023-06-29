@@ -465,8 +465,6 @@ namespace EverQuestDPSPlugin
                 //Death message
                 case 4:
                     MasterSwing masterSwingSlain = new MasterSwing(0, false, new Dnum(Dnum.Death), ActGlobals.oFormActMain.LastEstimatedTime, ActGlobals.oFormActMain.GlobalTimeSorter, String.Empty, CharacterNamePersonaReplace(regexMatch.Groups["attacker"].Value), String.Empty, CharacterNamePersonaReplace(regexMatch.Groups["victim"].Value));
-                    masterSwingSlain.Tags.Add("lastEstimatedTime", ActGlobals.oFormActMain.LastEstimatedTime);
-                    ActGlobals.oFormActMain.AddCombatAction(masterSwingSlain);
                     break;
                 //Spell Cast
                 case 5:
