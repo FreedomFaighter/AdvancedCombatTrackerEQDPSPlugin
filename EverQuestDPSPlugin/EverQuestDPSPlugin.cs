@@ -359,6 +359,10 @@ namespace EverQuestDPSPlugin
                         return new Tuple<EverQuestSwingType, String>(EverQuestSwingType.Ward, nameToSetTypeTo.Substring(0, possessiveMatch.Index));
                     case "familiar":
                         return new Tuple<EverQuestSwingType, string>(EverQuestSwingType.Familiar, nameToSetTypeTo.Substring(0, possessiveMatch.Index));
+                    case "flames":
+                        return new Tuple<EverQuestSwingType, string>(EverQuestSwingType.DamageShield, nameToSetTypeTo.Substring(0, possessiveMatch.Index));
+                    case "thorns":
+                        return new Tuple<EverQuestSwingType, string>(EverQuestSwingType.DamageShield, nameToSetTypeTo.Substring(0, possessiveMatch.Index));
                     default:
                         return new Tuple<EverQuestSwingType, String>(0, nameToSetTypeTo.Substring(0, possessiveMatch.Index));
                 }
@@ -396,8 +400,9 @@ namespace EverQuestDPSPlugin
                 everQuestSwingTypeToParseMelee = EverQuestSwingType.Warder;
             else if (((attackerAndTypeMelee.Item1 & EverQuestSwingType.Ward) == EverQuestSwingType.Ward) || ((victimAndTypeMelee.Item1 & EverQuestSwingType.Ward) == EverQuestSwingType.Ward))
                 everQuestSwingTypeToParseMelee = EverQuestSwingType.Ward;
-
-            MasterSwing masterSwingMelee = new MasterSwing((everQuestSwingTypeToParseMelee | attackTypeToCombine).GetEverQuestSwingTypeExtensionIntValue()
+            else if (((attackerAndTypeMelee.Item1 & EverQuestSwingType.NonMelee) == EverQuestSwingType.NonMelee) || ((victimAndTypeMelee.Item1 & EverQuestSwingType.NonMelee) == EverQuestSwingType.NonMelee))
+                everQuestSwingTypeToParseMelee = EverQuestSwingType.DamageShield;
+                MasterSwing masterSwingMelee = new MasterSwing((everQuestSwingTypeToParseMelee | attackTypeToCombine).GetEverQuestSwingTypeExtensionIntValue()
                 , logLineRegexMatch.Groups[specialGroupName].Success ? logLineRegexMatch.Groups[specialGroupName].Value.Contains(EverQuestDPSPluginResource.Critical) : false
                 , logLineRegexMatch.Groups[specialGroupName].Success ? logLineRegexMatch.Groups[specialGroupName].Value : String.Empty
                 , dnumValue
@@ -1192,6 +1197,8 @@ namespace EverQuestDPSPlugin
                     return Color.ForestGreen;
                 case EverQuestSwingType.WarderDamageOverTimeSpell:
                     return Color.Thistle;
+                case EverQuestSwingType.DamageShield:
+                    return Color.Green;
                 default:
                     return Color.Black;
             }
