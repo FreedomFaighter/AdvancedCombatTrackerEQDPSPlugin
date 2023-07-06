@@ -15,6 +15,7 @@
         DamageOverTimeSpell = 1024,
         Ward = 2048,
         Familiar = 4096,
+        DamageShield = 8192,
         FamiliarDirectSpellDamage= Familiar | DirectDamageSpell,
         PetMelee = Pet | Melee,
         PetNonMelee = Pet | NonMelee,
@@ -26,6 +27,8 @@
         WarderNonMelee = Warder | NonMelee,
         WarderDirectDamageSpell = Warder | DirectDamageSpell,
         WarderDamageOverTimeSpell = Warder | DamageOverTimeSpell,
+        PetDamageShield = Pet | DamageShield,
+        WarderDamageShield =    Warder | DamageShield,
     }
 
     public static class EverQuestSwingTypeExtensions
