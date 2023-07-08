@@ -383,6 +383,7 @@ namespace EverQuestDPSPlugin
         {
             Tuple<EverQuestSwingType, String> attackerAndTypeMelee = GetTypeAndNameForPet(logLineRegexMatch.Groups[character1GroupName].Value);
             Tuple<EverQuestSwingType, String> victimAndTypeMelee = GetTypeAndNameForPet(logLineRegexMatch.Groups[character2GroupName].Value);
+            String attacker, victim;
             EverQuestSwingType everQuestSwingTypeToParseMelee = 0;
             if (((attackerAndTypeMelee.Item1 & EverQuestSwingType.Pet) == EverQuestSwingType.Pet) || ((victimAndTypeMelee.Item1 & EverQuestSwingType.Pet) == EverQuestSwingType.Pet))
                 everQuestSwingTypeToParseMelee = EverQuestSwingType.Pet;
@@ -392,6 +393,15 @@ namespace EverQuestDPSPlugin
                 everQuestSwingTypeToParseMelee = EverQuestSwingType.Ward;
             else if (((attackerAndTypeMelee.Item1 & EverQuestSwingType.NonMelee) == EverQuestSwingType.NonMelee) || ((victimAndTypeMelee.Item1 & EverQuestSwingType.NonMelee) == EverQuestSwingType.NonMelee))
                 everQuestSwingTypeToParseMelee = EverQuestSwingType.DamageShield;
+            if(everQuestSwingTypeToParseMelee == EverQuestSwingType.DamageShield) {
+                attacker = CheckIfSelf(victimAndTypeMelee.Item2) ? CharacterNamePersonaReplace(attackerAndTypeMelee.Item2) : CharacterNamePersonaReplace(victimAndTypeMelee.Item2);
+                victim = CharacterNamePersonaReplace(attackerAndTypeMelee.Item2);
+            }
+            else
+            {
+                attacker = CharacterNamePersonaReplace(attackerAndTypeMelee.Item2);
+                victim = CheckIfSelf(victimAndTypeMelee.Item2) ? CharacterNamePersonaReplace(attackerAndTypeMelee.Item2) : CharacterNamePersonaReplace(victimAndTypeMelee.Item2);
+            }
                 MasterSwing masterSwingMelee = new MasterSwing((everQuestSwingTypeToParseMelee | attackTypeToCombine).GetEverQuestSwingTypeExtensionIntValue()
                 , logLineRegexMatch.Groups[specialGroupName].Success ? logLineRegexMatch.Groups[specialGroupName].Value.Contains(EverQuestDPSPluginResource.Critical) : false
                 , logLineRegexMatch.Groups[specialGroupName].Success ? logLineRegexMatch.Groups[specialGroupName].Value : String.Empty
@@ -399,9 +409,9 @@ namespace EverQuestDPSPlugin
                 , dateTimeOfLogLine
                 , ActGlobals.oFormActMain.GlobalTimeSorter
                 , logLineRegexMatch.Groups[attackTypeGroupName].Value
-                , CharacterNamePersonaReplace(attackerAndTypeMelee.Item2)
+                , attacker
                 , damageType
-                , CheckIfSelf(victimAndTypeMelee.Item2) ? CharacterNamePersonaReplace(attackerAndTypeMelee.Item2) : CharacterNamePersonaReplace(victimAndTypeMelee.Item2));
+                , victim);
             masterSwingMelee.Tags.Add("lastEstimatedTime", ActGlobals.oFormActMain.LastEstimatedTime);
             return masterSwingMelee;
         }
