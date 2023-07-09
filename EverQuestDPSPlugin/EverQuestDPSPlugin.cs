@@ -364,7 +364,7 @@ namespace EverQuestDPSPlugin
                     case "thorns":
                         return new Tuple<EverQuestSwingType, string>(EverQuestSwingType.DamageShield, nameToSetTypeTo.Substring(0, possessiveMatch.Index));
                     default:
-                        return new Tuple<EverQuestSwingType, String>(0, nameToSetTypeTo.Substring(0, possessiveMatch.Index));
+                        return new Tuple<EverQuestSwingType, String>(0, nameToSetTypeTo);
                 }
             }
             else
