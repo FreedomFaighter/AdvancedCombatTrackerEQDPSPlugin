@@ -394,7 +394,7 @@ namespace EverQuestDPSPlugin
             Tuple<EverQuestSwingType, String> attackerAndTypeMelee = GetTypeAndNameForPet(logLineRegexMatch.Groups[character1GroupName].Value);
             Tuple<EverQuestSwingType, String> victimAndTypeMelee = GetTypeAndNameForPet(logLineRegexMatch.Groups[character2GroupName].Value);
             String attacker, victim;
-            EverQuestSwingType everQuestSwingTypeToParseMelee = 0;
+            EverQuestSwingType everQuestSwingTypeToParseMelee;
             if (((attackerAndTypeMelee.Item1 & EverQuestSwingType.Pet) == EverQuestSwingType.Pet) || ((victimAndTypeMelee.Item1 & EverQuestSwingType.Pet) == EverQuestSwingType.Pet))
                 everQuestSwingTypeToParseMelee = EverQuestSwingType.Pet;
             else if (((attackerAndTypeMelee.Item1 & EverQuestSwingType.Warder) == EverQuestSwingType.Warder) || ((victimAndTypeMelee.Item1 & EverQuestSwingType.Warder) == EverQuestSwingType.Warder))
@@ -403,7 +403,9 @@ namespace EverQuestDPSPlugin
                 everQuestSwingTypeToParseMelee = EverQuestSwingType.Ward;
             else if (((attackerAndTypeMelee.Item1 & EverQuestSwingType.NonMelee) == EverQuestSwingType.NonMelee) || ((victimAndTypeMelee.Item1 & EverQuestSwingType.NonMelee) == EverQuestSwingType.NonMelee))
                 everQuestSwingTypeToParseMelee = EverQuestSwingType.DamageShield;
-            if(everQuestSwingTypeToParseMelee == EverQuestSwingType.DamageShield) {
+            else
+                everQuestSwingTypeToParseMelee = 0;
+            if (everQuestSwingTypeToParseMelee == EverQuestSwingType.DamageShield) {
                 attacker = CheckIfSelf(victimAndTypeMelee.Item2) ? CharacterNamePersonaReplace(attackerAndTypeMelee.Item2) : CharacterNamePersonaReplace(victimAndTypeMelee.Item2);
                 victim = CharacterNamePersonaReplace(attackerAndTypeMelee.Item2);
             }
