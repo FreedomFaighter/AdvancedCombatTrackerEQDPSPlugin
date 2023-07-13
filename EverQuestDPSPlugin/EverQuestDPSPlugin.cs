@@ -154,6 +154,7 @@ namespace EverQuestDPSPlugin
         private Label label1;
         private RichTextBox richTextBox1;
         SettingsSerializer xmlSettings;
+        String TimeStamp = @"\[(?< dateTimeOfLogLine >.+)\]";
         object varianceChkBxLockObject = new object();
         #endregion
 
@@ -287,7 +288,7 @@ namespace EverQuestDPSPlugin
             if (regex == null)
                 throw new ArgumentNullException("Missing value for regex");
             else
-                return $@"{EverQuestDPSPluginResource.TimeStamp} {regex}";
+                return $@"{this.TimeStamp} {regex}";
         }
 
         private void PopulateRegexArray()
@@ -385,7 +386,6 @@ namespace EverQuestDPSPlugin
             String character1GroupName,
             String character2GroupName,
             String specialGroupName,
-            DateTime dateTimeOfLogLine,
             Dnum dnumValue,
             String attackTypeGroupName,
             String damageType
@@ -418,7 +418,7 @@ namespace EverQuestDPSPlugin
                 , logLineRegexMatch.Groups[specialGroupName].Success ? logLineRegexMatch.Groups[specialGroupName].Value.Contains(EverQuestDPSPluginResource.Critical) : false
                 , logLineRegexMatch.Groups[specialGroupName].Success ? logLineRegexMatch.Groups[specialGroupName].Value : String.Empty
                 , dnumValue
-                , dateTimeOfLogLine
+                , ParseDateTime(logLineRegexMatch.Groups[this.TimeStamp].Value)
                 , ActGlobals.oFormActMain.GlobalTimeSorter
                 , logLineRegexMatch.Groups[attackTypeGroupName].Value
                 , attacker
@@ -434,7 +434,6 @@ namespace EverQuestDPSPlugin
             {
                 //Melee attack
                 case 1:
-
                     if (ActGlobals.oFormActMain.SetEncounter(ActGlobals.oFormActMain.LastKnownTime, CharacterNamePersonaReplace(regexMatch.Groups["attacker"].Value), CharacterNamePersonaReplace(regexMatch.Groups["victim"].Value)))
                     {
                         Dnum damage = new Dnum(Int64.Parse(regexMatch.Groups["damageAmount"].Value));
@@ -443,8 +442,7 @@ namespace EverQuestDPSPlugin
                             regexMatch,
                             "attacker",
                             "victim",
-                            "damageSpecial"
-                            , ParseDateTime(regexMatch.Groups["dateTimeOfLogLine"].Value),
+                            "damageSpecial",                            
                             damage,
                             "attackType",
                             "Hitpoints"
@@ -463,7 +461,6 @@ namespace EverQuestDPSPlugin
                                 "attacker",
                                 "victim",
                                 "damageSpecial",
-                                ParseDateTime(regexMatch.Groups["dateTimeOfLogLine"].Value),
                                 damage,
                                 "damageShieldDamageType",
                                 "Hitpoints");
@@ -481,7 +478,6 @@ namespace EverQuestDPSPlugin
                                 "attacker",
                                 "victim",
                                 "damageSpecial",
-                                ParseDateTime(regexMatch.Groups["dateTimeOfLogLine"].Value),
                                 miss,
                                 "attackType",
                                 "Miss"
@@ -504,7 +500,6 @@ namespace EverQuestDPSPlugin
                                 "attacker",
                                 "victim",
                                 "spellSpecial",
-                                ParseDateTime(regexMatch.Groups["dateTimeOfLogLine"].Value),
                                 damage,
                                 "damageEffect",
                                 "Hitpoints"
@@ -527,7 +522,6 @@ namespace EverQuestDPSPlugin
                                 "healer",
                                 "healingTarget",
                                 "healingSpecial",
-                                ParseDateTime(regexMatch.Groups["dateTimeOfLogLine"].Value),
                                 new Dnum(Int64.Parse(regexMatch.Groups["healingPoints"].Value)),
                                 "healingSpell",
                                 "Hitpoints"
@@ -553,7 +547,6 @@ namespace EverQuestDPSPlugin
                                 "attacker",
                                 "victim",
                                 "evasionSpecial",
-                                ParseDateTime(regexMatch.Groups["dateTimeOfLogLine"].Value),
                                 new Dnum(Dnum.NoDamage, regexMatch.Groups["evasionType"].Value),
                                 "attackType",
                                 "Hitpoints"
@@ -571,7 +564,6 @@ namespace EverQuestDPSPlugin
                                 "attacker",
                                 "victim",
                                 "spellSpecial",
-                                ParseDateTime(regexMatch.Groups["dateTimeOfLogLine"].Value),
                                 damage,
                                 "damageEffect",
                                 "Hitpoints"

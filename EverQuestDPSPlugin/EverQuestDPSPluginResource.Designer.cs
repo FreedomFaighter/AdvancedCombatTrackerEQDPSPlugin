@@ -115,6 +115,15 @@ namespace EverQuestDPSPlugin {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to dateTimeOfLogLine.
+        /// </summary>
+        internal static string dateTimeOfLogLineString {
+            get {
+                return ResourceManager.GetString("dateTimeOfLogLineString", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Double Bow Shot.
         /// </summary>
         internal static string DoubleBowShot {
@@ -304,15 +313,6 @@ namespace EverQuestDPSPlugin {
         internal static string tellsRegex {
             get {
                 return ResourceManager.GetString("tellsRegex", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to \[(?&lt;dateTimeOfLogLine&gt;.+)\].
-        /// </summary>
-        internal static string TimeStamp {
-            get {
-                return ResourceManager.GetString("TimeStamp", resourceCulture);
             }
         }
         
