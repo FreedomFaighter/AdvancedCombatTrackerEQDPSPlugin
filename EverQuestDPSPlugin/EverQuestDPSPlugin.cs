@@ -339,6 +339,7 @@ namespace EverQuestDPSPlugin
         Tuple<EverQuestSwingType, String> GetTypeAndNameForPet(String nameToSetTypeTo)
         {
             Match possessiveMatch = possesive.Match(nameToSetTypeTo);
+
             if (possessiveMatch.Success)
             {
                 switch(possessiveMatch.Groups[0].Value)

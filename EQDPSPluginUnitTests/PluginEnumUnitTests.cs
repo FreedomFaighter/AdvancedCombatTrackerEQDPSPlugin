@@ -22,6 +22,7 @@ namespace EQDPSPluginUnitTests
         [DataRow(EverQuestSwingType.DamageShield, EverQuestSwingType.DamageShield | (EverQuestSwingType)0)]
         [DataRow(EverQuestSwingType.PetDamageShield, EverQuestSwingType.Pet | EverQuestSwingType.DamageShield)]
         [DataRow(EverQuestSwingType.WarderDamageShield, EverQuestSwingType.Warder | EverQuestSwingType.DamageShield)]
+        [DataRow(EverQuestSwingType.FamiliarDirectSpellDamage, EverQuestSwingType.Familiar | EverQuestSwingType.DirectDamageSpell)]
         public void EnumEqualityTests(EverQuestSwingType composite, EverQuestSwingType rawComposite)
         {
             Assert.AreEqual(composite, rawComposite);
