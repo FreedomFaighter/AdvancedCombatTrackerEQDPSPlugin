@@ -29,6 +29,7 @@
         WarderDamageOverTimeSpell = Warder | DamageOverTimeSpell,
         PetDamageShield = Pet | DamageShield,
         WarderDamageShield =    Warder | DamageShield,
+FamiliarInstantHealing = Familiar | InstantHealing
     }
 
     public static class EverQuestSwingTypeExtensions
