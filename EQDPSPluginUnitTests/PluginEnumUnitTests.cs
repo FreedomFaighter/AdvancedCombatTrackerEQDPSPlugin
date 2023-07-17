@@ -8,7 +8,10 @@ namespace EQDPSPluginUnitTests
     public sealed class PluginEnumUnitTests
     {
         [DataTestMethod]
-        [DataRow(EverQuestSwingType.PetMelee, EverQuestSwingType.Pet | EverQuestSwingType.Melee)]
+
+    [DataRow(EverQuestSwingType.FamiliarInstantHealing, EverQuestSwingType.Familiar | EverQuestSwingType.InstantHealing)]
+      [DataRow(EverQuestSwingType.PetMelee, EverQuestSwingType.Pet | EverQuestSwingType.Melee)]
+
         [DataRow(EverQuestSwingType.WardInstantHealing, EverQuestSwingType.Ward | EverQuestSwingType.InstantHealing)]
         [DataRow(EverQuestSwingType.WardHealOverTime, EverQuestSwingType.Ward | EverQuestSwingType.HealOverTime)]
         [DataRow(EverQuestSwingType.PetNonMelee, EverQuestSwingType.Pet | EverQuestSwingType.NonMelee)]
