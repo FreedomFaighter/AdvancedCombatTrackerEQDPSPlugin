@@ -35,7 +35,7 @@ using System.Xml;
 
 namespace EverQuestDPSPlugin
 {
-    public class EverQuestDPSPlugin : UserControl, IActPluginV1, IEverQuestDPSPlugin
+    public partial class EverQuestDPSPlugin : UserControl, IActPluginV1, IEverQuestDPSPlugin
     {
 		#region Designer Created Code (Avoid editing)
         #region Designer generated code (Avoid editing)
