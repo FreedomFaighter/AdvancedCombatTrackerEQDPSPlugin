@@ -8,10 +8,8 @@ namespace EQDPSPluginUnitTests
     public sealed class PluginEnumUnitTests
     {
         [DataTestMethod]
-
-    [DataRow(EverQuestSwingType.FamiliarInstantHealing, EverQuestSwingType.Familiar | EverQuestSwingType.InstantHealing)]
-      [DataRow(EverQuestSwingType.PetMelee, EverQuestSwingType.Pet | EverQuestSwingType.Melee)]
-
+        [DataRow(EverQuestSwingType.FamiliarInstantHealing, EverQuestSwingType.Familiar | EverQuestSwingType.InstantHealing)]
+        [DataRow(EverQuestSwingType.PetMelee, EverQuestSwingType.Pet | EverQuestSwingType.Melee)]
         [DataRow(EverQuestSwingType.WardInstantHealing, EverQuestSwingType.Ward | EverQuestSwingType.InstantHealing)]
         [DataRow(EverQuestSwingType.WardHealOverTime, EverQuestSwingType.Ward | EverQuestSwingType.HealOverTime)]
         [DataRow(EverQuestSwingType.PetNonMelee, EverQuestSwingType.Pet | EverQuestSwingType.NonMelee)]
@@ -27,22 +25,11 @@ namespace EQDPSPluginUnitTests
         [DataRow(EverQuestSwingType.WarderDamageShield, EverQuestSwingType.Warder | EverQuestSwingType.DamageShield)]
         [DataRow(EverQuestSwingType.FamiliarDirectSpellDamage, EverQuestSwingType.Familiar | EverQuestSwingType.DirectDamageSpell)]
         [DataRow(EverQuestSwingType.FamiliarHealOverTime, EverQuestSwingType.Familiar | EverQuestSwingType.HealOverTime)]
-
+        [DataRow(((EverQuestSwingType)0) | (EverQuestSwingType.Incoming | EverQuestSwingType.Melee), EverQuestSwingType.Incoming | EverQuestSwingType.Melee)]
+        [DataRow(EverQuestSwingType.PetMelee | EverQuestSwingType.Incoming, EverQuestSwingType.Pet | EverQuestSwingType.Incoming | EverQuestSwingType.Melee)]
         public void EnumEqualityTests(EverQuestSwingType composite, EverQuestSwingType rawComposite)
         {
             Assert.AreEqual(composite, rawComposite);
-        }
-
-        [TestMethod("MeleeIncomingAndPetEnumCharacterPossessive")]
-        public void TestMeleeIncomingAndPetEnumCharacterPossessiveTypeAttackMethod()
-        {
-            Assert.AreEqual(EverQuestSwingType.Pet.CharacterPossesiveTypeAttack(EverQuestSwingType.Melee | EverQuestSwingType.Incoming), EverQuestSwingType.Pet | EverQuestSwingType.Incoming | EverQuestSwingType.Melee);
-        }
-
-        [TestMethod("MeleeIncomingEnumCharacterPossessive")]
-        public void TestMeleeIncomingEnumCharacterPossessiveTypeAttackMethod()
-        {
-            Assert.AreEqual((((EverQuestSwingType)0).CharacterPossesiveTypeAttack(EverQuestSwingType.Incoming | EverQuestSwingType.Melee)), EverQuestSwingType.Incoming | EverQuestSwingType.Melee);
         }
     }
 }
