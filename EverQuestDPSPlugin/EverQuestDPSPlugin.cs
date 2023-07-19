@@ -154,7 +154,6 @@ namespace EverQuestDPSPlugin
         private Label label1;
         private RichTextBox richTextBox1;
         SettingsSerializer xmlSettings;
-        String TimeStamp = @"\[(?< dateTimeOfLogLine >.+)\]";
         object varianceChkBxLockObject = new object();
         #endregion
 
@@ -288,7 +287,7 @@ namespace EverQuestDPSPlugin
             if (regex == null)
                 throw new ArgumentNullException("Missing value for regex");
             else
-                return $@"{this.TimeStamp} {regex}";
+                return $@"[(?<dateTimeOfLogLine>.+)] {regex}";
         }
 
         private void PopulateRegexArray()
@@ -419,7 +418,7 @@ namespace EverQuestDPSPlugin
                 , logLineRegexMatch.Groups[specialGroupName].Success ? logLineRegexMatch.Groups[specialGroupName].Value.Contains(EverQuestDPSPluginResource.Critical) : false
                 , logLineRegexMatch.Groups[specialGroupName].Success ? logLineRegexMatch.Groups[specialGroupName].Value : String.Empty
                 , dnumValue
-                , ParseDateTime(logLineRegexMatch.Groups[this.TimeStamp].Value)
+                , ParseDateTime(logLineRegexMatch.Groups["dateTimeOfLogLine"].Value)
                 , ActGlobals.oFormActMain.GlobalTimeSorter
                 , logLineRegexMatch.Groups[attackTypeGroupName].Value
                 , attacker
