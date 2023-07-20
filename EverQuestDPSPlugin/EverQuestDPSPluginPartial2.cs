@@ -31,9 +31,9 @@ namespace EverQuestDPSPlugin
         private CheckBox varianceChkBx;
         private CheckBox nonMatchVisibleChkbx;
         private Label label1;
-        private RichTextBox richTextBox1;
+        private RichTextBox licenseRichTextBox;
         SettingsSerializer xmlSettings;
-        object varianceChkBxLockObject = new object();
+        object varianceChkBxLockObject = new object(), nonMatchChkBxLockObject = new object();
         #endregion
 
         private DateTime ParseDateTime(String timeStamp)
@@ -44,19 +44,19 @@ namespace EverQuestDPSPlugin
 
         private String regexString(String regex)
         {
-            if (regex == null)
+            if (!(regex != null))
                 throw new ArgumentNullException("Missing value for regex");
             else
-                return $@"[(?<dateTimeOfLogLine>.+)] {regex}";
+                return $@"\[(?<{EverQuestDPSPluginResource.dateTimeOfLogLineString}>.+)\] {regex}";
         }
 
         private void PopulateRegexArray()
         {
             String MeleeAttack = @"(?<attacker>.+) (?<attackType>" + $@"{EverQuestDPSPluginResource.attackTypes}" + @")(|s|es|bed) (?<victim>.+) for (?<damageAmount>[\d]+) (?:(?:point)(?:s|)) of damage.(?:\s\((?<damageSpecial>.+)\)){0,1}";
-            String Evasion = @"(?<attacker>.*) tries to (?<attackType>\S+) (?:(?<victim>(.+)), but \1) (?:(?<evasionType>" + $@"{EverQuestDPSPluginResource.evasionTypes}" + @"))(?:\swith your staff){0,1}!(?:[\s][\(](?<evasionSpecial>.+)[\)]){0,1}";
+            String Evasion = @"(?<attacker>.*) tries to (?<attackType>\S+) (?:(?<victim>(.+)), but \1) (?:(?<evasionType>" + $@"{EverQuestDPSPluginResource.evasionTypes}" + @"))(?:\swith your (shield|staff)){0,1}!(?:[\s][\(](?<evasionSpecial>.+)[\)]){0,1}";
             possesive = new Regex(EverQuestDPSPluginResource.possessiveString, RegexOptions.Compiled);
             tellsregex = new Regex(regexString(EverQuestDPSPluginResource.tellsRegex), RegexOptions.Compiled);
-            selfCheck = new Regex(@"(You|you|yourself|Yourself|YOURSELF|YOU)", RegexOptions.Compiled);
+            selfCheck = new Regex(EverQuestDPSPluginResource.selfMatch, RegexOptions.Compiled);
             regexTupleList = new List<Tuple<Color, Regex>>();
             ActGlobals.oFormEncounterLogs.LogTypeToColorMapping.Clear();
             regexTupleList.Add(new Tuple<Color, Regex>(Color.Red, new Regex(regexString(MeleeAttack), RegexOptions.Compiled)));
@@ -178,7 +178,7 @@ namespace EverQuestDPSPlugin
             , logLineRegexMatch.Groups[specialGroupName].Success ? logLineRegexMatch.Groups[specialGroupName].Value.Contains(EverQuestDPSPluginResource.Critical) : false
             , logLineRegexMatch.Groups[specialGroupName].Success ? logLineRegexMatch.Groups[specialGroupName].Value : String.Empty
             , dnumValue
-            , ParseDateTime(logLineRegexMatch.Groups["dateTimeOfLogLine"].Value)
+            , ParseDateTime(logLineRegexMatch.Groups[EverQuestDPSPluginResource.dateTimeOfLogLineString].Value)
             , ActGlobals.oFormActMain.GlobalTimeSorter
             , logLineRegexMatch.Groups[attackTypeGroupName].Value
             , attacker
@@ -428,6 +428,7 @@ namespace EverQuestDPSPlugin
         #region User Interface Update code
         void changeLblStatus(String status)
         {
+
             switch (lblStatus.InvokeRequired)
             {
                 case true:
@@ -439,7 +440,20 @@ namespace EverQuestDPSPlugin
                 case false:
                     this.lblStatus.Text = status;
                     break;
+                default:
+                    break;
             }
+        }
+
+        void changeLicenseRichTextBox(String status)
+        {
+            if (licenseRichTextBox.InvokeRequired)
+                licenseRichTextBox.Invoke(new Action(() =>
+                {
+                    licenseRichTextBox.Text = status;
+                }));
+            else
+                licenseRichTextBox.Text = status;
         }
 
         public void ChangeNonmatchFormCheckBox(bool Checked)
@@ -472,33 +486,43 @@ namespace EverQuestDPSPlugin
         //checkbox processing event for population or sample variance
         private void VarianceChkBx_CheckedChanged(object sender, EventArgs e)
         {
+            var checkBx = sender as CheckBox;
             lock (varianceChkBxLockObject)
-                this.populationVariance = (sender as CheckBox).Checked;
+                this.populationVariance = checkBx.Checked;
             switch (this.populationVariance)
             {
                 case true:
-                    if (lblStatus.InvokeRequired)
-                        this.lblStatus.Invoke(new Action(() => { this.lblStatus.Text = $"Reporting population variance {EverQuestDPSPluginResource.pluginName}"; }));
-                    else
-                        this.lblStatus.Text = $"Reporting population variance {EverQuestDPSPluginResource.pluginName}";
+                    changeLblStatus($"Reporting population variance {EverQuestDPSPluginResource.pluginName}");
                     break;
                 case false:
-                    if (lblStatus.InvokeRequired)
-                        this.lblStatus.Invoke(new Action(() => { this.lblStatus.Text = $"Reporting sample variance {EverQuestDPSPluginResource.pluginName}"; }));
-                    else
-                        this.lblStatus.Text = $"Reporting sample variance {EverQuestDPSPluginResource.pluginName}";
+                    changeLblStatus($"Reporting sample variance {EverQuestDPSPluginResource.pluginName}");
                     break;
             }
         }
 
         private void nonMatchVisible_CheckedChanged(object sender, EventArgs e)
         {
-            this.nonMatchVisible = (sender as CheckBox).Checked;
-            if (nm == null || nm.IsDisposed) { nm = new nonmatch(this); }
+            var checkBx = sender as CheckBox;
+            lock (nonMatchChkBxLockObject)
+                this.nonMatchVisible = checkBx.Checked;
+            if (nm == null || nm.IsDisposed) {
+                nm = new nonmatch(this); 
+            }
+            if (nm.InvokeRequired)
+            {
+                checkBx.Invoke(new Action(() =>
+                {
+                    checkBx.Enabled = false;
+                }));
+            }
+            else
+            {
+                checkBx.Enabled = false;
+            }
             switch (this.nonMatchVisible)
             {
                 case true:
-                    (sender as CheckBox).Enabled = false;
+
                     if (this.nm.InvokeRequired)
                         nm.Invoke(new Action(() =>
                         {
@@ -506,10 +530,8 @@ namespace EverQuestDPSPlugin
                         }));
                     else
                         nm.Visible = this.nonMatchVisible;
-                    (sender as CheckBox).Enabled = true;
                     break;
                 case false:
-                    (sender as CheckBox).Enabled = false;
                     if (this.nm.InvokeRequired)
                         nm.Invoke(new Action(() =>
                         {
@@ -517,10 +539,20 @@ namespace EverQuestDPSPlugin
                         }));
                     else
                         nm.Visible = this.nonMatchVisible;
-                    (sender as CheckBox).Enabled = true;
                     break;
                 default:
                     break;
+            }
+            if (nm.InvokeRequired)
+            {
+                checkBx.Invoke(new Action(() =>
+                {
+                    checkBx.Enabled = true;
+                }));
+            }
+            else
+            {
+                checkBx.Enabled = true;
             }
         }
         #endregion
@@ -618,6 +650,5 @@ namespace EverQuestDPSPlugin
 
             return $"{CripplingBlowPerc:000.0}%CB-{LockedPerc:000.0}%Locked-{CriticalPerc:000.0}%C-{StrikethroughPerc:000.0}%S-{RipostePerc:000.0}%R-{FlurryPerc:000.0}%F-{LuckyPerc:000.0}%Lucky-{DoubleBowShotPerc:000.0}%DB-{TwincastPerc:000.0}%TC-{WildRampagePerc:000.0}%WR-{FinishingBlowPerc:000.0}%FB-{NonDefinedPerc:000.0}%ND";
         }
-
     }
 }

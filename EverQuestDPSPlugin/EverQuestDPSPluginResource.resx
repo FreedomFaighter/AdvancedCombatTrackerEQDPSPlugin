@@ -184,6 +184,9 @@
   <data name="Riposte" xml:space="preserve">
     <value>Riposte</value>
   </data>
+  <data name="selfMatch" xml:space="preserve">
+    <value>(You|you|yourself|Yourself|YOURSELF|YOU)</value>
+  </data>
   <data name="SlainMessage" xml:space="preserve">
     <value>(?&lt;attacker&gt;.+) (?:(ha(ve|s) been slain by|have slain)) (?&lt;victim&gt;.+)!</value>
   </data>
