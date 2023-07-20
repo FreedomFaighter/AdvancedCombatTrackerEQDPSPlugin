@@ -35,7 +35,7 @@ namespace EverQuestDPSPlugin
         /// <param name="disposing">true if managed resources should be disposed; otherwise, false.</param>
         protected override void Dispose(bool disposing)
         {
-            if (disposing && (components != null))
+            if (disposing && (!(components == null)))
             {
                 components.Dispose();
             }
@@ -53,7 +53,7 @@ namespace EverQuestDPSPlugin
             this.varianceChkBx = new System.Windows.Forms.CheckBox();
             this.nonMatchVisibleChkbx = new System.Windows.Forms.CheckBox();
             this.label1 = new System.Windows.Forms.Label();
-            this.richTextBox1 = new System.Windows.Forms.RichTextBox();
+            this.licenseRichTextBox = new System.Windows.Forms.RichTextBox();
             this.SuspendLayout();
             // 
             // varianceChkBx
@@ -91,12 +91,12 @@ namespace EverQuestDPSPlugin
             // 
             // richTextBox1
             // 
-            this.richTextBox1.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
-            this.richTextBox1.Location = new System.Drawing.Point(22, 171);
-            this.richTextBox1.Name = "richTextBox1";
-            this.richTextBox1.Size = new System.Drawing.Size(375, 305);
-            this.richTextBox1.TabIndex = 22;
-            this.richTextBox1.Text = "";
+            this.licenseRichTextBox.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
+            this.licenseRichTextBox.Location = new System.Drawing.Point(22, 171);
+            this.licenseRichTextBox.Name = "licenseRichTextBox";
+            this.licenseRichTextBox.Size = new System.Drawing.Size(375, 305);
+            this.licenseRichTextBox.TabIndex = 22;
+            this.licenseRichTextBox.Text = "";
             // 
             // EverQuestDPSPlugin
             // 
@@ -104,7 +104,7 @@ namespace EverQuestDPSPlugin
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.AutoSize = true;
             this.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink;
-            this.Controls.Add(this.richTextBox1);
+            this.Controls.Add(this.licenseRichTextBox);
             this.Controls.Add(this.label1);
             this.Controls.Add(this.nonMatchVisibleChkbx);
             this.Controls.Add(this.varianceChkBx);
@@ -164,7 +164,6 @@ namespace EverQuestDPSPlugin
             xmlSettings = new SettingsSerializer(this); // Create a new settings serializer and pass it this instance
             nm = new nonmatch(this);
             LoadSettings();
-
             PopulateRegexArray();
             SetupEverQuestEnvironment();
             ActGlobals.oFormActMain.GetDateTimeFromLog += new FormActMain.DateTimeLogParser(ParseDateTime);
@@ -180,15 +179,8 @@ namespace EverQuestDPSPlugin
 
             ActGlobals.oFormActMain.CharacterFileNameRegex = new Regex(@"(?:.+)[\\]eqlog_(?<characterName>\S+)_(?<server>.+).txt", RegexOptions.Compiled);
             ActGlobals.oFormActMain.ZoneChangeRegex = new Regex(regexString(EverQuestDPSPluginResource.ZoneChange), RegexOptions.Compiled);
-            String lblMessage = $"{EverQuestDPSPluginResource.pluginName} Plugin Started";
-            changeLblStatus(lblMessage);
-            if (richTextBox1.InvokeRequired)
-                richTextBox1.Invoke(new Action(() =>
-                {
-                    richTextBox1.Text = EverQuestDPSPluginResource.LICENSE;
-                }));
-            else
-                richTextBox1.Text = EverQuestDPSPluginResource.LICENSE;
+            changeLblStatus($"{EverQuestDPSPluginResource.pluginName} Plugin Started");
+            changeLicenseRichTextBox(EverQuestDPSPluginResource.LICENSE);
         }
 
         public void DeInitPlugin()
@@ -197,7 +189,7 @@ namespace EverQuestDPSPlugin
             ActGlobals.oFormActMain.BeforeLogLineRead -= FormActMain_BeforeLogLineRead;
             ActGlobals.oFormActMain.UpdateCheckClicked -= UpdateCheckClicked;
 
-            if (optionsNode != null)    // If we added our user control to the Options tab, remove it
+            if (!(optionsNode == null))    // If we added our user control to the Options tab, remove it
             {
                 optionsNode.Remove();
                 ActGlobals.oFormActMain.OptionsControlSets.Remove($"Data Correction\\{EverQuestDPSPluginResource.pluginName}");
@@ -205,7 +197,7 @@ namespace EverQuestDPSPlugin
 
             SaveSettings();
             nm.Close();
-            lblStatus.Text = $"{EverQuestDPSPluginResource.pluginName} Plugin Exited";
+            changeLblStatus($"{EverQuestDPSPluginResource.pluginName} Plugin Exited");
         }
 
         void UpdateCheckClicked()
@@ -270,18 +262,11 @@ namespace EverQuestDPSPlugin
                     }
                     catch (ArgumentNullException ex)
                     {
-                        if (lblStatus.InvokeRequired)
-                            this.lblStatus.Invoke(new Action(() => { this.lblStatus.Text = $"Argument Null for {ex.ParamName} with message: {ex.Message}"; }));
-                        else
-                            this.lblStatus.Text = $"Argument Null for {ex.ParamName} with message: {ex.Message}";
+                        changeLblStatus($"Argument Null for {ex.ParamName} with message: {ex.Message}");
                     }
                     catch (Exception ex)
                     {
-                        if (lblStatus.InvokeRequired)
-                            this.lblStatus.Invoke(new Action(() => { this.lblStatus.Text = $"With message: {ex.Message}"; }));
-                        else
-                            this.lblStatus.Text = $"With message: {ex.Message}";
-
+                        changeLblStatus($"With message: {ex.Message}");
                     }
                 }
             }
@@ -718,7 +703,7 @@ namespace EverQuestDPSPlugin
             MasterSwing.ColumnDefs.Clear();
             MasterSwing.ColumnDefs.Add("EncId", new MasterSwing.ColumnDef("EncId", false, "CHAR(8)", "EncId", (Data) => { return string.Empty; }, (Data) => { return Data.ParentEncounter.EncId; }, (Left, Right) => { return 0; }));
             MasterSwing.ColumnDefs.Add("Time", new MasterSwing.ColumnDef("Time", true, "TIMESTAMP", "STime", (Data) => { return Data.Time.ToString("T"); }, (Data) => { return Data.Time.ToString("u").TrimEnd(new char[] { 'Z' }); }, (Left, Right) => { return Left.Time.CompareTo(Right.Time); }));
-            MasterSwing.ColumnDefs.Add("RelativeTime", new MasterSwing.ColumnDef("RelativeTime", true, "FLOAT", "RelativeTime", (Data) => { return Data.ParentEncounter != null ? (Data.Time - Data.ParentEncounter.StartTime).ToString("g") : String.Empty; }, (Data) => { return Data.ParentEncounter != null ? (Data.Time - Data.ParentEncounter.StartTime).TotalSeconds.ToString(usCulture) : String.Empty; }, (Left, Right) => { return Left.Time.CompareTo(Right.Time); }));
+            MasterSwing.ColumnDefs.Add("RelativeTime", new MasterSwing.ColumnDef("RelativeTime", true, "FLOAT", "RelativeTime", (Data) => { return !(Data.ParentEncounter == null) ? (Data.Time - Data.ParentEncounter.StartTime).ToString("g") : String.Empty; }, (Data) => { return !(Data.ParentEncounter == null) ? (Data.Time - Data.ParentEncounter.StartTime).TotalSeconds.ToString(usCulture) : String.Empty; }, (Left, Right) => { return Left.Time.CompareTo(Right.Time); }));
             MasterSwing.ColumnDefs.Add("Attacker", new MasterSwing.ColumnDef("Attacker", true, "VARCHAR(64)", "Attacker", (Data) => { return Data.Attacker; }, (Data) => { return Data.Attacker; }, (Left, Right) => { return Left.Attacker.CompareTo(Right.Attacker); }));
             MasterSwing.ColumnDefs.Add("SwingType", new MasterSwing.ColumnDef("SwingType", false, "TINYINT", "SwingType", (Data) => { return Data.SwingType.ToString(); }, (Data) => { return Data.SwingType.ToString(); }, (Left, Right) => { return Left.SwingType.CompareTo(Right.SwingType); }));
             MasterSwing.ColumnDefs.Add("AttackType", new MasterSwing.ColumnDef("AttackType", true, "VARCHAR(64)", "AttackType", (Data) => { return Data.AttackType; }, (Data) => { return Data.AttackType; }, (Left, Right) => { return Left.AttackType.CompareTo(Right.AttackType); }));
@@ -726,31 +711,24 @@ namespace EverQuestDPSPlugin
             MasterSwing.ColumnDefs.Add("Victim", new MasterSwing.ColumnDef("Victim", true, "VARCHAR(64)", "Victim", (Data) => { return Data.Victim; }, (Data) => { return Data.Victim; }, (Left, Right) => { return Left.Victim.CompareTo(Right.Victim); }));
             MasterSwing.ColumnDefs.Add("DamageNum", new MasterSwing.ColumnDef("DamageNum", false, "BIGINT", "Damage", (Data) =>
             {
-                switch ((long)Data.Damage)
-                {
-                    case -1:
-                        return String.Empty;
-                    default:
-                        return ((long)Data.Damage).ToString();
-                }
+                if ((long)Data.Damage < 0)
+                    return String.Empty;
+                else
+                    return ((long)Data.Damage).ToString();
             }
             ,
             (Data) =>
             {
-                switch ((long)Data.Damage)
-                {
-                    case -1:
-                        return String.Empty;
-                    default:
-                        return ((long)Data.Damage).ToString();
-                }
+                if ((long)Data.Damage < 0)
+                    return String.Empty;
+                else
+                    return ((long)Data.Damage).ToString();
             },
             (Left, Right) =>
             {
                 return Left.Damage.CompareTo(Right.Damage);
             }
-            )
-                );
+            ));
             MasterSwing.ColumnDefs.Add("Damage", new MasterSwing.ColumnDef("Damage", true, "VARCHAR(128)", "DamageString", (Data) => { return Data.Damage.ToString(); }, (Data) => { return Data.Damage.ToString(); }, (Left, Right) => { return Left.Damage.CompareTo(Right.Damage); }));
             MasterSwing.ColumnDefs.Add("Critical", new MasterSwing.ColumnDef("Critical", false, "BOOLEAN", "Critical", (Data) => { return Data.Critical.ToString(); }, (Data) => { return Data.Critical.ToString(usCulture)[0].ToString(); }, (Left, Right) => { return Left.Critical.CompareTo(Right.Critical); }));
             MasterSwing.ColumnDefs.Add("Special", new MasterSwing.ColumnDef("Special", true, "VARCHAR(90)", "Special", (Data) => { return Data.Special; }, (Data) => { return Data.Special; }, (Left, Right) => { return Left.Special.CompareTo(Left.Special); }));
@@ -800,10 +778,10 @@ namespace EverQuestDPSPlugin
             }
             if (swingTypes.Count == 1)
                 swingType = Data.Items[0].SwingType;
-            if (swingType == null)
+            if (!(swingType == null))
                 return String.Empty;
             else
-                return swingType == null ? String.Empty : swingType.ToString();
+                return !(swingType == null) ? String.Empty : swingType.ToString();
         }
 
         private string EncounterFormatSwitch(EncounterData Data, List<CombatantData> SelectiveAllies, string VarName, string Extra)

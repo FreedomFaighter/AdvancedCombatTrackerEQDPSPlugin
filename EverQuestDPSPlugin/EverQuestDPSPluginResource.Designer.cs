@@ -272,6 +272,15 @@ namespace EverQuestDPSPlugin {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to (You|you|yourself|Yourself|YOURSELF|YOU).
+        /// </summary>
+        internal static string selfMatch {
+            get {
+                return ResourceManager.GetString("selfMatch", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to (?&lt;attacker&gt;.+) (?:(ha(ve|s) been slain by|have slain)) (?&lt;victim&gt;.+)!.
         /// </summary>
         internal static string SlainMessage {
