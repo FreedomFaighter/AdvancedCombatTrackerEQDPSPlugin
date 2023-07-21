@@ -1,5 +1,5 @@
 # Build Status
-[![ACT EverQuest DPS Plugin](https://github.com/FreedomFaighter/ACT_EQ_DPS_Plugin/actions/workflows/plugin-build.yml/badge.svg)](https://github.com/FreedomFaighter/ACT_EQ_DPS_Plugin/actions/workflows/plugin-build.yml)
+[![ACT EverQuest DPS Plugin](https://github.com/FreedomFaighter/ACT_EQ_DPS_Plugin/actions/workflows/build-plugin.yml/badge.svg)](https://github.com/FreedomFaighter/ACT_EQ_DPS_Plugin/actions/workflows/build-plugin.yml)
 # Release Status
 [![Upload Release Asset](https://github.com/FreedomFaighter/ACT_EQ_DPS_Plugin/actions/workflows/release.yml/badge.svg)](https://github.com/FreedomFaighter/ACT_EQ_DPS_Plugin/actions/workflows/release.yml)
 
