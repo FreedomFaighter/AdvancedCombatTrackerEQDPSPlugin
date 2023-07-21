@@ -1,8 +1,8 @@
 [![ACT EverQuest DPS Plugin](https://github.com/FreedomFaighter/ACT_EQ_DPS_Plugin/actions/workflows/plugin-build.yml/badge.svg)](https://github.com/FreedomFaighter/ACT_EQ_DPS_Plugin/actions/workflows/plugin-build.yml)
 
+[![Upload Release Asset](https://github.com/FreedomFaighter/ACT_EQ_DPS_Plugin/actions/workflows/release.yml/badge.svg)](https://github.com/FreedomFaighter/ACT_EQ_DPS_Plugin/actions/workflows/release.yml)
 
-## ACT Plugin
-### ACT_EQ_DPS_Plugin
+# ACT_EQ_DPS_Plugin
 Compiles with .NET 4.8 which is a version unavailable with github actions
 
 Partially developed ACT plugin for parsing EverQuest log files as they are generated.
