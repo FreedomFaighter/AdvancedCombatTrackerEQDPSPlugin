@@ -53,7 +53,7 @@ namespace EverQuestDPSPlugin
         private void PopulateRegexArray()
         {
             String MeleeAttack = @"(?<attacker>.+) (?<attackType>" + $@"{EverQuestDPSPluginResource.attackTypes}" + @")(|s|es|bed) (?<victim>.+) for (?<damageAmount>[\d]+) (?:(?:point)(?:s|)) of damage.(?:\s\((?<damageSpecial>.+)\)){0,1}";
-            String Evasion = @"(?<attacker>.*) tries to (?<attackType>\S+) (?:(?<victim>(.+)), but \1) (?:(?<evasionType>" + $@"{EverQuestDPSPluginResource.evasionTypes}" + @"))(?:\swith your (shield|staff)){0,1}!(?:[\s][\(](?<evasionSpecial>.+)[\)]){0,1}";
+            String Evasion = @"(?<attacker>.*) tries to (?<attackType>\S+) (?:(?<victim>(.+)), but \1) (?:(?<evasionType>" + $@"{EverQuestDPSPluginResource.evasionTypes}" + @"))(?:\swith (your|his|hers|its) (shield|staff)){0,1}!(?:[\s][\(](?<evasionSpecial>.+)[\)]){0,1}";
             possesive = new Regex(EverQuestDPSPluginResource.possessiveString, RegexOptions.Compiled);
             tellsregex = new Regex(regexString(EverQuestDPSPluginResource.tellsRegex), RegexOptions.Compiled);
             selfCheck = new Regex(EverQuestDPSPluginResource.selfMatch, RegexOptions.Compiled);
@@ -136,7 +136,7 @@ namespace EverQuestDPSPlugin
 
         bool CheckIfSelf(String nameOfCharacter)
         {
-            Regex regexSelf = new Regex(@"((it|her|him|them)sel(f|ves))", RegexOptions.Compiled);
+            Regex regexSelf = new Regex(@"((it|her|him|them)(s|sel(f|ves)))", RegexOptions.Compiled);
             return regexSelf.Match(nameOfCharacter).Success;
         }
 
