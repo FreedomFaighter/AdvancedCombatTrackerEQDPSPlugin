@@ -59,10 +59,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="EverQuestDPSPluginPartial1.cs">
-      <SubType>UserControl</SubType>
-    </Compile>
-    <Compile Include="EverQuestDPSPluginPartial2.cs">
+    <Compile Include="EverQuestDPSPlugin.cs">
       <SubType>UserControl</SubType>
     </Compile>
     <Compile Include="EverQuestDPSPluginResource.Designer.cs">
@@ -84,8 +81,8 @@
     <Compile Include="SpellDamageSave.cs" />
   </ItemGroup>
   <ItemGroup>
-    <EmbeddedResource Include="EverQuestDPSPluginPartial1.resx">
-      <DependentUpon>EverQuestDPSPluginPartial1.cs</DependentUpon>
+    <EmbeddedResource Include="EverQuestDPSPlugin.resx">
+      <DependentUpon>EverQuestDPSPlugin.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="EverQuestDPSPluginResource.resx">
       <Generator>ResXFileCodeGenerator</Generator>
