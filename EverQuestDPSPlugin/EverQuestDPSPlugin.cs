@@ -1518,6 +1518,7 @@ namespace EverQuestDPSPlugin
                     return Color.Black;
             }
         }
+
         #region User Interface Update code
         void ChangeLblStatus(String status)
         {
@@ -1748,7 +1749,6 @@ namespace EverQuestDPSPlugin
         public async Task EnqueueCombatAction(MasterSwing ms)
         {
             masterSwingsQueue.Enqueue(ms);
-            lock (QueueIsProcessingLockObject)
                 if (!QueueIsProcessing)
                 {
                     (new Task(() =>
