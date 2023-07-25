@@ -12,6 +12,7 @@ using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using System.Xml;
+using System.Collections.Concurrent;
 
 /*
 * Project: EverQuest DPS Plugin
@@ -630,19 +631,19 @@ namespace EverQuestDPSPlugin
             {EverQuestSwingType.DamageOverTimeSpell.GetEverQuestSwingTypeExtensionIntValue(), new List<string>{"Damage Over Time Spell (Out)", "Outgoing Damage"} },
             {EverQuestSwingType.InstantHealing.GetEverQuestSwingTypeExtensionIntValue(), new List<string> { "Instant Healed (Out)" } },
             {EverQuestSwingType.HealOverTime.GetEverQuestSwingTypeExtensionIntValue(), new List<string> { "Heal Over Time (Out)" } },
-            {EverQuestSwingType.PetMelee.GetEverQuestSwingTypeExtensionIntValue(), new List<string> { "Pet Melee (Out)" } },
-            {EverQuestSwingType.WarderMelee.GetEverQuestSwingTypeExtensionIntValue(), new List<string> { "Warder Melee (Out)" } }
+            {EverQuestSwingType.PetMelee.GetEverQuestSwingTypeExtensionIntValue(), new List<string> { "Pet Melee (Out)", "Outgoing Damage" } },
+            {EverQuestSwingType.WarderMelee.GetEverQuestSwingTypeExtensionIntValue(), new List<string> { "Warder Melee (Out)", "Outgoing Damage" } }
         };
             CombatantData.SwingTypeToDamageTypeDataLinksIncoming = new SortedDictionary<int, List<string>>
         {
             {EverQuestSwingType.Melee.GetEverQuestSwingTypeExtensionIntValue(), new List<string> { "Incoming Damage" } },
-            {EverQuestSwingType.NonMelee.GetEverQuestSwingTypeExtensionIntValue(), new List<string> { "Incoming NonMelee Damage" } },
-            {EverQuestSwingType.DirectDamageSpell.GetEverQuestSwingTypeExtensionIntValue(), new List<string> { "Direct Damage Spell (Inc)" } },
+            {EverQuestSwingType.NonMelee.GetEverQuestSwingTypeExtensionIntValue(), new List<string> { "Incoming NonMelee Damage", "Incoming Damage" } },
+            {EverQuestSwingType.DirectDamageSpell.GetEverQuestSwingTypeExtensionIntValue(), new List<string> { "Direct Damage Spell (Inc)", "Incoming Damage" } },
             {EverQuestSwingType.InstantHealing.GetEverQuestSwingTypeExtensionIntValue(), new List<string> { "Instant Healed (Inc)" } },
-            {EverQuestSwingType.DamageOverTimeSpell.GetEverQuestSwingTypeExtensionIntValue(), new List<string> {"Damage Over Time Spell (Inc)"} },
+            {EverQuestSwingType.DamageOverTimeSpell.GetEverQuestSwingTypeExtensionIntValue(), new List<string> {"Damage Over Time Spell (Inc)", "Incoming Damage" } },
             {EverQuestSwingType.HealOverTime.GetEverQuestSwingTypeExtensionIntValue(), new List<string> { "Heal Over Time (Inc)" } },
-            {EverQuestSwingType.PetMelee.GetEverQuestSwingTypeExtensionIntValue(), new List<string> { "Pet Melee (Inc)" } },
-            {EverQuestSwingType.WarderMelee.GetEverQuestSwingTypeExtensionIntValue(), new List<string> { "Warder Melee (Inc)" } }
+            {EverQuestSwingType.PetMelee.GetEverQuestSwingTypeExtensionIntValue(), new List<string> { "Pet Melee (Inc)", "Incoming Damage" } },
+            {EverQuestSwingType.WarderMelee.GetEverQuestSwingTypeExtensionIntValue(), new List<string> { "Warder Melee (Inc)", "Incoming Damage" } }
         };
 
             CombatantData.DamageSwingTypes = new List<int> {
@@ -1102,8 +1103,9 @@ namespace EverQuestDPSPlugin
 
     public partial class EverQuestDPSPlugin
     {
-
         #region Class Members 2
+        private ConcurrentQueue<MasterSwing> masterSwingsQueue = new ConcurrentQueue<MasterSwing>();
+        private bool QueueIsProcessing = false;
         delegate void matchParse(Match regexMatch);
         List<Tuple<Color, Regex>> regexTupleList;
         Regex selfCheck;
@@ -1292,7 +1294,7 @@ namespace EverQuestDPSPlugin
                             "attackType",
                             "Hitpoints"
                         );
-                        ActGlobals.oFormActMain.AddCombatAction(masterSwingMelee);
+                        EnqueueCombatAction(masterSwingMelee);
                     }
                     break;
                 //Non-melee damage shield
@@ -1309,7 +1311,7 @@ namespace EverQuestDPSPlugin
                                 damage,
                                 "damageShieldDamageType",
                                 "Hitpoints");
-                        ActGlobals.oFormActMain.AddCombatAction(masterSwingDamageShield);
+                        EnqueueCombatAction(masterSwingDamageShield);
                     }
                     break;
                 //Missed melee
@@ -1327,12 +1329,13 @@ namespace EverQuestDPSPlugin
                                 "attackType",
                                 "Miss"
                             );
-                        ActGlobals.oFormActMain.AddCombatAction(masterSwingMissedMelee);
+                        EnqueueCombatAction(masterSwingMissedMelee);
                     }
                     break;
                 //Death message
                 case 4:
                     MasterSwing masterSwingSlain = new MasterSwing(0, false, new Dnum(Dnum.Death), ActGlobals.oFormActMain.LastEstimatedTime, ActGlobals.oFormActMain.GlobalTimeSorter, String.Empty, CharacterNamePersonaReplace(regexMatch.Groups["attacker"].Value), String.Empty, CharacterNamePersonaReplace(regexMatch.Groups["victim"].Value));
+                    EnqueueCombatAction(masterSwingSlain);
                     break;
                 //Spell Cast
                 case 5:
@@ -1349,7 +1352,7 @@ namespace EverQuestDPSPlugin
                                 "damageEffect",
                                 "Hitpoints"
                             );
-                        ActGlobals.oFormActMain.AddCombatAction(masterSwingSpellcast);
+                        EnqueueCombatAction(masterSwingSpellcast);
                     }
                     break;
                 case 6:
@@ -1373,7 +1376,7 @@ namespace EverQuestDPSPlugin
                             );
                         if (regexMatch.Groups["overHealPoints"].Success)
                             masterSwingHeal.Tags["overheal"] = Int64.Parse(regexMatch.Groups["overHealPoints"].Value);
-                        ActGlobals.oFormActMain.AddCombatAction(masterSwingHeal);
+                        EnqueueCombatAction(masterSwingHeal);
                     }
                     break;
                 case 8:
@@ -1381,7 +1384,7 @@ namespace EverQuestDPSPlugin
                     {
                         DamageString2 = regexMatch.Value
                     }, ParseDateTime(regexMatch.Groups["dateTimeOfLogLine"].Value), ActGlobals.oFormActMain.GlobalTimeSorter, "Unknown", "Unknown", "Unknown", "Unknown");
-                    ActGlobals.oFormActMain.AddCombatAction(masterSwingUnknown);
+                    EnqueueCombatAction(masterSwingUnknown);
                     break;
                 case 9:
                     if (ActGlobals.oFormActMain.SetEncounter(ActGlobals.oFormActMain.LastKnownTime, CharacterNamePersonaReplace(regexMatch.Groups["attacker"].Value), CharacterNamePersonaReplace(regexMatch.Groups["victim"].Value)))
@@ -1396,7 +1399,7 @@ namespace EverQuestDPSPlugin
                                 "attackType",
                                 "Hitpoints"
                             );
-                        ActGlobals.oFormActMain.AddCombatAction(masterSwingEvasion);
+                        EnqueueCombatAction(masterSwingEvasion);
                     }
                     break;
                 case 10:
@@ -1413,7 +1416,7 @@ namespace EverQuestDPSPlugin
                                 "damageEffect",
                                 "Hitpoints"
                             );
-                        ActGlobals.oFormActMain.AddCombatAction(masterSwingSpellcast);
+                        EnqueueCombatAction(masterSwingSpellcast);
                     }
                     break;
                 default:
@@ -1739,6 +1742,27 @@ namespace EverQuestDPSPlugin
             float FinishingBlowPerc = ((float)FinishingBlowCount / (float)count) * 100f;
 
             return $"{CripplingBlowPerc:000.0}%CB-{LockedPerc:000.0}%Locked-{CriticalPerc:000.0}%C-{StrikethroughPerc:000.0}%S-{RipostePerc:000.0}%R-{FlurryPerc:000.0}%F-{LuckyPerc:000.0}%Lucky-{DoubleBowShotPerc:000.0}%DB-{TwincastPerc:000.0}%TC-{WildRampagePerc:000.0}%WR-{FinishingBlowPerc:000.0}%FB-{NonDefinedPerc:000.0}%ND";
+        }
+
+        public async Task EnqueueCombatAction(MasterSwing ms)
+        {
+            masterSwingsQueue.Enqueue(ms);
+            if (!QueueIsProcessing)
+            {
+                (new Task(() =>
+                {
+                    QueueIsProcessing = true;
+                    MasterSwing masterSwing = default(MasterSwing);
+                    while (!masterSwingsQueue.IsEmpty)
+                    {
+                        if (masterSwingsQueue.TryDequeue(out masterSwing))
+                        {
+                            ActGlobals.oFormActMain.AddCombatAction(masterSwing);
+                        }
+                    }
+                    QueueIsProcessing = false;
+                })).Start();
+            }
         }
     }
 }
