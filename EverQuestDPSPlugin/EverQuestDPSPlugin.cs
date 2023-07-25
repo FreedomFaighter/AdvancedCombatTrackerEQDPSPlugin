@@ -1747,7 +1747,7 @@ namespace EverQuestDPSPlugin
             return $"{CripplingBlowPerc:000.0}%CB-{LockedPerc:000.0}%Locked-{CriticalPerc:000.0}%C-{StrikethroughPerc:000.0}%S-{RipostePerc:000.0}%R-{FlurryPerc:000.0}%F-{LuckyPerc:000.0}%Lucky-{DoubleBowShotPerc:000.0}%DB-{TwincastPerc:000.0}%TC-{WildRampagePerc:000.0}%WR-{FinishingBlowPerc:000.0}%FB-{NonDefinedPerc:000.0}%ND";
         }
 
-        public async Task EnqueueCombatAction(MasterSwing ms)
+        public void EnqueueCombatAction(MasterSwing ms)
         {
             masterSwingsQueue.Enqueue(ms);
             if (!sl.IsHeld)
