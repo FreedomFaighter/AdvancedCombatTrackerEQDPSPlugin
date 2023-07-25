@@ -13,6 +13,7 @@ using System.Threading.Tasks;
 using System.Windows.Forms;
 using System.Xml;
 using System.Collections.Concurrent;
+using System.Threading;
 
 /*
 * Project: EverQuest DPS Plugin
@@ -1104,9 +1105,9 @@ namespace EverQuestDPSPlugin
     public partial class EverQuestDPSPlugin
     {
         #region Class Members 2
-        private object QueueIsProcessingLockObject = new object();
         private ConcurrentQueue<MasterSwing> masterSwingsQueue = new ConcurrentQueue<MasterSwing>();
-        private bool QueueIsProcessing = false;
+        private bool gotLock = false;
+        private SpinLock sl = new SpinLock();
         delegate void matchParse(Match regexMatch);
         List<Tuple<Color, Regex>> regexTupleList;
         Regex selfCheck;
@@ -1749,24 +1750,32 @@ namespace EverQuestDPSPlugin
         public async Task EnqueueCombatAction(MasterSwing ms)
         {
             masterSwingsQueue.Enqueue(ms);
-                if (!QueueIsProcessing)
+            if (!sl.IsHeld)
+            {
+                (new Task(() =>
                 {
-                    (new Task(() =>
+                    MasterSwing masterSwing = default(MasterSwing);
+                    gotLock = false;
+                    while (!masterSwingsQueue.IsEmpty)
                     {
-                        lock (QueueIsProcessingLockObject)
-                            QueueIsProcessing = true;
-                        MasterSwing masterSwing = default(MasterSwing);
-                        while (!masterSwingsQueue.IsEmpty)
+                        try
                         {
                             if (masterSwingsQueue.TryDequeue(out masterSwing))
                             {
+                                sl.Enter(ref gotLock);
                                 ActGlobals.oFormActMain.AddCombatAction(masterSwing);
                             }
                         }
-                        lock (QueueIsProcessingLockObject)
-                            QueueIsProcessing = false;
-                    })).Start();
-                }
+                        finally
+                        {
+                            if (gotLock)
+                            {
+                                sl.Exit();
+                            }
+                        }
+                    }
+                })).Start();
+            }
         }
     }
 }
