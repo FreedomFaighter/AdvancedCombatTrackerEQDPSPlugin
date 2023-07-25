@@ -1,7 +1,7 @@
 # Build Status
 [![ACT EverQuest DPS Plugin](https://github.com/FreedomFaighter/ACT_EQ_DPS_Plugin/actions/workflows/build-plugin.yml/badge.svg)](https://github.com/FreedomFaighter/ACT_EQ_DPS_Plugin/actions/workflows/build-plugin.yml)
 # Release Status
-[![Upload Release Asset](https://github.com/FreedomFaighter/ACT_EQ_DPS_Plugin/actions/workflows/release.yml/badge.svg)](https://github.com/FreedomFaighter/ACT_EQ_DPS_Plugin/actions/workflows/release.yml)
+[![ACT EverQuest DPS Plugin Upload Release Asset](https://github.com/FreedomFaighter/ACT_EQ_DPS_Plugin/actions/workflows/release.yml/badge.svg)](https://github.com/FreedomFaighter/ACT_EQ_DPS_Plugin/actions/workflows/release.yml)
 
 # ACT_EQ_DPS_Plugin
 Compiles with .NET 4.8 which is a version unavailable with github actions
