@@ -6,7 +6,7 @@ on:
       # Allows you to run this workflow manually from the Actions tab
   workflow_dispatch:
 
-name: Upload Release Asset
+name: ACT EverQuest DPS Plugin Upload Release Asset
 jobs:
   build-and-create-release:
     runs-on: windows-2019
