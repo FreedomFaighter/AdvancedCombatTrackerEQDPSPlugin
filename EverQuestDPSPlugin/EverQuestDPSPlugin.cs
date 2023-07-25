@@ -1104,6 +1104,7 @@ namespace EverQuestDPSPlugin
     public partial class EverQuestDPSPlugin
     {
         #region Class Members 2
+        private object QueueIsProcessingLockObject = new object();
         private ConcurrentQueue<MasterSwing> masterSwingsQueue = new ConcurrentQueue<MasterSwing>();
         private bool QueueIsProcessing = false;
         delegate void matchParse(Match regexMatch);
@@ -1747,22 +1748,25 @@ namespace EverQuestDPSPlugin
         public async Task EnqueueCombatAction(MasterSwing ms)
         {
             masterSwingsQueue.Enqueue(ms);
-            if (!QueueIsProcessing)
-            {
-                (new Task(() =>
+            lock (QueueIsProcessingLockObject)
+                if (!QueueIsProcessing)
                 {
-                    QueueIsProcessing = true;
-                    MasterSwing masterSwing = default(MasterSwing);
-                    while (!masterSwingsQueue.IsEmpty)
+                    (new Task(() =>
                     {
-                        if (masterSwingsQueue.TryDequeue(out masterSwing))
+                        lock (QueueIsProcessingLockObject)
+                            QueueIsProcessing = true;
+                        MasterSwing masterSwing = default(MasterSwing);
+                        while (!masterSwingsQueue.IsEmpty)
                         {
-                            ActGlobals.oFormActMain.AddCombatAction(masterSwing);
+                            if (masterSwingsQueue.TryDequeue(out masterSwing))
+                            {
+                                ActGlobals.oFormActMain.AddCombatAction(masterSwing);
+                            }
                         }
-                    }
-                    QueueIsProcessing = false;
-                })).Start();
-            }
+                        lock (QueueIsProcessingLockObject)
+                            QueueIsProcessing = false;
+                    })).Start();
+                }
         }
     }
 }
