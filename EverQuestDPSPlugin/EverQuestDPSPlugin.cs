@@ -12,9 +12,6 @@ using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using System.Windows.Forms;
-using Advanced_Combat_Tracker;
-using System.IO;
-using System.Reflection;
 using System.Xml;
 using System.Collections.Concurrent;
 using System.Threading;
@@ -250,110 +247,7 @@ namespace EverQuestDPSPlugin
             }
         }
 
-        private DateTime ParseDateTime(String timeStamp)
-        {
-            DateTime.TryParseExact(timeStamp, EverQuestDPSPluginResource.eqDateTimeStampFormat, DateTimeFormatInfo.CurrentInfo, DateTimeStyles.AssumeLocal, out DateTime currentEQTimeStamp);
-            return currentEQTimeStamp;
-        }
-
-        private String regexString(String regex)
-        {
-            if (regex == null)
-                throw new ArgumentNullException("Missing value for regex");
-            else
-                return $@"[(?<dateTimeOfLogLine>.+)] {regex}";
-        }
-
-        private void PopulateRegexArray()
-        {
-            String MeleeAttack = @"(?<attacker>.+) (?<attackType>" + $@"{EverQuestDPSPluginResource.attackTypes}" + @")(|s|es|bed) (?<victim>.+) for (?<damageAmount>[\d]+) (?:(?:point)(?:s|)) of damage.(?:\s\((?<damageSpecial>.+)\)){0,1}";
-            String Evasion = @"(?<attacker>.*) tries to (?<attackType>\S+) (?:(?<victim>(.+)), but \1) (?:(?<evasionType>" + $@"{EverQuestDPSPluginResource.evasionTypes}" + @"))(?:\swith your staff){0,1}!(?:[\s][\(](?<evasionSpecial>.+)[\)]){0,1}";
-            possesive = new Regex(EverQuestDPSPluginResource.possessiveString, RegexOptions.Compiled);
-            tellsregex = new Regex(regexString(EverQuestDPSPluginResource.tellsRegex), RegexOptions.Compiled);
-            selfCheck = new Regex(@"(You|you|yourself|Yourself|YOURSELF|YOU)", RegexOptions.Compiled);
-            regexTupleList = new List<Tuple<Color, Regex>>();
-            ActGlobals.oFormEncounterLogs.LogTypeToColorMapping.Clear();
-            regexTupleList.Add(new Tuple<Color, Regex>(Color.Red, new Regex(regexString(MeleeAttack), RegexOptions.Compiled)));
-            ActGlobals.oFormEncounterLogs.LogTypeToColorMapping.Add(regexTupleList.Count, regexTupleList[regexTupleList.Count - 1].Item1);
-            regexTupleList.Add(new Tuple<Color, Regex>(Color.ForestGreen, new Regex(regexString(EverQuestDPSPluginResource.DamageShield), RegexOptions.Compiled)));
-            ActGlobals.oFormEncounterLogs.LogTypeToColorMapping.Add(regexTupleList.Count, regexTupleList[regexTupleList.Count - 1].Item1);
-            regexTupleList.Add(new Tuple<Color, Regex>(Color.Plum, new Regex(regexString(EverQuestDPSPluginResource.MissedMeleeAttack), RegexOptions.Compiled)));
-            ActGlobals.oFormEncounterLogs.LogTypeToColorMapping.Add(regexTupleList.Count, regexTupleList[regexTupleList.Count - 1].Item1);
-            regexTupleList.Add(new Tuple<Color, Regex>(Color.Goldenrod, new Regex(regexString(EverQuestDPSPluginResource.SlainMessage), RegexOptions.Compiled)));
-            ActGlobals.oFormEncounterLogs.LogTypeToColorMapping.Add(regexTupleList.Count, regexTupleList[regexTupleList.Count - 1].Item1);
-            regexTupleList.Add(new Tuple<Color, Regex>(Color.Red, new Regex(regexString(EverQuestDPSPluginResource.SpellDamage), RegexOptions.Compiled)));
-            ActGlobals.oFormEncounterLogs.LogTypeToColorMapping.Add(regexTupleList.Count, regexTupleList[regexTupleList.Count - 1].Item1);
-            regexTupleList.Add(new Tuple<Color, Regex>(Color.Maroon, new Regex(regexString(EverQuestDPSPluginResource.ZoneChange), RegexOptions.Compiled)));
-            ActGlobals.oFormEncounterLogs.LogTypeToColorMapping.Add(regexTupleList.Count, regexTupleList[regexTupleList.Count - 1].Item1);
-            regexTupleList.Add(new Tuple<Color, Regex>(Color.DarkBlue, new Regex(regexString(EverQuestDPSPluginResource.Heal), RegexOptions.Compiled)));
-            ActGlobals.oFormEncounterLogs.LogTypeToColorMapping.Add(regexTupleList.Count, regexTupleList[regexTupleList.Count - 1].Item1);
-            regexTupleList.Add(new Tuple<Color, Regex>(Color.Silver, new Regex(regexString(EverQuestDPSPluginResource.Unknown), RegexOptions.Compiled)));
-            ActGlobals.oFormEncounterLogs.LogTypeToColorMapping.Add(regexTupleList.Count, regexTupleList[regexTupleList.Count - 1].Item1);
-            regexTupleList.Add(new Tuple<Color, Regex>(Color.DeepSkyBlue, new Regex(regexString(Evasion), RegexOptions.Compiled)));
-            ActGlobals.oFormEncounterLogs.LogTypeToColorMapping.Add(regexTupleList.Count, regexTupleList[regexTupleList.Count - 1].Item1);
-            regexTupleList.Add(new Tuple<Color, Regex>(Color.LightBlue, new Regex(regexString(EverQuestDPSPluginResource.Banestrike), RegexOptions.Compiled)));
-            ActGlobals.oFormEncounterLogs.LogTypeToColorMapping.Add(regexTupleList.Count, regexTupleList[regexTupleList.Count - 1].Item1);
-            regexTupleList.Add(new Tuple<Color, Regex>(Color.AliceBlue, new Regex(regexString(EverQuestDPSPluginResource.SpellDamageOverTime), RegexOptions.Compiled)));
-            ActGlobals.oFormEncounterLogs.LogTypeToColorMapping.Add(regexTupleList.Count, regexTupleList[regexTupleList.Count - 1].Item1);
-        }
-
-        void FormActMain_BeforeLogLineRead(bool isImport, LogLineEventArgs logInfo)
-        {
-            bool match = false;
-            for (int i = 0; i < regexTupleList.Count; i++)
-            {
-                Match regexMatch = regexTupleList[i].Item2.Match(logInfo.logLine);
-                if (regexMatch.Success)
-                {
-                    match = true;
-                    logInfo.detectedType = i + 1;
-                    ParseEverQuestLogLine(regexMatch, i + 1);
-                    break;
-                }
-            }
-            Match tellmatch = tellsregex.Match(logInfo.logLine);
-            if (!match && !tellmatch.Success)
-            {
-                AddLogLineToNonMatch(logInfo.logLine);
-            }
-        }
-
-        Tuple<EverQuestSwingType, String> GetTypeAndNameForPet(String nameToSetTypeTo)
-        {
-            Match possessiveMatch = possesive.Match(nameToSetTypeTo);
-
-            if (possessiveMatch.Success)
-            {
-                switch(possessiveMatch.Groups[0].Value)
-                {
-                    case "pet":
-                        return new Tuple<EverQuestSwingType, String>(EverQuestSwingType.Pet, nameToSetTypeTo.Substring(0, possessiveMatch.Index));
-                    case "warder":
-                        return new Tuple<EverQuestSwingType, String>(EverQuestSwingType.Warder, nameToSetTypeTo.Substring(0, possessiveMatch.Index));
-                    case "ward":
-                        return new Tuple<EverQuestSwingType, String>(EverQuestSwingType.Ward, nameToSetTypeTo.Substring(0, possessiveMatch.Index));
-                    case "familiar":
-                        return new Tuple<EverQuestSwingType, string>(EverQuestSwingType.Familiar, nameToSetTypeTo.Substring(0, possessiveMatch.Index));
-                    case "flames":
-                        return new Tuple<EverQuestSwingType, string>(EverQuestSwingType.DamageShield, nameToSetTypeTo.Substring(0, possessiveMatch.Index));
-                    case "thorns":
-                        return new Tuple<EverQuestSwingType, string>(EverQuestSwingType.DamageShield, nameToSetTypeTo.Substring(0, possessiveMatch.Index));
-                    default:
-                        return new Tuple<EverQuestSwingType, String>(0, nameToSetTypeTo);
-                }
-            }
-            else
-            {
-                return new Tuple<EverQuestSwingType, String>(0, nameToSetTypeTo);
-            }
-        }
 		#endregion
-
-        bool CheckIfSelf(String nameOfCharacter)
-        {
-            Regex regexSelf = new Regex(@"((it|her|him|them)sel(f|ves))", RegexOptions.Compiled);
-            return regexSelf.Match(nameOfCharacter).Success;
-        }
 
         MasterSwing ParseMasterSwing(EverQuestSwingType attackTypeToCombine,
             Match logLineRegexMatch,
@@ -557,42 +451,43 @@ namespace EverQuestDPSPlugin
             if (File.Exists(settingsFile))
             {
                 using (FileStream fs = new FileStream(settingsFile, FileMode.Open, FileAccess.Read, FileShare.ReadWrite))
-				{
-                using (XmlTextReader xReader = new XmlTextReader(fs))
                 {
-
-                    try
+                    using (XmlTextReader xReader = new XmlTextReader(fs))
                     {
-                        while (xReader.Read())
-                        {
-                            if (xReader.NodeType == XmlNodeType.Element)
-                            {
-                                if (xReader.LocalName == "SettingsSerializer")
-									{
-                                    xmlSettings.ImportFromXml(xReader);
-                                if (xReader.LocalName == "ApostropheNameFix")
-                                    LoadXmlApostropheNameFix(xReader);
 
+                        try
+                        {
+                            while (xReader.Read())
+                            {
+                                if (xReader.NodeType == XmlNodeType.Element)
+                                {
+                                    if (xReader.LocalName == "SettingsSerializer")
+                                    {
+                                        xmlSettings.ImportFromXml(xReader);
+                                        if (xReader.LocalName == "ApostropheNameFix")
+                                            LoadXmlApostropheNameFix(xReader);
+
+                                    }
+                                }
                             }
                         }
-                    }
-                    catch (ArgumentNullException ex)
-                    {
-                        ChangeLblStatus($"Argument Null for {ex.ParamName} with message: {ex.Message}");
-                    }
-                    catch (Exception ex)
-                    {
-                        ChangeLblStatus($"With message: {ex.Message}");
+                        catch (ArgumentNullException ex)
+                        {
+                            ChangeLblStatus($"Argument Null for {ex.ParamName} with message: {ex.Message}");
+                        }
+                        catch (Exception ex)
+                        {
+                            ChangeLblStatus($"With message: {ex.Message}");
+                        }
                     }
                 }
+                if (varianceChkBx.InvokeRequired)
+                    varianceChkBx.Invoke(new Action<object, EventArgs>(VarianceChkBx_CheckedChanged));
+                else
+                    this.populationVariance = varianceChkBx.Checked;
+                NonMatchVisible_CheckedChanged(nonMatchVisibleChkbx, new EventArgs());
             }
-            if (varianceChkBx.InvokeRequired)
-                varianceChkBx.Invoke(new Action<object, EventArgs>(VarianceChkBx_CheckedChanged));
-            else
-                this.populationVariance = varianceChkBx.Checked;
-            NonMatchVisible_CheckedChanged(nonMatchVisibleChkbx, new EventArgs());
         }
-
         void SaveSettings()
         {
             using (FileStream fs = new FileStream(settingsFile, FileMode.Create, FileAccess.Write, FileShare.ReadWrite))
@@ -1537,202 +1432,6 @@ namespace EverQuestDPSPlugin
             return regexSelf.Match(nameOfCharacter).Success;
         }
 
-        MasterSwing ParseMasterSwing(EverQuestSwingType attackTypeToCombine,
-            Match logLineRegexMatch,
-            String character1GroupName,
-            String character2GroupName,
-            String specialGroupName,
-            Dnum dnumValue,
-            String attackTypeGroupName,
-            String damageType
-            )
-        {
-            Tuple<EverQuestSwingType, String> attackerAndTypeMelee = GetTypeAndNameForPet(logLineRegexMatch.Groups[character1GroupName].Value);
-            Tuple<EverQuestSwingType, String> victimAndTypeMelee = GetTypeAndNameForPet(logLineRegexMatch.Groups[character2GroupName].Value);
-            String attacker, victim;
-            EverQuestSwingType everQuestSwingTypeToParseMelee;
-            if (((attackerAndTypeMelee.Item1 & EverQuestSwingType.Pet) == EverQuestSwingType.Pet) || ((victimAndTypeMelee.Item1 & EverQuestSwingType.Pet) == EverQuestSwingType.Pet))
-                everQuestSwingTypeToParseMelee = EverQuestSwingType.Pet;
-            else if (((attackerAndTypeMelee.Item1 & EverQuestSwingType.Warder) == EverQuestSwingType.Warder) || ((victimAndTypeMelee.Item1 & EverQuestSwingType.Warder) == EverQuestSwingType.Warder))
-                everQuestSwingTypeToParseMelee = EverQuestSwingType.Warder;
-            else if (((attackerAndTypeMelee.Item1 & EverQuestSwingType.Ward) == EverQuestSwingType.Ward) || ((victimAndTypeMelee.Item1 & EverQuestSwingType.Ward) == EverQuestSwingType.Ward))
-                everQuestSwingTypeToParseMelee = EverQuestSwingType.Ward;
-            else if (((attackerAndTypeMelee.Item1 & EverQuestSwingType.NonMelee) == EverQuestSwingType.NonMelee) || ((victimAndTypeMelee.Item1 & EverQuestSwingType.NonMelee) == EverQuestSwingType.NonMelee))
-                everQuestSwingTypeToParseMelee = EverQuestSwingType.DamageShield;
-            else
-                everQuestSwingTypeToParseMelee = 0;
-            if (everQuestSwingTypeToParseMelee == EverQuestSwingType.DamageShield)
-            {
-                attacker = CheckIfSelf(victimAndTypeMelee.Item2) ? CharacterNamePersonaReplace(attackerAndTypeMelee.Item2) : CharacterNamePersonaReplace(victimAndTypeMelee.Item2);
-                victim = CharacterNamePersonaReplace(attackerAndTypeMelee.Item2);
-            }
-            else
-            {
-                attacker = CharacterNamePersonaReplace(attackerAndTypeMelee.Item2);
-                victim = CheckIfSelf(victimAndTypeMelee.Item2) ? CharacterNamePersonaReplace(attackerAndTypeMelee.Item2) : CharacterNamePersonaReplace(victimAndTypeMelee.Item2);
-            }
-            MasterSwing masterSwingMelee = new MasterSwing((everQuestSwingTypeToParseMelee | attackTypeToCombine).GetEverQuestSwingTypeExtensionIntValue()
-            , logLineRegexMatch.Groups[specialGroupName].Success ? logLineRegexMatch.Groups[specialGroupName].Value.Contains(EverQuestDPSPluginResource.Critical) : false
-            , logLineRegexMatch.Groups[specialGroupName].Success ? logLineRegexMatch.Groups[specialGroupName].Value : String.Empty
-            , dnumValue
-            , ParseDateTime(logLineRegexMatch.Groups[EverQuestDPSPluginResource.dateTimeOfLogLineString].Value)
-            , ActGlobals.oFormActMain.GlobalTimeSorter
-            , logLineRegexMatch.Groups[attackTypeGroupName].Value
-            , attacker
-            , damageType
-            , victim);
-            masterSwingMelee.Tags.Add("lastEstimatedTime", ActGlobals.oFormActMain.LastEstimatedTime);
-            return masterSwingMelee;
-        }
-
-        private void ParseEverQuestLogLine(Match regexMatch, int logMatched)
-        {
-            switch (logMatched)
-            {
-                //Melee attack
-                case 1:
-                    if (ActGlobals.oFormActMain.SetEncounter(ActGlobals.oFormActMain.LastKnownTime, CharacterNamePersonaReplace(regexMatch.Groups["attacker"].Value), CharacterNamePersonaReplace(regexMatch.Groups["victim"].Value)))
-                    {
-                        Dnum damage = new Dnum(Int64.Parse(regexMatch.Groups["damageAmount"].Value));
-                        MasterSwing masterSwingMelee = ParseMasterSwing(
-                            EverQuestSwingType.Melee,
-                            regexMatch,
-                            "attacker",
-                            "victim",
-                            "damageSpecial",
-                            damage,
-                            "attackType",
-                            "Hitpoints"
-                        );
-                        EnqueueCombatAction(masterSwingMelee);
-                    }
-                    break;
-                //Non-melee damage shield
-                case 2:
-                    if (ActGlobals.oFormActMain.SetEncounter(ActGlobals.oFormActMain.LastKnownTime, CharacterNamePersonaReplace(regexMatch.Groups["attacker"].Value), CharacterNamePersonaReplace(regexMatch.Groups["victim"].Value)))
-                    {
-                        Dnum damage = new Dnum(Int64.Parse(regexMatch.Groups["damagePoints"].Value));
-                        MasterSwing masterSwingDamageShield = ParseMasterSwing(
-                                EverQuestSwingType.NonMelee,
-                                regexMatch,
-                                "attacker",
-                                "victim",
-                                "damageSpecial",
-                                damage,
-                                "damageShieldDamageType",
-                                "Hitpoints");
-                        EnqueueCombatAction(masterSwingDamageShield);
-                    }
-                    break;
-                //Missed melee
-                case 3:
-                    if (ActGlobals.oFormActMain.SetEncounter(ActGlobals.oFormActMain.LastKnownTime, CharacterNamePersonaReplace(regexMatch.Groups["attacker"].Value), CharacterNamePersonaReplace(regexMatch.Groups["victim"].Value)))
-                    {
-                        Dnum miss = new Dnum(Dnum.Miss);
-                        MasterSwing masterSwingMissedMelee = ParseMasterSwing(
-                                EverQuestSwingType.Melee,
-                                regexMatch,
-                                "attacker",
-                                "victim",
-                                "damageSpecial",
-                                miss,
-                                "attackType",
-                                "Miss"
-                            );
-                        EnqueueCombatAction(masterSwingMissedMelee);
-                    }
-                    break;
-                //Death message
-                case 4:
-                    MasterSwing masterSwingSlain = new MasterSwing(0, false, new Dnum(Dnum.Death), ActGlobals.oFormActMain.LastEstimatedTime, ActGlobals.oFormActMain.GlobalTimeSorter, String.Empty, CharacterNamePersonaReplace(regexMatch.Groups["attacker"].Value), String.Empty, CharacterNamePersonaReplace(regexMatch.Groups["victim"].Value));
-                    EnqueueCombatAction(masterSwingSlain);
-                    break;
-                //Spell Cast
-                case 5:
-                    if (ActGlobals.oFormActMain.SetEncounter(ActGlobals.oFormActMain.LastKnownTime, CharacterNamePersonaReplace(regexMatch.Groups["attacker"].Value), CharacterNamePersonaReplace(regexMatch.Groups["victim"].Value)))
-                    {
-                        Dnum damage = new Dnum(Int64.Parse(regexMatch.Groups["damagePoints"].Value), regexMatch.Groups["typeOfDamage"].Value);
-                        MasterSwing masterSwingSpellcast = ParseMasterSwing(
-                                EverQuestSwingType.DirectDamageSpell,
-                                regexMatch,
-                                "attacker",
-                                "victim",
-                                "spellSpecial",
-                                damage,
-                                "damageEffect",
-                                "Hitpoints"
-                            );
-                        EnqueueCombatAction(masterSwingSpellcast);
-                    }
-                    break;
-                case 6:
-                    //when checking the HistoryRecord the EndTime should be compared against default(DateTime) to determine if it an exact value among other methods such does the default(DateTime) take place before the StartTime for the HistoryRecord
-                    //ActGlobals.oFormActMain.ZoneDatabaseAdd(new HistoryRecord(0, ActGlobals.oFormActMain.LastKnownTime, new DateTime(), regexMatch.Groups["zoneName"].Value != String.Empty ? regexMatch.Groups["zoneName"].Value : throw new Exception("Zone regex triggered but zone name not found."), ActGlobals.charName));
-                    ActGlobals.oFormActMain.ChangeZone(regexMatch.Groups["zoneName"].Value);
-                    break;
-                //heal
-                case 7:
-                    if (ActGlobals.oFormActMain.InCombat)
-                    {
-                        MasterSwing masterSwingHeal = ParseMasterSwing(
-                                regexMatch.Groups["overTime"].Success ? EverQuestSwingType.HealOverTime : EverQuestSwingType.InstantHealing,
-                                regexMatch,
-                                "healer",
-                                "healingTarget",
-                                "healingSpecial",
-                                new Dnum(Int64.Parse(regexMatch.Groups["healingPoints"].Value)),
-                                "healingSpell",
-                                "Hitpoints"
-                            );
-                        if (regexMatch.Groups["overHealPoints"].Success)
-                            masterSwingHeal.Tags["overheal"] = Int64.Parse(regexMatch.Groups["overHealPoints"].Value);
-                        EnqueueCombatAction(masterSwingHeal);
-                    }
-                    break;
-                case 8:
-                    MasterSwing masterSwingUnknown = new MasterSwing(EverQuestSwingType.NonMelee.GetEverQuestSwingTypeExtensionIntValue(), false, new Dnum(Dnum.Unknown)
-                    {
-                        DamageString2 = regexMatch.Value
-                    }, ParseDateTime(regexMatch.Groups["dateTimeOfLogLine"].Value), ActGlobals.oFormActMain.GlobalTimeSorter, "Unknown", "Unknown", "Unknown", "Unknown");
-                    EnqueueCombatAction(masterSwingUnknown);
-                    break;
-                case 9:
-                    if (ActGlobals.oFormActMain.SetEncounter(ActGlobals.oFormActMain.LastKnownTime, CharacterNamePersonaReplace(regexMatch.Groups["attacker"].Value), CharacterNamePersonaReplace(regexMatch.Groups["victim"].Value)))
-                    {
-                        MasterSwing masterSwingEvasion = ParseMasterSwing(
-                                EverQuestSwingType.Melee,
-                                regexMatch,
-                                "attacker",
-                                "victim",
-                                "evasionSpecial",
-                                new Dnum(Dnum.NoDamage, regexMatch.Groups["evasionType"].Value),
-                                "attackType",
-                                "Hitpoints"
-                            );
-                        EnqueueCombatAction(masterSwingEvasion);
-                    }
-                    break;
-                case 10:
-                    if (ActGlobals.oFormActMain.SetEncounter(ActGlobals.oFormActMain.LastKnownTime, CharacterNamePersonaReplace(regexMatch.Groups["attacker"].Value), CharacterNamePersonaReplace(regexMatch.Groups["victim"].Value)))
-                    {
-                        Dnum damage = new Dnum(Int64.Parse(regexMatch.Groups["damagePoints"].Value));
-                        MasterSwing masterSwingSpellcast = ParseMasterSwing(
-                                EverQuestSwingType.DamageOverTimeSpell,
-                                regexMatch,
-                                "attacker",
-                                "victim",
-                                "spellSpecial",
-                                damage,
-                                "damageEffect",
-                                "Hitpoints"
-                            );
-                        EnqueueCombatAction(masterSwingSpellcast);
-                    }
-                    break;
-                default:
-                    break;
-            }
-        }
 
         private string CharacterNamePersonaReplace(string PersonaString)
         {
