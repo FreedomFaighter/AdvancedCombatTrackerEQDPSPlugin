@@ -16,6 +16,8 @@ jobs:
       EQDPSPluginUnitTestLibraryPath: '.\EQDPSPluginUnitTests\bin\Release\EQDPSPluginUnitTests.dll'
     steps:
       - uses: actions/checkout@main
+        with:
+          ref: EQDPSPlugin
       - name: Setup MSBuild
         uses: microsoft/setup-msbuild@v1.1
       - name: Download ACTv3 file
