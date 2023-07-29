@@ -93,7 +93,6 @@
     </EmbeddedResource>
   </ItemGroup>
   <ItemGroup>
-    <None Include="packages.config" />
     <None Include="Resources\LICENSE.txt" />
   </ItemGroup>
   <PropertyGroup>
