@@ -13,7 +13,7 @@ jobs:
     env:
       ACTFileName: 'ACTv3.zip'
       ACTDownloadURI: 'https://advancedcombattracker.com/download.php?id=57'
-      EQDPSPluginUnitTestLibraryPath: '.\EQDPSPluginUnitTests\bin\Release\EQDPSPluginUnitTests.dll'
+      EQDPSPluginUnitTestLibraryPath: '.\EQDPSPluginUnitTests\obj\Release\EQDPSPluginUnitTests.dll'
     steps:
       - uses: actions/checkout@main
         with:
