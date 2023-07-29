@@ -9,11 +9,11 @@ on:
 name: ACT EverQuest DPS Plugin Upload Release Asset
 jobs:
   build-and-create-release:
-    runs-on: windows-2019
+    runs-on: windows-latest
     env:
-      ACTFileName: 'ACTv3.zip'
-      ACTDownloadURI: 'https://advancedcombattracker.com/download.php?id=57'
-      EQDPSPluginUnitTestLibraryPath: '.\EQDPSPluginUnitTests\obj\Release\EQDPSPluginUnitTests.dll'
+      ACTFileName: 'ACTv3-setup.exe'
+      ACTDownloadURI: 'https://advancedcombattracker.com/download.php?id=56'
+      EQDPSPluginUnitTestLibraryPath: '.\EQDPSPluginUnitTests\bin\Release\EQDPSPluginUnitTests.dll'
     steps:
       - uses: actions/checkout@main
         with:
@@ -22,8 +22,8 @@ jobs:
         uses: microsoft/setup-msbuild@v1.1
       - name: Download ACTv3 file
         run: Invoke-WebRequest ${{env.ACTDownloadURI}} -OutFile ${{github.workspace}}\${{env.ACTFileName}}
-      - name: Extract ACT files
-        run: 7z x ${{github.workspace}}\${{env.ACTFileName}}
+      - name: Silent Install of ACTv3
+        run: ${{github.workspace}}\${{env.ACTFileName}} /S
       - name: Setup Nuget
         uses: nuget/setup-nuget@v1
       - name: Restore nuget packages
