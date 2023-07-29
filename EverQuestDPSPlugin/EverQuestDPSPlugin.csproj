@@ -10,6 +10,8 @@
     <WarningLevel>4</WarningLevel>
     <StartAction>Program</StartAction>
     <Prefer32Bit>false</Prefer32Bit>
+    <StartProgram>$(MSBuildProgramFiles32)\Advanced Combat Tracker\Advanced Combat Tracker.exe</StartProgram>
+    <StartWorkingDirectory>$(MSBuildProgramFiles32)\Advanced Combat Tracker\</StartWorkingDirectory>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <DebugType>pdbonly</DebugType>
