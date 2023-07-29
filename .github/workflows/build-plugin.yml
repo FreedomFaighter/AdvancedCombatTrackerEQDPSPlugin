@@ -19,8 +19,8 @@ jobs:
   build:
     runs-on: windows-latest
     env:
-      ACTFileName: 'ACTv3-setup.exe'
-      ACTDownloadURI: 'https://advancedcombattracker.com/download.php?id=56'
+      ACTFileName: 'ACTv3.zip'
+      ACTDownloadURI: 'https://advancedcombattracker.com/download.php?id=57'
       EQDPSPluginUnitTestLibraryPath: '.\EQDPSPluginUnitTests\bin\Release\EQDPSPluginUnitTests.dll'
     steps:
       - uses: actions/checkout@main
@@ -29,7 +29,7 @@ jobs:
       - name: Download ACTv3 file
         run: Invoke-WebRequest ${{env.ACTDownloadURI}} -OutFile ${{github.workspace}}\${{env.ACTFileName}}
       - name: Silent Install of ACTv3
-        run: ${{github.workspace}}\${{env.ACTFileName}} /S
+        run: 7z x ${{github.workspace}}\${{env.ACTFileName}}
       - name: Setup Nuget
         uses: nuget/setup-nuget@v1
       - name: Restore nuget packages
