@@ -97,4 +97,7 @@
     <None Include="packages.config" />
     <None Include="Resources\LICENSE.txt" />
   </ItemGroup>
+  <PropertyGroup>
+    <PostBuildEvent>copy /Y $(TargetDir)$(TargetFileName) "$(APPDATA)\Advanced Combat Tracker\Plugins"</PostBuildEvent>
+  </PropertyGroup>
 </Project>
