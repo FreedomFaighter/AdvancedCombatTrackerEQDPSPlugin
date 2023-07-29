@@ -13,8 +13,6 @@ using System.Threading.Tasks;
 using System.Windows.Forms;
 using System.Xml;
 using System.Collections.Concurrent;
-using System.Threading;
-using System.Runtime.ExceptionServices;
 
 /*
 * Project: EverQuest DPS Plugin
