@@ -3,7 +3,7 @@
 # Release Status
 [![ACT EverQuest DPS Plugin Upload Release Asset](https://github.com/FreedomFaighter/AdvancedCombatTracker/actions/workflows/release-plugin.yml/badge.svg)](https://github.com/FreedomFaighter/AdvancedCombatTracker/actions/workflows/release-plugin.yml)
 
-# ACT_EQ_DPS_Plugin
+# EverQuestDPSPlugin
 Compiles with .NET 4.8 which is a version unavailable with github actions
 
 Partially developed ACT plugin for parsing EverQuest log files as they are generated.
