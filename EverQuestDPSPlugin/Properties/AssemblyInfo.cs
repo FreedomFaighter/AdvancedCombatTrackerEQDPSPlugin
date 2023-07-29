@@ -1,4 +1,5 @@
 ﻿using System.Reflection;
+using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 
 // General Information about an assembly is controlled through the following 
@@ -7,7 +8,7 @@ using System.Runtime.InteropServices;
 [assembly: AssemblyProduct("EverQuest Damage Per Second Plugin for ACT")]
 [assembly: AssemblyCopyright("Copyright © 2023")]
 [assembly: AssemblyTitle("ACT EverQuest Damage Per Second Parsing")]
-[assembly: AssemblyDescription("Plugin for ACT EverQuest Damage Per Second Parsing, based on: https://github.com/EQAditu/AdvancedCombatTracker")]
+[assembly: AssemblyDescription("Plugin for ACT EverQuest Damage Per Second Parsing")]
 [assembly: AssemblyCulture("en-US")]
 
 // Setting ComVisible to false makes the types in this assembly not visible 
@@ -22,4 +23,5 @@ using System.Runtime.InteropServices;
 //      Build Number
 //      Revision
 //
-[assembly: AssemblyFileVersion("0.0.2.11")]
+[assembly: AssemblyFileVersion("0.0.2.12")]
+[assembly: InternalsVisibleTo("EQDPSPluginUnitTests")]

@@ -36,14 +36,14 @@ namespace EverQuestDPSPlugin
         FamiliarHealOverTime = Familiar | HealOverTime,
     }
 
-    public static class EverQuestSwingTypeExtensions
+    internal static class EverQuestSwingTypeExtensions
     {
         internal static int GetEverQuestSwingTypeExtensionIntValue(this EverQuestSwingType type)
         {
             return (int)type;
         }
 
-        public static EverQuestSwingType CharacterPossesiveTypeAttack(this EverQuestSwingType possessiveOf, EverQuestSwingType everQuestAttackType)
+        internal static EverQuestSwingType CharacterPossesiveTypeAttack(this EverQuestSwingType possessiveOf, EverQuestSwingType everQuestAttackType)
         {
             switch (possessiveOf)
             {

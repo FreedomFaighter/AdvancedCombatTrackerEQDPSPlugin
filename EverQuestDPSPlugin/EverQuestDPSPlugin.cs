@@ -29,7 +29,7 @@ using System.Collections.Concurrent;
 namespace EverQuestDPSPlugin
 {
     #region Aditu's Region with modifications
-    public partial class EverQuestDPSPlugin : UserControl, IActPluginV1, IEverQuestDPSPlugin
+    public partial class EverQuestDPSPlugin : UserControl, IActPluginV1
     {
         #region Designer generated code (Avoid editing)
         /// <summary> 
@@ -1103,7 +1103,7 @@ namespace EverQuestDPSPlugin
     #endregion
 
     #region Complexi's Region
-    public partial class EverQuestDPSPlugin
+    public partial class EverQuestDPSPlugin : IEverQuestDPSPlugin
     {
         #region Class Members 2
         private ConcurrentQueue<MasterSwing> masterSwingsQueue = new ConcurrentQueue<MasterSwing>();
@@ -1172,7 +1172,7 @@ namespace EverQuestDPSPlugin
             ActGlobals.oFormEncounterLogs.LogTypeToColorMapping.Add(regexTupleList.Count, regexTupleList[regexTupleList.Count - 1].Item1);
         }
 
-        void FormActMain_BeforeLogLineRead(bool isImport, LogLineEventArgs logInfo)
+        private void FormActMain_BeforeLogLineRead(bool isImport, LogLineEventArgs logInfo)
         {
             bool match = false;
             for (int i = 0; i < regexTupleList.Count; i++)
@@ -1193,7 +1193,7 @@ namespace EverQuestDPSPlugin
             }
         }
 
-        Tuple<EverQuestSwingType, String> GetTypeAndNameForPet(String nameToSetTypeTo)
+        private Tuple<EverQuestSwingType, String> GetTypeAndNameForPet(String nameToSetTypeTo)
         {
             Match possessiveMatch = possesive.Match(nameToSetTypeTo);
 
@@ -1225,13 +1225,13 @@ namespace EverQuestDPSPlugin
             }
         }
 
-        bool CheckIfSelf(String nameOfCharacter)
+        private bool CheckIfSelf(String nameOfCharacter)
         {
             Regex regexSelf = new Regex(@"((it|her|him|them)(s|sel(f|ves)))", RegexOptions.Compiled);
             return regexSelf.Match(nameOfCharacter).Success;
         }
 
-        MasterSwing ParseMasterSwing(EverQuestSwingType attackTypeToCombine,
+        private MasterSwing ParseMasterSwing(EverQuestSwingType attackTypeToCombine,
             Match logLineRegexMatch,
             String character1GroupName,
             String character2GroupName,
@@ -1524,7 +1524,7 @@ namespace EverQuestDPSPlugin
         }
 
         #region User Interface Update code
-        void ChangeLblStatus(String status)
+        private void ChangeLblStatus(String status)
         {
 
             switch (lblStatus.InvokeRequired)
@@ -1543,7 +1543,7 @@ namespace EverQuestDPSPlugin
             }
         }
 
-        void SetLicenseRichTextBox(String status)
+        private void SetLicenseRichTextBox(String status)
         {
             if (licenseRichTextBox.InvokeRequired)
                 licenseRichTextBox.Invoke(new Action(() =>
@@ -1569,17 +1569,17 @@ namespace EverQuestDPSPlugin
             }
         }
 
-        void AddLogLineToNonMatch(String message)
+        private void AddLogLineToNonMatch(String message)
         {
             if (nm.InvokeRequired)
             {
                 nm.Invoke(new Action(() =>
                 {
-                    nm.addLogLineToForm(message);
+                    nm.AddLogLineToForm(message);
                 }));
             }
             else
-                nm.addLogLineToForm(message);
+                nm.AddLogLineToForm(message);
         }
         //checkbox processing event for population or sample variance
         private void VarianceChkBx_CheckedChanged(object sender, EventArgs e)
@@ -1750,7 +1750,7 @@ namespace EverQuestDPSPlugin
             return $"{CripplingBlowPerc:000.0}%CB-{LockedPerc:000.0}%Locked-{CriticalPerc:000.0}%C-{StrikethroughPerc:000.0}%S-{RipostePerc:000.0}%R-{FlurryPerc:000.0}%F-{LuckyPerc:000.0}%Lucky-{DoubleBowShotPerc:000.0}%DB-{TwincastPerc:000.0}%TC-{WildRampagePerc:000.0}%WR-{FinishingBlowPerc:000.0}%FB-{NonDefinedPerc:000.0}%ND";
         }
 
-        public void EnqueueCombatAction(MasterSwing ms)
+        private void EnqueueCombatAction(MasterSwing ms)
         {
             masterSwingsQueue.Enqueue(ms);
             if (!isProcessing)
