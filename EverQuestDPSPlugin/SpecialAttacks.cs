@@ -1,7 +1,10 @@
 ﻿//Enum describing currently known special attacks that are written to the log file while actions occur in game
 //Currently appear after a combat action in parenthesis as a space seperated string
+using System;
+
 namespace EverQuestDPSPlugin
 {
+    [Flags]
     internal enum SpecialAttacks
     {
         Crippling_Blow = 1,

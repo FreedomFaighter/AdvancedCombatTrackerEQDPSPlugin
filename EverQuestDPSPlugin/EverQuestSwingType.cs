@@ -1,5 +1,8 @@
-﻿namespace EverQuestDPSPlugin
+﻿using System;
+
+namespace EverQuestDPSPlugin
 {
+    [Flags]
     public enum EverQuestSwingType : int
     {
         Melee = 1,

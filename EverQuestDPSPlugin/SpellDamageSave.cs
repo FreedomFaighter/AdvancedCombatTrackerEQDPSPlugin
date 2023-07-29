@@ -1,8 +1,11 @@
 ﻿//Spell damage saves currently known
 //Chromatic is a combination of these enum values and may be Fire | Cold = 3
 
+using System;
+
 namespace EverQuestDPSPlugin
 {
+    [Flags]
     internal enum SpellDamageSave
     {
         Fire = 1,
