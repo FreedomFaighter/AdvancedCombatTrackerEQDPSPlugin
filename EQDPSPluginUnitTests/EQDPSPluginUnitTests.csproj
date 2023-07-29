@@ -56,9 +56,6 @@
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="packages.config" />
-  </ItemGroup>
-  <ItemGroup>
     <ProjectReference Include="..\EverQuestDPSPlugin\EverQuestDPSPlugin.csproj">
       <Project>{9b9301a0-40ea-4da2-a2a4-ca46fc46a673}</Project>
       <Name>EverQuestDPSPlugin</Name>
