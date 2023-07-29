@@ -254,7 +254,7 @@ namespace EverQuestDPSPlugin {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to `s (?&lt;possesiveOf&gt;.+).
+        ///   Looks up a localized string similar to (?:(`|&apos;))s (?&lt;possesiveOf&gt;.+).
         /// </summary>
         internal static string possessiveString {
             get {
