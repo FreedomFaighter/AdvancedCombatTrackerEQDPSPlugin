@@ -47,9 +47,35 @@ namespace EQDPSPluginUnitTests
         [DataRow(EverQuestSwingType.PetNonMelee, EverQuestSwingType.NonMelee)]
         [DataRow(EverQuestSwingType.PetInstantHeal, EverQuestSwingType.InstantHealing)]
         [DataRow(EverQuestSwingType.PetHealOverTime, EverQuestSwingType.HealOverTime)]
+        [DataRow(EverQuestSwingType.PetMelee | EverQuestSwingType.HealOverTime, EverQuestSwingType.PetMelee)]
+        [DataRow(EverQuestSwingType.PetMelee | EverQuestSwingType.InstantHealing, EverQuestSwingType.PetMelee)]
+        [DataRow(EverQuestSwingType.FamiliarDirectSpellDamage | EverQuestSwingType.HealOverTime, EverQuestSwingType.PetMelee)]
+        [DataRow(EverQuestSwingType.FamiliarHealOverTime | EverQuestSwingType.InstantHealing, EverQuestSwingType.PetMelee)]
         public void EnumNotEqualTest(EverQuestSwingType composite, EverQuestSwingType rawComposite)
         {
             Assert.AreNotEqual(composite, rawComposite);
+        }
+
+        [DataTestMethod]
+        [DataRow(EverQuestSwingType.FamiliarDirectSpellDamage, EverQuestSwingType.Familiar)]
+        [DataRow(EverQuestSwingType.FamiliarHealOverTime, EverQuestSwingType.Familiar)]
+        [DataRow(EverQuestSwingType.FamiliarInstantHealing, EverQuestSwingType.Familiar)]
+        [DataRow(EverQuestSwingType.PetMelee, EverQuestSwingType.Pet)]
+        [DataRow(EverQuestSwingType.PetNonMelee, EverQuestSwingType.Pet)]
+        [DataRow(EverQuestSwingType.PetInstantHeal, EverQuestSwingType.Pet)]
+        [DataRow(EverQuestSwingType.PetHealOverTime, EverQuestSwingType.Pet)]
+        [DataRow(EverQuestSwingType.FamiliarDirectSpellDamage, EverQuestSwingType.DirectDamageSpell)]
+        [DataRow(EverQuestSwingType.FamiliarHealOverTime, EverQuestSwingType.HealOverTime)]
+        [DataRow(EverQuestSwingType.FamiliarInstantHealing, EverQuestSwingType.InstantHealing)]
+        [DataRow(EverQuestSwingType.PetMelee, EverQuestSwingType.Melee)]
+        [DataRow(EverQuestSwingType.PetNonMelee, EverQuestSwingType.NonMelee)]
+        [DataRow(EverQuestSwingType.PetInstantHeal, EverQuestSwingType.InstantHealing)]
+        [DataRow(EverQuestSwingType.PetHealOverTime, EverQuestSwingType.HealOverTime)]
+        [DataRow(EverQuestSwingType.PetMelee | EverQuestSwingType.HealOverTime, EverQuestSwingType.PetMelee)]
+        [DataRow(EverQuestSwingType.PetMelee | EverQuestSwingType.InstantHealing, EverQuestSwingType.PetMelee)]
+        public void EnumHasFlagTrue(EverQuestSwingType composite, EverQuestSwingType hasFlag)
+        {
+            Assert.IsTrue(composite.HasFlag(hasFlag));
         }
     }
 }
