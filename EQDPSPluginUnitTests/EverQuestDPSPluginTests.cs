@@ -10,11 +10,9 @@ namespace EQDPSPluginUnitTests
     {
 
         EverQuestDPSPlugin.EverQuestDPSPlugin eqDPSPlugin;
-        String exampleOwner;
         [TestInitialize] public void Init() { 
             eqDPSPlugin = new EverQuestDPSPlugin.EverQuestDPSPlugin();
             eqDPSPlugin.PopulateRegexNonCombat();
-            exampleOwner = "CharacterName";
         }
 
         [DataTestMethod]
@@ -49,7 +47,7 @@ namespace EQDPSPluginUnitTests
         [DataRow("'s thorns", EverQuestSwingType.NonMelee)]
         public void GetTypeAndNameForPetPossesiveTest(string StringToTestForOwnership, EverQuestSwingType swingTypeToTestForMatch)
         {
-            Assert.AreEqual<EverQuestSwingType>(eqDPSPlugin.GetTypeAndNameForPet(exampleOwner + StringToTestForOwnership).Item1, swingTypeToTestForMatch);
+            Assert.AreEqual<EverQuestSwingType>(eqDPSPlugin.GetTypeAndNameForPet(StringToTestForOwnership).Item1, swingTypeToTestForMatch);
         }
     }
 }
