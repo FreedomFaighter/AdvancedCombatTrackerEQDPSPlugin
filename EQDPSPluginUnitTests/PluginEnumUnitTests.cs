@@ -73,6 +73,8 @@ namespace EQDPSPluginUnitTests
         [DataRow(EverQuestSwingType.PetHealOverTime, EverQuestSwingType.HealOverTime)]
         [DataRow(EverQuestSwingType.PetMelee | EverQuestSwingType.HealOverTime, EverQuestSwingType.PetMelee)]
         [DataRow(EverQuestSwingType.PetMelee | EverQuestSwingType.InstantHealing, EverQuestSwingType.PetMelee)]
+        [DataRow(EverQuestSwingType.WarderMelee, EverQuestSwingType.Melee)]
+        [DataRow(EverQuestSwingType.WarderNonMelee, EverQuestSwingType.NonMelee)]
         public void EnumHasFlagTrue(EverQuestSwingType composite, EverQuestSwingType hasFlag)
         {
             Assert.IsTrue(composite.HasFlag(hasFlag));
