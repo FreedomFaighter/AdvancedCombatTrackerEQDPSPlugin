@@ -1,4 +1,5 @@
 ﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
+using System;
 
 namespace EQDPSPluginUnitTests
 {
@@ -19,6 +20,12 @@ namespace EQDPSPluginUnitTests
         public void selfIsTrue(string selfTest)
         {
             Assert.IsTrue(eqDPSPlugin.CheckIfSelf(selfTest));
+        }
+
+        [TestMethod]
+        public void RegexStringTestExceptionOnNullString()
+        {
+            Assert.ThrowsException<ArgumentNullException>(new Action(() => eqDPSPlugin.RegexString(null)));
         }
     }
 }

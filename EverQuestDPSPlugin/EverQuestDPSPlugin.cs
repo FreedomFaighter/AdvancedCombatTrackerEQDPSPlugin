@@ -1423,9 +1423,9 @@ namespace EverQuestDPSPlugin
             return currentEQTimeStamp;
         }
 
-        private String RegexString(String regex)
+        internal String RegexString(String regex)
         {
-            if (!(regex != null))
+            if (regex == null)
                 throw new ArgumentNullException("Missing value for regex");
             else
                 return $@"\[(?<{EverQuestDPSPluginResource.dateTimeOfLogLineString}>.+)\] {regex}";

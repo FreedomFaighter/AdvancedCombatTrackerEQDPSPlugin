@@ -52,7 +52,7 @@
   <ItemGroup>
     <Compile Include="PluginEnumUnitTests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="UnitTest1.cs" />
+    <Compile Include="EverQuestDPSPluginTests.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
