@@ -1502,11 +1502,11 @@ namespace EverQuestDPSPlugin
                     case "familiar":
                         return new Tuple<EverQuestSwingType, string>(EverQuestSwingType.Familiar, nameToSetTypeTo.Substring(0, possessiveMatch.Index));
                     case "flames":
-                        return new Tuple<EverQuestSwingType, string>(EverQuestSwingType.DamageShield, nameToSetTypeTo.Substring(0, possessiveMatch.Index));
+                        return new Tuple<EverQuestSwingType, string>(EverQuestSwingType.NonMelee, nameToSetTypeTo.Substring(0, possessiveMatch.Index));
                     case "frost":
-                        return new Tuple<EverQuestSwingType, string>(EverQuestSwingType.DamageShield, nameToSetTypeTo.Substring(0, possessiveMatch.Index));
+                        return new Tuple<EverQuestSwingType, string>(EverQuestSwingType.NonMelee, nameToSetTypeTo.Substring(0, possessiveMatch.Index));
                     case "thorns":
-                        return new Tuple<EverQuestSwingType, string>(EverQuestSwingType.DamageShield, nameToSetTypeTo.Substring(0, possessiveMatch.Index));
+                        return new Tuple<EverQuestSwingType, string>(EverQuestSwingType.NonMelee, nameToSetTypeTo.Substring(0, possessiveMatch.Index));
                     default:
                         return new Tuple<EverQuestSwingType, String>(0, nameToSetTypeTo);
                 }
