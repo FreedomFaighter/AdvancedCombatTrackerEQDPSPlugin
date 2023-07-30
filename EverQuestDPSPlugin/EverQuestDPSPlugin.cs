@@ -172,7 +172,7 @@ namespace EverQuestDPSPlugin
             xmlSettings = new SettingsSerializer(this); // Create a new settings serializer and pass it this instance
             nm = new nonmatch(this);
             LoadSettings();
-            PopulateRegexArray();
+            PopulateRegexCombat();
             SetupEverQuestEnvironment();
             ActGlobals.oFormActMain.GetDateTimeFromLog += new FormActMain.DateTimeLogParser(ParseDateTime);
             ActGlobals.oFormActMain.BeforeLogLineRead += new LogLineEventDelegate(FormActMain_BeforeLogLineRead);
@@ -1431,14 +1431,18 @@ namespace EverQuestDPSPlugin
                 return $@"\[(?<{EverQuestDPSPluginResource.dateTimeOfLogLineString}>.+)\] {regex}";
         }
 
-        private void PopulateRegexArray()
+        internal void PopulateRegexNonCombat()
         {
-            String MeleeAttack = @"(?<attacker>.+) (?<attackType>" + $@"{EverQuestDPSPluginResource.attackTypes}" + @")(|s|es|bed) (?<victim>.+) for (?<damageAmount>[\d]+) (?:(?:point)(?:s|)) of damage.(?:\s\((?<damageSpecial>.+)\)){0,1}";
-            String Evasion = @"(?<attacker>.*) tries to (?<attackType>\S+) (?:(?<victim>(.+)), but \1) (?:(?<evasionType>" + $@"{EverQuestDPSPluginResource.evasionTypes}" + @"))(?:\swith (your|his|hers|its) (shield|staff)){0,1}!(?:[\s][\(](?<evasionSpecial>.+)[\)]){0,1}";
             possesive = new Regex(EverQuestDPSPluginResource.possessiveString, RegexOptions.Compiled);
             tellsregex = new Regex(RegexString(EverQuestDPSPluginResource.tellsRegex), RegexOptions.Compiled);
             selfCheck = new Regex(EverQuestDPSPluginResource.selfMatch, RegexOptions.Compiled);
             regexTupleList = new List<Tuple<Color, Regex>>();
+        }
+
+        private void PopulateRegexCombat()
+        {
+            String MeleeAttack = @"(?<attacker>.+) (?<attackType>" + $@"{EverQuestDPSPluginResource.attackTypes}" + @")(|s|es|bed) (?<victim>.+) for (?<damageAmount>[\d]+) (?:(?:point)(?:s|)) of damage.(?:\s\((?<damageSpecial>.+)\)){0,1}";
+            String Evasion = @"(?<attacker>.*) tries to (?<attackType>\S+) (?:(?<victim>(.+)), but \1) (?:(?<evasionType>" + $@"{EverQuestDPSPluginResource.evasionTypes}" + @"))(?:\swith (your|his|hers|its) (shield|staff)){0,1}!(?:[\s][\(](?<evasionSpecial>.+)[\)]){0,1}";
             ActGlobals.oFormEncounterLogs.LogTypeToColorMapping.Clear();
             regexTupleList.Add(new Tuple<Color, Regex>(Color.Red, new Regex(RegexString(MeleeAttack), RegexOptions.Compiled)));
             ActGlobals.oFormEncounterLogs.LogTypeToColorMapping.Add(regexTupleList.Count, regexTupleList[regexTupleList.Count - 1].Item1);
@@ -1485,13 +1489,13 @@ namespace EverQuestDPSPlugin
             }
         }
 
-        private Tuple<EverQuestSwingType, String> GetTypeAndNameForPet(String nameToSetTypeTo)
+        internal Tuple<EverQuestSwingType, String> GetTypeAndNameForPet(String nameToSetTypeTo)
         {
             Match possessiveMatch = possesive.Match(nameToSetTypeTo);
 
             if (possessiveMatch.Success)
             {
-                switch (possessiveMatch.Groups[0].Value)
+                switch (possessiveMatch.Groups["possesiveOf"].Value)
                 {
                     case "pet":
                         return new Tuple<EverQuestSwingType, String>(EverQuestSwingType.Pet, nameToSetTypeTo.Substring(0, possessiveMatch.Index));

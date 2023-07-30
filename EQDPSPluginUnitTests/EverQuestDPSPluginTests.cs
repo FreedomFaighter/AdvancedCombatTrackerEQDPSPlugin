@@ -1,5 +1,7 @@
-﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
+﻿using EverQuestDPSPlugin;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;
+using System.Text.RegularExpressions;
 
 namespace EQDPSPluginUnitTests
 {
@@ -8,8 +10,11 @@ namespace EQDPSPluginUnitTests
     {
 
         EverQuestDPSPlugin.EverQuestDPSPlugin eqDPSPlugin;
+        String exampleOwner;
         [TestInitialize] public void Init() { 
             eqDPSPlugin = new EverQuestDPSPlugin.EverQuestDPSPlugin();
+            eqDPSPlugin.PopulateRegexNonCombat();
+            exampleOwner = "CharacterName";
         }
 
         [DataTestMethod]
@@ -32,6 +37,19 @@ namespace EQDPSPluginUnitTests
         public void ParseDateTimeIsDateTime()
         {
             Assert.AreEqual(eqDPSPlugin.ParseDateTime(DateTime.Now.ToString(EverQuestDPSPlugin.EverQuestDPSPluginResource.eqDateTimeStampFormat)).GetType(), typeof(DateTime));
+        }
+
+        [DataTestMethod]
+        [DataRow("`s pet", EverQuestSwingType.Pet)]
+        [DataRow("`s ward", EverQuestSwingType.Ward)]
+        [DataRow("`s warder", EverQuestSwingType.Warder)]
+        [DataRow("`s familiar", EverQuestSwingType.Familiar)]
+        [DataRow("'s flames", EverQuestSwingType.NonMelee)]
+        [DataRow("'s frost", EverQuestSwingType.NonMelee)]
+        [DataRow("'s thorns", EverQuestSwingType.NonMelee)]
+        public void GetTypeAndNameForPetPossesiveTest(string StringToTestForOwnership, EverQuestSwingType swingTypeToTestForMatch)
+        {
+            Assert.AreEqual<EverQuestSwingType>(eqDPSPlugin.GetTypeAndNameForPet(exampleOwner + StringToTestForOwnership).Item1, swingTypeToTestForMatch);
         }
     }
 }
