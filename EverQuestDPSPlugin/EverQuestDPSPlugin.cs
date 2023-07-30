@@ -1417,7 +1417,7 @@ namespace EverQuestDPSPlugin
         object varianceChkBxLockObject = new object(), nonMatchChkBxLockObject = new object();
         #endregion
 
-        private DateTime ParseDateTime(String timeStamp)
+        internal DateTime ParseDateTime(String timeStamp)
         {
             DateTime.TryParseExact(timeStamp, EverQuestDPSPluginResource.eqDateTimeStampFormat, DateTimeFormatInfo.CurrentInfo, DateTimeStyles.AssumeLocal, out DateTime currentEQTimeStamp);
             return currentEQTimeStamp;

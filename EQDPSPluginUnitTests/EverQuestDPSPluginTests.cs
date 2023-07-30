@@ -27,5 +27,11 @@ namespace EQDPSPluginUnitTests
         {
             Assert.ThrowsException<ArgumentNullException>(new Action(() => eqDPSPlugin.RegexString(null)));
         }
+
+        [TestMethod]
+        public void ParseDateTimeIsDateTime()
+        {
+            Assert.AreEqual(eqDPSPlugin.ParseDateTime(DateTime.Now.ToString(EverQuestDPSPlugin.EverQuestDPSPluginResource.eqDateTimeStampFormat)).GetType(), typeof(DateTime));
+        }
     }
 }
