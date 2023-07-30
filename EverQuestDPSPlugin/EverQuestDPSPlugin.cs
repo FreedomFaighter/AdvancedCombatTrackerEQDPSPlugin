@@ -1517,7 +1517,7 @@ namespace EverQuestDPSPlugin
             }
         }
 
-        private bool CheckIfSelf(String nameOfCharacter)
+        internal bool CheckIfSelf(String nameOfCharacter)
         {
             Regex regexSelf = new Regex(@"((it|her|him|them)(s|sel(f|ves)))", RegexOptions.Compiled);
             return regexSelf.Match(nameOfCharacter).Success;
