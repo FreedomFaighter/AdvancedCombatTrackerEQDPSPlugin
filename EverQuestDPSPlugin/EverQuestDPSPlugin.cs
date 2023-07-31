@@ -99,15 +99,6 @@ namespace EverQuestDPSPlugin
             this.label1.TabIndex = 21;
             this.label1.Text = "License";
             // 
-            // richTextBox1
-            // 
-            this.licenseRichTextBox.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
-            this.licenseRichTextBox.Location = new System.Drawing.Point(22, 171);
-            this.licenseRichTextBox.Name = "licenseRichTextBox";
-            this.licenseRichTextBox.Size = new System.Drawing.Size(375, 305);
-            this.licenseRichTextBox.TabIndex = 22;
-            this.licenseRichTextBox.Text = "";
-            // 
             // EverQuestDPSPlugin
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 16F);
@@ -191,7 +182,6 @@ namespace EverQuestDPSPlugin
             ActGlobals.oFormActMain.CharacterFileNameRegex = new Regex(@"(?:.+)[\\]eqlog_(?<characterName>\S+)_(?<server>.+).txt", RegexOptions.Compiled);
             ActGlobals.oFormActMain.ZoneChangeRegex = new Regex(RegexString(EverQuestDPSPluginResource.ZoneChange), RegexOptions.Compiled);
             ChangeLblStatus($"{EverQuestDPSPluginResource.pluginName} Plugin Started");
-            SetLicenseRichTextBox(EverQuestDPSPluginResource.LICENSE);
         }
 
         public void DeInitPlugin()
@@ -1743,24 +1733,6 @@ namespace EverQuestDPSPlugin
         }
 
         #region Statistic processing
-        //Statistics specific processing
-        //Backstep function for time series processing
-        private double[] BackStep(AttackType Data, int backstep)
-        {
-            //point in time list of MasterSwing items that gives the current values for the damage done for a back step on the time series data
-            throw new Exception("not called yet");
-            List<MasterSwing> masterSwing = Data.Items.ToList().Where((item) => item.Damage.Number >= 0).ToList();
-
-            if (masterSwing.Count > backstep)
-            {
-                double[] values = new double[masterSwing.Count - backstep];
-                for (int i = 0; i < masterSwing.Count; i++)
-                    values[i] = masterSwing[i + backstep].Damage.Number - masterSwing[i].Damage.Number;
-                return values;
-            }
-            else
-                return new double[] { default };
-        }
 
         //Variance calculation for attack damage
         private double AttackTypeGetVariance(AttackType Data)
@@ -1850,17 +1822,6 @@ namespace EverQuestDPSPlugin
                 default:
                     break;
             }
-        }
-
-        private void SetLicenseRichTextBox(String status)
-        {
-            if (licenseRichTextBox.InvokeRequired)
-                licenseRichTextBox.Invoke(new Action(() =>
-                {
-                    licenseRichTextBox.Text = status;
-                }));
-            else
-                licenseRichTextBox.Text = status;
         }
 
         public void ChangeNonmatchFormCheckBox(bool Checked)
