@@ -49,5 +49,39 @@ namespace EQDPSPluginUnitTests
         {
             Assert.AreEqual<EverQuestSwingType>(eqDPSPlugin.GetTypeAndNameForPet(StringToTestForOwnership).Item1, swingTypeToTestForMatch);
         }
+
+        [DataTestMethod]
+        [DataRow("`s pet", EverQuestSwingType.Ward)]
+        [DataRow("`s pet", EverQuestSwingType.Warder)]
+        [DataRow("`s pet", EverQuestSwingType.Familiar)]
+        [DataRow("`s pet", EverQuestSwingType.NonMelee)]
+        [DataRow("`s ward", EverQuestSwingType.Pet)]
+        [DataRow("`s ward", EverQuestSwingType.Warder)]
+        [DataRow("`s ward", EverQuestSwingType.Familiar)]
+        [DataRow("`s ward", EverQuestSwingType.NonMelee)]
+        [DataRow("`s warder", EverQuestSwingType.Ward)]
+        [DataRow("`s warder", EverQuestSwingType.Pet)]
+        [DataRow("`s warder", EverQuestSwingType.Familiar)]
+        [DataRow("`s warder", EverQuestSwingType.NonMelee)]
+        [DataRow("`s familiar", EverQuestSwingType.Pet)]
+        [DataRow("`s familiar", EverQuestSwingType.Warder)]
+        [DataRow("`s familiar", EverQuestSwingType.Ward)]
+        [DataRow("`s familiar", EverQuestSwingType.NonMelee)]
+        [DataRow("'s flames", EverQuestSwingType.Pet)]
+        [DataRow("'s flames", EverQuestSwingType.Familiar)]
+        [DataRow("'s flames", EverQuestSwingType.Ward)]
+        [DataRow("'s flames", EverQuestSwingType.Warder)]
+        [DataRow("'s frost", EverQuestSwingType.Pet)]
+        [DataRow("'s frost", EverQuestSwingType.Ward)]
+        [DataRow("'s frost", EverQuestSwingType.Warder)]
+        [DataRow("'s frost", EverQuestSwingType.Familiar)]
+        [DataRow("'s thorns", EverQuestSwingType.Pet)]
+        [DataRow("'s thorns", EverQuestSwingType.Ward)]
+        [DataRow("'s thorns", EverQuestSwingType.Warder)]
+        [DataRow("'s thorns", EverQuestSwingType.Familiar)]
+        public void GetTypeAndNameForPetPossesiveNotTest(string StringToTestForOwnership, EverQuestSwingType swingTypeToTestForMatch)
+        {
+            Assert.AreNotEqual<EverQuestSwingType>(eqDPSPlugin.GetTypeAndNameForPet(StringToTestForOwnership).Item1, swingTypeToTestForMatch);
+        }
     }
 }
