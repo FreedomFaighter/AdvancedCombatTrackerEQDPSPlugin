@@ -42,20 +42,5 @@ namespace EverQuestDPSPlugin
         {
             return (int)type;
         }
-
-        internal static EverQuestSwingType CharacterPossesiveTypeAttack(this EverQuestSwingType possessiveOf, EverQuestSwingType everQuestAttackType)
-        {
-            switch (possessiveOf)
-            {
-                case EverQuestSwingType.Pet:
-                    return EverQuestSwingType.Pet | everQuestAttackType;
-                case EverQuestSwingType.Warder:
-                    return EverQuestSwingType.Warder | everQuestAttackType;
-                case EverQuestSwingType.Ward:
-                    return EverQuestSwingType.Ward | everQuestAttackType;
-                default:
-                    return everQuestAttackType;
-            }
-        }
     }
 }

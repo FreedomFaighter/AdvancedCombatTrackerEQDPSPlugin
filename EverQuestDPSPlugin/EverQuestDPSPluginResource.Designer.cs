@@ -254,7 +254,16 @@ namespace EverQuestDPSPlugin {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to (?:(?:(`|&apos;))s (?&lt;possesiveOf&gt;.+)(?:\1 (?&lt;secondaryPossesiveOf&gt;.+){0,1})).
+        ///   Looks up a localized string similar to possesiveOf.
+        /// </summary>
+        internal static string possesiveOf {
+            get {
+                return ResourceManager.GetString("possesiveOf", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to (?:[`&apos;]s\s)(?&lt;{0}&gt;\S[^&apos;]+)(?:[&apos;]s\s(?&lt;{1}&gt;\S+))?.
         /// </summary>
         internal static string possessiveString {
             get {
@@ -268,6 +277,15 @@ namespace EverQuestDPSPlugin {
         internal static string Riposte {
             get {
                 return ResourceManager.GetString("Riposte", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to secondaryPossesiveOf.
+        /// </summary>
+        internal static string secondaryPossesiveOf {
+            get {
+                return ResourceManager.GetString("secondaryPossesiveOf", resourceCulture);
             }
         }
         

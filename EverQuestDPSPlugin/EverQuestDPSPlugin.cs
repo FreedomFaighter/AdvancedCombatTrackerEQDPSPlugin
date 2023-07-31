@@ -13,6 +13,8 @@ using System.Threading.Tasks;
 using System.Windows.Forms;
 using System.Xml;
 using System.Collections.Concurrent;
+using System.Diagnostics.Eventing.Reader;
+using System.Diagnostics;
 
 /*
 * Project: EverQuest DPS Plugin
@@ -172,6 +174,7 @@ namespace EverQuestDPSPlugin
             xmlSettings = new SettingsSerializer(this); // Create a new settings serializer and pass it this instance
             nm = new nonmatch(this);
             LoadSettings();
+            PopulateRegexNonCombat();
             PopulateRegexCombat();
             SetupEverQuestEnvironment();
             ActGlobals.oFormActMain.GetDateTimeFromLog += new FormActMain.DateTimeLogParser(ParseDateTime);
@@ -1433,7 +1436,7 @@ namespace EverQuestDPSPlugin
 
         internal void PopulateRegexNonCombat()
         {
-            possesive = new Regex(EverQuestDPSPluginResource.possessiveString, RegexOptions.Compiled);
+            possesive = new Regex(String.Format(EverQuestDPSPluginResource.possessiveString, EverQuestDPSPluginResource.possesiveOf, EverQuestDPSPluginResource.secondaryPossesiveOf), RegexOptions.Compiled);
             tellsregex = new Regex(RegexString(EverQuestDPSPluginResource.tellsRegex), RegexOptions.Compiled);
             selfCheck = new Regex(EverQuestDPSPluginResource.selfMatch, RegexOptions.Compiled);
             regexTupleList = new List<Tuple<Color, Regex>>();
@@ -1489,38 +1492,49 @@ namespace EverQuestDPSPlugin
             }
         }
 
+        EverQuestSwingType GetDamageShieldType(String damageShieldType)
+        {
+            List<String> damageShieldTypes = new List<String>()
+            {
+                "flames",
+                "frost",
+                "thorns"
+            };
+            return (damageShieldTypes.Select((value) =>
+            {
+                return value == damageShieldType;
+            }).Count() > 0) ? EverQuestSwingType.DamageShield : 0;
+        }
+
         internal Tuple<EverQuestSwingType, String> GetTypeAndNameForPet(String nameToSetTypeTo)
         {
             Match possessiveMatch = possesive.Match(nameToSetTypeTo);
-
+            EverQuestSwingType everQuestSwingType = 0;
             if (possessiveMatch.Success)
             {
-                switch (possessiveMatch.Groups["possesiveOf"].Value)
+                if (possessiveMatch.Groups[EverQuestDPSPluginResource.secondaryPossesiveOf].Success)
+                {
+                    everQuestSwingType = GetDamageShieldType(possessiveMatch.Groups[EverQuestDPSPluginResource.secondaryPossesiveOf].Value);
+                }
+                switch (possessiveMatch.Groups[EverQuestDPSPluginResource.possesiveOf].Value)
                 {
                     case "pet":
-                        return new Tuple<EverQuestSwingType, String>(EverQuestSwingType.Pet, nameToSetTypeTo.Substring(0, possessiveMatch.Index));
+                        return new Tuple<EverQuestSwingType, String>(EverQuestSwingType.Pet | everQuestSwingType, nameToSetTypeTo.Substring(0, possessiveMatch.Index));
                     case "warder":
-                        return new Tuple<EverQuestSwingType, String>(EverQuestSwingType.Warder, nameToSetTypeTo.Substring(0, possessiveMatch.Index));
+                        return new Tuple<EverQuestSwingType, String>(EverQuestSwingType.Warder | everQuestSwingType, nameToSetTypeTo.Substring(0, possessiveMatch.Index));
                     case "ward":
-                        return new Tuple<EverQuestSwingType, String>(EverQuestSwingType.Ward, nameToSetTypeTo.Substring(0, possessiveMatch.Index));
+                        return new Tuple<EverQuestSwingType, String>(EverQuestSwingType.Ward | everQuestSwingType, nameToSetTypeTo.Substring(0, possessiveMatch.Index));
                     case "familiar":
-                        return new Tuple<EverQuestSwingType, string>(EverQuestSwingType.Familiar, nameToSetTypeTo.Substring(0, possessiveMatch.Index));
-                    case "flames":
-                        return new Tuple<EverQuestSwingType, string>(EverQuestSwingType.NonMelee, nameToSetTypeTo.Substring(0, possessiveMatch.Index));
-                    case "frost":
-                        return new Tuple<EverQuestSwingType, string>(EverQuestSwingType.NonMelee, nameToSetTypeTo.Substring(0, possessiveMatch.Index));
-                    case "thorns":
-                        return new Tuple<EverQuestSwingType, string>(EverQuestSwingType.NonMelee, nameToSetTypeTo.Substring(0, possessiveMatch.Index));
+                        return new Tuple<EverQuestSwingType, String>(EverQuestSwingType.Familiar | everQuestSwingType, nameToSetTypeTo.Substring(0, possessiveMatch.Index));
                     default:
-                        return new Tuple<EverQuestSwingType, String>(0, nameToSetTypeTo);
+                        break;
                 }
+                everQuestSwingType = GetDamageShieldType(possessiveMatch.Groups[EverQuestDPSPluginResource.possesiveOf].Value);
+                return new Tuple<EverQuestSwingType, string>(everQuestSwingType, nameToSetTypeTo);
             }
-            else
-            {
-                return new Tuple<EverQuestSwingType, String>(0, nameToSetTypeTo);
-            }
+            else return new Tuple<EverQuestSwingType, string>(everQuestSwingType, nameToSetTypeTo);
         }
-
+        
         internal bool CheckIfSelf(String nameOfCharacter)
         {
             Regex regexSelf = new Regex(@"((it|her|him|them)(s|sel(f|ves)))", RegexOptions.Compiled);
@@ -1540,18 +1554,17 @@ namespace EverQuestDPSPlugin
             Tuple<EverQuestSwingType, String> attackerAndTypeMelee = GetTypeAndNameForPet(logLineRegexMatch.Groups[character1GroupName].Value);
             Tuple<EverQuestSwingType, String> victimAndTypeMelee = GetTypeAndNameForPet(logLineRegexMatch.Groups[character2GroupName].Value);
             String attacker, victim;
-            EverQuestSwingType everQuestSwingTypeToParseMelee;
-            if (((attackerAndTypeMelee.Item1 & EverQuestSwingType.Pet) == EverQuestSwingType.Pet) || ((victimAndTypeMelee.Item1 & EverQuestSwingType.Pet) == EverQuestSwingType.Pet))
-                everQuestSwingTypeToParseMelee = EverQuestSwingType.Pet;
-            else if (((attackerAndTypeMelee.Item1 & EverQuestSwingType.Warder) == EverQuestSwingType.Warder) || ((victimAndTypeMelee.Item1 & EverQuestSwingType.Warder) == EverQuestSwingType.Warder))
-                everQuestSwingTypeToParseMelee = EverQuestSwingType.Warder;
-            else if (((attackerAndTypeMelee.Item1 & EverQuestSwingType.Ward) == EverQuestSwingType.Ward) || ((victimAndTypeMelee.Item1 & EverQuestSwingType.Ward) == EverQuestSwingType.Ward))
-                everQuestSwingTypeToParseMelee = EverQuestSwingType.Ward;
-            else if (((attackerAndTypeMelee.Item1 & EverQuestSwingType.NonMelee) == EverQuestSwingType.NonMelee) || ((victimAndTypeMelee.Item1 & EverQuestSwingType.NonMelee) == EverQuestSwingType.NonMelee))
-                everQuestSwingTypeToParseMelee = EverQuestSwingType.DamageShield;
-            else
-                everQuestSwingTypeToParseMelee = 0;
-            if (everQuestSwingTypeToParseMelee == EverQuestSwingType.DamageShield)
+            EverQuestSwingType everQuestSwingTypeToParseMelee = 0;
+            if (attackerAndTypeMelee.Item1.HasFlag(EverQuestSwingType.Pet) || victimAndTypeMelee.Item1.HasFlag(EverQuestSwingType.Pet))
+                everQuestSwingTypeToParseMelee |= EverQuestSwingType.Pet;
+            else if (attackerAndTypeMelee.Item1.HasFlag(EverQuestSwingType.Warder) || victimAndTypeMelee.Item1.HasFlag(EverQuestSwingType.Warder))
+                everQuestSwingTypeToParseMelee |= EverQuestSwingType.Warder;
+            else if (attackerAndTypeMelee.Item1.HasFlag(EverQuestSwingType.Ward) || victimAndTypeMelee.Item1.HasFlag(EverQuestSwingType.Ward))
+                everQuestSwingTypeToParseMelee |= EverQuestSwingType.Ward;
+            else if (attackerAndTypeMelee.Item1.HasFlag(EverQuestSwingType.NonMelee) || victimAndTypeMelee.Item1.HasFlag(EverQuestSwingType.NonMelee))
+                everQuestSwingTypeToParseMelee |= EverQuestSwingType.DamageShield;
+
+            if (everQuestSwingTypeToParseMelee.HasFlag(EverQuestSwingType.DamageShield))
             {
                 attacker = CheckIfSelf(victimAndTypeMelee.Item2) ? CharacterNamePersonaReplace(attackerAndTypeMelee.Item2) : CharacterNamePersonaReplace(victimAndTypeMelee.Item2);
                 victim = CharacterNamePersonaReplace(attackerAndTypeMelee.Item2);
