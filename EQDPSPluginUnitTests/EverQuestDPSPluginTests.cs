@@ -6,7 +6,7 @@ using System.Text.RegularExpressions;
 namespace EQDPSPluginUnitTests
 {
     [TestClass]
-    public class EverQuestDPSPluginTests
+    public sealed class EverQuestDPSPluginTests
     {
 
         EverQuestDPSPlugin.EverQuestDPSPlugin eqDPSPlugin;
