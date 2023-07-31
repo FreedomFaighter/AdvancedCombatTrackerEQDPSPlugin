@@ -179,7 +179,7 @@
     <value>Config\ACT_EverQuest_English_Parser.config.xml</value>
   </data>
   <data name="possessiveString" xml:space="preserve">
-    <value>(?:(`|'))s (?&lt;possesiveOf&gt;.+)</value>
+    <value>(?:(?:(`|'))s (?&lt;possesiveOf&gt;.+)(?:\1 (?&lt;secondaryPossesiveOf&gt;.+){0,1}))</value>
   </data>
   <data name="Riposte" xml:space="preserve">
     <value>Riposte</value>
