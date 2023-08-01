@@ -51,6 +51,7 @@ namespace EQDPSPluginUnitTests
         [DataRow(EverQuestSwingType.PetMelee | EverQuestSwingType.InstantHealing, EverQuestSwingType.PetMelee)]
         [DataRow(EverQuestSwingType.FamiliarDirectSpellDamage | EverQuestSwingType.HealOverTime, EverQuestSwingType.PetMelee)]
         [DataRow(EverQuestSwingType.FamiliarHealOverTime | EverQuestSwingType.InstantHealing, EverQuestSwingType.PetMelee)]
+        [DataRow(EverQuestSwingType.Familiar | EverQuestSwingType.DamageOverTimeSpell, EverQuestSwingType.Familiar)]
         public void EnumNotEqualTest(EverQuestSwingType composite, EverQuestSwingType rawComposite)
         {
             Assert.AreNotEqual(composite, rawComposite);
