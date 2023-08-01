@@ -241,15 +241,6 @@ namespace EverQuestDPSPlugin {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to (?:[`&apos;]s\s)(?&lt;{0}&gt;\S[^&apos;]+)(?:[&apos;]s\s(?&lt;{1}&gt;\S+))?.
-        /// </summary>
-        internal static string possessiveString {
-            get {
-                return ResourceManager.GetString("possessiveString", resourceCulture);
-            }
-        }
-        
-        /// <summary>
         ///   Looks up a localized string similar to Riposte.
         /// </summary>
         internal static string Riposte {

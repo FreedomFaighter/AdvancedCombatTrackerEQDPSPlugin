@@ -63,7 +63,6 @@ namespace EverQuestDPSPlugin
             this.varianceChkBx = new System.Windows.Forms.CheckBox();
             this.nonMatchVisibleChkbx = new System.Windows.Forms.CheckBox();
             this.label1 = new System.Windows.Forms.Label();
-            this.licenseRichTextBox = new System.Windows.Forms.RichTextBox();
             this.SuspendLayout();
             // 
             // varianceChkBx
@@ -105,7 +104,6 @@ namespace EverQuestDPSPlugin
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.AutoSize = true;
             this.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink;
-            this.Controls.Add(this.licenseRichTextBox);
             this.Controls.Add(this.label1);
             this.Controls.Add(this.nonMatchVisibleChkbx);
             this.Controls.Add(this.varianceChkBx);
@@ -1405,7 +1403,6 @@ namespace EverQuestDPSPlugin
         private CheckBox varianceChkBx;
         private CheckBox nonMatchVisibleChkbx;
         private Label label1;
-        private RichTextBox licenseRichTextBox;
         SettingsSerializer xmlSettings;
         object varianceChkBxLockObject = new object(), nonMatchChkBxLockObject = new object();
         #endregion
@@ -1426,7 +1423,7 @@ namespace EverQuestDPSPlugin
 
         internal void PopulateRegexNonCombat()
         {
-            possesive = new Regex(String.Format(EverQuestDPSPluginResource.possessiveString, EverQuestDPSPluginResource.possesiveOf, EverQuestDPSPluginResource.secondaryPossesiveOf), RegexOptions.Compiled);
+            possesive = new Regex(@"(?:[`']s\s)(?<" + $@"{EverQuestDPSPluginResource.possesiveOf}" + @">\S[^']+)(?:[']s\s(?<" + $@"{EverQuestDPSPluginResource.secondaryPossesiveOf}" + @">\S+)){0,1}", RegexOptions.Compiled);
             tellsregex = new Regex(RegexString(EverQuestDPSPluginResource.tellsRegex), RegexOptions.Compiled);
             selfCheck = new Regex(EverQuestDPSPluginResource.selfMatch, RegexOptions.Compiled);
             regexTupleList = new List<Tuple<Color, Regex>>();

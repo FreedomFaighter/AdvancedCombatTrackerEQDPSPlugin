@@ -177,9 +177,6 @@
   <data name="possesiveOf" xml:space="preserve">
     <value>possesiveOf</value>
   </data>
-  <data name="possessiveString" xml:space="preserve">
-    <value>(?:[`']s\s)(?&lt;{0}&gt;\S[^']+)(?:[']s\s(?&lt;{1}&gt;\S+))?</value>
-  </data>
   <data name="Riposte" xml:space="preserve">
     <value>Riposte</value>
   </data>
