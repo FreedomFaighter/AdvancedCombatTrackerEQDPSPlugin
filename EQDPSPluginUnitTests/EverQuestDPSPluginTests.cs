@@ -25,6 +25,15 @@ namespace EQDPSPluginUnitTests
             Assert.IsTrue(eqDPSPlugin.CheckIfSelf(selfTest));
         }
 
+        [DataTestMethod]
+        [DataRow("ourself")]
+        [DataRow("myself")]
+        [DataRow("theirselves")]
+        public void selfIsFalse(string selfTest)
+        {
+            Assert.IsFalse(eqDPSPlugin.CheckIfSelf(selfTest));
+        }
+
         [TestMethod]
         public void RegexStringTestExceptionOnNullString()
         {
