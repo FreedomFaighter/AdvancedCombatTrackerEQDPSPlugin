@@ -1362,6 +1362,4 @@ namespace EverQuestDPSPlugin
         }
     }
     #endregion
-
-
 }

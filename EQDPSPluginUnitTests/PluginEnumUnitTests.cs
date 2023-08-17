@@ -27,6 +27,7 @@ namespace EQDPSPluginUnitTests
         [DataRow(EverQuestSwingType.FamiliarHealOverTime, EverQuestSwingType.Familiar | EverQuestSwingType.HealOverTime)]
         [DataRow(((EverQuestSwingType)0) | (EverQuestSwingType.Incoming | EverQuestSwingType.Melee), EverQuestSwingType.Incoming | EverQuestSwingType.Melee)]
         [DataRow(EverQuestSwingType.PetMelee | EverQuestSwingType.Incoming, EverQuestSwingType.Pet | EverQuestSwingType.Incoming | EverQuestSwingType.Melee)]
+        [TestCategory("EverQuestSwingType Enum Tests")]
         public void EnumEqualityTest(EverQuestSwingType composite, EverQuestSwingType rawComposite)
         {
             Assert.AreEqual(composite, rawComposite);
@@ -52,6 +53,7 @@ namespace EQDPSPluginUnitTests
         [DataRow(EverQuestSwingType.FamiliarDirectSpellDamage | EverQuestSwingType.HealOverTime, EverQuestSwingType.PetMelee)]
         [DataRow(EverQuestSwingType.FamiliarHealOverTime | EverQuestSwingType.InstantHealing, EverQuestSwingType.PetMelee)]
         [DataRow(EverQuestSwingType.Familiar | EverQuestSwingType.DamageOverTimeSpell, EverQuestSwingType.Familiar)]
+        [TestCategory("EverQuestSwingType Enum Tests")]
         public void EnumNotEqualTest(EverQuestSwingType composite, EverQuestSwingType rawComposite)
         {
             Assert.AreNotEqual(composite, rawComposite);
@@ -86,6 +88,7 @@ namespace EQDPSPluginUnitTests
         [DataRow(EverQuestSwingType.PetDamageShield, EverQuestSwingType.DamageShield)]
         [DataRow(EverQuestSwingType.WarderDamageShield, EverQuestSwingType.Warder)]
         [DataRow(EverQuestSwingType.WarderDamageShield, EverQuestSwingType.DamageShield)]
+        [TestCategory("EverQuestSwingType Enum Tests")]
         public void EnumHasFlagTrue(EverQuestSwingType composite, EverQuestSwingType hasFlag)
         {
             Assert.IsTrue(composite.HasFlag(hasFlag));

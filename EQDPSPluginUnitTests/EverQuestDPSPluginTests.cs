@@ -8,7 +8,6 @@ namespace EQDPSPluginUnitTests
     [TestClass]
     public sealed class EverQuestDPSPluginTests
     {
-
         EverQuestDPSPlugin.EverQuestDPSPlugin eqDPSPlugin;
         [TestInitialize] public void Init() { 
             eqDPSPlugin = new EverQuestDPSPlugin.EverQuestDPSPlugin();
@@ -20,6 +19,7 @@ namespace EQDPSPluginUnitTests
         [DataRow("herself")]
         [DataRow("itself")]
         [DataRow("themselves")]
+        [TestCategory("Plugin Tests")]
         public void selfIsTrue(string selfTest)
         {
             Assert.IsTrue(eqDPSPlugin.CheckIfSelf(selfTest));
@@ -29,18 +29,21 @@ namespace EQDPSPluginUnitTests
         [DataRow("ourself")]
         [DataRow("myself")]
         [DataRow("theirselves")]
+        [TestCategory("Plugin Tests")]
         public void selfIsFalse(string selfTest)
         {
             Assert.IsFalse(eqDPSPlugin.CheckIfSelf(selfTest));
         }
 
         [TestMethod]
+        [TestCategory("Plugin Tests")]
         public void RegexStringTestExceptionOnNullString()
         {
             Assert.ThrowsException<ArgumentNullException>(new Action(() => eqDPSPlugin.RegexString(null)));
         }
 
         [TestMethod]
+        [TestCategory("Plugin Tests")]
         public void ParseDateTimeIsDateTime()
         {
             Assert.AreEqual(eqDPSPlugin.ParseDateTime(DateTime.Now.ToString(EverQuestDPSPlugin.EverQuestDPSPluginResource.eqDateTimeStampFormat)).GetType(), typeof(DateTime));
@@ -66,6 +69,7 @@ namespace EQDPSPluginUnitTests
         [DataRow("`s familiar's frost", EverQuestSwingType.Familiar | EverQuestSwingType.DamageShield)]
         [DataRow("`s familiar's flames", EverQuestSwingType.Familiar | EverQuestSwingType.DamageShield)]
         [DataRow("`s familiar's thorns", EverQuestSwingType.Familiar | EverQuestSwingType.DamageShield)]
+        [TestCategory("Plugin Tests")]
         public void GetTypeAndNameForPetPossesiveTest(string StringToTestForOwnership, EverQuestSwingType swingTypeToTestForMatch)
         {
             Assert.AreEqual<EverQuestSwingType>(swingTypeToTestForMatch, eqDPSPlugin.GetTypeAndNameForPet(StringToTestForOwnership).Item1);
@@ -100,6 +104,7 @@ namespace EQDPSPluginUnitTests
         [DataRow("'s thorns", EverQuestSwingType.Ward)]
         [DataRow("'s thorns", EverQuestSwingType.Warder)]
         [DataRow("'s thorns", EverQuestSwingType.Familiar)]
+        [TestCategory("Plugin Tests")]
         public void GetTypeAndNameForPetPossesiveNotTest(string StringToTestForOwnership, EverQuestSwingType swingTypeToTestForMatch)
         {
             Assert.AreNotEqual<EverQuestSwingType>(eqDPSPlugin.GetTypeAndNameForPet(StringToTestForOwnership).Item1, swingTypeToTestForMatch);
