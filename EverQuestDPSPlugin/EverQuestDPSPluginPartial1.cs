@@ -96,7 +96,6 @@ namespace EverQuestDPSPlugin
         #endregion
 
         #region Class Members 1
-        SortedList<string, AposNameFix> aposNameList;
         TreeNode optionsNode = null;
         private CheckBox varianceChkBx;
         private CheckBox nonMatchVisibleChkbx;
@@ -137,7 +136,7 @@ namespace EverQuestDPSPlugin
                 pluginScreenSpace.Controls.Add(lblConfig);
             }
 
-            aposNameList = new SortedList<string, AposNameFix>();
+
             xmlSettings = new SettingsSerializer(this); // Create a new settings serializer and pass it this instance
             nm = new nonmatch(this);
             LoadSettings();
@@ -183,8 +182,8 @@ namespace EverQuestDPSPlugin
             try
             {
                 Version remoteVersion = new Version(ActGlobals.oFormActMain.PluginGetRemoteVersion(pluginId));
-                AssemblyFileVersionAttribute currentVersion = Assembly.GetExecutingAssembly().GetCustomAttribute(typeof(AssemblyFileVersionAttribute)) as AssemblyFileVersionAttribute;
-                Version currentVersionv = new Version(currentVersion.Version);
+                AssemblyVersionAttribute currentAssemblyVersion = Assembly.GetExecutingAssembly().GetCustomAttribute(typeof(AssemblyVersionAttribute)) as AssemblyVersionAttribute;
+                Version currentVersionv = new Version(currentAssemblyVersion.Version);
                 if (remoteVersion > currentVersionv)
                 {
                     DialogResult result = MessageBox.Show($"There is an updated version of the {EverQuestDPSPluginResource.pluginName}.  Update it now?\n\n(If there is an update to ACT, you should click No and update ACT first.)", "New Version", MessageBoxButtons.YesNo, MessageBoxIcon.Question);
@@ -231,9 +230,6 @@ namespace EverQuestDPSPlugin
                             {
                                 if (xReader.LocalName == "SettingsSerializer")
                                     xmlSettings.ImportFromXml(xReader);
-                                if (xReader.LocalName == "ApostropheNameFix")
-                                    LoadXmlApostropheNameFix(xReader);
-
                             }
                         }
                     }
@@ -268,115 +264,10 @@ namespace EverQuestDPSPlugin
                     xWriter.WriteStartElement("SettingsSerializer");    // <Config><SettingsSerializer>
                     xmlSettings.ExportToXml(xWriter);   // Fill the SettingsSerializer XML
                     xWriter.WriteEndElement();  // </SettingsSerializer>
-                    SaveXmlApostropheNameFix(xWriter);  // Create and fill the ApostropheNameFix node
+                    //SaveXmlApostropheNameFix(xWriter);  // Create and fill the ApostropheNameFix node
                     xWriter.WriteEndElement();  // </Config>
                     xWriter.WriteEndDocument(); // Tie up loose ends (shouldn't be any)
                 }
-            }
-        }
-
-        internal class AposNameFix : IEquatable<AposNameFix>
-        {
-            string left, right, fullName;
-            public string FullName
-            {
-                get
-                {
-                    return fullName;
-                }
-                set
-                {
-                    fullName = value;
-                }
-            }
-            public string Right
-            {
-                get
-                {
-                    return right;
-                }
-                set
-                {
-                    right = value;
-                }
-            }
-            public string Left
-            {
-                get
-                {
-                    return left;
-                }
-                set
-                {
-                    left = value;
-                }
-            }
-            bool active = true;
-            public bool Active
-            {
-                get
-                {
-                    return active;
-                }
-                set
-                {
-                    active = value;
-                }
-            }
-
-            public AposNameFix(string FullName, string Left, string Right)
-            {
-                this.left = Left;
-                this.right = Right;
-                this.fullName = FullName;
-            }
-            public bool IsMatch(CombatActionEventArgs e)
-            {
-                if (e.attacker == left && e.theAttackType.StartsWith(right))
-                    return true;
-                return false;
-            }
-            public bool Fix(CombatActionEventArgs e)
-            {
-                if (!active)
-                    return false;
-                if (e.theAttackType == right)
-                {
-                    e.swingType = (int)SwingTypeEnum.Melee;
-                    if (e.attacker[e.attacker.Length - 1] == 's' || e.attacker[e.attacker.Length - 1] == 'z')
-                        e.attacker += "' ";
-                    else
-                        e.attacker += "'s ";
-                    e.attacker += right;
-                    e.theAttackType = e.theDamageType.ToString();
-                    return true;
-                }
-                if (e.theAttackType.StartsWith(right + "'"))
-                {
-                    int trimLen = right.Length;
-                    if (e.attacker[e.attacker.Length - 1] == 's' || e.attacker[e.attacker.Length - 1] == 'z')
-                    {
-                        e.attacker += "' ";
-                        trimLen += 2;
-                    }
-                    else
-                    {
-                        e.attacker += "'s ";
-                        trimLen += 3;
-                    }
-                    e.attacker += right;
-                    e.theAttackType = e.theAttackType.Substring(trimLen);
-                    return true;
-                }
-                return false;
-            }
-            public bool Equals(AposNameFix other)
-            {
-                return this.fullName.Equals(other.fullName);
-            }
-            public override string ToString()
-            {
-                return fullName;
             }
         }
 
@@ -406,54 +297,6 @@ namespace EverQuestDPSPlugin
                 this.regexMatcher = regex;
                 this.parse = action;
             }
-        }
-
-        private int LoadXmlApostropheNameFix(XmlTextReader xReader)
-        {
-            int errorCount = 0;
-            if (xReader.IsEmptyElement)
-                return errorCount;
-            while (xReader.Read())
-            {
-                if (xReader.NodeType == XmlNodeType.EndElement)
-                    return errorCount;
-                if (xReader.NodeType == XmlNodeType.Element)
-                {
-                    if (xReader.LocalName == "AposFix")
-                    {
-                        try
-                        {
-                            AposNameFix newItem = new AposNameFix(xReader.GetAttribute("FullName"), xReader.GetAttribute("Left"), xReader.GetAttribute("Right"))
-                            {
-                                Active = Boolean.Parse(xReader.GetAttribute("Active"))
-                            };
-                        }
-                        catch (Exception ex)
-                        {
-                            errorCount++;
-                            ActGlobals.oFormActMain.WriteExceptionLog(ex, "AposFix" + xReader.ReadOuterXml());
-                        }
-                    }
-                    else
-                        break;
-                }
-            }
-            return errorCount;
-        }
-
-        private void SaveXmlApostropheNameFix(XmlTextWriter xWriter)
-        {
-            xWriter.WriteStartElement("ApostropheNameFix");
-            foreach (KeyValuePair<string, AposNameFix> pair in aposNameList)
-            {
-                xWriter.WriteStartElement("AposFix");
-                xWriter.WriteAttributeString("Active", pair.Value.Active.ToString());
-                xWriter.WriteAttributeString("FullName", pair.Value.FullName);
-                xWriter.WriteAttributeString("Left", pair.Value.Left);
-                xWriter.WriteAttributeString("Right", pair.Value.Right);
-                xWriter.WriteEndElement();
-            }
-            xWriter.WriteEndElement();
         }
 
         private void SetupEverQuestEnvironment()
