@@ -10,3 +10,5 @@ EverQuestDPSPlugin/EverQuestDPSPlugin.csproj.user
 /packages/NUnit.3.13.3
 /packages
 TestResults/
+Localization/
+Plugins/
