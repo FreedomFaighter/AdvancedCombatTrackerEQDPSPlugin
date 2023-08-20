@@ -5,7 +5,7 @@
 .vs/
 obj/
 bin/
-EverQuestDPSPlugin/EverQuestDPSPlugin.csproj.user
+*.csproj.user
 /UpgradeLog.htm
 /packages/NUnit.3.13.3
 /packages
