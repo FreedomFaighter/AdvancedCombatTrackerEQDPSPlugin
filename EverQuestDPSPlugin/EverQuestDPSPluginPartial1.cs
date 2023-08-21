@@ -6,6 +6,7 @@ using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Reflection;
+using System.Runtime.CompilerServices;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
@@ -181,9 +182,12 @@ namespace EverQuestDPSPlugin
             int.TryParse(EverQuestDPSPluginResource.pluginId, out int pluginId);
             try
             {
+                String regexMatchString = @"EverQuestDPSPlugin, Version=(?<AssemblyVersion>\S+), Culture=neutral, PublicKeyToken=null";
+                Regex regex = new Regex(regexMatchString, RegexOptions.Compiled);
                 Version remoteVersion = new Version(ActGlobals.oFormActMain.PluginGetRemoteVersion(pluginId));
-                AssemblyVersionAttribute currentAssemblyVersion = Assembly.GetExecutingAssembly().GetCustomAttribute(typeof(AssemblyVersionAttribute)) as AssemblyVersionAttribute;
-                Version currentVersionv = new Version(currentAssemblyVersion.Version);
+                Match version = regex.Match(Assembly.GetExecutingAssembly().FullName);
+
+                Version currentVersionv = new Version(version.Groups["AssemblyVersion"].Value);
                 if (remoteVersion > currentVersionv)
                 {
                     DialogResult result = MessageBox.Show($"There is an updated version of the {EverQuestDPSPluginResource.pluginName}.  Update it now?\n\n(If there is an update to ACT, you should click No and update ACT first.)", "New Version", MessageBoxButtons.YesNo, MessageBoxIcon.Question);
