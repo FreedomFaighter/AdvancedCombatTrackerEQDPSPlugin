@@ -1,7 +1,6 @@
 ﻿#region Complexi's Region
 using Advanced_Combat_Tracker;
 using EverQuestDPSPlugin.Interfaces;
-using EverQuestDPSPlugin;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Drawing;
@@ -406,7 +405,7 @@ namespace EverQuestDPSPlugin
                 case EverQuestSwingType.DamageOverTimeSpell:
                     return Color.Olive;
                 case EverQuestSwingType.DirectDamageSpell:
-                    return Color.Yellow;
+                    return Color.SandyBrown;
                 case EverQuestSwingType.PetMelee:
                     return Color.Violet;
                 case EverQuestSwingType.PetNonMelee:
@@ -670,5 +669,6 @@ namespace EverQuestDPSPlugin
             }
         }
     }
-    #endregion
+    
 }
+#endregion
