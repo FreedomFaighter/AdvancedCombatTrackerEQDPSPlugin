@@ -182,7 +182,7 @@ namespace EverQuestDPSPlugin
             int.TryParse(EverQuestDPSPluginResource.pluginId, out int pluginId);
             try
             {
-                String regexMatchString = @"EverQuestDPSPlugin, Version=(?<AssemblyVersion>\S+), Culture=neutral, PublicKeyToken=null";
+                String regexMatchString = @"Version=(?<AssemblyVersion>\S+)";
                 Regex regex = new Regex(regexMatchString, RegexOptions.Compiled);
                 Version remoteVersion = new Version(ActGlobals.oFormActMain.PluginGetRemoteVersion(pluginId));
                 Match version = regex.Match(Assembly.GetExecutingAssembly().FullName);
