@@ -10,6 +10,7 @@ using System.Threading.Tasks;
 using System;
 using System.Linq;
 using System.Windows.Forms;
+using System.Linq.Expressions;
 
 namespace EverQuestDPSPlugin
 {
@@ -647,26 +648,32 @@ namespace EverQuestDPSPlugin
             if (!isProcessing)
             {
                 isProcessing = true;
-                new Task(() =>
+                try
                 {
-                    MasterSwing masterSwing = default;
-                    while (!masterSwingsQueue.IsEmpty)
+                    new Task(() =>
                     {
-                        try
+                        MasterSwing masterSwing = default;
+
+                        while (!masterSwingsQueue.IsEmpty)
                         {
+
                             if (masterSwingsQueue.TryDequeue(out masterSwing))
                             {
                                 ActGlobals.oFormActMain.AddCombatAction(masterSwing);
                             }
+                            
                         }
-                        catch (Exception ex)
-                        {
-                            ActGlobals.oFormActMain.WriteExceptionLog(ex, "while trying to dequeue and write to combat action");
-                        }
-                    }
-                    isProcessing = false;
-                }).Start();
+                        isProcessing = false;
+                    }).Start();
+                }
+                catch(Exception ex)
+                {
+                    if (isProcessing)
+                        isProcessing = false;
+                    ActGlobals.oFormActMain.WriteExceptionLog(ex, "while trying to dequeue and write to combat action");
+                }
             }
+          
         }
     }
     
