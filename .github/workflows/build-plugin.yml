@@ -38,6 +38,6 @@ jobs:
       - name: Restore nuget packages
         run: nuget restore EverQuestDPSPlugin.sln
       - name: Build solution
-        run: msbuild -t:rebuild -property:Configuration=Release /tv:${{ matrix.dotnetFrameworkVersion }} EverQuestDPSPlugin.sln
+        run: msbuild -t:rebuild -property:Configuration=Release /p:v${{ matrix.dotnetFrameworkVersion }} EverQuestDPSPlugin.sln
       - name: Test solution
         run: '& "$(vswhere -property installationPath)\Common7\IDE\MSTest.exe" /testcontainer:${{env.EQDPSPluginUnitTestLibraryPath}}'
