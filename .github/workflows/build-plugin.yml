@@ -20,7 +20,7 @@ jobs:
     runs-on: windows-latest
     strategy:
       matrix:
-        dotnetFrameworkVersion: ['4.6.1', '4.7.2', '4.8']
+        dotnetFrameworkVersion: ['4.7.2', '4.8']
     env:
       ACTFileName: 'ACTv3-setup.exe'
       ACTDownloadURI: 'https://advancedcombattracker.com/download.php?id=56'
