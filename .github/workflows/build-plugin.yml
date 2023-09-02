@@ -18,6 +18,9 @@ on:
 jobs:
   build:
     runs-on: windows-latest
+    strategy:
+      matrix:
+        dotnetFrameworkVersion: ['3.5', '4.0', '4.6', '4.7.2', '4.8']
     env:
       ACTFileName: 'ACTv3-setup.exe'
       ACTDownloadURI: 'https://advancedcombattracker.com/download.php?id=56'
@@ -35,6 +38,6 @@ jobs:
       - name: Restore nuget packages
         run: nuget restore EverQuestDPSPlugin.sln
       - name: Build solution
-        run: msbuild -t:build -property:Configuration=Release EverQuestDPSPlugin.sln
+        run: msbuild -t:rebuild -property:Configuration=Release /tv:${{ matrix.dotnetFrameworkVersion }} EverQuestDPSPlugin.sln
       - name: Test solution
         run: '& "$(vswhere -property installationPath)\Common7\IDE\MSTest.exe" /testcontainer:${{env.EQDPSPluginUnitTestLibraryPath}}'
