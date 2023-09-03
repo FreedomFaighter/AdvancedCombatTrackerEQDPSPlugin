@@ -6,7 +6,6 @@ using System.Collections.Generic;
 using System.Drawing;
 using System.Globalization;
 using System.Text.RegularExpressions;
-using System.Threading.Tasks;
 using System;
 using System.Linq;
 using System.Windows.Forms;
@@ -218,7 +217,7 @@ namespace EverQuestDPSPlugin
                             "attackType",
                             "Hitpoints"
                         );
-                        EnqueueCombatAction(masterSwingMelee);
+                        ActGlobals.oFormActMain.AddCombatAction(masterSwingMelee);
                     }
                     break;
                 //Non-melee damage shield
@@ -235,7 +234,7 @@ namespace EverQuestDPSPlugin
                                 damage,
                                 "damageShieldDamageType",
                                 "Hitpoints");
-                        EnqueueCombatAction(masterSwingDamageShield);
+                        ActGlobals.oFormActMain.AddCombatAction(masterSwingDamageShield);
                     }
                     break;
                 //Missed melee
@@ -253,13 +252,13 @@ namespace EverQuestDPSPlugin
                                 "attackType",
                                 "Miss"
                             );
-                        EnqueueCombatAction(masterSwingMissedMelee);
+                        ActGlobals.oFormActMain.AddCombatAction(masterSwingMissedMelee);
                     }
                     break;
                 //Death message
                 case 4:
                     MasterSwing masterSwingSlain = new MasterSwing(0, false, new Dnum(Dnum.Death), ActGlobals.oFormActMain.LastEstimatedTime, ActGlobals.oFormActMain.GlobalTimeSorter, String.Empty, CharacterNamePersonaReplace(regexMatch.Groups["attacker"].Value), String.Empty, CharacterNamePersonaReplace(regexMatch.Groups["victim"].Value));
-                    EnqueueCombatAction(masterSwingSlain);
+                    ActGlobals.oFormActMain.AddCombatAction(masterSwingSlain);
                     break;
                 //Spell Cast
                 case 5:
@@ -276,7 +275,7 @@ namespace EverQuestDPSPlugin
                                 "damageEffect",
                                 "Hitpoints"
                             );
-                        EnqueueCombatAction(masterSwingSpellcast);
+                        ActGlobals.oFormActMain.AddCombatAction(masterSwingSpellcast);
                     }
                     break;
                 case 6:
@@ -300,7 +299,7 @@ namespace EverQuestDPSPlugin
                             );
                         if (regexMatch.Groups["overHealPoints"].Success)
                             masterSwingHeal.Tags["overheal"] = Int64.Parse(regexMatch.Groups["overHealPoints"].Value);
-                        EnqueueCombatAction(masterSwingHeal);
+                        ActGlobals.oFormActMain.AddCombatAction(masterSwingHeal);
                     }
                     break;
                 case 8:
@@ -308,7 +307,7 @@ namespace EverQuestDPSPlugin
                     {
                         DamageString2 = regexMatch.Value
                     }, ParseDateTime(regexMatch.Groups["dateTimeOfLogLine"].Value), ActGlobals.oFormActMain.GlobalTimeSorter, "Unknown", "Unknown", "Unknown", "Unknown");
-                    EnqueueCombatAction(masterSwingUnknown);
+                    ActGlobals.oFormActMain.AddCombatAction(masterSwingUnknown);
                     break;
                 case 9:
                     if (ActGlobals.oFormActMain.SetEncounter(ActGlobals.oFormActMain.LastKnownTime, CharacterNamePersonaReplace(regexMatch.Groups["attacker"].Value), CharacterNamePersonaReplace(regexMatch.Groups["victim"].Value)))
@@ -323,7 +322,7 @@ namespace EverQuestDPSPlugin
                                 "attackType",
                                 "Hitpoints"
                             );
-                        EnqueueCombatAction(masterSwingEvasion);
+                        ActGlobals.oFormActMain.AddCombatAction(masterSwingEvasion);
                     }
                     break;
                 case 10:
@@ -340,7 +339,7 @@ namespace EverQuestDPSPlugin
                                 "damageEffect",
                                 "Hitpoints"
                             );
-                        EnqueueCombatAction(masterSwingSpellcast);
+                        ActGlobals.oFormActMain.AddCombatAction(masterSwingSpellcast);
                     }
                     break;
                 default:
@@ -639,34 +638,6 @@ namespace EverQuestDPSPlugin
             float FinishingBlowPerc = ((float)FinishingBlowCount / (float)count) * 100f;
 
             return $"{CripplingBlowPerc:000.0}%CB-{LockedPerc:000.0}%Locked-{CriticalPerc:000.0}%C-{StrikethroughPerc:000.0}%S-{RipostePerc:000.0}%R-{FlurryPerc:000.0}%F-{LuckyPerc:000.0}%Lucky-{DoubleBowShotPerc:000.0}%DB-{TwincastPerc:000.0}%TC-{WildRampagePerc:000.0}%WR-{FinishingBlowPerc:000.0}%FB-{NonDefinedPerc:000.0}%ND";
-        }
-
-        private void EnqueueCombatAction(MasterSwing ms)
-        {
-            masterSwingsQueue.Enqueue(ms);
-            if (!isProcessing)
-            {
-                isProcessing = true;
-                new Task(() =>
-                {
-                    MasterSwing masterSwing = default;
-                    while (!masterSwingsQueue.IsEmpty)
-                    {
-                        try
-                        {
-                            if (masterSwingsQueue.TryDequeue(out masterSwing))
-                            {
-                                ActGlobals.oFormActMain.AddCombatAction(masterSwing);
-                            }
-                        }
-                        catch (Exception ex)
-                        {
-                            ActGlobals.oFormActMain.WriteExceptionLog(ex, "while trying to dequeue and write to combat action");
-                        }
-                    }
-                    isProcessing = false;
-                }).Start();
-            }
         }
     }
 }
