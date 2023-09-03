@@ -95,9 +95,7 @@
       <DependentUpon>nonmatch.cs</DependentUpon>
     </EmbeddedResource>
   </ItemGroup>
-  <ItemGroup>
-    <Folder Include="Resources\" />
-  </ItemGroup>
+  <ItemGroup />
   <PropertyGroup>
     <PostBuildEvent>IF $(ConfigurationName)==Debug copy /Y $(TargetDir)$(TargetFileName) "$(APPDATA)\Advanced Combat Tracker\Plugins"</PostBuildEvent>
   </PropertyGroup>
