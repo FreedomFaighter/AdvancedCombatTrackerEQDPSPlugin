@@ -169,6 +169,15 @@ namespace EverQuestDPSPlugin {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to (?&lt;victim&gt;.+) has taken (?&lt;damagePoints&gt;[\d]+) damage from (?&lt;attacker&gt;.+) (?&lt;damageEffect&gt;.*)\.(?:[\s][\(](?&lt;spellSpecial&gt;.+)[\)]){0,1}.
+        /// </summary>
+        internal static string FocusDamageEffect {
+            get {
+                return ResourceManager.GetString("FocusDamageEffect", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to (?&lt;healer&gt;.+?) (?:has been\s){0,1}healed (?&lt;healingTarget&gt;.+?)(?:\s(?&lt;overTime&gt;over time)){0,1} for (?&lt;healingPoints&gt;[\d]+)(?:\s\((?&lt;overHealPoints&gt;[\d]+)\)){0,1} hit point(?:|s) by (?&lt;healingSpell&gt;.*)\.(?:[\s][\(](?&lt;healingSpecial&gt;.+)[\)]){0,1}.
         /// </summary>
         internal static string Heal {

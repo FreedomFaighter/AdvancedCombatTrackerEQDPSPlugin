@@ -15,8 +15,6 @@ namespace EverQuestDPSPlugin
     public partial class EverQuestDPSPlugin : IEverQuestDPSPlugin
     {
         #region Class Members 2
-        private ConcurrentQueue<MasterSwing> masterSwingsQueue = new ConcurrentQueue<MasterSwing>();
-        private bool isProcessing = false;
         delegate void matchParse(Match regexMatch);
         List<Tuple<Color, Regex>> regexTupleList;
         Regex selfCheck;
@@ -78,6 +76,8 @@ namespace EverQuestDPSPlugin
             regexTupleList.Add(new Tuple<Color, Regex>(Color.LightBlue, new Regex(RegexString(EverQuestDPSPluginResource.Banestrike), RegexOptions.Compiled)));
             ActGlobals.oFormEncounterLogs.LogTypeToColorMapping.Add(regexTupleList.Count, regexTupleList[regexTupleList.Count - 1].Item1);
             regexTupleList.Add(new Tuple<Color, Regex>(Color.AliceBlue, new Regex(RegexString(EverQuestDPSPluginResource.SpellDamageOverTime), RegexOptions.Compiled)));
+            ActGlobals.oFormEncounterLogs.LogTypeToColorMapping.Add(regexTupleList.Count, regexTupleList[regexTupleList.Count - 1].Item1);
+            regexTupleList.Add(new Tuple<Color, Regex>(Color.PaleVioletRed, new Regex(RegexString(EverQuestDPSPluginResource.FocusDamageEffect), RegexOptions.Compiled)));
             ActGlobals.oFormEncounterLogs.LogTypeToColorMapping.Add(regexTupleList.Count, regexTupleList[regexTupleList.Count - 1].Item1);
         }
 

@@ -83,9 +83,6 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
-    <EmbeddedResource Include="EverQuestDPSPluginPartial1.resx">
-      <DependentUpon>EverQuestDPSPluginPartial1.cs</DependentUpon>
-    </EmbeddedResource>
     <EmbeddedResource Include="EverQuestDPSPluginResource.resx">
       <Generator>ResXFileCodeGenerator</Generator>
       <LastGenOutput>EverQuestDPSPluginResource.Designer.cs</LastGenOutput>

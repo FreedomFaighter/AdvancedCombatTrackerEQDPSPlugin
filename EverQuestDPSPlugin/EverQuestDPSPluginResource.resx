@@ -153,6 +153,9 @@
   <data name="Flurry" xml:space="preserve">
     <value>Flurry</value>
   </data>
+  <data name="FocusDamageEffect" xml:space="preserve">
+    <value>(?&lt;victim&gt;.+) has taken (?&lt;damagePoints&gt;[\d]+) damage from (?&lt;attacker&gt;.+) (?&lt;damageEffect&gt;.*)\.(?:[\s][\(](?&lt;spellSpecial&gt;.+)[\)]){0,1}</value>
+  </data>
   <data name="Heal" xml:space="preserve">
     <value>(?&lt;healer&gt;.+?) (?:has been\s){0,1}healed (?&lt;healingTarget&gt;.+?)(?:\s(?&lt;overTime&gt;over time)){0,1} for (?&lt;healingPoints&gt;[\d]+)(?:\s\((?&lt;overHealPoints&gt;[\d]+)\)){0,1} hit point(?:|s) by (?&lt;healingSpell&gt;.*)\.(?:[\s][\(](?&lt;healingSpecial&gt;.+)[\)]){0,1}</value>
   </data>
