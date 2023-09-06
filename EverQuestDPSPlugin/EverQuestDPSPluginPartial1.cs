@@ -117,7 +117,7 @@ namespace EverQuestDPSPlugin
             pluginScreenSpace.Controls.Add(this);
             this.Dock = DockStyle.Fill;
 
-            int dcIndex = -1;   // Find the Data Correction node in the Options tab
+            /*int dcIndex = -1;   // Find the Data Correction node in the Options tab
             for (int i = 0; i < ActGlobals.oFormActMain.OptionsTreeView.Nodes.Count; i++)
             {
                 if (ActGlobals.oFormActMain.OptionsTreeView.Nodes[i].Text == "Data Correction")
@@ -136,7 +136,7 @@ namespace EverQuestDPSPlugin
                 };
                 pluginScreenSpace.Controls.Add(lblConfig);
             }
-
+            */
 
             xmlSettings = new SettingsSerializer(this); // Create a new settings serializer and pass it this instance
             nm = new nonmatch(this);
