@@ -174,16 +174,12 @@ namespace EverQuestDPSPlugin
             else if (attackerAndTypeMelee.Item1.HasFlag(EverQuestSwingType.NonMelee) || victimAndTypeMelee.Item1.HasFlag(EverQuestSwingType.NonMelee))
                 everQuestSwingTypeToParseMelee |= EverQuestSwingType.DamageShield;
 
-            if (everQuestSwingTypeToParseMelee.HasFlag(EverQuestSwingType.DamageShield))
-            {
-                attacker = CheckIfSelf(victimAndTypeMelee.Item2) ? CharacterNamePersonaReplace(attackerAndTypeMelee.Item2) : CharacterNamePersonaReplace(victimAndTypeMelee.Item2);
-                victim = CharacterNamePersonaReplace(attackerAndTypeMelee.Item2);
-            }
-            else
-            {
-                attacker = CharacterNamePersonaReplace(attackerAndTypeMelee.Item2);
-                victim = CheckIfSelf(victimAndTypeMelee.Item2) ? CharacterNamePersonaReplace(attackerAndTypeMelee.Item2) : CharacterNamePersonaReplace(victimAndTypeMelee.Item2);
-            }
+            
+            attacker = CheckIfSelf(victimAndTypeMelee.Item2) ? CharacterNamePersonaReplace(attackerAndTypeMelee.Item2) : CharacterNamePersonaReplace(victimAndTypeMelee.Item2);
+
+            victim = CharacterNamePersonaReplace(attackerAndTypeMelee.Item2);
+            
+
             MasterSwing masterSwingMelee = new MasterSwing((everQuestSwingTypeToParseMelee | attackTypeToCombine).GetEverQuestSwingTypeExtensionIntValue()
             , logLineRegexMatch.Groups[specialGroupName].Success && logLineRegexMatch.Groups[specialGroupName].Value.Contains(EverQuestDPSPluginResource.Critical)
             , logLineRegexMatch.Groups[specialGroupName].Success ? logLineRegexMatch.Groups[specialGroupName].Value : String.Empty
@@ -191,9 +187,9 @@ namespace EverQuestDPSPlugin
             , ParseDateTime(logLineRegexMatch.Groups[EverQuestDPSPluginResource.dateTimeOfLogLineString].Value)
             , ActGlobals.oFormActMain.GlobalTimeSorter
             , logLineRegexMatch.Groups[attackTypeGroupName].Value
-            , CharacterNamePersonaReplace(logLineRegexMatch.Groups["attacker"].Value)
+            , attacker
             , logLineRegexMatch.Groups[damageType].Value
-            , CharacterNamePersonaReplace(logLineRegexMatch.Groups["victim"].Value));
+            , victim);
             masterSwingMelee.Tags.Add("lastEstimatedTime", ActGlobals.oFormActMain.LastEstimatedTime);
             return masterSwingMelee;
         }
