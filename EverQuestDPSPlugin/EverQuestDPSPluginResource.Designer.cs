@@ -169,7 +169,7 @@ namespace EverQuestDPSPlugin {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to (?&lt;victim&gt;.+) has taken (?&lt;damagePoints&gt;[\d]+) damage from (?&lt;attacker&gt;.+) (?&lt;damageEffect&gt;.*)\.(?:[\s][\(](?&lt;spellSpecial&gt;.+)[\)]){0,1}.
+        ///   Looks up a localized string similar to (?&lt;victim&gt;.+) has taken (?&lt;damagePoints&gt;[\d]+) damage from (?&lt;attacker&gt;(your)+) (?&lt;damageEffect&gt;.[^.]+).
         /// </summary>
         internal static string FocusDamageEffect {
             get {
@@ -268,7 +268,7 @@ namespace EverQuestDPSPlugin {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to (You|you|yourself|Yourself|YOURSELF|YOU).
+        ///   Looks up a localized string similar to (You|you|yourself|Yourself|YOURSELF|YOU|your).
         /// </summary>
         internal static string selfMatch {
             get {

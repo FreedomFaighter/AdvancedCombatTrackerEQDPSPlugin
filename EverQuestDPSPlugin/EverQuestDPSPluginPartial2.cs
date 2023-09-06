@@ -191,9 +191,9 @@ namespace EverQuestDPSPlugin
             , ParseDateTime(logLineRegexMatch.Groups[EverQuestDPSPluginResource.dateTimeOfLogLineString].Value)
             , ActGlobals.oFormActMain.GlobalTimeSorter
             , logLineRegexMatch.Groups[attackTypeGroupName].Value
-            , attacker
-            , damageType
-            , victim);
+            , CharacterNamePersonaReplace(logLineRegexMatch.Groups["attacker"].Value)
+            , logLineRegexMatch.Groups[damageType].Value
+            , CharacterNamePersonaReplace(logLineRegexMatch.Groups["victim"].Value));
             masterSwingMelee.Tags.Add("lastEstimatedTime", ActGlobals.oFormActMain.LastEstimatedTime);
             return masterSwingMelee;
         }
@@ -340,6 +340,21 @@ namespace EverQuestDPSPlugin
                                 "Hitpoints"
                             );
                         ActGlobals.oFormActMain.AddCombatAction(masterSwingSpellcast);
+                    }
+                    break;
+                case 12:
+                    if(ActGlobals.oFormActMain.SetEncounter(ActGlobals.oFormActMain.LastKnownTime, CharacterNamePersonaReplace(regexMatch.Groups["attacker"].Value), CharacterNamePersonaReplace(regexMatch.Groups["victim"].Value)))
+                    {
+                        MasterSwing masterSwingFocusEffect = ParseMasterSwing(
+                            EverQuestSwingType.DirectDamageSpell,
+                            regexMatch,
+                            "attacker",
+                            "victim",
+                            "specialName",
+                            new Dnum(Int64.Parse(regexMatch.Groups["damagePoints"].Value)),
+                            "damageEffect",
+                            "Hitpoints");
+                        ActGlobals.oFormActMain.AddCombatAction(masterSwingFocusEffect);
                     }
                     break;
                 default:

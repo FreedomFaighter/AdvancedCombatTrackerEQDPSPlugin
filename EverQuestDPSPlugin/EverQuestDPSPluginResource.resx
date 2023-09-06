@@ -154,7 +154,7 @@
     <value>Flurry</value>
   </data>
   <data name="FocusDamageEffect" xml:space="preserve">
-    <value>(?&lt;victim&gt;.+) has taken (?&lt;damagePoints&gt;[\d]+) damage from (?&lt;attacker&gt;.+) (?&lt;damageEffect&gt;.*)\.(?:[\s][\(](?&lt;spellSpecial&gt;.+)[\)]){0,1}</value>
+    <value>(?&lt;victim&gt;.+) has taken (?&lt;damagePoints&gt;[\d]+) damage from (?&lt;attacker&gt;(your)+) (?&lt;damageEffect&gt;.[^.]+)</value>
   </data>
   <data name="Heal" xml:space="preserve">
     <value>(?&lt;healer&gt;.+?) (?:has been\s){0,1}healed (?&lt;healingTarget&gt;.+?)(?:\s(?&lt;overTime&gt;over time)){0,1} for (?&lt;healingPoints&gt;[\d]+)(?:\s\((?&lt;overHealPoints&gt;[\d]+)\)){0,1} hit point(?:|s) by (?&lt;healingSpell&gt;.*)\.(?:[\s][\(](?&lt;healingSpecial&gt;.+)[\)]){0,1}</value>
@@ -187,7 +187,7 @@
     <value>secondaryPossesiveOf</value>
   </data>
   <data name="selfMatch" xml:space="preserve">
-    <value>(You|you|yourself|Yourself|YOURSELF|YOU)</value>
+    <value>(You|you|yourself|Yourself|YOURSELF|YOU|your)</value>
   </data>
   <data name="SlainMessage" xml:space="preserve">
     <value>(?&lt;attacker&gt;.+) (?:(ha(ve|s) been slain by|have slain)) (?&lt;victim&gt;.+)!</value>
