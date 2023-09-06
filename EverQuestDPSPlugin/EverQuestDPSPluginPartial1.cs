@@ -275,33 +275,6 @@ namespace EverQuestDPSPlugin
             }
         }
 
-        internal class RegexAndParseMethod
-        {
-            private Color parseLineColor;
-            private Regex regexMatcher;
-            private Action<Match> parse;
-
-            public Color LineColor
-            {
-                get
-                {
-                    return this.parseLineColor;
-                }
-            }
-            public Regex RegexMatcher
-            {
-                get { return this.regexMatcher; }
-            }
-
-            public Action<Match> Parse { get { return this.parse; } }
-
-            public RegexAndParseMethod(Color c, Regex regex, Action<Match> action)
-            {
-                parseLineColor = c;
-                this.regexMatcher = regex;
-                this.parse = action;
-            }
-        }
 
         private void SetupEverQuestEnvironment()
         {
@@ -426,6 +399,7 @@ namespace EverQuestDPSPlugin
             {"Heal Over Time (Out)", new CombatantData.DamageTypeDef("Heal Over Time (Out)", 1, Color.DarkBlue)},
                 {"Pet Melee (Out)", new CombatantData.DamageTypeDef("Pet Melee (Out)", -1, Color.GreenYellow)},
                 {"Warder Melee (Out)", new CombatantData.DamageTypeDef("Warder Melee (Out)", -1, Color.Aqua)},
+                { "Familiar Direct Damage (Out)", new CombatantData.DamageTypeDef("Familiar Direct Damage (Out)", -1, Color.DarkCyan) },
             {"All Outgoing (Ref)", new CombatantData.DamageTypeDef("All Outgoing (Ref)", 0, Color.Black)}
         };
             CombatantData.IncomingDamageTypeDataObjects = new Dictionary<string, CombatantData.DamageTypeDef>
@@ -438,6 +412,7 @@ namespace EverQuestDPSPlugin
             {"Heal Over Time (Inc)",new CombatantData.DamageTypeDef("Heal Over Time (Inc)", 1, Color.DarkGreen)},
             {"Pet Melee (Inc)", new CombatantData.DamageTypeDef("Pet Melee (Inc)", -1, Color.Green)},
                 {"Warder Melee (Inc)", new CombatantData.DamageTypeDef("Warder Melee (Inc)", -1, Color.Lavender)},
+                {"Familiar Direct Damage (Inc)", new CombatantData.DamageTypeDef("Familiar Direct Damage (Inc)", -1, Color.DarkCyan)},
             {"All Incoming (Ref)",new CombatantData.DamageTypeDef("All Incoming (Ref)", 0, Color.Black)}
         };
             CombatantData.SwingTypeToDamageTypeDataLinksOutgoing = new SortedDictionary<int, List<string>>
@@ -449,7 +424,8 @@ namespace EverQuestDPSPlugin
             {EverQuestSwingType.InstantHealing.GetEverQuestSwingTypeExtensionIntValue(), new List<string> { "Instant Healed (Out)" } },
             {EverQuestSwingType.HealOverTime.GetEverQuestSwingTypeExtensionIntValue(), new List<string> { "Heal Over Time (Out)" } },
             {EverQuestSwingType.PetMelee.GetEverQuestSwingTypeExtensionIntValue(), new List<string> { "Pet Melee (Out)", "Outgoing Damage" } },
-            {EverQuestSwingType.WarderMelee.GetEverQuestSwingTypeExtensionIntValue(), new List<string> { "Warder Melee (Out)", "Outgoing Damage" } }
+            {EverQuestSwingType.WarderMelee.GetEverQuestSwingTypeExtensionIntValue(), new List<string> { "Warder Melee (Out)", "Outgoing Damage" } },
+                {EverQuestSwingType.FamiliarDirectSpellDamage.GetEverQuestSwingTypeExtensionIntValue(), new List<string> {"Familiar Direct Damage (Out)", "Outgoing Damage"} }
         };
             CombatantData.SwingTypeToDamageTypeDataLinksIncoming = new SortedDictionary<int, List<string>>
         {
@@ -460,7 +436,8 @@ namespace EverQuestDPSPlugin
             {EverQuestSwingType.DamageOverTimeSpell.GetEverQuestSwingTypeExtensionIntValue(), new List<string> {"Damage Over Time Spell (Inc)", "Incoming Damage" } },
             {EverQuestSwingType.HealOverTime.GetEverQuestSwingTypeExtensionIntValue(), new List<string> { "Heal Over Time (Inc)" } },
             {EverQuestSwingType.PetMelee.GetEverQuestSwingTypeExtensionIntValue(), new List<string> { "Pet Melee (Inc)", "Incoming Damage" } },
-            {EverQuestSwingType.WarderMelee.GetEverQuestSwingTypeExtensionIntValue(), new List<string> { "Warder Melee (Inc)", "Incoming Damage" } }
+            {EverQuestSwingType.WarderMelee.GetEverQuestSwingTypeExtensionIntValue(), new List<string> { "Warder Melee (Inc)", "Incoming Damage" } },
+                {EverQuestSwingType.FamiliarDirectSpellDamage.GetEverQuestSwingTypeExtensionIntValue(), new List<string> { "Familiar Direct Damage (Inc)", "Incoming Damage"} }
         };
 
             CombatantData.DamageSwingTypes = new List<int> {
@@ -471,6 +448,7 @@ namespace EverQuestDPSPlugin
                 EverQuestSwingType.Bane.GetEverQuestSwingTypeExtensionIntValue(),
                 EverQuestSwingType.PetMelee.GetEverQuestSwingTypeExtensionIntValue(),
                 EverQuestSwingType.WarderMelee.GetEverQuestSwingTypeExtensionIntValue(),
+                EverQuestSwingType.FamiliarDirectSpellDamage.GetEverQuestSwingTypeExtensionIntValue()
             };
             CombatantData.HealingSwingTypes = new List<int> { EverQuestSwingType.InstantHealing.GetEverQuestSwingTypeExtensionIntValue(), EverQuestSwingType.HealOverTime.GetEverQuestSwingTypeExtensionIntValue() };
 
