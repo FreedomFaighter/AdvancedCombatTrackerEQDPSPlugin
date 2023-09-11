@@ -153,8 +153,8 @@ namespace EverQuestDPSPlugin
 
         private MasterSwing ParseMasterSwing(EverQuestSwingType attackTypeToCombine,
             Match logLineRegexMatch,
-            String character1GroupName,
             String character2GroupName,
+            String character1GroupName,
             String specialGroupName,
             Dnum dnumValue,
             String attackTypeGroupName,
@@ -163,6 +163,7 @@ namespace EverQuestDPSPlugin
         {
             Tuple<EverQuestSwingType, String> attackerAndTypeMelee = GetTypeAndNameForPet(logLineRegexMatch.Groups[character1GroupName].Value);
             Tuple<EverQuestSwingType, String> victimAndTypeMelee = GetTypeAndNameForPet(logLineRegexMatch.Groups[character2GroupName].Value);
+
             String attacker, victim;
             EverQuestSwingType everQuestSwingTypeToParseMelee = 0;
             if (attackerAndTypeMelee.Item1.HasFlag(EverQuestSwingType.Pet) || victimAndTypeMelee.Item1.HasFlag(EverQuestSwingType.Pet))
@@ -171,7 +172,7 @@ namespace EverQuestDPSPlugin
                 everQuestSwingTypeToParseMelee |= EverQuestSwingType.Warder;
             else if (attackerAndTypeMelee.Item1.HasFlag(EverQuestSwingType.Ward) || victimAndTypeMelee.Item1.HasFlag(EverQuestSwingType.Ward))
                 everQuestSwingTypeToParseMelee |= EverQuestSwingType.Ward;
-            else if (attackerAndTypeMelee.Item1.HasFlag(EverQuestSwingType.NonMelee) || victimAndTypeMelee.Item1.HasFlag(EverQuestSwingType.NonMelee))
+            else if (attackerAndTypeMelee.Item1.HasFlag(EverQuestSwingType.NonMelee) || victimAndTypeMelee.Item1.HasFlag(EverQuestSwingType.NonMelee) || logLineRegexMatch.Groups["damageShieldType"].Success)
                 everQuestSwingTypeToParseMelee |= EverQuestSwingType.DamageShield;
 
             

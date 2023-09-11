@@ -268,7 +268,7 @@ namespace EverQuestDPSPlugin {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to (You|you|yourself|Yourself|YOURSELF|YOU|your).
+        ///   Looks up a localized string similar to (You|you|yourself|Yourself|YOURSELF|YOU|your|YOUR).
         /// </summary>
         internal static string selfMatch {
             get {
@@ -295,7 +295,7 @@ namespace EverQuestDPSPlugin {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to (?&lt;attacker&gt;.+) has taken (?&lt;damagePoints&gt;[\d]+) damage from (?&lt;damageEffect&gt;.*) by (?&lt;victim&gt;.*)\.(?:[\s][\(](?&lt;spellSpecial&gt;.+)[\)]){0,1}.
+        ///   Looks up a localized string similar to (?&lt;victim&gt;.+) has taken (?&lt;damagePoints&gt;[\d]+) damage from (?&lt;damageEffect&gt;.*) by (?&lt;attacker&gt;.*)\.(?:\s\((?&lt;spellSpecial&gt;.+)\)).
         /// </summary>
         internal static string SpellDamageOverTime {
             get {
