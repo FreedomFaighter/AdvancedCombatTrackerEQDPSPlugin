@@ -25,7 +25,7 @@ namespace EverQuestDPSPlugin
         nonmatch nm; //Form for non regex matching log lines
         string settingsFile;
         SettingsSerializer xmlSettings;
-        object varianceChkBxLockObject = new object(), nonMatchChkBxLockObject = new object();
+        readonly object varianceChkBxLockObject = new object(), nonMatchChkBxLockObject = new object();
         #endregion
 
         internal DateTime ParseDateTime(String timeStamp)
