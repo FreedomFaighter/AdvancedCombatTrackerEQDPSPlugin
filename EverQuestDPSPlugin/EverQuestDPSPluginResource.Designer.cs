@@ -205,7 +205,7 @@ namespace EverQuestDPSPlugin {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to (?&lt;attacker&gt;.+) (?:tr(?:ies|y)) to (?&lt;attackType&gt;\S+) (?&lt;victim&gt;.+), but (?:miss(?:|es))!(?:\s\((?&lt;damageSpecial&gt;.+)\)){0,1}.
+        ///   Looks up a localized string similar to (?&lt;attacker&gt;.+) (?:tr(?:ies|y)) to (?&lt;attackType&gt;(\S+|frenzy on)) (?&lt;victim&gt;.+), but (?:miss(?:|es))!(?:\s\((?&lt;damageSpecial&gt;.+)\)){0,1}.
         /// </summary>
         internal static string MissedMeleeAttack {
             get {

@@ -166,7 +166,7 @@
     <value>Lucky</value>
   </data>
   <data name="MissedMeleeAttack" xml:space="preserve">
-    <value>(?&lt;attacker&gt;.+) (?:tr(?:ies|y)) to (?&lt;attackType&gt;\S+) (?&lt;victim&gt;.+), but (?:miss(?:|es))!(?:\s\((?&lt;damageSpecial&gt;.+)\)){0,1}</value>
+    <value>(?&lt;attacker&gt;.+) (?:tr(?:ies|y)) to (?&lt;attackType&gt;(\S+|frenzy on)) (?&lt;victim&gt;.+), but (?:miss(?:|es))!(?:\s\((?&lt;damageSpecial&gt;.+)\)){0,1}</value>
   </data>
   <data name="pluginId" xml:space="preserve">
     <value>92</value>
