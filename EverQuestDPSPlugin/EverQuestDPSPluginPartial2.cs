@@ -282,15 +282,15 @@ namespace EverQuestDPSPlugin
                     {
                         MasterSwing masterSwingEvasion = new MasterSwing(
                                 EverQuestSwingType.Melee.GetEverQuestSwingTypeExtensionIntValue(),
-                                regexMatch.Groups["healingSpecial"].Success && regexMatch.Groups["healingSpecial"].Value.Contains(EverQuestDPSPluginResource.Critical),
-                                regexMatch.Groups["healingSpecial"].Success ? regexMatch.Groups["healingSpecial"].Value : String.Empty,
+                                regexMatch.Groups["evasionSpecial"].Success && regexMatch.Groups["evasionSpecial"].Value.Contains(EverQuestDPSPluginResource.Critical),
+                                regexMatch.Groups["evasionSpecial"].Success ? regexMatch.Groups["evasionSpecial"].Value : String.Empty,
                                 new Dnum(Dnum.NoDamage, regexMatch.Groups["evasionType"].Value),
                                 ParseDateTime(regexMatch.Groups[EverQuestDPSPluginResource.dateTimeOfLogLineString].Value),
                                 ActGlobals.oFormActMain.GlobalTimeSorter,
                                 regexMatch.Groups["attackType"].Value,
-                                CharacterNamePersonaReplace(regexMatch.Groups["healer"].Value),
+                                CharacterNamePersonaReplace(regexMatch.Groups["attacker"].Value),
                                 "Hitpoints",
-                                CharacterNamePersonaReplace(regexMatch.Groups["healingTarget"].Value)
+                                CharacterNamePersonaReplace(regexMatch.Groups["victim"].Value)
                             );
                         ActGlobals.oFormActMain.AddCombatAction(masterSwingEvasion);
                     }
