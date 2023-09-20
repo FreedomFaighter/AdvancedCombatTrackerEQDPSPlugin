@@ -111,7 +111,7 @@ namespace EverQuestDPSPlugin
         public void InitPlugin(TabPage pluginScreenSpace, Label pluginStatusText)
         {
             EverQuest_DPS_Plugin_Localization.EditLocalizations();
-            settingsFile = Path.Combine(ActGlobals.oFormActMain.AppDataFolder.FullName, EverQuestDPSPluginResource.PluginSettingsFileName);
+            settingsFile = Path.Combine(ActGlobals.oFormActMain.AppDataFolder.FullName, PluginSettingsFileName);
             lblStatus = pluginStatusText;   // Hand the status label's reference to our local var
 
             pluginScreenSpace.Controls.Add(this);
@@ -139,8 +139,8 @@ namespace EverQuestDPSPlugin
             */
 
             xmlSettings = new SettingsSerializer(this); // Create a new settings serializer and pass it this instance
-            nm = new nonmatch(this);
             LoadSettings();
+            nm = new nonmatch(this);
             PopulateRegexNonCombat();
             PopulateRegexCombat();
             SetupEverQuestEnvironment();
@@ -274,7 +274,6 @@ namespace EverQuestDPSPlugin
                 }
             }
         }
-
 
         private void SetupEverQuestEnvironment()
         {

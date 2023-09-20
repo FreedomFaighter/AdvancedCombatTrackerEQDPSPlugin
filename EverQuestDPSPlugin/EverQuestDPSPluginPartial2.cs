@@ -9,6 +9,7 @@ using System.Text.RegularExpressions;
 using System;
 using System.Linq;
 using System.Windows.Forms;
+using System.IO;
 
 namespace EverQuestDPSPlugin
 {
@@ -26,6 +27,8 @@ namespace EverQuestDPSPlugin
         string settingsFile;
         SettingsSerializer xmlSettings;
         readonly object varianceChkBxLockObject = new object(), nonMatchChkBxLockObject = new object();
+        string PluginSettingsFileName = $"Config{Path.DirectorySeparatorChar}ACT_EverQuest_English_Parser.config.xml";
+
         #endregion
 
         internal DateTime ParseDateTime(String timeStamp)
@@ -264,7 +267,7 @@ namespace EverQuestDPSPlugin
                                 regexMatch.Groups["healingSpell"].Value,
                                 CharacterNamePersonaReplace(regexMatch.Groups["healer"].Value),
                                 "Hitpoints",
-                                CharacterNamePersonaReplace(regexMatch.Groups["healingTarget"].Value));
+                                CheckIfSelf(regexMatch.Groups["healingTarget"].Value) ? CharacterNamePersonaReplace(regexMatch.Groups["healer"].Value) : CharacterNamePersonaReplace(regexMatch.Groups["healingTarget"].Value));
                         if (regexMatch.Groups["overHealPoints"].Success)
                             ms.Tags["overheal"] = Int64.Parse(regexMatch.Groups["overHealPoints"].Value);
                         ActGlobals.oFormActMain.AddCombatAction(ms);
@@ -317,7 +320,6 @@ namespace EverQuestDPSPlugin
                 case 12:
                     if(ActGlobals.oFormActMain.SetEncounter(ActGlobals.oFormActMain.LastKnownTime, CharacterNamePersonaReplace(regexMatch.Groups["attacker"].Value), CharacterNamePersonaReplace(regexMatch.Groups["victim"].Value)))
                     {
-
                         MasterSwing masterSwingFocusEffect = new MasterSwing(
                                 EverQuestSwingType.DirectDamageSpell.GetEverQuestSwingTypeExtensionIntValue(),
                                 regexMatch.Groups["focusSpecial"].Success && regexMatch.Groups["focusSpecial"].Value.Contains(EverQuestDPSPluginResource.Critical),
