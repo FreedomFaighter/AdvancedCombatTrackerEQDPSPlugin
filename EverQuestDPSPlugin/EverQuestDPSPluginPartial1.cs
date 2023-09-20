@@ -6,7 +6,6 @@ using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Reflection;
-using System.Runtime.CompilerServices;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
@@ -246,12 +245,16 @@ namespace EverQuestDPSPlugin
                         ChangeLblStatus($"With message: {ex.Message}");
                     }
                 }
+                if (varianceChkBx.InvokeRequired)
+                    varianceChkBx.Invoke(new Action<object, EventArgs>(VarianceChkBx_CheckedChanged));
+                else
+                    this.populationVariance = varianceChkBx.Checked;
+                NonMatchVisible_CheckedChanged(nonMatchVisibleChkbx, new EventArgs());
             }
-            if (varianceChkBx.InvokeRequired)
-                varianceChkBx.Invoke(new Action<object, EventArgs>(VarianceChkBx_CheckedChanged));
             else
-                this.populationVariance = varianceChkBx.Checked;
-            NonMatchVisible_CheckedChanged(nonMatchVisibleChkbx, new EventArgs());
+            {
+                ChangeLblStatus($"{settingsFile} does not exist and no settings were loaded, first time loading {EverQuestDPSPluginResource.pluginName}?");
+            }
         }
 
         void SaveSettings()

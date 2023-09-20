@@ -1,7 +1,6 @@
 ﻿#region Complexi's Region
 using Advanced_Combat_Tracker;
 using EverQuestDPSPlugin.Interfaces;
-using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Drawing;
 using System.Globalization;
