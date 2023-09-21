@@ -121,7 +121,7 @@
     <value>backstab|throw|pierce|gore|crush|slash|hit|kick|slam|bash|shoot|strike|bite|grab|punch|scratch|rake|swipe|claw|maul|smash|frenzy</value>
   </data>
   <data name="Banestrike" xml:space="preserve">
-    <value>You hit (?&lt;victim&gt;.+) for (?&lt;baneDamage&gt;[\d]+) points of (?&lt;typeOfDamage&gt;.+) by Banestrike (?&lt;baneAbilityRank&gt;.+\.)</value>
+    <value>(?&lt;attacker&gt;.+) hit(|s) (?&lt;victim&gt;.+) for (?&lt;baneDamage&gt;[\d]+) points of (?&lt;typeOfDamage&gt;.+) by Banestrike (?&lt;baneAbilityRank&gt;.+\.)(?:\s\((?&lt;baneSpecial&gt;.+)\)){0,1}</value>
   </data>
   <data name="CripplingBlow" xml:space="preserve">
     <value>Crippling Blow</value>
@@ -212,8 +212,5 @@
   </data>
   <data name="WildRampage" xml:space="preserve">
     <value>Wild Rampage</value>
-  </data>
-  <data name="ZoneChange" xml:space="preserve">
-    <value>You have entered (?!.*the Drunken Monkey stance adequately)(?&lt;zoneName&gt;.*).</value>
   </data>
 </root>

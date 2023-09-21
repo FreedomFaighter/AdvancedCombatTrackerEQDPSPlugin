@@ -147,15 +147,16 @@ namespace EverQuestDPSPlugin
             ActGlobals.oFormActMain.BeforeLogLineRead += new LogLineEventDelegate(FormActMain_BeforeLogLineRead);
             ActGlobals.oFormActMain.UpdateCheckClicked += new FormActMain.NullDelegate(UpdateCheckClicked);
 
-            Task updateCheckClicked = new Task(() =>
-            {
-                UpdateCheckClicked();
-            });
-            if (ActGlobals.oFormActMain.GetAutomaticUpdatesAllowed())   // If ACT is set to automatically check for updates, check for updates to the plugin
+            
+            if (ActGlobals.oFormActMain.GetAutomaticUpdatesAllowed())
+            {// If ACT is set to automatically check for updates, check for updates to the plugin
+                Task updateCheckClicked = new Task(() =>
+                {
+                    UpdateCheckClicked();
+                });
                 updateCheckClicked.Start();   // If we don't put this on a separate thread, web latency will delay the plugin init phase
-
+            }
             ActGlobals.oFormActMain.CharacterFileNameRegex = new Regex(@"(?:.+)[\\]eqlog_(?<characterName>\S+)_(?<server>.+).txt", RegexOptions.Compiled);
-            ActGlobals.oFormActMain.ZoneChangeRegex = new Regex(RegexString(EverQuestDPSPluginResource.ZoneChange), RegexOptions.Compiled);
             ChangeLblStatus($"{EverQuestDPSPluginResource.pluginName} Plugin Started");
         }
 
@@ -189,7 +190,7 @@ namespace EverQuestDPSPlugin
                 Version currentVersionv = new Version(version.Groups["AssemblyVersion"].Value);
                 if (remoteVersion > currentVersionv)
                 {
-                    DialogResult result = MessageBox.Show($"There is an updated version of the {EverQuestDPSPluginResource.pluginName}.  Update it now?\n\n(If there is an update to ACT, you should click No and update ACT first.)", "New Version", MessageBoxButtons.YesNo, MessageBoxIcon.Question);
+                    DialogResult result = MessageBox.Show($"There is an updated version of the {EverQuestDPSPluginResource.pluginName}.  Update it now?{Environment.NewLine}{Environment.NewLine}(If there is an update to ACT, you should click No and update ACT first.)", "New Version", MessageBoxButtons.YesNo, MessageBoxIcon.Question);
                     switch (result)
                     {
                         case DialogResult.Yes:
@@ -254,27 +255,34 @@ namespace EverQuestDPSPlugin
             else
             {
                 ChangeLblStatus($"{settingsFile} does not exist and no settings were loaded, first time loading {EverQuestDPSPluginResource.pluginName}?");
+                SaveSettings();
             }
         }
 
         void SaveSettings()
         {
-            using (FileStream fs = new FileStream(settingsFile, FileMode.Create, FileAccess.Write, FileShare.ReadWrite))
+            try
             {
-                using (XmlTextWriter xWriter = new XmlTextWriter(fs, Encoding.UTF8))
+                using (FileStream fs = new FileStream(settingsFile, FileMode.Create, FileAccess.Write, FileShare.ReadWrite))
                 {
-                    xWriter.Formatting = Formatting.Indented;
-                    xWriter.Indentation = 1;
-                    xWriter.IndentChar = '\t';
-                    xWriter.WriteStartDocument(true);
-                    xWriter.WriteStartElement("Config");    // <Config>
-                    xWriter.WriteStartElement("SettingsSerializer");    // <Config><SettingsSerializer>
-                    xmlSettings.ExportToXml(xWriter);   // Fill the SettingsSerializer XML
-                    xWriter.WriteEndElement();  // </SettingsSerializer>
-                    //SaveXmlApostropheNameFix(xWriter);  // Create and fill the ApostropheNameFix node
-                    xWriter.WriteEndElement();  // </Config>
-                    xWriter.WriteEndDocument(); // Tie up loose ends (shouldn't be any)
+                    using (XmlTextWriter xWriter = new XmlTextWriter(fs, Encoding.UTF8))
+                    {
+                        xWriter.Formatting = Formatting.Indented;
+                        xWriter.Indentation = 1;
+                        xWriter.IndentChar = '\t';
+                        xWriter.WriteStartDocument(true);
+                        xWriter.WriteStartElement("Config");    // <Config>
+                        xWriter.WriteStartElement("SettingsSerializer");    // <Config><SettingsSerializer>
+                        xmlSettings.ExportToXml(xWriter);   // Fill the SettingsSerializer XML
+                        xWriter.WriteEndElement();  // </SettingsSerializer>
+                        xWriter.WriteEndElement();  // </Config>
+                        xWriter.WriteEndDocument(); // Tie up loose ends (shouldn't be any)
+                    }
                 }
+            }
+            catch (Exception ex)
+            {
+                ActGlobals.oFormActMain.WriteExceptionLog(ex, "Failed to save file in entirety");
             }
         }
 

@@ -70,7 +70,7 @@ namespace EverQuestDPSPlugin {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to You hit (?&lt;victim&gt;.+) for (?&lt;baneDamage&gt;[\d]+) points of (?&lt;typeOfDamage&gt;.+) by Banestrike (?&lt;baneAbilityRank&gt;.+\.).
+        ///   Looks up a localized string similar to (?&lt;attacker&gt;.+) hit(|s) (?&lt;victim&gt;.+) for (?&lt;baneDamage&gt;[\d]+) points of (?&lt;typeOfDamage&gt;.+) by Banestrike (?&lt;baneAbilityRank&gt;.+\.)(?:\s\((?&lt;baneSpecial&gt;.+)\)){0,1}.
         /// </summary>
         internal static string Banestrike {
             get {
@@ -345,15 +345,6 @@ namespace EverQuestDPSPlugin {
         internal static string WildRampage {
             get {
                 return ResourceManager.GetString("WildRampage", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to You have entered (?!.*the Drunken Monkey stance adequately)(?&lt;zoneName&gt;.*)..
-        /// </summary>
-        internal static string ZoneChange {
-            get {
-                return ResourceManager.GetString("ZoneChange", resourceCulture);
             }
         }
     }
