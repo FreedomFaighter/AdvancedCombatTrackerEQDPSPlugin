@@ -168,14 +168,8 @@
   <data name="MissedMeleeAttack" xml:space="preserve">
     <value>(?&lt;attacker&gt;.+) (?:tr(?:ies|y)) to (?&lt;attackType&gt;(\S+|frenzy on)) (?&lt;victim&gt;.+), but (?:miss(?:|es))!(?:\s\((?&lt;damageSpecial&gt;.+)\)){0,1}</value>
   </data>
-  <data name="pluginId" xml:space="preserve">
-    <value>92</value>
-  </data>
   <data name="pluginName" xml:space="preserve">
     <value>EverQuest Damage Per Second Parser</value>
-  </data>
-  <data name="PluginSettingsFileName" xml:space="preserve">
-    <value>Config\ACT_EverQuest_English_Parser.config.xml</value>
   </data>
   <data name="possesiveOf" xml:space="preserve">
     <value>possesiveOf</value>

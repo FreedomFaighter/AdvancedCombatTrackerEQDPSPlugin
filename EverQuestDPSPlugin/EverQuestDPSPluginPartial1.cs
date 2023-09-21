@@ -179,7 +179,7 @@ namespace EverQuestDPSPlugin
 
         void UpdateCheckClicked()
         {
-            int.TryParse(EverQuestDPSPluginResource.pluginId, out int pluginId);
+            int pluginId = 92;
             try
             {
                 String regexMatchString = @"Version=(?<AssemblyVersion>\S+)";

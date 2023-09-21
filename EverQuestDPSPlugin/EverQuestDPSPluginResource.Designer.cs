@@ -214,29 +214,11 @@ namespace EverQuestDPSPlugin {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to 92.
-        /// </summary>
-        internal static string pluginId {
-            get {
-                return ResourceManager.GetString("pluginId", resourceCulture);
-            }
-        }
-        
-        /// <summary>
         ///   Looks up a localized string similar to EverQuest Damage Per Second Parser.
         /// </summary>
         internal static string pluginName {
             get {
                 return ResourceManager.GetString("pluginName", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Config\ACT_EverQuest_English_Parser.config.xml.
-        /// </summary>
-        internal static string PluginSettingsFileName {
-            get {
-                return ResourceManager.GetString("PluginSettingsFileName", resourceCulture);
             }
         }
         

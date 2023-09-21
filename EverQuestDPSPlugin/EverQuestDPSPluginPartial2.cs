@@ -27,7 +27,6 @@ namespace EverQuestDPSPlugin
         SettingsSerializer xmlSettings;
         readonly object varianceChkBxLockObject = new object(), nonMatchChkBxLockObject = new object();
         readonly string PluginSettingsFileName = $"Config{Path.DirectorySeparatorChar}ACT_EverQuest_English_Parser.config.xml";
-
         #endregion
 
         internal DateTime ParseDateTime(String timeStamp)
