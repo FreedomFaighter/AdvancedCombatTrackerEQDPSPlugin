@@ -27,6 +27,8 @@ namespace EverQuestDPSPlugin
         SettingsSerializer xmlSettings;
         readonly object varianceChkBxLockObject = new object(), nonMatchChkBxLockObject = new object();
         readonly string PluginSettingsFileName = $"Config{Path.DirectorySeparatorChar}ACT_EverQuest_English_Parser.config.xml";
+        readonly string attackTypes = "backstab|throw|pierce|gore|crush|slash|hit|kick|slam|bash|shoot|strike|bite|grab|punch|scratch|rake|swipe|claw|maul|smash|frenzies|frenzy";
+
         #endregion
 
         internal DateTime ParseDateTime(String timeStamp)
@@ -53,7 +55,7 @@ namespace EverQuestDPSPlugin
 
         private void PopulateRegexCombat()
         {
-            String MeleeAttack = @"(?<attacker>.+) (?<attackType>" + $@"{EverQuestDPSPluginResource.attackTypes}" + @")(|s|es|bed) (?<victim>.+) for (?<damageAmount>[\d]+) (?:(?:point)(?:s|)) of damage.(?:\s\((?<damageSpecial>.+)\)){0,1}";
+            String MeleeAttack = @"(?<attacker>.+) (?<attackType>" + $@"{attackTypes}" + @")(|s|es|bed) (?<victim>.+) for (?<damageAmount>[\d]+) (?:(?:point)(?:s|)) of damage.(?:\s\((?<damageSpecial>.+)\)){0,1}";
             String Evasion = @"(?<attacker>.*) tries to (?<attackType>\S+) (?:(?<victim>(.+)), but \1) (?:(?<evasionType>" + $@"{EverQuestDPSPluginResource.evasionTypes}" + @"))(?:\swith (your|his|hers|its) (shield|staff)){0,1}!(?:[\s][\(](?<evasionSpecial>.+)[\)]){0,1}";
             ActGlobals.oFormEncounterLogs.LogTypeToColorMapping.Clear();
             regexTupleList.Add(new Tuple<Color, Regex>(Color.Red, new Regex(RegexString(MeleeAttack), RegexOptions.Compiled)));

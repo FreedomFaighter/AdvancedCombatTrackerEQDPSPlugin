@@ -61,15 +61,6 @@ namespace EverQuestDPSPlugin {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to backstab|throw|pierce|gore|crush|slash|hit|kick|slam|bash|shoot|strike|bite|grab|punch|scratch|rake|swipe|claw|maul|smash|frenzy.
-        /// </summary>
-        internal static string attackTypes {
-            get {
-                return ResourceManager.GetString("attackTypes", resourceCulture);
-            }
-        }
-        
-        /// <summary>
         ///   Looks up a localized string similar to (?&lt;attacker&gt;.+) hit(|s) (?&lt;victim&gt;.+) for (?&lt;baneDamage&gt;[\d]+) points of (?&lt;typeOfDamage&gt;.+) by Banestrike (?&lt;baneAbilityRank&gt;.+\.)(?:\s\((?&lt;baneSpecial&gt;.+)\)){0,1}.
         /// </summary>
         internal static string Banestrike {
