@@ -27,7 +27,7 @@ namespace EverQuestDPSPlugin
         SettingsSerializer xmlSettings;
         readonly object varianceChkBxLockObject = new object(), nonMatchChkBxLockObject = new object();
         readonly string PluginSettingsFileName = $"Config{Path.DirectorySeparatorChar}ACT_EverQuest_English_Parser.config.xml";
-        readonly string attackTypes = "backstab|throw|pierce|gore|crush|slash|hit|kick|slam|bash|shoot|strike|bite|grab|punch|scratch|rake|swipe|claw|maul|smash|frenzies|frenzy";
+        readonly string attackTypes = "backstab|throw|pierce|gore|crush|slash|hit|kick|slam|bash|shoot|strike|bite|grab|punch|scratch|rake|swipe|claw|maul|smash|frenzies on|frenzy";
 
         #endregion
 
@@ -162,6 +162,7 @@ namespace EverQuestDPSPlugin
                     if (ActGlobals.oFormActMain.SetEncounter(ActGlobals.oFormActMain.LastKnownTime, CharacterNamePersonaReplace(regexMatch.Groups["attacker"].Value), CharacterNamePersonaReplace(regexMatch.Groups["victim"].Value)))
                     {
                         Dnum damage = new Dnum(Int64.Parse(regexMatch.Groups["damageAmount"].Value));
+                        String attackName = regexMatch.Groups["attackType"].Value == "frenzies on" ? "frenzy" : regexMatch.Groups["attackType"].Value;
                         MasterSwing masterSwingMelee = new MasterSwing(
                             EverQuestSwingType.Melee.GetEverQuestSwingTypeExtensionIntValue(),
                             regexMatch.Groups["damageSpecial"].Success && regexMatch.Groups["damageSpecial"].Value.Contains("Critical"),
