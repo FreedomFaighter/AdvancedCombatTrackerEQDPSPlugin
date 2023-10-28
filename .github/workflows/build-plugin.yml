@@ -47,6 +47,7 @@ jobs:
         with:
           severity: info
           details: Test Succeeded!
+          text: .NET Framework Version ${{ matrix.dotnetFrameworkVersion }}
           webhookUrl: ${{ secrets.ACT_EQ_DISCORD_WEBHOOK }}
       - name: Test Failure
         uses: rjstone/discord-webhook-notify@v1
@@ -54,6 +55,7 @@ jobs:
         with:
           severity: error
           details: Test Failed!
+          text: .NET Framework Version ${{ matrix.dotnetFrameworkVersion }}
           webhookUrl: ${{ secrets.ACT_EQ_DISCORD_WEBHOOK }}
       - name: Test Cancelled
         uses: rjstone/discord-webhook-notify@v1
@@ -61,4 +63,5 @@ jobs:
         with:
             severity: warn
             details: Test Cancelled!
+            text: .NET Framework Version ${{ matrix.dotnetFrameworkVersion }}
             webhookUrl: ${{ secrets.ACT_EQ_DISCORD_WEBHOOK }}
