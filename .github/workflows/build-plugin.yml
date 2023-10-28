@@ -71,6 +71,7 @@ jobs:
           path: ${{ env.EQDPSPluginLibraryPath }}
   release:
     needs: build
+    runs-on: windows-latest
     if: github.ref_type == 'tag'
     steps:
       - name: Create Release
