@@ -21,7 +21,7 @@ jobs:
       ACTFileName: 'ACTv3-setup.exe'
       ACTDownloadURI: 'https://advancedcombattracker.com/download.php?id=56'
       EQDPSPluginUnitTestLibraryPath: '.\EQDPSPluginUnitTests\bin\Release\EQDPSPluginUnitTests.dll'
-      EQDPSPluginLibraryPath: ".\EverQuestDPSPlugin\obj\Release\EverQuestDPSPlugin.dll"
+      EQDPSPluginLibraryPath: '.\EverQuestDPSPlugin\obj\Release\EverQuestDPSPlugin.dll'
     steps:
       - uses: actions/checkout@main
       - name: Setup MSBuild
