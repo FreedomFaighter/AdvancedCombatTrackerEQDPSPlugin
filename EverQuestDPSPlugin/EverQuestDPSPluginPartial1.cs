@@ -434,8 +434,6 @@ namespace EverQuestDPSPlugin
             {EverQuestSwingType.InstantHealing.GetEverQuestSwingTypeExtensionIntValue(), new List<string> { "Instant Healed (Out)" } },
             {EverQuestSwingType.HealOverTime.GetEverQuestSwingTypeExtensionIntValue(), new List<string> { "Heal Over Time (Out)" } },
                 {EverQuestSwingType.DamageShield.GetEverQuestSwingTypeExtensionIntValue(), new List<string> { "Damage Shield (Out)"} },
-            {EverQuestSwingType.WarderMelee.GetEverQuestSwingTypeExtensionIntValue(), new List<string> { "Warder Melee (Out)", "Outgoing Damage" } },
-                {EverQuestSwingType.FamiliarDirectSpellDamage.GetEverQuestSwingTypeExtensionIntValue(), new List<string> {"Familiar Direct Damage (Out)", "Outgoing Damage"} }
         };
             CombatantData.SwingTypeToDamageTypeDataLinksIncoming = new SortedDictionary<int, List<string>>
         {
@@ -446,8 +444,6 @@ namespace EverQuestDPSPlugin
             {EverQuestSwingType.DamageOverTimeSpell.GetEverQuestSwingTypeExtensionIntValue(), new List<string> {"Damage Over Time Spell (Inc)", "Incoming Damage" } },
             {EverQuestSwingType.HealOverTime.GetEverQuestSwingTypeExtensionIntValue(), new List<string> { "Heal Over Time (Inc)" } },
                 {EverQuestSwingType.DamageShield.GetEverQuestSwingTypeExtensionIntValue(), new List<string> { "Damage Shield (Inc)"} },
-            {EverQuestSwingType.WarderMelee.GetEverQuestSwingTypeExtensionIntValue(), new List<string> { "Warder Melee (Inc)", "Incoming Damage" } },
-                {EverQuestSwingType.FamiliarDirectSpellDamage.GetEverQuestSwingTypeExtensionIntValue(), new List<string> { "Familiar Direct Damage (Inc)", "Incoming Damage"} }
         };
 
             CombatantData.DamageSwingTypes = new List<int> {
@@ -457,19 +453,10 @@ namespace EverQuestDPSPlugin
                 EverQuestSwingType.DamageOverTimeSpell.GetEverQuestSwingTypeExtensionIntValue(),
                 EverQuestSwingType.DamageShield.GetEverQuestSwingTypeExtensionIntValue(),
                 EverQuestSwingType.Bane.GetEverQuestSwingTypeExtensionIntValue(),
-                EverQuestSwingType.WarderMelee.GetEverQuestSwingTypeExtensionIntValue(),
-                EverQuestSwingType.FamiliarDirectSpellDamage.GetEverQuestSwingTypeExtensionIntValue()
             };
             CombatantData.HealingSwingTypes = new List<int> {
                 EverQuestSwingType.InstantHealing.GetEverQuestSwingTypeExtensionIntValue(),
                 EverQuestSwingType.HealOverTime.GetEverQuestSwingTypeExtensionIntValue(),
-                EverQuestSwingType.PetHealOverTime.GetEverQuestSwingTypeExtensionIntValue(),
-                EverQuestSwingType.WardHealOverTime.GetEverQuestSwingTypeExtensionIntValue(),
-                EverQuestSwingType.FamiliarHealOverTime.GetEverQuestSwingTypeExtensionIntValue(),
-                EverQuestSwingType.FamiliarInstantHealing.GetEverQuestSwingTypeExtensionIntValue(),
-                EverQuestSwingType.WardInstantHealing.GetEverQuestSwingTypeExtensionIntValue(),
-                (EverQuestSwingType.Warder | EverQuestSwingType.InstantHealing).GetEverQuestSwingTypeExtensionIntValue(),
-                (EverQuestSwingType.Warder | EverQuestSwingType.HealOverTime).GetEverQuestSwingTypeExtensionIntValue()
             };
 
             CombatantData.ExportVariables.Clear();
@@ -643,18 +630,18 @@ namespace EverQuestDPSPlugin
             {
                 return (Left.Tags.ContainsKey("overheal") && Right.Tags.ContainsKey("overheal")) ? ((long)Left.Tags["overheal"]).CompareTo((long)Right.Tags["overheal"]) : 0;
             }));
-            MasterSwing.ColumnDefs.Add("Pet outgoing", new MasterSwing.ColumnDef("Pet outgoing", true, "BOOLEAN", "Pet outgoing",
-                (Data) => { return Data.Tags.ContainsKey("Pet outgoing") ? ((Boolean)Data.Tags["Pet outgoing"]).ToString() : String.Empty; },
-                (Data) => { return Data.Tags.ContainsKey("Pet outgoing") ? ((Boolean)Data.Tags["Pet outgoing"]).ToString() : String.Empty; }, (Left, Right) =>
+            MasterSwing.ColumnDefs.Add("Outgoing", new MasterSwing.ColumnDef("Outgoing", true, "VARCHAR2(16)", "Outgoing",
+                (Data) => { return Data.Tags.ContainsKey("Outgoing") ? Data.Tags["Outgoing"].ToString() : String.Empty; },
+                (Data) => { return Data.Tags.ContainsKey("Outgoing") ? Data.Tags["Outgoing"].ToString() : String.Empty; }, (Left, Right) =>
                 {
-                    return (Left.Tags.ContainsKey("Pet outgoing") && Right.Tags.ContainsKey("Pet outgoing")) ? ((Boolean)Left.Tags["Pet outgoing"]).CompareTo((Boolean)Right.Tags["Pet outgoing"]) : 0;
+                    return (Left.Tags.ContainsKey("Outgoing") && Right.Tags.ContainsKey("Outgoing")) ? Left.Tags["Outgoing"].ToString().CompareTo(Right.Tags["Outgoing"].ToString()) : 0;
                 })
             );
-            MasterSwing.ColumnDefs.Add("Pet incoming", new MasterSwing.ColumnDef("Pet incoming", true, "BOOLEAN", "Pet incoming",
-                (Data) => { return Data.Tags.ContainsKey("Pet incoming") ? ((Boolean)Data.Tags["Pet incoming"]).ToString() : String.Empty; },
-                (Data) => { return Data.Tags.ContainsKey("Pet incoming") ? ((Boolean)Data.Tags["Pet incoming"]).ToString() : String.Empty; }, (Left, Right) =>
+            MasterSwing.ColumnDefs.Add("Incoming", new MasterSwing.ColumnDef("Incoming", true, "VARCHAR2(16)", "Incoming",
+                (Data) => { return Data.Tags.ContainsKey("Incoming") ? Data.Tags["Incoming"].ToString() : String.Empty; },
+                (Data) => { return Data.Tags.ContainsKey("Incoming") ? Data.Tags["Incoming"].ToString() : String.Empty; }, (Left, Right) =>
                 {
-                    return (Left.Tags.ContainsKey("Pet incoming") && Right.Tags.ContainsKey("Pet incoming")) ? ((Boolean)Left.Tags["Pet incoming"]).CompareTo((Boolean)Right.Tags["Pet incoming"]) : 0;
+                    return (Left.Tags.ContainsKey("Incoming") && Right.Tags.ContainsKey("Incoming")) ? Left.Tags["Incoming"].ToString().CompareTo(Right.Tags["Incoming"].ToString()) : 0;
                 })
             );
             foreach (KeyValuePair<string, MasterSwing.ColumnDef> pair in MasterSwing.ColumnDefs)
