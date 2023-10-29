@@ -408,7 +408,6 @@ namespace EverQuestDPSPlugin
                 {"Damage Shield (Out)", new CombatantData.DamageTypeDef("Damage Shield (Out)", -1, Color.Brown) },
             {"Instant Healed (Out)", new CombatantData.DamageTypeDef("Instant Healed (Out)", 1, Color.Blue)},
             {"Heal Over Time (Out)", new CombatantData.DamageTypeDef("Heal Over Time (Out)", 1, Color.DarkBlue)},
-                {"Pet Melee (Out)", new CombatantData.DamageTypeDef("Pet Melee (Out)", -1, Color.GreenYellow)},
                 {"Warder Melee (Out)", new CombatantData.DamageTypeDef("Warder Melee (Out)", -1, Color.Aqua)},
                 { "Familiar Direct Damage (Out)", new CombatantData.DamageTypeDef("Familiar Direct Damage (Out)", -1, Color.DarkCyan) },
             {"All Outgoing (Ref)", new CombatantData.DamageTypeDef("All Outgoing (Ref)", 0, Color.Black)}
@@ -422,7 +421,6 @@ namespace EverQuestDPSPlugin
             {"Damage Shield (Inc)", new CombatantData.DamageTypeDef("Damage Shield (Inc)", -1, Color.Brown) },
             {"Instant Healed (Inc)",new CombatantData.DamageTypeDef("Instant Healed (Inc)", 1, Color.LimeGreen)},
             {"Heal Over Time (Inc)",new CombatantData.DamageTypeDef("Heal Over Time (Inc)", 1, Color.DarkGreen)},
-            {"Pet Melee (Inc)", new CombatantData.DamageTypeDef("Pet Melee (Inc)", -1, Color.Green)},
                 {"Warder Melee (Inc)", new CombatantData.DamageTypeDef("Warder Melee (Inc)", -1, Color.Lavender)},
                 {"Familiar Direct Damage (Inc)", new CombatantData.DamageTypeDef("Familiar Direct Damage (Inc)", -1, Color.DarkCyan)},
             {"All Incoming (Ref)",new CombatantData.DamageTypeDef("All Incoming (Ref)", 0, Color.Black)}
@@ -436,7 +434,6 @@ namespace EverQuestDPSPlugin
             {EverQuestSwingType.InstantHealing.GetEverQuestSwingTypeExtensionIntValue(), new List<string> { "Instant Healed (Out)" } },
             {EverQuestSwingType.HealOverTime.GetEverQuestSwingTypeExtensionIntValue(), new List<string> { "Heal Over Time (Out)" } },
                 {EverQuestSwingType.DamageShield.GetEverQuestSwingTypeExtensionIntValue(), new List<string> { "Damage Shield (Out)"} },
-            {EverQuestSwingType.PetMelee.GetEverQuestSwingTypeExtensionIntValue(), new List<string> { "Pet Melee (Out)", "Outgoing Damage" } },
             {EverQuestSwingType.WarderMelee.GetEverQuestSwingTypeExtensionIntValue(), new List<string> { "Warder Melee (Out)", "Outgoing Damage" } },
                 {EverQuestSwingType.FamiliarDirectSpellDamage.GetEverQuestSwingTypeExtensionIntValue(), new List<string> {"Familiar Direct Damage (Out)", "Outgoing Damage"} }
         };
@@ -449,7 +446,6 @@ namespace EverQuestDPSPlugin
             {EverQuestSwingType.DamageOverTimeSpell.GetEverQuestSwingTypeExtensionIntValue(), new List<string> {"Damage Over Time Spell (Inc)", "Incoming Damage" } },
             {EverQuestSwingType.HealOverTime.GetEverQuestSwingTypeExtensionIntValue(), new List<string> { "Heal Over Time (Inc)" } },
                 {EverQuestSwingType.DamageShield.GetEverQuestSwingTypeExtensionIntValue(), new List<string> { "Damage Shield (Inc)"} },
-            {EverQuestSwingType.PetMelee.GetEverQuestSwingTypeExtensionIntValue(), new List<string> { "Pet Melee (Inc)", "Incoming Damage" } },
             {EverQuestSwingType.WarderMelee.GetEverQuestSwingTypeExtensionIntValue(), new List<string> { "Warder Melee (Inc)", "Incoming Damage" } },
                 {EverQuestSwingType.FamiliarDirectSpellDamage.GetEverQuestSwingTypeExtensionIntValue(), new List<string> { "Familiar Direct Damage (Inc)", "Incoming Damage"} }
         };
@@ -461,11 +457,20 @@ namespace EverQuestDPSPlugin
                 EverQuestSwingType.DamageOverTimeSpell.GetEverQuestSwingTypeExtensionIntValue(),
                 EverQuestSwingType.DamageShield.GetEverQuestSwingTypeExtensionIntValue(),
                 EverQuestSwingType.Bane.GetEverQuestSwingTypeExtensionIntValue(),
-                EverQuestSwingType.PetMelee.GetEverQuestSwingTypeExtensionIntValue(),
                 EverQuestSwingType.WarderMelee.GetEverQuestSwingTypeExtensionIntValue(),
                 EverQuestSwingType.FamiliarDirectSpellDamage.GetEverQuestSwingTypeExtensionIntValue()
             };
-            CombatantData.HealingSwingTypes = new List<int> { EverQuestSwingType.InstantHealing.GetEverQuestSwingTypeExtensionIntValue(), EverQuestSwingType.HealOverTime.GetEverQuestSwingTypeExtensionIntValue() };
+            CombatantData.HealingSwingTypes = new List<int> {
+                EverQuestSwingType.InstantHealing.GetEverQuestSwingTypeExtensionIntValue(),
+                EverQuestSwingType.HealOverTime.GetEverQuestSwingTypeExtensionIntValue(),
+                EverQuestSwingType.PetHealOverTime.GetEverQuestSwingTypeExtensionIntValue(),
+                EverQuestSwingType.WardHealOverTime.GetEverQuestSwingTypeExtensionIntValue(),
+                EverQuestSwingType.FamiliarHealOverTime.GetEverQuestSwingTypeExtensionIntValue(),
+                EverQuestSwingType.FamiliarInstantHealing.GetEverQuestSwingTypeExtensionIntValue(),
+                EverQuestSwingType.WardInstantHealing.GetEverQuestSwingTypeExtensionIntValue(),
+                (EverQuestSwingType.Warder | EverQuestSwingType.InstantHealing).GetEverQuestSwingTypeExtensionIntValue(),
+                (EverQuestSwingType.Warder | EverQuestSwingType.HealOverTime).GetEverQuestSwingTypeExtensionIntValue()
+            };
 
             CombatantData.ExportVariables.Clear();
             CombatantData.ExportVariables.Add("n", new CombatantData.TextExportFormatter("n", "New Line", "Formatting after this element will appear on a new line.", (Data, Extra) => { return "\n"; }));
@@ -638,7 +643,20 @@ namespace EverQuestDPSPlugin
             {
                 return (Left.Tags.ContainsKey("overheal") && Right.Tags.ContainsKey("overheal")) ? ((long)Left.Tags["overheal"]).CompareTo((long)Right.Tags["overheal"]) : 0;
             }));
-
+            MasterSwing.ColumnDefs.Add("Pet outgoing", new MasterSwing.ColumnDef("Pet outgoing", true, "BOOLEAN", "Pet outgoing",
+                (Data) => { return Data.Tags.ContainsKey("Pet outgoing") ? ((Boolean)Data.Tags["Pet outgoing"]).ToString() : String.Empty; },
+                (Data) => { return Data.Tags.ContainsKey("Pet outgoing") ? ((Boolean)Data.Tags["Pet outgoing"]).ToString() : String.Empty; }, (Left, Right) =>
+                {
+                    return (Left.Tags.ContainsKey("Pet outgoing") && Right.Tags.ContainsKey("Pet outgoing")) ? ((Boolean)Left.Tags["Pet outgoing"]).CompareTo((Boolean)Right.Tags["Pet outgoing"]) : 0;
+                })
+            );
+            MasterSwing.ColumnDefs.Add("Pet incoming", new MasterSwing.ColumnDef("Pet incoming", true, "BOOLEAN", "Pet incoming",
+                (Data) => { return Data.Tags.ContainsKey("Pet incoming") ? ((Boolean)Data.Tags["Pet incoming"]).ToString() : String.Empty; },
+                (Data) => { return Data.Tags.ContainsKey("Pet incoming") ? ((Boolean)Data.Tags["Pet incoming"]).ToString() : String.Empty; }, (Left, Right) =>
+                {
+                    return (Left.Tags.ContainsKey("Pet incoming") && Right.Tags.ContainsKey("Pet incoming")) ? ((Boolean)Left.Tags["Pet incoming"]).CompareTo((Boolean)Right.Tags["Pet incoming"]) : 0;
+                })
+            );
             foreach (KeyValuePair<string, MasterSwing.ColumnDef> pair in MasterSwing.ColumnDefs)
                 pair.Value.GetCellForeColor = (Data) => { return GetSwingTypeColor((EverQuestSwingType)Data.SwingType); };
 
