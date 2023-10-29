@@ -5,14 +5,12 @@ name: ACT EverQuest DPS Plugin
 
 on:
   push:
-    branches:
-      - '*'
+    branches-ignore:
+    - 'master'
     tags:
     - "0.*.*.*"
   pull_request:
     branches: [ master ]
-  # Allows you to run this workflow manually from the Actions tab
-  workflow_dispatch:
 
 jobs:
   build:
@@ -65,7 +63,9 @@ jobs:
             details: Test Cancelled!
             text: ACT EverQuest DPS Plugin .NET Framework Version ${{ matrix.dotnetFrameworkVersion }}
             webhookUrl: ${{ secrets.ACT_EQ_DISCORD_WEBHOOK }}
-      - uses: actions/upload-artifact@v2
+      - name: Upload dll file to artifact repository
+        uses: actions/upload-artifact@v2
+        if: github.ref_type == 'tag'
         with:
           name: EQDPSPluginPath
           path: ${{ env.EQDPSPluginLibraryPath }}
