@@ -55,7 +55,7 @@ namespace EverQuestDPSPlugin
 
         private void PopulateRegexCombat()
         {
-            String MeleeAttack = @"(?<attacker>.+) (?<attackType>" + $@"{attackTypes}" + @")(|s|es|bed) (?<victim>.+) for (?<damageAmount>[\d]+) (?:(?:point)(?:s|)) of damage.(?:\s\((?<damageSpecial>.+)\)){0,1}";
+            String MeleeAttack = @"(?<attacker>.+) (?<attackType>"+$@"{attackTypes}"+ @")(|s|es|bed) (?<victim>.+)(\sfor\s)(?<damageAmount>[\d]+) ((?:point)(?:s|)) of damage.(?:\s\((?<damageSpecial>.+)\)){0,1}";
             String Evasion = @"(?<attacker>.*) tries to (?<attackType>\S+) (?:(?<victim>(.+)), but \1) (?:(?<evasionType>" + $@"{EverQuestDPSPluginResource.evasionTypes}" + @"))(?:\swith (your|his|hers|its) (shield|staff)){0,1}!(?:[\s][\(](?<evasionSpecial>.+)[\)]){0,1}";
             ActGlobals.oFormEncounterLogs.LogTypeToColorMapping.Clear();
             regexTupleList.Add(new Tuple<Color, Regex>(Color.Red, new Regex(RegexString(MeleeAttack), RegexOptions.Compiled)));
@@ -167,7 +167,7 @@ namespace EverQuestDPSPlugin
                         MasterSwing masterSwingMelee = new MasterSwing(
                             (EverQuestSwingType.Melee | petTypeAndName.Item1).GetEverQuestSwingTypeExtensionIntValue(),
                             regexMatch.Groups["damageSpecial"].Success && regexMatch.Groups["damageSpecial"].Value.Contains("Critical"),
-                            regexMatch.Groups["damageSpecial"].Success ? regexMatch.Groups["damageSpeical"].Value : String.Empty,
+                            regexMatch.Groups["damageSpecial"].Success ? regexMatch.Groups["damageSpecial"].Value : String.Empty,
                             damage,
                             ParseDateTime(regexMatch.Groups[EverQuestDPSPluginResource.dateTimeOfLogLineString].Value),
                             ActGlobals.oFormActMain.GlobalTimeSorter,
@@ -188,7 +188,7 @@ namespace EverQuestDPSPlugin
                         MasterSwing masterSwingDamageShield = new MasterSwing(
                             EverQuestSwingType.DamageShield.GetEverQuestSwingTypeExtensionIntValue(),
                             regexMatch.Groups["damageSpecial"].Success && regexMatch.Groups["damageSpecial"].Value.Contains("Critical"),
-                            regexMatch.Groups["damageSpecial"].Success ? regexMatch.Groups["damageSpeical"].Value : String.Empty,
+                            regexMatch.Groups["damageSpecial"].Success ? regexMatch.Groups["damageSpecial"].Value : String.Empty,
                             damage,
                             ParseDateTime(regexMatch.Groups[EverQuestDPSPluginResource.dateTimeOfLogLineString].Value),
                             ActGlobals.oFormActMain.GlobalTimeSorter,
@@ -210,7 +210,7 @@ namespace EverQuestDPSPlugin
                             = new MasterSwing(
                                     (EverQuestSwingType.Melee | petTypeAndName.Item1).GetEverQuestSwingTypeExtensionIntValue(),
                                     regexMatch.Groups["damageSpecial"].Success && regexMatch.Groups["damageSpecial"].Value.Contains("Critical"),
-                                    regexMatch.Groups["damageSpecial"].Success ? regexMatch.Groups["damageSpeical"].Value : String.Empty,
+                                    regexMatch.Groups["damageSpecial"].Success ? regexMatch.Groups["damageSpecial"].Value : String.Empty,
                                     miss,
                                     ParseDateTime(regexMatch.Groups[EverQuestDPSPluginResource.dateTimeOfLogLineString].Value),
                                     ActGlobals.oFormActMain.GlobalTimeSorter,
@@ -372,7 +372,7 @@ namespace EverQuestDPSPlugin
             double average;
             lock (varianceChkBxLockObject)
             {
-                if (!populationVariance && Data.Items.Count > 1)
+                if (!populationVariance && ms.Count > 1)
                 {
                     average = ms.Select((item) => item.Damage.Number).Average();
                     return ms.Sum((item) =>
