@@ -155,20 +155,24 @@ namespace EverQuestDPSPlugin
 
         private void ParseEverQuestLogLine(Match regexMatch, int logMatched)
         {
-            switch (logMatched)
+            DateTime dateTimeOfParse = ParseDateTime(regexMatch.Groups[EverQuestDPSPluginResource.dateTimeOfLogLineString].Value);
+            Tuple<EverQuestSwingType, String> petTypeAndName = GetTypeAndNameForPet(CharacterNamePersonaReplace(regexMatch.Groups["attacker"].Value));
+            Tuple<EverQuestSwingType, String> victimPetTypeAndName = GetTypeAndNameForPet(regexMatch.Groups["victim"].Value);
+            if (ActGlobals.oFormActMain.SetEncounter(ActGlobals.oFormActMain.LastKnownTime, CharacterNamePersonaReplace(regexMatch.Groups["attacker"].Value), CharacterNamePersonaReplace(regexMatch.Groups["victim"].Value)))
             {
-                //Melee attack
-                case 1:
-                    if (ActGlobals.oFormActMain.SetEncounter(ActGlobals.oFormActMain.LastKnownTime, CharacterNamePersonaReplace(regexMatch.Groups["attacker"].Value), CharacterNamePersonaReplace(regexMatch.Groups["victim"].Value)))
-                    {
-                        Dnum damage = new Dnum(Int64.Parse(regexMatch.Groups["damageAmount"].Value));
+                switch (logMatched)
+                {
+                    //Melee attack
+                    case 1:
+
+                        Dnum damage = new Dnum(Int64.Parse(regexMatch.Groups["damageAmount"].Value), "melee");
                         String attackName = regexMatch.Groups["attackType"].Value == "frenzies on" ? "frenzy" : regexMatch.Groups["attackType"].Value;
                         MasterSwing masterSwingMelee = new MasterSwing(
                             EverQuestSwingType.Melee.GetEverQuestSwingTypeExtensionIntValue(),
                             regexMatch.Groups["damageSpecial"].Success && regexMatch.Groups["damageSpecial"].Value.Contains("Critical"),
                             regexMatch.Groups["damageSpecial"].Success ? regexMatch.Groups["damageSpeical"].Value : String.Empty,
                             damage,
-                            ParseDateTime(regexMatch.Groups[EverQuestDPSPluginResource.dateTimeOfLogLineString].Value),
+                            dateTimeOfParse,
                             ActGlobals.oFormActMain.GlobalTimeSorter,
                             regexMatch.Groups["attackType"].Value,
                             CharacterNamePersonaReplace(regexMatch.Groups["attacker"].Value),
@@ -176,20 +180,25 @@ namespace EverQuestDPSPlugin
                             CharacterNamePersonaReplace(regexMatch.Groups["victim"].Value)
                         );
                         ActGlobals.oFormActMain.AddCombatAction(masterSwingMelee);
-                    }
-                    break;
-                //Non-melee damage shield
-                case 2:
-                    if (ActGlobals.oFormActMain.SetEncounter(ActGlobals.oFormActMain.LastKnownTime, CharacterNamePersonaReplace(regexMatch.Groups["attacker"].Value), CharacterNamePersonaReplace(regexMatch.Groups["victim"].Value)))
-                    {
-                        Dnum damage = new Dnum(Int64.Parse(regexMatch.Groups["damagePoints"].Value));
+
+                        break;
+                    //Non-melee damage shield
+                    case 2:
+
+                        Dnum nonMeleeDamage = new Dnum(Int64.Parse(regexMatch.Groups["damagePoints"].Value), "damage shield");
 
                         MasterSwing masterSwingDamageShield = new MasterSwing(
                             EverQuestSwingType.DamageShield.GetEverQuestSwingTypeExtensionIntValue(),
                             regexMatch.Groups["damageSpecial"].Success && regexMatch.Groups["damageSpecial"].Value.Contains("Critical"),
+<<<<<<< Updated upstream
                             regexMatch.Groups["damageSpecial"].Success ? regexMatch.Groups["damageSpeical"].Value : String.Empty,
                             damage,
                             ParseDateTime(regexMatch.Groups[EverQuestDPSPluginResource.dateTimeOfLogLineString].Value),
+=======
+                            regexMatch.Groups["damageSpecial"].Success ? regexMatch.Groups["damageSpecial"].Value : String.Empty,
+                            nonMeleeDamage,
+                            dateTimeOfParse,
+>>>>>>> Stashed changes
                             ActGlobals.oFormActMain.GlobalTimeSorter,
                             regexMatch.Groups["damageShieldType"].Value,
                             CharacterNamePersonaReplace(regexMatch.Groups["attacker"].Value),
@@ -197,6 +206,7 @@ namespace EverQuestDPSPlugin
                             CharacterNamePersonaReplace(regexMatch.Groups["victim"].Value)
                             );
                         ActGlobals.oFormActMain.AddCombatAction(masterSwingDamageShield);
+<<<<<<< Updated upstream
                     }
                     break;
                 //Missed melee
@@ -204,13 +214,21 @@ namespace EverQuestDPSPlugin
                     if (ActGlobals.oFormActMain.SetEncounter(ActGlobals.oFormActMain.LastKnownTime, CharacterNamePersonaReplace(regexMatch.Groups["attacker"].Value), CharacterNamePersonaReplace(regexMatch.Groups["victim"].Value)))
                     {
                         Dnum miss = new Dnum(Dnum.Miss);
+=======
+
+                        break;
+                    //Missed melee
+                    case 3:
+
+                        Dnum miss = new Dnum(Dnum.Miss, "melee");
+>>>>>>> Stashed changes
                         MasterSwing masterSwingMissedMelee
                             = new MasterSwing(
                                     EverQuestSwingType.Melee.GetEverQuestSwingTypeExtensionIntValue(),
                                     regexMatch.Groups["damageSpecial"].Success && regexMatch.Groups["damageSpecial"].Value.Contains("Critical"),
                                     regexMatch.Groups["damageSpecial"].Success ? regexMatch.Groups["damageSpeical"].Value : String.Empty,
                                     miss,
-                                    ParseDateTime(regexMatch.Groups[EverQuestDPSPluginResource.dateTimeOfLogLineString].Value),
+                                    dateTimeOfParse,
                                     ActGlobals.oFormActMain.GlobalTimeSorter,
                                     regexMatch.Groups["attackType"].Value,
                                     CharacterNamePersonaReplace(regexMatch.Groups["attacker"].Value),
@@ -218,6 +236,7 @@ namespace EverQuestDPSPlugin
                                     CharacterNamePersonaReplace(regexMatch.Groups["victim"].Value)
                                 );
                         ActGlobals.oFormActMain.AddCombatAction(masterSwingMissedMelee);
+<<<<<<< Updated upstream
                     }
                     break;
                 //Death message
@@ -231,13 +250,25 @@ namespace EverQuestDPSPlugin
                     {
                         Dnum damage = new Dnum(Int64.Parse(regexMatch.Groups["damagePoints"].Value), regexMatch.Groups["typeOfDamage"].Value);
 
+=======
+
+                        break;
+                    //Death message
+                    case 4:
+                        MasterSwing masterSwingSlain = new MasterSwing(0, false, new Dnum(Dnum.Death), ActGlobals.oFormActMain.LastEstimatedTime, ActGlobals.oFormActMain.GlobalTimeSorter, String.Empty, CharacterNamePersonaReplace(regexMatch.Groups["attacker"].Value), String.Empty, CharacterNamePersonaReplace(regexMatch.Groups["victim"].Value));
+                        ActGlobals.oFormActMain.AddCombatAction(masterSwingSlain);
+                        break;
+                    //Spell Cast
+                    case 5:
+                        Dnum spellCastDamage = new Dnum(Int64.Parse(regexMatch.Groups["damagePoints"].Value), regexMatch.Groups["typeOfDamage"].Value);
+>>>>>>> Stashed changes
                         MasterSwing masterSwingSpellcast
                             = new MasterSwing(
                                     EverQuestSwingType.DirectDamageSpell.GetEverQuestSwingTypeExtensionIntValue(),
                                     regexMatch.Groups["spellSpecial"].Success && regexMatch.Groups["spellSpecial"].Value.Contains(EverQuestDPSPluginResource.Critical),
                                     regexMatch.Groups["spellSpecial"].Success ? regexMatch.Groups["spellSpecial"].Value : String.Empty,
-                                    damage,
-                                    ParseDateTime(regexMatch.Groups[EverQuestDPSPluginResource.dateTimeOfLogLineString].Value),
+                                    spellCastDamage,
+                                    dateTimeOfParse,
                                     ActGlobals.oFormActMain.GlobalTimeSorter,
                                     regexMatch.Groups["damageEffect"].Value,
                                     CharacterNamePersonaReplace(regexMatch.Groups["attacker"].Value),
@@ -245,18 +276,25 @@ namespace EverQuestDPSPlugin
                                     CharacterNamePersonaReplace(regexMatch.Groups["victim"].Value)
                                     );
                         ActGlobals.oFormActMain.AddCombatAction(masterSwingSpellcast);
+<<<<<<< Updated upstream
                     }
                     break;
                 //heal
                 case 6:
                     if (ActGlobals.oFormActMain.InCombat)
                     {
+=======
+
+                        break;
+                    //heal
+                    case 6:
+>>>>>>> Stashed changes
                         MasterSwing ms = new MasterSwing(
                                 (regexMatch.Groups["overTime"].Success ? EverQuestSwingType.HealOverTime : EverQuestSwingType.InstantHealing).GetEverQuestSwingTypeExtensionIntValue(),
                                 regexMatch.Groups["healingSpecial"].Success && regexMatch.Groups["healingSpecial"].Value.Contains(EverQuestDPSPluginResource.Critical),
                                 regexMatch.Groups["healingSpecial"].Success ? regexMatch.Groups["healingSpecial"].Value : String.Empty,
-                                new Dnum(Int64.Parse(regexMatch.Groups["healingPoints"].Value)),
-                                ParseDateTime(regexMatch.Groups[EverQuestDPSPluginResource.dateTimeOfLogLineString].Value),
+                                new Dnum(Int64.Parse(regexMatch.Groups["healingPoints"].Value), "healing"),
+                                dateTimeOfParse,
                                 ActGlobals.oFormActMain.GlobalTimeSorter,
                                 regexMatch.Groups["healingSpell"].Value,
                                 CharacterNamePersonaReplace(regexMatch.Groups["healer"].Value),
@@ -265,6 +303,7 @@ namespace EverQuestDPSPlugin
                         if (regexMatch.Groups["overHealPoints"].Success)
                             ms.Tags["overheal"] = Int64.Parse(regexMatch.Groups["overHealPoints"].Value);
                         ActGlobals.oFormActMain.AddCombatAction(ms);
+<<<<<<< Updated upstream
                     }
                     break;
                 //Unknown
@@ -279,12 +318,28 @@ namespace EverQuestDPSPlugin
                 case 8:
                     if (ActGlobals.oFormActMain.SetEncounter(ActGlobals.oFormActMain.LastKnownTime, CharacterNamePersonaReplace(regexMatch.Groups["healer"].Value), CharacterNamePersonaReplace(regexMatch.Groups["healingTarget"].Value)))
                     {
+=======
+
+                        break;
+                    //Unknown
+                    case 7:
+                        MasterSwing masterSwingUnknown = new MasterSwing(EverQuestSwingType.NonMelee.GetEverQuestSwingTypeExtensionIntValue(), false, new Dnum(Dnum.Unknown)
+                        {
+                            DamageString2 = regexMatch.Value
+                        }, dateTimeOfParse, ActGlobals.oFormActMain.GlobalTimeSorter, "Unknown", "Unknown", "Unknown", "Unknown");
+                        masterSwingUnknown.Tags.Add("Outgoing", default);
+                        masterSwingUnknown.Tags.Add("Incoming", default);
+                        ActGlobals.oFormActMain.AddCombatAction(masterSwingUnknown);
+                        break;
+                    //Evasion
+                    case 8:
+>>>>>>> Stashed changes
                         MasterSwing masterSwingEvasion = new MasterSwing(
                                 EverQuestSwingType.Melee.GetEverQuestSwingTypeExtensionIntValue(),
                                 regexMatch.Groups["evasionSpecial"].Success && regexMatch.Groups["evasionSpecial"].Value.Contains(EverQuestDPSPluginResource.Critical),
                                 regexMatch.Groups["evasionSpecial"].Success ? regexMatch.Groups["evasionSpecial"].Value : String.Empty,
                                 new Dnum(Dnum.NoDamage, regexMatch.Groups["evasionType"].Value),
-                                ParseDateTime(regexMatch.Groups[EverQuestDPSPluginResource.dateTimeOfLogLineString].Value),
+                                dateTimeOfParse,
                                 ActGlobals.oFormActMain.GlobalTimeSorter,
                                 regexMatch.Groups["attackType"].Value,
                                 CharacterNamePersonaReplace(regexMatch.Groups["attacker"].Value),
@@ -292,17 +347,25 @@ namespace EverQuestDPSPlugin
                                 CharacterNamePersonaReplace(regexMatch.Groups["victim"].Value)
                             );
                         ActGlobals.oFormActMain.AddCombatAction(masterSwingEvasion);
+<<<<<<< Updated upstream
                     }
                     break;
                 case 9:
                     if(ActGlobals.oFormActMain.SetEncounter(ActGlobals.oFormActMain.LastKnownTime, CharacterNamePersonaReplace(regexMatch.Groups["attacker"].Value), CharacterNamePersonaReplace(regexMatch.Groups["victim"].Value)))
                     {
+=======
+
+                        break;
+                    //Bane damage
+                    case 9:
+
+>>>>>>> Stashed changes
                         MasterSwing masterSwingBane = new MasterSwing(
                             EverQuestSwingType.Bane.GetEverQuestSwingTypeExtensionIntValue(),
                             regexMatch.Groups["baneSpecial"].Success && regexMatch.Groups["baneSpecial"].Value.Contains(EverQuestDPSPluginResource.Critical),
                             regexMatch.Groups["baneSpecial"].Success ? regexMatch.Groups["baneSpecial"].Value : String.Empty,
-                            new Dnum(Int64.Parse(regexMatch.Groups["baneDamage"].Value)),
-                            ParseDateTime(regexMatch.Groups[EverQuestDPSPluginResource.dateTimeOfLogLineString].Value),
+                            new Dnum(Int64.Parse(regexMatch.Groups["baneDamage"].Value), "bane"),
+                            dateTimeOfParse,
                             ActGlobals.oFormActMain.GlobalTimeSorter,
                             regexMatch.Groups["typeOfDamage"].Value,
                             CharacterNamePersonaReplace(regexMatch.Groups["attacker"].Value),
@@ -310,6 +373,7 @@ namespace EverQuestDPSPlugin
                             CharacterNamePersonaReplace(regexMatch.Groups["victim"].Value)
                             );
                         ActGlobals.oFormActMain.AddCombatAction(masterSwingBane);
+<<<<<<< Updated upstream
                     }
                     break;
                 //Damage over time
@@ -318,16 +382,25 @@ namespace EverQuestDPSPlugin
                     {
                         Dnum damage = new Dnum(Int64.Parse(regexMatch.Groups["damagePoints"].Value));
                         MasterSwing masterSwingSpellcast
+=======
+
+                        break;
+                    //Damage over time
+                    case 10:
+                        Dnum spellDamageOverTimeDamage = new Dnum(Int64.Parse(regexMatch.Groups["damagePoints"].Value), "non-melee");
+                        MasterSwing masterSwingSpellDamageOverTime
+>>>>>>> Stashed changes
                             = new MasterSwing(
                                 EverQuestSwingType.DamageOverTimeSpell.GetEverQuestSwingTypeExtensionIntValue(),
                                 regexMatch.Groups["spellSpecial"].Success && regexMatch.Groups["spellSpecial"].Value.Contains(EverQuestDPSPluginResource.Critical),
                                 regexMatch.Groups["spellSpecial"].Success ? regexMatch.Groups["spellSpecial"].Value : String.Empty,
-                                damage,
-                                ParseDateTime(regexMatch.Groups[EverQuestDPSPluginResource.dateTimeOfLogLineString].Value),
+                                spellDamageOverTimeDamage,
+                                dateTimeOfParse,
                                 ActGlobals.oFormActMain.GlobalTimeSorter,
                                 regexMatch.Groups["damageEffect"].Value,
                                 CharacterNamePersonaReplace(regexMatch.Groups["attacker"].Value),
                                 "Hitpoints",
+<<<<<<< Updated upstream
                                 CharacterNamePersonaReplace(regexMatch.Groups["victim"].Value));
                         ActGlobals.oFormActMain.AddCombatAction(masterSwingSpellcast);
                     }
@@ -336,12 +409,22 @@ namespace EverQuestDPSPlugin
                 case 11:
                     if(ActGlobals.oFormActMain.SetEncounter(ActGlobals.oFormActMain.LastKnownTime, CharacterNamePersonaReplace(regexMatch.Groups["attacker"].Value), CharacterNamePersonaReplace(regexMatch.Groups["victim"].Value)))
                     {
+=======
+                                CharacterNamePersonaReplace(victimPetTypeAndName.Item2));
+                        masterSwingSpellDamageOverTime.Tags.Add("Outgoing", petTypeAndName.Item1 == default ? String.Empty : petTypeAndName.Item1.ToString());
+                        masterSwingSpellDamageOverTime.Tags.Add("Incoming", victimPetTypeAndName.Item1 == default ? String.Empty : victimPetTypeAndName.Item1.ToString());
+                        ActGlobals.oFormActMain.AddCombatAction(masterSwingSpellDamageOverTime);
+
+                        break;
+                    //Focus Direct Damage Spell
+                    case 11:
+>>>>>>> Stashed changes
                         MasterSwing masterSwingFocusEffect = new MasterSwing(
                                 EverQuestSwingType.DirectDamageSpell.GetEverQuestSwingTypeExtensionIntValue(),
                                 regexMatch.Groups["focusSpecial"].Success && regexMatch.Groups["focusSpecial"].Value.Contains(EverQuestDPSPluginResource.Critical),
                                 regexMatch.Groups["focusSpecial"].Success ? regexMatch.Groups["focusSpecial"].Value : string.Empty,
-                                new Dnum(Int64.Parse(regexMatch.Groups["damagePoints"].Value)),
-                                ParseDateTime(regexMatch.Groups[EverQuestDPSPluginResource.dateTimeOfLogLineString].Value),
+                                new Dnum(Int64.Parse(regexMatch.Groups["damagePoints"].Value), "non-melee"),
+                                dateTimeOfParse,
                                 ActGlobals.oFormActMain.GlobalTimeSorter,
                                 regexMatch.Groups["damageEffect"].Value,
                                 CharacterNamePersonaReplace(regexMatch.Groups["attacker"].Value),
@@ -349,10 +432,11 @@ namespace EverQuestDPSPlugin
                                 CharacterNamePersonaReplace(regexMatch.Groups["victim"].Value)
                             );
                         ActGlobals.oFormActMain.AddCombatAction(masterSwingFocusEffect);
-                    }
-                    break;
-                default:
-                    break;
+
+                        break;
+                    default:
+                        break;
+                }
             }
         }
 
