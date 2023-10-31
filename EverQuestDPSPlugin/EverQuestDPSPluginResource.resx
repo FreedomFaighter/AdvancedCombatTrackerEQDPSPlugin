@@ -187,7 +187,7 @@
     <value>(?&lt;attacker&gt;.+) hit (?&lt;victim&gt;.*) for (?&lt;damagePoints&gt;[\d]+) (?:point[|s]) of (?&lt;typeOfDamage&gt;.+) damage by (?&lt;damageEffect&gt;.*)\.(?:[\s][\(](?&lt;spellSpecial&gt;.+)[\)]){0,1}</value>
   </data>
   <data name="SpellDamageOverTime" xml:space="preserve">
-    <value>(?&lt;victim&gt;.+) has taken (?&lt;damagePoints&gt;[\d]+) damage from (?&lt;damageEffect&gt;.*) by (?&lt;attacker&gt;.*)\.(?:\s\((?&lt;spellSpecial&gt;.+)\))</value>
+    <value>(?&lt;victim&gt;.+) has taken (?&lt;damagePoints&gt;[\d]+) damage from (?&lt;damageEffect&gt;.*) by (?&lt;attacker&gt;.*)\.(?:[\s][\(](?&lt;spellSpecial&gt;.+)[\)]){0,1}</value>
   </data>
   <data name="Strikethrough" xml:space="preserve">
     <value>Strikethrough</value>
