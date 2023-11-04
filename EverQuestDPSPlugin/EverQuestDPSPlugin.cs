@@ -70,17 +70,6 @@ namespace EverQuestDPSPlugin
             this.varianceChkBx.UseVisualStyleBackColor = true;
             this.varianceChkBx.CheckedChanged += new System.EventHandler(this.VarianceChkBx_CheckedChanged);
             // 
-            // nonMatchVisibleChkbx
-            // 
-            this.nonMatchVisibleChkbx.AutoSize = true;
-            this.nonMatchVisibleChkbx.Location = new System.Drawing.Point(31, 72);
-            this.nonMatchVisibleChkbx.Name = "nonMatchVisibleChkbx";
-            this.nonMatchVisibleChkbx.Size = new System.Drawing.Size(108, 17);
-            this.nonMatchVisibleChkbx.TabIndex = 1;
-            this.nonMatchVisibleChkbx.Text = "NonMatch visible";
-            this.nonMatchVisibleChkbx.UseVisualStyleBackColor = true;
-            this.nonMatchVisibleChkbx.CheckedChanged += new System.EventHandler(this.NonMatchVisible_CheckedChanged);
-            // 
             // EverQuestDPSPlugin
             // 
             this.Controls.Add(this.nonMatchVisibleChkbx);
@@ -106,7 +95,6 @@ namespace EverQuestDPSPlugin
         Regex tellsregex;
         bool nonMatchVisible = false; //for keep track of whether or not the non matching form is displayed
         bool populationVariance; //for keeping track of whether population variance or sample variance is displayed
-        nonmatch nm; //Form for non regex matching log lines
         string settingsFile;
         SettingsSerializer xmlSettings;
         readonly object varianceChkBxLockObject = new object(), nonMatchChkBxLockObject = new object();
@@ -151,7 +139,6 @@ namespace EverQuestDPSPlugin
 
             xmlSettings = new SettingsSerializer(this); // Create a new settings serializer and pass it this instance
             LoadSettings();
-            nm = new nonmatch(this);
             PopulateRegexNonCombat();
             PopulateRegexCombat();
             SetupEverQuestEnvironment();
@@ -185,7 +172,6 @@ namespace EverQuestDPSPlugin
             }
 
             SaveSettings();
-            nm.Close();
             ChangeLblStatus($"{EverQuestDPSPluginResource.pluginName} Plugin Exited");
         }
 
@@ -262,7 +248,6 @@ namespace EverQuestDPSPlugin
                     varianceChkBx.Invoke(new Action<object, EventArgs>(VarianceChkBx_CheckedChanged));
                 else
                     this.populationVariance = varianceChkBx.Checked;
-                NonMatchVisible_CheckedChanged(nonMatchVisibleChkbx, new EventArgs());
             }
             else
             {
@@ -1267,22 +1252,15 @@ namespace EverQuestDPSPlugin
 
         private void FormActMain_BeforeLogLineRead(bool isImport, LogLineEventArgs logInfo)
         {
-            bool match = false;
             for (int i = 0; i < regexTupleList.Count; i++)
             {
                 Match regexMatch = regexTupleList[i].Item2.Match(logInfo.logLine);
                 if (regexMatch.Success)
                 {
-                    match = true;
                     logInfo.detectedType = i + 1;
                     ParseEverQuestLogLine(regexMatch, i + 1);
                     break;
                 }
-            }
-            Match tellmatch = tellsregex.Match(logInfo.logLine);
-            if (!match && !tellmatch.Success)
-            {
-                AddLogLineToNonMatch(logInfo.logLine);
             }
         }
 
@@ -1643,18 +1621,6 @@ namespace EverQuestDPSPlugin
             }
         }
 
-        private void AddLogLineToNonMatch(String message)
-        {
-            if (nm.InvokeRequired)
-            {
-                nm.Invoke(new Action(() =>
-                {
-                    nm.AddLogLineToForm(message);
-                }));
-            }
-            else
-                nm.AddLogLineToForm(message);
-        }
         //checkbox processing event for population or sample variance
         private void VarianceChkBx_CheckedChanged(object sender, EventArgs e)
         {
@@ -1672,62 +1638,6 @@ namespace EverQuestDPSPlugin
             }
         }
 
-        private void NonMatchVisible_CheckedChanged(object sender, EventArgs e)
-        {
-            var checkBx = sender as CheckBox;
-            lock (nonMatchChkBxLockObject)
-                this.nonMatchVisible = checkBx.Checked;
-            if (nm == null || nm.IsDisposed)
-            {
-                nm = new nonmatch(this);
-            }
-            if (nm.InvokeRequired)
-            {
-                checkBx.Invoke(new Action(() =>
-                {
-                    checkBx.Enabled = false;
-                }));
-            }
-            else
-            {
-                checkBx.Enabled = false;
-            }
-            switch (this.nonMatchVisible)
-            {
-                case true:
-
-                    if (this.nm.InvokeRequired)
-                        nm.Invoke(new Action(() =>
-                        {
-                            nm.Visible = this.nonMatchVisible;
-                        }));
-                    else
-                        nm.Visible = this.nonMatchVisible;
-                    break;
-                case false:
-                    if (this.nm.InvokeRequired)
-                        nm.Invoke(new Action(() =>
-                        {
-                            nm.Visible = this.nonMatchVisible;
-                        }));
-                    else
-                        nm.Visible = this.nonMatchVisible;
-                    break;
-                default:
-                    break;
-            }
-            if (nm.InvokeRequired)
-            {
-                checkBx.Invoke(new Action(() =>
-                {
-                    checkBx.Enabled = true;
-                }));
-            }
-            else
-            {
-                checkBx.Enabled = true;
-            }
-        }
         #endregion
 
         private string AttackTypeGetCritTypes(AttackType Data)
