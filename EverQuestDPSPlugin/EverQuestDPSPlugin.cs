@@ -26,7 +26,7 @@ using System.Xml;
 
 namespace EverQuestDPSPlugin
 {
-    public class EverQuestDPSPlugin : UserControl, IActPluginV1, Interfaces.IEverQuestDPSPlugin
+    public class EverQuestDPSPlugin : UserControl, IActPluginV1
     {
         #region Designer generated code (Avoid editing)
         /// <summary> 
@@ -92,8 +92,6 @@ namespace EverQuestDPSPlugin
         List<Tuple<Color, Regex>> regexTupleList;
         Regex selfCheck;
         Regex possesive;
-        Regex tellsregex;
-        bool nonMatchVisible = false; //for keep track of whether or not the non matching form is displayed
         bool populationVariance; //for keeping track of whether population variance or sample variance is displayed
         string settingsFile;
         SettingsSerializer xmlSettings;
@@ -1216,7 +1214,6 @@ namespace EverQuestDPSPlugin
         internal void PopulateRegexNonCombat()
         {
             possesive = new Regex(@"(?:[`|']s\s)(?<" + $@"{EverQuestDPSPluginResource.possesiveOf}" + @">\S[^']+)(?:[']s\s(?<" + $@"{EverQuestDPSPluginResource.secondaryPossesiveOf}" + @">\S+)){0,1}", RegexOptions.Compiled);
-            tellsregex = new Regex(RegexString(EverQuestDPSPluginResource.tellsRegex), RegexOptions.Compiled);
             selfCheck = new Regex(EverQuestDPSPluginResource.selfMatch, RegexOptions.Compiled);
             regexTupleList = new List<Tuple<Color, Regex>>();
         }
