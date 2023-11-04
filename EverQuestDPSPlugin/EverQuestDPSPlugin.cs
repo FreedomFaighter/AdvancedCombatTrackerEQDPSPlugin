@@ -1261,9 +1261,10 @@ namespace EverQuestDPSPlugin
                 {
                     logInfo.detectedType = i + 1;
                     ParseEverQuestLogLine(regexMatch, i + 1);
-                    break;
+                    return;
                 }
             }
+            logInfo.detectedType = 0;
         }
 
         internal Tuple<String, String> GetTypeAndNameForPet(String nameToSetTypeTo)
@@ -1371,7 +1372,7 @@ namespace EverQuestDPSPlugin
                                     spellCastDamage,
                                     dateTimeOfParse,
                                     ActGlobals.oFormActMain.GlobalTimeSorter,
-                                    regexMatch.Groups["damageEffect"].Value,
+                                    regexMatch.Groups["attackType"].Value,
                                     CharacterNamePersonaReplace(petTypeAndName.Item2),
                                     "Hitpoints",
                                     CharacterNamePersonaReplace(victimPetTypeAndName.Item2)
