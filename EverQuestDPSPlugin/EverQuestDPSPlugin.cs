@@ -1275,34 +1275,15 @@ namespace EverQuestDPSPlugin
             }).Count() > 0) ? EverQuestSwingType.DamageShield : 0;
         }
 
-        internal Tuple<EverQuestSwingType, String> GetTypeAndNameForPet(String nameToSetTypeTo)
+        internal Tuple<String, String> GetTypeAndNameForPet(String nameToSetTypeTo)
         {
-            Match possessiveMatch = possesive.Match(nameToSetTypeTo);
-            EverQuestSwingType everQuestSwingType = default;
+            Match possessiveMatch = possesive.Match(nameToSetTypeTo);;
 
             if (possessiveMatch.Success)
             {
-                if (possessiveMatch.Groups[EverQuestDPSPluginResource.secondaryPossesiveOf].Success)
-                {
-                    everQuestSwingType = GetDamageShieldType(possessiveMatch.Groups[EverQuestDPSPluginResource.secondaryPossesiveOf].Value);
-                }
-                switch (possessiveMatch.Groups[EverQuestDPSPluginResource.possesiveOf].Value)
-                {
-                    case "pet":
-                        return new Tuple<EverQuestSwingType, String>(EverQuestSwingType.Pet | everQuestSwingType, nameToSetTypeTo.Substring(0, possessiveMatch.Index));
-                    case "warder":
-                        return new Tuple<EverQuestSwingType, String>(EverQuestSwingType.Warder | everQuestSwingType, nameToSetTypeTo.Substring(0, possessiveMatch.Index));
-                    case "ward":
-                        return new Tuple<EverQuestSwingType, String>(EverQuestSwingType.Ward | everQuestSwingType, nameToSetTypeTo.Substring(0, possessiveMatch.Index));
-                    case "familiar":
-                        return new Tuple<EverQuestSwingType, String>(EverQuestSwingType.Familiar | everQuestSwingType, nameToSetTypeTo.Substring(0, possessiveMatch.Index));
-                    default:
-                        break;
-                }
-                everQuestSwingType = GetDamageShieldType(possessiveMatch.Groups[EverQuestDPSPluginResource.possesiveOf].Value);
-                return new Tuple<EverQuestSwingType, string>(everQuestSwingType, nameToSetTypeTo);
+                return new Tuple<String, string>(possessiveMatch.Groups[EverQuestDPSPluginResource.possesiveOf].Value, nameToSetTypeTo.Substring(0, possessiveMatch.Index));
             }
-            else return new Tuple<EverQuestSwingType, string>(everQuestSwingType, nameToSetTypeTo);
+            else return new Tuple<String, string>(String.Empty, nameToSetTypeTo);
         }
 
         internal bool CheckIfSelf(String nameOfCharacter)
@@ -1315,15 +1296,14 @@ namespace EverQuestDPSPlugin
         private void ParseEverQuestLogLine(Match regexMatch, int logMatched)
         {
             DateTime dateTimeOfParse = ParseDateTime(regexMatch.Groups[EverQuestDPSPluginResource.dateTimeOfLogLineString].Value);
-            Tuple<EverQuestSwingType, String> petTypeAndName = GetTypeAndNameForPet(CharacterNamePersonaReplace(regexMatch.Groups["attacker"].Value));
-            Tuple<EverQuestSwingType, String> victimPetTypeAndName = GetTypeAndNameForPet(regexMatch.Groups["victim"].Value);
+            Tuple<String, String> petTypeAndName = GetTypeAndNameForPet(CharacterNamePersonaReplace(regexMatch.Groups["attacker"].Value));
+            Tuple<String, String> victimPetTypeAndName = GetTypeAndNameForPet(regexMatch.Groups["victim"].Value);
             if (ActGlobals.oFormActMain.SetEncounter(ActGlobals.oFormActMain.LastKnownTime, CharacterNamePersonaReplace(regexMatch.Groups["attacker"].Value), CharacterNamePersonaReplace(regexMatch.Groups["victim"].Value)))
             {
                 switch (logMatched)
                 {
                     //Melee attack
                     case 1:
-
                         Dnum damage = new Dnum(Int64.Parse(regexMatch.Groups["damageAmount"].Value), "melee");
                         String attackName = regexMatch.Groups["attackType"].Value == "frenzies on" ? "frenzy" : regexMatch.Groups["attackType"].Value;
                         MasterSwing masterSwingMelee = new MasterSwing(
@@ -1338,16 +1318,14 @@ namespace EverQuestDPSPlugin
                             "Hitpoints",
                             CharacterNamePersonaReplace(victimPetTypeAndName.Item2)
                         );
-                        masterSwingMelee.Tags.Add("Outgoing", petTypeAndName.Item1 == default ? String.Empty : petTypeAndName.Item1.ToString());
-                        masterSwingMelee.Tags.Add("Incoming", victimPetTypeAndName.Item1 == default ? String.Empty : victimPetTypeAndName.Item1.ToString());
+                        masterSwingMelee.Tags.Add("Outgoing", petTypeAndName.Item1);
+                        masterSwingMelee.Tags.Add("Incoming", victimPetTypeAndName.Item1);
                         ActGlobals.oFormActMain.AddCombatAction(masterSwingMelee);
-
                         break;
                     //Non-melee damage shield
                     case 2:
 
                         Dnum nonMeleeDamage = new Dnum(Int64.Parse(regexMatch.Groups["damagePoints"].Value), "damage shield");
-                        //Match m = damageShield.Match(petTypeAndName.Item2);
                         MasterSwing masterSwingDamageShield = new MasterSwing(
                             EverQuestSwingType.DamageShield.GetEverQuestSwingTypeExtensionIntValue(),
                             regexMatch.Groups["damageSpecial"].Success && regexMatch.Groups["damageSpecial"].Value.Contains("Critical"),
@@ -1360,8 +1338,8 @@ namespace EverQuestDPSPlugin
                             "Hitpoints",
                             CharacterNamePersonaReplace(victimPetTypeAndName.Item2)
                             );
-                        masterSwingDamageShield.Tags.Add("Outgoing", petTypeAndName.Item1 == default ? String.Empty : petTypeAndName.Item1.ToString());
-                        masterSwingDamageShield.Tags.Add("Incoming", victimPetTypeAndName.Item1 == default ? String.Empty : victimPetTypeAndName.Item1.ToString());
+                        masterSwingDamageShield.Tags.Add("Outgoing", petTypeAndName.Item1);
+                        masterSwingDamageShield.Tags.Add("Incoming", victimPetTypeAndName.Item1);
                         ActGlobals.oFormActMain.AddCombatAction(masterSwingDamageShield);
                         break;
                     //Missed melee
@@ -1381,10 +1359,9 @@ namespace EverQuestDPSPlugin
                                     "Hitpoints",
                                     CharacterNamePersonaReplace(victimPetTypeAndName.Item2)
                                 );
-                        masterSwingMissedMelee.Tags.Add("Outgoing", petTypeAndName.Item1 == default ? String.Empty : petTypeAndName.Item1.ToString());
-                        masterSwingMissedMelee.Tags.Add("Incoming", victimPetTypeAndName.Item1 == default ? String.Empty : victimPetTypeAndName.Item1.ToString());
+                        masterSwingMissedMelee.Tags.Add("Outgoing", petTypeAndName.Item1);
+                        masterSwingMissedMelee.Tags.Add("Incoming", victimPetTypeAndName.Item1);
                         ActGlobals.oFormActMain.AddCombatAction(masterSwingMissedMelee);
-
                         break;
                     //Death message
                     case 4:
@@ -1407,10 +1384,9 @@ namespace EverQuestDPSPlugin
                                     "Hitpoints",
                                     CharacterNamePersonaReplace(victimPetTypeAndName.Item2)
                                     );
-                        masterSwingSpellcast.Tags.Add("Outgoing", petTypeAndName.Item1 == default ? String.Empty : petTypeAndName.Item1.ToString());
-                        masterSwingSpellcast.Tags.Add("Incoming", victimPetTypeAndName.Item1 == default ? String.Empty : victimPetTypeAndName.Item1.ToString());
+                        masterSwingSpellcast.Tags.Add("Outgoing", petTypeAndName.Item1);
+                        masterSwingSpellcast.Tags.Add("Incoming", victimPetTypeAndName.Item1);
                         ActGlobals.oFormActMain.AddCombatAction(masterSwingSpellcast);
-
                         break;
                     //heal
                     case 6:
@@ -1427,8 +1403,8 @@ namespace EverQuestDPSPlugin
                                 CheckIfSelf(victimPetTypeAndName.Item2) ? CharacterNamePersonaReplace(petTypeAndName.Item2) : CharacterNamePersonaReplace(victimPetTypeAndName.Item2));
                         if (regexMatch.Groups["overHealPoints"].Success)
                             ms.Tags["overheal"] = Int64.Parse(regexMatch.Groups["overHealPoints"].Value);
-                        ms.Tags.Add("Outgoing", petTypeAndName.Item1 == default ? String.Empty : petTypeAndName.Item1.ToString());
-                        ms.Tags.Add("Incoming", victimPetTypeAndName.Item1 == default ? String.Empty : victimPetTypeAndName.Item1.ToString());
+                        ms.Tags.Add("Outgoing", petTypeAndName.Item1);
+                        ms.Tags.Add("Incoming", victimPetTypeAndName.Item1);
                         ActGlobals.oFormActMain.AddCombatAction(ms);
 
                         break;
@@ -1456,10 +1432,9 @@ namespace EverQuestDPSPlugin
                                 "Hitpoints",
                                 CharacterNamePersonaReplace(victimPetTypeAndName.Item2)
                             );
-                        masterSwingEvasion.Tags.Add("Outgoing", petTypeAndName.Item1 == default ? String.Empty : petTypeAndName.Item1.ToString());
-                        masterSwingEvasion.Tags.Add("Incoming", victimPetTypeAndName.Item1 == default ? String.Empty : victimPetTypeAndName.Item1.ToString());
+                        masterSwingEvasion.Tags.Add("Outgoing", petTypeAndName.Item1);
+                        masterSwingEvasion.Tags.Add("Incoming", victimPetTypeAndName.Item1);
                         ActGlobals.oFormActMain.AddCombatAction(masterSwingEvasion);
-
                         break;
                     //Bane damage
                     case 9:
@@ -1476,10 +1451,9 @@ namespace EverQuestDPSPlugin
                             "Hitpoints",
                             CharacterNamePersonaReplace(regexMatch.Groups["victim"].Value)
                             );
-                        masterSwingBane.Tags.Add("Outgoing", petTypeAndName.Item1 == default ? String.Empty : petTypeAndName.Item1.ToString());
-                        masterSwingBane.Tags.Add("Incoming", victimPetTypeAndName.Item1 == default ? String.Empty : victimPetTypeAndName.Item1.ToString());
+                        masterSwingBane.Tags.Add("Outgoing", petTypeAndName.Item1);
+                        masterSwingBane.Tags.Add("Incoming", victimPetTypeAndName.Item1);
                         ActGlobals.oFormActMain.AddCombatAction(masterSwingBane);
-
                         break;
                     //Damage over time
                     case 10:
@@ -1496,10 +1470,9 @@ namespace EverQuestDPSPlugin
                                 CharacterNamePersonaReplace(petTypeAndName.Item2),
                                 "Hitpoints",
                                 CharacterNamePersonaReplace(victimPetTypeAndName.Item2));
-                        masterSwingSpellDamageOverTime.Tags.Add("Outgoing", petTypeAndName.Item1 == default ? String.Empty : petTypeAndName.Item1.ToString());
-                        masterSwingSpellDamageOverTime.Tags.Add("Incoming", victimPetTypeAndName.Item1 == default ? String.Empty : victimPetTypeAndName.Item1.ToString());
+                        masterSwingSpellDamageOverTime.Tags.Add("Outgoing", petTypeAndName.Item1);
+                        masterSwingSpellDamageOverTime.Tags.Add("Incoming", victimPetTypeAndName.Item1);
                         ActGlobals.oFormActMain.AddCombatAction(masterSwingSpellDamageOverTime);
-
                         break;
                     //Focus Direct Damage Spell
                     case 11:
@@ -1515,10 +1488,26 @@ namespace EverQuestDPSPlugin
                                 "Hitpoints",
                                 CharacterNamePersonaReplace(regexMatch.Groups["victim"].Value)
                             );
-                        masterSwingFocusEffect.Tags.Add("Outgoing", petTypeAndName.Item1 == default ? String.Empty : petTypeAndName.Item1.ToString());
-                        masterSwingFocusEffect.Tags.Add("Incoming", victimPetTypeAndName.Item1 == default ? String.Empty : victimPetTypeAndName.Item1.ToString());
+                        masterSwingFocusEffect.Tags.Add("Outgoing", petTypeAndName.Item1);
+                        masterSwingFocusEffect.Tags.Add("Incoming", victimPetTypeAndName.Item1);
                         ActGlobals.oFormActMain.AddCombatAction(masterSwingFocusEffect);
-
+                        break;
+                    case 12:
+                        MasterSwing masterSwingDamageShieldUnknownOrigin = new MasterSwing(
+                            EverQuestSwingType.DamageShield.GetEverQuestSwingTypeExtensionIntValue() ,
+                            regexMatch.Groups["damageSpecial"].Success && regexMatch.Groups["damageSpecial"].Value.Contains(EverQuestDPSPluginResource.Critical),
+                            regexMatch.Groups["damageSpecial"].Success ? regexMatch.Groups["damageSpecial"].Value : string.Empty,
+                            new Dnum(Int64.Parse(regexMatch.Groups["damagePoints"].Value), "damage shield"),
+                            dateTimeOfParse,
+                            ActGlobals.oFormActMain.GlobalTimeSorter,
+                            regexMatch.Groups["damageShieldResponse"].Value,
+                            String.Empty,
+                            "Hitpoints",
+                            CharacterNamePersonaReplace(regexMatch.Groups["victim"].Value)
+                        );
+                        masterSwingDamageShieldUnknownOrigin.Tags.Add("Outgoing", petTypeAndName.Item1);
+                        masterSwingDamageShieldUnknownOrigin.Tags.Add("Incoming", victimPetTypeAndName.Item1);
+                        ActGlobals.oFormActMain.AddCombatAction(masterSwingDamageShieldUnknownOrigin);
                         break;
                     default:
                         break;
