@@ -43,7 +43,7 @@ jobs:
           username: ACT EverQuest DPS Plugin
           severity: info
           details: Test Succeeded!
-          text: ACT EverQuest DPS Plugin .NET Framework Version ${{ matrix.dotnetFrameworkVersion }}
+          text: ACT EverQuest DPS Plugin
           webhookUrl: ${{ secrets.ACT_EQ_DISCORD_WEBHOOK }}
       - name: Test Failure
         uses: rjstone/discord-webhook-notify@v1
@@ -52,7 +52,7 @@ jobs:
           username: ACT EverQuest DPS Plugin
           severity: error
           details: Test Failed!
-          text: ACT EverQuest DPS Plugin .NET Framework Version ${{ matrix.dotnetFrameworkVersion }}
+          text: ACT EverQuest DPS Plugin
           webhookUrl: ${{ secrets.ACT_EQ_DISCORD_WEBHOOK }}
       - name: Test Cancelled
         uses: rjstone/discord-webhook-notify@v1
@@ -61,7 +61,7 @@ jobs:
             username: ACT EverQuest DPS Plugin
             severity: warn
             details: Test Cancelled!
-            text: ACT EverQuest DPS Plugin .NET Framework Version ${{ matrix.dotnetFrameworkVersion }}
+            text: ACT EverQuest DPS Plugin
             webhookUrl: ${{ secrets.ACT_EQ_DISCORD_WEBHOOK }}
       - name: Upload dll file to artifact repository
         uses: actions/upload-artifact@v2
