@@ -88,15 +88,6 @@ namespace EverQuestDPSPlugin {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to (?&lt;victim&gt;.+) is (?&lt;damageShieldDamageType&gt;\S+) by (?&lt;attacker&gt;.+)(&apos;s|) (?&lt;damageShieldType&gt;\S+) for (?&lt;damagePoints&gt;[\d]+) points of non-melee damage..
-        /// </summary>
-        internal static string DamageShield {
-            get {
-                return ResourceManager.GetString("DamageShield", resourceCulture);
-            }
-        }
-        
-        /// <summary>
         ///   Looks up a localized string similar to (?&lt;victim&gt;.+) was (?&lt;damageShieldResponse&gt;.+) for (?&lt;damagePoints&gt;[\d]+) point(|s) of non-melee damage..
         /// </summary>
         internal static string DamageShieldUnknownOrigin {
@@ -282,6 +273,15 @@ namespace EverQuestDPSPlugin {
         internal static string SpellDamageOverTime {
             get {
                 return ResourceManager.GetString("SpellDamageOverTime", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to (?&lt;victim&gt;.+) resisted (?&lt;attacker&gt;.+) (?&lt;spellName&gt;.+)\!.
+        /// </summary>
+        internal static string spellResist {
+            get {
+                return ResourceManager.GetString("spellResist", resourceCulture);
             }
         }
         

@@ -56,7 +56,6 @@ namespace EverQuestDPSPlugin
         private void InitializeComponent()
         {
             this.varianceChkBx = new System.Windows.Forms.CheckBox();
-            this.nonMatchVisibleChkbx = new System.Windows.Forms.CheckBox();
             this.SuspendLayout();
             // 
             // varianceChkBx
@@ -64,7 +63,7 @@ namespace EverQuestDPSPlugin
             this.varianceChkBx.AutoSize = true;
             this.varianceChkBx.Location = new System.Drawing.Point(31, 22);
             this.varianceChkBx.Name = "varianceChkBx";
-            this.varianceChkBx.Size = new System.Drawing.Size(119, 17);
+            this.varianceChkBx.Size = new System.Drawing.Size(121, 17);
             this.varianceChkBx.TabIndex = 0;
             this.varianceChkBx.Text = "Population Variance";
             this.varianceChkBx.UseVisualStyleBackColor = true;
@@ -72,9 +71,9 @@ namespace EverQuestDPSPlugin
             // 
             // EverQuestDPSPlugin
             // 
-            this.Controls.Add(this.nonMatchVisibleChkbx);
             this.Controls.Add(this.varianceChkBx);
             this.Name = "EverQuestDPSPlugin";
+            this.Size = new System.Drawing.Size(467, 150);
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -86,7 +85,6 @@ namespace EverQuestDPSPlugin
         #region Class Members
         TreeNode optionsNode = null;
         private CheckBox varianceChkBx;
-        private CheckBox nonMatchVisibleChkbx;
         Label lblStatus;    // The status label that appears in ACT's Plugin tab
         delegate void matchParse(Match regexMatch);
         List<Tuple<Color, Regex>> regexTupleList;
@@ -98,7 +96,8 @@ namespace EverQuestDPSPlugin
         readonly object varianceChkBxLockObject = new object();//, nonMatchChkBxLockObject = new object()
         readonly string PluginSettingsFileName = $"Config{Path.DirectorySeparatorChar}ACT_EverQuest_English_Parser.config.xml";
         readonly string attackTypes = @"backstab|throw|pierce|gore|crush|slash|hit|kick|slam|bash|shoot|strike|bite|grab|punch|scratch|rake|swipe|claw|maul|smash|frenzies on|frenzy";
-        readonly string zoneChangeRgxString = @"You have entered (^[(?:the Drunken Monkey stance adequately)]|(?<zoneName>.+))\.";
+        readonly string zoneChangeRgxString = @"You have entered (?<zoneName>^[the Drunken Monkey stance adequately]|^[an area where levitation effects do not function]|.+)\.";
+        readonly string DamageShield = @"(?<victim>.+) is (?<damageShieldDamageType>\S+) by(?<attacker>.+)('s|) (?<damageShieldType>\S+) for (?<damagePoints>[\d]+) points of non-melee damage.";
         #endregion
 
         public EverQuestDPSPlugin()
@@ -216,7 +215,6 @@ namespace EverQuestDPSPlugin
         void LoadSettings()
         {
             xmlSettings.AddControlSetting(varianceChkBx.Name, varianceChkBx);
-            xmlSettings.AddControlSetting(nonMatchVisibleChkbx.Name, nonMatchVisibleChkbx);
             if (File.Exists(settingsFile))
             {
                 using (FileStream fs = new FileStream(settingsFile, FileMode.Open, FileAccess.Read, FileShare.ReadWrite))
@@ -1226,7 +1224,7 @@ namespace EverQuestDPSPlugin
             ActGlobals.oFormEncounterLogs.LogTypeToColorMapping.Clear();
             regexTupleList.Add(new Tuple<Color, Regex>(Color.Red, new Regex(RegexString(MeleeAttack), RegexOptions.Compiled)));
             ActGlobals.oFormEncounterLogs.LogTypeToColorMapping.Add(regexTupleList.Count, regexTupleList[regexTupleList.Count - 1].Item1);
-            regexTupleList.Add(new Tuple<Color, Regex>(Color.ForestGreen, new Regex(RegexString(EverQuestDPSPluginResource.DamageShield), RegexOptions.Compiled)));
+            regexTupleList.Add(new Tuple<Color, Regex>(Color.ForestGreen, new Regex(RegexString(DamageShield), RegexOptions.Compiled)));
             ActGlobals.oFormEncounterLogs.LogTypeToColorMapping.Add(regexTupleList.Count, regexTupleList[regexTupleList.Count - 1].Item1);
             regexTupleList.Add(new Tuple<Color, Regex>(Color.Plum, new Regex(RegexString(EverQuestDPSPluginResource.MissedMeleeAttack), RegexOptions.Compiled)));
             ActGlobals.oFormEncounterLogs.LogTypeToColorMapping.Add(regexTupleList.Count, regexTupleList[regexTupleList.Count - 1].Item1);
@@ -1269,7 +1267,7 @@ namespace EverQuestDPSPlugin
 
         internal Tuple<String, String> GetTypeAndNameForPet(String nameToSetTypeTo)
         {
-            Match possessiveMatch = possesive.Match(nameToSetTypeTo);;
+            Match possessiveMatch = possesive.Match(nameToSetTypeTo); ;
 
             if (possessiveMatch.Success)
             {
@@ -1290,8 +1288,8 @@ namespace EverQuestDPSPlugin
             DateTime dateTimeOfParse = ParseDateTime(regexMatch.Groups[EverQuestDPSPluginResource.dateTimeOfLogLineString].Value);
             Tuple<String, String> petTypeAndName = GetTypeAndNameForPet(CharacterNamePersonaReplace(regexMatch.Groups["attacker"].Value));
             Tuple<String, String> victimPetTypeAndName = GetTypeAndNameForPet(regexMatch.Groups["victim"].Value);
-            
-            if (logMatched != 13 && ActGlobals.oFormActMain.SetEncounter(ActGlobals.oFormActMain.LastKnownTime, CharacterNamePersonaReplace(regexMatch.Groups["attacker"].Value), CharacterNamePersonaReplace(regexMatch.Groups["victim"].Value)))
+
+            if (logMatched != 13 && logMatched != 6 && ActGlobals.oFormActMain.SetEncounter(ActGlobals.oFormActMain.LastKnownTime, CharacterNamePersonaReplace(regexMatch.Groups["attacker"].Value), CharacterNamePersonaReplace(regexMatch.Groups["victim"].Value)))
             {
                 switch (logMatched)
                 {
@@ -1381,26 +1379,6 @@ namespace EverQuestDPSPlugin
                         masterSwingSpellcast.Tags.Add("Incoming", victimPetTypeAndName.Item1);
                         ActGlobals.oFormActMain.AddCombatAction(masterSwingSpellcast);
                         break;
-                    //heal
-                    case 6:
-                        MasterSwing ms = new MasterSwing(
-                                (regexMatch.Groups["overTime"].Success ? EverQuestSwingType.HealOverTime : EverQuestSwingType.InstantHealing).GetEverQuestSwingTypeExtensionIntValue(),
-                                regexMatch.Groups["healingSpecial"].Success && regexMatch.Groups["healingSpecial"].Value.Contains(EverQuestDPSPluginResource.Critical),
-                                regexMatch.Groups["healingSpecial"].Success ? regexMatch.Groups["healingSpecial"].Value : String.Empty,
-                                new Dnum(Int64.Parse(regexMatch.Groups["pointsOfHealing"].Value), "healing"),
-                                dateTimeOfParse,
-                                ActGlobals.oFormActMain.GlobalTimeSorter,
-                                regexMatch.Groups["healingSpellName"].Success ? regexMatch.Groups["healingSpellName"].Value : new String("unnamed heal".ToCharArray()),
-                                CharacterNamePersonaReplace(petTypeAndName.Item2),
-                                "Hitpoints",
-                                CheckIfSelf(victimPetTypeAndName.Item2) ? CharacterNamePersonaReplace(petTypeAndName.Item2) : CharacterNamePersonaReplace(victimPetTypeAndName.Item2));
-                        if (regexMatch.Groups["overHealPoints"].Success)
-                            ms.Tags["overheal"] = Int64.Parse(regexMatch.Groups["overHealPoints"].Value);
-                        ms.Tags.Add("Outgoing", petTypeAndName.Item1);
-                        ms.Tags.Add("Incoming", victimPetTypeAndName.Item1);
-                        ActGlobals.oFormActMain.AddCombatAction(ms);
-
-                        break;
                     //Unknown
                     case 7:
                         MasterSwing masterSwingUnknown = new MasterSwing(EverQuestSwingType.NonMelee.GetEverQuestSwingTypeExtensionIntValue(), false, new Dnum(Dnum.Unknown)
@@ -1488,7 +1466,7 @@ namespace EverQuestDPSPlugin
                     //Unknown damage shield
                     case 12:
                         MasterSwing masterSwingDamageShieldUnknownOrigin = new MasterSwing(
-                            EverQuestSwingType.DamageShield.GetEverQuestSwingTypeExtensionIntValue() ,
+                            EverQuestSwingType.DamageShield.GetEverQuestSwingTypeExtensionIntValue(),
                             regexMatch.Groups["damageSpecial"].Success && regexMatch.Groups["damageSpecial"].Value.Contains(EverQuestDPSPluginResource.Critical),
                             regexMatch.Groups["damageSpecial"].Success ? regexMatch.Groups["damageSpecial"].Value : string.Empty,
                             new Dnum(Int64.Parse(regexMatch.Groups["damagePoints"].Value), "damage shield"),
@@ -1509,9 +1487,42 @@ namespace EverQuestDPSPlugin
                         break;
                 }
             }
-            else if(logMatched == 13)
+            else if (logMatched == 13 || logMatched == 6)
             {
-                ActGlobals.oFormActMain.ChangeZone(regexMatch.Groups["zoneName"].Value);
+                switch (logMatched)
+                {
+
+                    case 6:
+                        if (ActGlobals.oFormActMain.InCombat)
+                        {
+                            MasterSwing ms = new MasterSwing(
+                                    (regexMatch.Groups["overTime"].Success ? EverQuestSwingType.HealOverTime : EverQuestSwingType.InstantHealing).GetEverQuestSwingTypeExtensionIntValue(),
+                                    regexMatch.Groups["healingSpecial"].Success && regexMatch.Groups["healingSpecial"].Value.Contains(EverQuestDPSPluginResource.Critical),
+                                    regexMatch.Groups["healingSpecial"].Success ? regexMatch.Groups["healingSpecial"].Value : String.Empty,
+                                    new Dnum(Int64.Parse(regexMatch.Groups["pointsOfHealing"].Value), "healing"),
+                                    dateTimeOfParse,
+                                    ActGlobals.oFormActMain.GlobalTimeSorter,
+                                    regexMatch.Groups["healingSpellName"].Success ? regexMatch.Groups["healingSpellName"].Value : new String("unnamed heal".ToCharArray()),
+                                    CharacterNamePersonaReplace(petTypeAndName.Item2),
+                                    "Hitpoints",
+                                    CheckIfSelf(victimPetTypeAndName.Item2) ? CharacterNamePersonaReplace(petTypeAndName.Item2) : CharacterNamePersonaReplace(victimPetTypeAndName.Item2));
+                            if (regexMatch.Groups["overHealPoints"].Success)
+                                ms.Tags["overheal"] = Int64.Parse(regexMatch.Groups["overHealPoints"].Value);
+                            ms.Tags.Add("Outgoing", petTypeAndName.Item1);
+                            ms.Tags.Add("Incoming", victimPetTypeAndName.Item1);
+                            ActGlobals.oFormActMain.AddCombatAction(ms);
+                        }
+                        break;
+                    case 13:
+                        ActGlobals.oFormActMain.ChangeZone(regexMatch.Groups["zoneName"].Value);
+                        break;
+                    default:
+                        break;
+                }
+            }
+            else
+            {
+                ActGlobals.oFormActMain.WriteExceptionLog(new Exception($"{logMatched} matched but case not set for parsing"), "Case not set for parsing but match was found");
             }
         }
 
@@ -1589,21 +1600,6 @@ namespace EverQuestDPSPlugin
                     break;
                 default:
                     break;
-            }
-        }
-
-        public void ChangeNonmatchFormCheckBox(bool Checked)
-        {
-            if (nonMatchVisibleChkbx.InvokeRequired)
-            {
-                nonMatchVisibleChkbx.Invoke(new Action(() =>
-                {
-                    nonMatchVisibleChkbx.Checked = Checked;
-                }));
-            }
-            else
-            {
-                nonMatchVisibleChkbx.Checked = Checked;
             }
         }
 

@@ -73,6 +73,9 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
+    <EmbeddedResource Include="EverQuestDPSPlugin.resx">
+      <DependentUpon>EverQuestDPSPlugin.cs</DependentUpon>
+    </EmbeddedResource>
     <EmbeddedResource Include="EverQuestDPSPluginResource.resx">
       <Generator>ResXFileCodeGenerator</Generator>
       <LastGenOutput>EverQuestDPSPluginResource.Designer.cs</LastGenOutput>
@@ -81,6 +84,6 @@
   </ItemGroup>
   <ItemGroup />
   <PropertyGroup>
-    <PostBuildEvent>IF $(ConfigurationName)==Debug copy /Y $(TargetDir)$(TargetFileName) "$(APPDATA)\Advanced Combat Tracker\Plugins"</PostBuildEvent>
+    <PostBuildEvent>IF $(ConfigurationName)==Debug copy /Y $(TargetPath) "$(APPDATA)\Advanced Combat Tracker\Plugins"</PostBuildEvent>
   </PropertyGroup>
 </Project>
