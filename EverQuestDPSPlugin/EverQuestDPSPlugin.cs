@@ -96,7 +96,7 @@ namespace EverQuestDPSPlugin
         readonly object varianceChkBxLockObject = new object();//, nonMatchChkBxLockObject = new object()
         readonly string PluginSettingsFileName = $"Config{Path.DirectorySeparatorChar}ACT_EverQuest_English_Parser.config.xml";
         readonly string attackTypes = @"backstab|throw|pierce|gore|crush|slash|hit|kick|slam|bash|shoot|strike|bite|grab|punch|scratch|rake|swipe|claw|maul|smash|frenzies on|frenzy";
-        readonly string zoneChangeRgxString = @"You have entered (?<zoneName>^[the Drunken Monkey stance adequately]|^[an area where levitation effects do not function]|.+)\.";
+        readonly string zoneChangeRgxString = @"You have entered (?<zoneName>^[an area where levitation effects do not function]|.+)\.";
         readonly string DamageShield = @"(?<victim>.+) is (?<damageShieldDamageType>\S+) by(?<attacker>.+)('s|) (?<damageShieldType>\S+) for (?<damagePoints>[\d]+) points of non-melee damage.";
         #endregion
 
