@@ -9,7 +9,8 @@ namespace EQDPSPluginUnitTests
     public sealed class EverQuestDPSPluginTests
     {
         EverQuestDPSPlugin.EverQuestDPSPlugin eqDPSPlugin;
-        [TestInitialize] public void Init() { 
+        [TestInitialize] 
+        public void Init() { 
             eqDPSPlugin = new EverQuestDPSPlugin.EverQuestDPSPlugin();
             eqDPSPlugin.PopulateRegexNonCombat();
         }

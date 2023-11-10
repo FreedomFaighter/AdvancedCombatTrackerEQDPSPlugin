@@ -96,7 +96,7 @@ namespace EverQuestDPSPlugin
         readonly object varianceChkBxLockObject = new object();//, nonMatchChkBxLockObject = new object()
         readonly string PluginSettingsFileName = $"Config{Path.DirectorySeparatorChar}ACT_EverQuest_English_Parser.config.xml";
         readonly string attackTypes = @"backstab|throw|pierce|gore|crush|slash|hit|kick|slam|bash|shoot|strike|bite|grab|punch|scratch|rake|swipe|claw|maul|smash|frenzies on|frenzy";
-        readonly string zoneChangeRgxString = @"You have entered (?<zoneName>^[an area where levitation effects do not function]|.+)\.";
+        readonly string zoneChangeRgxString = @"You have entered (?<zoneName>.+)\.";
         readonly string DamageShield = @"(?<victim>.+) is (?<damageShieldDamageType>\S+) by(?<attacker>.+)('s|) (?<damageShieldType>\S+) for (?<damagePoints>[\d]+) points of non-melee damage.";
         #endregion
 
@@ -1325,7 +1325,7 @@ namespace EverQuestDPSPlugin
                             dateTimeOfParse,
                             ActGlobals.oFormActMain.GlobalTimeSorter,
                             regexMatch.Groups["damageShieldType"].Value,
-                            CharacterNamePersonaReplace(petTypeAndName.Item2),
+                            CharacterNamePersonaReplace(petTypeAndName.Item2.EndsWith("'s") ? petTypeAndName.Item2.TrimEnd("'s".ToCharArray()) : petTypeAndName.Item2),
                             "Hitpoints",
                             CharacterNamePersonaReplace(victimPetTypeAndName.Item2)
                             );
@@ -1514,7 +1514,15 @@ namespace EverQuestDPSPlugin
                         }
                         break;
                     case 13:
-                        ActGlobals.oFormActMain.ChangeZone(regexMatch.Groups["zoneName"].Value);
+                        List<string> ignoreStrings = new List<string>()
+                        {
+                            "an area where levitation effects do not function",
+                            "the Drunken Monkey stance adequately"
+                        };
+                        String zoneName = regexMatch.Groups["zoneName"].Value;
+                        if (ignoreStrings.Contains(zoneName))
+                            break;
+                        ActGlobals.oFormActMain.ChangeZone(zoneName);
                         break;
                     default:
                         break;
@@ -1622,7 +1630,7 @@ namespace EverQuestDPSPlugin
 
         #endregion
 
-        private string AttackTypeGetCritTypes(AttackType Data)
+        internal string AttackTypeGetCritTypes(AttackType Data)
         {
             List<MasterSwing> ms = Data.Items.ToList().Where((item) => item.Damage >= 0).ToList();
             int CripplingBlowCount = 0;
@@ -1700,20 +1708,23 @@ namespace EverQuestDPSPlugin
 
             }).Count();
 
-            float CripplingBlowPerc = ((float)CripplingBlowCount / (float)count) * 100f;
-            float LockedPerc = ((float)LockedCount / (float)count) * 100f;
-            float CriticalPerc = ((float)CriticalCount / (float)count) * 100f;
-            float NonDefinedPerc = ((float)NonDefinedCount / (float)count) * 100f;
-            float StrikethroughPerc = ((float)StrikethroughCount / (float)count) * 100f;
-            float RipostePerc = ((float)RiposteCount / (float)count) * 100f;
-            float FlurryPerc = ((float)FlurryCount / (float)count) * 100f;
-            float LuckyPerc = ((float)LuckyCount / (float)count) * 100f;
-            float DoubleBowShotPerc = ((float)DoubleBowShotCount / (float)count) * 100f;
-            float TwincastPerc = ((float)TwincastCount / (float)count) * 100f;
-            float WildRampagePerc = ((float)WildRampageCount / (float)count) * 100f;
-            float FinishingBlowPerc = ((float)FinishingBlowCount / (float)count) * 100f;
-
-            return $"{CripplingBlowPerc:000.0}%CB-{LockedPerc:000.0}%Locked-{CriticalPerc:000.0}%C-{StrikethroughPerc:000.0}%S-{RipostePerc:000.0}%R-{FlurryPerc:000.0}%F-{LuckyPerc:000.0}%Lucky-{DoubleBowShotPerc:000.0}%DB-{TwincastPerc:000.0}%TC-{WildRampagePerc:000.0}%WR-{FinishingBlowPerc:000.0}%FB-{NonDefinedPerc:000.0}%ND";
+            if (count > 0)
+            {
+                float CripplingBlowPerc = ((float)CripplingBlowCount / (float)count) * 100f;
+                float LockedPerc = ((float)LockedCount / (float)count) * 100f;
+                float CriticalPerc = ((float)CriticalCount / (float)count) * 100f;
+                float NonDefinedPerc = ((float)NonDefinedCount / (float)count) * 100f;
+                float StrikethroughPerc = ((float)StrikethroughCount / (float)count) * 100f;
+                float RipostePerc = ((float)RiposteCount / (float)count) * 100f;
+                float FlurryPerc = ((float)FlurryCount / (float)count) * 100f;
+                float LuckyPerc = ((float)LuckyCount / (float)count) * 100f;
+                float DoubleBowShotPerc = ((float)DoubleBowShotCount / (float)count) * 100f;
+                float TwincastPerc = ((float)TwincastCount / (float)count) * 100f;
+                float WildRampagePerc = ((float)WildRampageCount / (float)count) * 100f;
+                float FinishingBlowPerc = ((float)FinishingBlowCount / (float)count) * 100f;
+                return $"{CripplingBlowPerc:000.0}%CB-{LockedPerc:000.0}%Locked-{CriticalPerc:000.0}%C-{StrikethroughPerc:000.0}%S-{RipostePerc:000.0}%R-{FlurryPerc:000.0}%F-{LuckyPerc:000.0}%Lucky-{DoubleBowShotPerc:000.0}%DB-{TwincastPerc:000.0}%TC-{WildRampagePerc:000.0}%WR-{FinishingBlowPerc:000.0}%FB-{NonDefinedPerc:000.0}%ND";
+            }
+            return $"---";
         }
 
     }
