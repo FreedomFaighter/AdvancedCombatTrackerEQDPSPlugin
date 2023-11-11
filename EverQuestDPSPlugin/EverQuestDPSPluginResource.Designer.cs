@@ -277,7 +277,7 @@ namespace EverQuestDPSPlugin {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to (?&lt;victim&gt;.+) resisted (?&lt;attacker&gt;.+) (?&lt;spellName&gt;.+)\!.
+        ///   Looks up a localized string similar to (?&lt;victim&gt;.+) resisted (?&lt;attacker&gt;.+) (?&lt;spellName&gt;.+)\!(?:\s\((?&lt;damageSpecial&gt;.+)\)){0,1}.
         /// </summary>
         internal static string spellResist {
             get {

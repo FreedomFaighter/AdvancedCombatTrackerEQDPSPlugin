@@ -12,7 +12,6 @@ namespace EQDPSPluginUnitTests
         [TestInitialize] 
         public void Init() { 
             eqDPSPlugin = new EverQuestDPSPlugin.EverQuestDPSPlugin();
-            eqDPSPlugin.PopulateRegexNonCombat();
         }
 
         [DataTestMethod]

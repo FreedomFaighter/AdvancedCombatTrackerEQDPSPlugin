@@ -97,7 +97,7 @@ namespace EverQuestDPSPlugin
         readonly string PluginSettingsFileName = $"Config{Path.DirectorySeparatorChar}ACT_EverQuest_English_Parser.config.xml";
         readonly string attackTypes = @"backstab|throw|pierce|gore|crush|slash|hit|kick|slam|bash|shoot|strike|bite|grab|punch|scratch|rake|swipe|claw|maul|smash|frenzies on|frenzy";
         readonly string zoneChangeRgxString = @"You have entered (?<zoneName>.+)\.";
-        readonly string DamageShield = @"(?<victim>.+) is (?<damageShieldDamageType>\S+) by(?<attacker>.+)('s|) (?<damageShieldType>\S+) for (?<damagePoints>[\d]+) points of non-melee damage.";
+        readonly string DamageShield = @"(?<victim>.+) is (?<damageShieldDamageType>\S+) by (?<attacker>.+)('s|) (?<damageShieldType>\S+) for (?<damagePoints>[\d]+) points of non-melee damage.";
         #endregion
 
         public EverQuestDPSPlugin()
@@ -1209,7 +1209,7 @@ namespace EverQuestDPSPlugin
                 return $@"\[(?<{EverQuestDPSPluginResource.dateTimeOfLogLineString}>.+)\] {regex}";
         }
 
-        internal void PopulateRegexNonCombat()
+        private void PopulateRegexNonCombat()
         {
             ActGlobals.oFormActMain.ZoneChangeRegex = new Regex(RegexString(zoneChangeRgxString), RegexOptions.Compiled);
             possesive = new Regex(@"(?:[`|']s\s)(?<" + $@"{EverQuestDPSPluginResource.possesiveOf}" + @">\S[^']+)(?:[']s\s(?<" + $@"{EverQuestDPSPluginResource.secondaryPossesiveOf}" + @">\S+)){0,1}", RegexOptions.Compiled);
@@ -1246,7 +1246,9 @@ namespace EverQuestDPSPlugin
             ActGlobals.oFormEncounterLogs.LogTypeToColorMapping.Add(regexTupleList.Count, regexTupleList[regexTupleList.Count - 1].Item1);
             regexTupleList.Add(new Tuple<Color, Regex>(Color.DarkOliveGreen, new Regex(RegexString(EverQuestDPSPluginResource.DamageShieldUnknownOrigin), RegexOptions.Compiled)));
             ActGlobals.oFormEncounterLogs.LogTypeToColorMapping.Add(regexTupleList.Count, regexTupleList[regexTupleList.Count - 1].Item1);
-            regexTupleList.Add(new Tuple<Color, Regex>(Color.SaddleBrown, ActGlobals.oFormActMain.ZoneChangeRegex));
+            regexTupleList.Add(new Tuple<Color, Regex>(Color.SaddleBrown, new Regex(RegexString(zoneChangeRgxString))));
+            ActGlobals.oFormEncounterLogs.LogTypeToColorMapping.Add(regexTupleList.Count, regexTupleList[regexTupleList.Count - 1].Item1);
+            regexTupleList.Add(new Tuple<Color, Regex>(Color.Tan, new Regex(RegexString(EverQuestDPSPluginResource.spellResist), RegexOptions.Compiled)));
             ActGlobals.oFormEncounterLogs.LogTypeToColorMapping.Add(regexTupleList.Count, regexTupleList[regexTupleList.Count - 1].Item1);
         }
 
@@ -1315,8 +1317,8 @@ namespace EverQuestDPSPlugin
                         break;
                     //Non-melee damage shield
                     case 2:
-
                         Dnum nonMeleeDamage = new Dnum(Int64.Parse(regexMatch.Groups["damagePoints"].Value), "damage shield");
+                        String attacker = petTypeAndName.Item2.EndsWith(@"'s") ? petTypeAndName.Item2.Substring(0, -2) : petTypeAndName.Item2;
                         MasterSwing masterSwingDamageShield = new MasterSwing(
                             EverQuestSwingType.DamageShield.GetEverQuestSwingTypeExtensionIntValue(),
                             regexMatch.Groups["damageSpecial"].Success && regexMatch.Groups["damageSpecial"].Value.Contains("Critical"),
@@ -1325,7 +1327,7 @@ namespace EverQuestDPSPlugin
                             dateTimeOfParse,
                             ActGlobals.oFormActMain.GlobalTimeSorter,
                             regexMatch.Groups["damageShieldType"].Value,
-                            CharacterNamePersonaReplace(petTypeAndName.Item2.EndsWith("'s") ? petTypeAndName.Item2.TrimEnd("'s".ToCharArray()) : petTypeAndName.Item2),
+                            CharacterNamePersonaReplace(petTypeAndName.Item2),
                             "Hitpoints",
                             CharacterNamePersonaReplace(victimPetTypeAndName.Item2)
                             );
@@ -1480,6 +1482,23 @@ namespace EverQuestDPSPlugin
                         masterSwingDamageShieldUnknownOrigin.Tags.Add("Outgoing", petTypeAndName.Item1);
                         masterSwingDamageShieldUnknownOrigin.Tags.Add("Incoming", victimPetTypeAndName.Item1);
                         ActGlobals.oFormActMain.AddCombatAction(masterSwingDamageShieldUnknownOrigin);
+                        break;
+                    case 14:
+                        MasterSwing masterSwingSpellResist = new MasterSwing(
+                                EverQuestSwingType.DirectDamageSpell.GetEverQuestSwingTypeExtensionIntValue(),
+                                regexMatch.Groups["damageSpecial"].Success && regexMatch.Groups["damageSpecial"].Value.Contains(EverQuestDPSPluginResource.Critical),
+                                regexMatch.Groups["damageSpecial"].Success ? regexMatch.Groups["damageSpecial"].Value : string.Empty,
+                                new Dnum(Dnum.NoDamage, "non-melee"),
+                                dateTimeOfParse,
+                                ActGlobals.oFormActMain.GlobalTimeSorter,
+                                regexMatch.Groups["spellName"].Value,
+                                CharacterNamePersonaReplace(regexMatch.Groups["attacker"].Value),
+                                "Hitpoints",
+                                CharacterNamePersonaReplace(regexMatch.Groups["victim"].Value)
+                            );
+                        masterSwingSpellResist.Tags.Add("Outgoing", petTypeAndName.Item1);
+                        masterSwingSpellResist.Tags.Add("Incoming", victimPetTypeAndName.Item1);
+                        ActGlobals.oFormActMain.AddCombatAction(masterSwingSpellResist);
                         break;
                     default:
                         ArgumentOutOfRangeException argumentOutOfRangeException = new ArgumentOutOfRangeException(logMatched.GetType().Name, "Match found but no case to assign to");

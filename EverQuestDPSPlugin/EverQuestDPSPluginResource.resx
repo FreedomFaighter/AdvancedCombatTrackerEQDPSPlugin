@@ -190,7 +190,7 @@
     <value>(?&lt;victim&gt;.+) has taken (?&lt;damagePoints&gt;[\d]+) damage from (?&lt;damageEffect&gt;.*) by (?&lt;attacker&gt;.*)\.(?:[\s][\(](?&lt;spellSpecial&gt;.+)[\)]){0,1}</value>
   </data>
   <data name="spellResist" xml:space="preserve">
-    <value>(?&lt;victim&gt;.+) resisted (?&lt;attacker&gt;.+) (?&lt;spellName&gt;.+)\!</value>
+    <value>(?&lt;victim&gt;.+) resisted (?&lt;attacker&gt;.+) (?&lt;spellName&gt;.+)\!(?:\s\((?&lt;damageSpecial&gt;.+)\)){0,1}</value>
   </data>
   <data name="Strikethrough" xml:space="preserve">
     <value>Strikethrough</value>
