@@ -61,6 +61,15 @@ namespace EverQuestDPSPlugin {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to backstab|throw|pierce|gore|crush|slash|hit|kick|slam|bash|shoot|strike|bite|grab|punch|scratch|rake|swipe|claw|maul|smash|frenzies on|frenzy.
+        /// </summary>
+        internal static string attackTypes {
+            get {
+                return ResourceManager.GetString("attackTypes", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to (?&lt;attacker&gt;.+) hit(|s) (?&lt;victim&gt;.+) for (?&lt;baneDamage&gt;[\d]+) points of (?&lt;typeOfDamage&gt;.+) by Banestrike (?&lt;baneAbilityRank&gt;.+\.)(?:\s\((?&lt;baneSpecial&gt;.+)\)){0,1}.
         /// </summary>
         internal static string Banestrike {
@@ -84,6 +93,15 @@ namespace EverQuestDPSPlugin {
         internal static string Critical {
             get {
                 return ResourceManager.GetString("Critical", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to (?&lt;victim&gt;.+) is (?&lt;damageShieldDamageType&gt;\S+) by (?&lt;attacker&gt;.+)(&apos;s|) (?&lt;damageShieldType&gt;\S+) for (?&lt;damagePoints&gt;[\d]+) points of non-melee damage..
+        /// </summary>
+        internal static string DamageShield {
+            get {
+                return ResourceManager.GetString("DamageShield", resourceCulture);
             }
         }
         
