@@ -347,5 +347,14 @@ namespace EverQuestDPSPlugin {
                 return ResourceManager.GetString("WildRampage", resourceCulture);
             }
         }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to You have entered (?&lt;zoneName&gt;.+)\..
+        /// </summary>
+        internal static string zoneChangeRgxString {
+            get {
+                return ResourceManager.GetString("zoneChangeRgxString", resourceCulture);
+            }
+        }
     }
 }

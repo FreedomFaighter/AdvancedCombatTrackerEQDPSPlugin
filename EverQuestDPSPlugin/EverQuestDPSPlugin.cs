@@ -95,7 +95,6 @@ namespace EverQuestDPSPlugin
         SettingsSerializer xmlSettings;
         readonly object varianceChkBxLockObject = new object();//, nonMatchChkBxLockObject = new object()
         readonly string PluginSettingsFileName = $"Config{Path.DirectorySeparatorChar}ACT_EverQuest_English_Parser.config.xml";
-        readonly string zoneChangeRgxString = @"You have entered (?<zoneName>.+)\.";
         #endregion
 
         public EverQuestDPSPlugin()
@@ -1243,7 +1242,7 @@ namespace EverQuestDPSPlugin
             ActGlobals.oFormEncounterLogs.LogTypeToColorMapping.Add(regexTupleList.Count, regexTupleList[regexTupleList.Count - 1].Item1);
             regexTupleList.Add(new Tuple<Color, Regex>(Color.DarkOliveGreen, new Regex(RegexString(EverQuestDPSPluginResource.DamageShieldUnknownOrigin), RegexOptions.Compiled)));
             ActGlobals.oFormEncounterLogs.LogTypeToColorMapping.Add(regexTupleList.Count, regexTupleList[regexTupleList.Count - 1].Item1);
-            regexTupleList.Add(new Tuple<Color, Regex>(Color.SaddleBrown, new Regex(RegexString(zoneChangeRgxString))));
+            regexTupleList.Add(new Tuple<Color, Regex>(Color.SaddleBrown, new Regex(RegexString(EverQuestDPSPluginResource.zoneChangeRgxString))));
             ActGlobals.oFormEncounterLogs.LogTypeToColorMapping.Add(regexTupleList.Count, regexTupleList[regexTupleList.Count - 1].Item1);
             regexTupleList.Add(new Tuple<Color, Regex>(Color.Tan, new Regex(RegexString(EverQuestDPSPluginResource.spellResist), RegexOptions.Compiled)));
             ActGlobals.oFormEncounterLogs.LogTypeToColorMapping.Add(regexTupleList.Count, regexTupleList[regexTupleList.Count - 1].Item1);

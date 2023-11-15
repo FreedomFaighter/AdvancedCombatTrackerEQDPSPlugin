@@ -213,4 +213,7 @@
   <data name="WildRampage" xml:space="preserve">
     <value>Wild Rampage</value>
   </data>
+  <data name="zoneChangeRgxString" xml:space="preserve">
+    <value>You have entered (?&lt;zoneName&gt;.+)\.</value>
+  </data>
 </root>
