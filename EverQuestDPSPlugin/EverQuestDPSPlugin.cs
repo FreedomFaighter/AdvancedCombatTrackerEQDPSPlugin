@@ -13,7 +13,6 @@ using System.Windows.Forms;
 using System.Xml;
 using System.Security;
 using System.Runtime.InteropServices;
-using System.Runtime.CompilerServices;
 
 /*
 * Project: EverQuest DPS Plugin
