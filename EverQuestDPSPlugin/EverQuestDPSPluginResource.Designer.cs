@@ -61,7 +61,7 @@ namespace EverQuestDPSPlugin {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Version=(?&lt;AssemblyVersion&gt;\S+).
+        ///   Looks up a localized string similar to .
         /// </summary>
         internal static string assemblyVersionRegex {
             get {

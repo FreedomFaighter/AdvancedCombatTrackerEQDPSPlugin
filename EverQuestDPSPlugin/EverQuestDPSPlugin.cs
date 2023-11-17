@@ -12,6 +12,8 @@ using System.Threading.Tasks;
 using System.Windows.Forms;
 using System.Xml;
 using System.Security;
+using System.Runtime.InteropServices;
+using System.Runtime.CompilerServices;
 
 /*
 * Project: EverQuest DPS Plugin
@@ -180,11 +182,15 @@ namespace EverQuestDPSPlugin
             int pluginId = 92;
             try
             {
-                Regex assemblyVersionRegex = new Regex(EverQuestDPSPluginResource.assemblyVersionRegex, RegexOptions.Compiled);
-                Version remoteVersion = new Version(ActGlobals.oFormActMain.PluginGetRemoteVersion(pluginId));
-                Match version = assemblyVersionRegex.Match(Assembly.GetExecutingAssembly().FullName);
-;               Version currentVersionv = new Version(version.Groups["AssemblyVersion"].Value);
-                if (remoteVersion > currentVersionv)
+                String assemblyVersionRegex = @"Version=(?<AssemblyVersion>\S+)";
+                Regex assemblyVersionFromRegexMatch = new Regex(assemblyVersionRegex, RegexOptions.Compiled);
+                SecureString secureString = new SecureString();
+                foreach (char c in ActGlobals.oFormActMain.PluginGetRemoteVersion(pluginId))
+                    secureString.AppendChar(c);
+                String remoteVersionFromGithub = Marshal.PtrToStringAuto(SecureStringMarshal.SecureStringToCoTaskMemUnicode(secureString));
+                Version remoteVersion = new Version(remoteVersionFromGithub);
+                Version currentVersion = typeof(EverQuestDPSPlugin).Assembly.GetName().Version;
+                if (remoteVersion > currentVersion)
                 {
                     DialogResult result = MessageBox.Show($"There is an updated version of the {EverQuestDPSPluginResource.pluginName}.  Update it now?{Environment.NewLine}{Environment.NewLine}(If there is an update to ACT, you should click No and update ACT first.)", "New Version", MessageBoxButtons.YesNo, MessageBoxIcon.Question);
                     switch (result)

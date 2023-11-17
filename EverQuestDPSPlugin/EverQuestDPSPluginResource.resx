@@ -118,7 +118,7 @@
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
   <data name="assemblyVersionRegex" xml:space="preserve">
-    <value>Version=(?&lt;AssemblyVersion&gt;\S+)</value>
+    <value />
   </data>
   <data name="attackTypes" xml:space="preserve">
     <value>backstab|throw|pierce|gore|crush|slash|hit|kick|slam|bash|shoot|strike|bite|grab|punch|scratch|rake|swipe|claw|maul|smash|frenzies on|frenzy</value>
