@@ -205,6 +205,7 @@ namespace EverQuestDPSPlugin
                             ThreadInvokes.CheckboxSetChecked(ActGlobals.oFormActMain, pluginData.cbEnabled, true);
                             break;
                         case DialogResult.No:
+                            ChangeLblStatus($"Update for {EverQuestDPSPluginResource.pluginName} declined.");
                             break;
                         default:
                             break;
