@@ -117,6 +117,9 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
+  <data name="assemblyVersionRegex" xml:space="preserve">
+    <value>Version=(?&lt;AssemblyVersion&gt;\S+)</value>
+  </data>
   <data name="attackTypes" xml:space="preserve">
     <value>backstab|throw|pierce|gore|crush|slash|hit|kick|slam|bash|shoot|strike|bite|grab|punch|scratch|rake|swipe|claw|maul|smash|frenzies on|frenzy</value>
   </data>
@@ -138,7 +141,7 @@
   <data name="DamageSpecial" xml:space="preserve">
     <value>damageSpecial</value>
   </data>
-  <data name="dateTimeOfLogLineString" xml:space="preserve">
+  <data name="dateTimeOfLogLine" xml:space="preserve">
     <value>dateTimeOfLogLine</value>
   </data>
   <data name="DoubleBowShot" xml:space="preserve">
@@ -213,7 +216,7 @@
   <data name="WildRampage" xml:space="preserve">
     <value>Wild Rampage</value>
   </data>
-  <data name="zoneChangeRgxString" xml:space="preserve">
+  <data name="zoneChangeRgx" xml:space="preserve">
     <value>You have entered (?&lt;zoneName&gt;.+)\.</value>
   </data>
 </root>

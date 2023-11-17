@@ -11,6 +11,8 @@ using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using System.Xml;
+using System.Text.Json;
+using System.Security;
 
 /*
 * Project: EverQuest DPS Plugin
@@ -55,7 +57,10 @@ namespace EverQuestDPSPlugin
         /// </summary>
         private void InitializeComponent()
         {
+            this.components = new System.ComponentModel.Container();
             this.varianceChkBx = new System.Windows.Forms.CheckBox();
+            this.everQuestDPSPluginBindingSource = new System.Windows.Forms.BindingSource(this.components);
+            ((System.ComponentModel.ISupportInitialize)(this.everQuestDPSPluginBindingSource)).BeginInit();
             this.SuspendLayout();
             // 
             // varianceChkBx
@@ -68,12 +73,12 @@ namespace EverQuestDPSPlugin
             this.varianceChkBx.Text = "Population Variance";
             this.varianceChkBx.UseVisualStyleBackColor = true;
             this.varianceChkBx.CheckedChanged += new System.EventHandler(this.VarianceChkBx_CheckedChanged);
-            // 
             // EverQuestDPSPlugin
             // 
             this.Controls.Add(this.varianceChkBx);
             this.Name = "EverQuestDPSPlugin";
             this.Size = new System.Drawing.Size(467, 150);
+            ((System.ComponentModel.ISupportInitialize)(this.everQuestDPSPluginBindingSource)).EndInit();
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -94,6 +99,7 @@ namespace EverQuestDPSPlugin
         string settingsFile;
         SettingsSerializer xmlSettings;
         readonly object varianceChkBxLockObject = new object();//, nonMatchChkBxLockObject = new object()
+        private BindingSource everQuestDPSPluginBindingSource;
         readonly string PluginSettingsFileName = $"Config{Path.DirectorySeparatorChar}ACT_EverQuest_English_Parser.config.xml";
         #endregion
 
@@ -175,11 +181,14 @@ namespace EverQuestDPSPlugin
             int pluginId = 92;
             try
             {
-                String regexMatchString = @"Version=(?<AssemblyVersion>\S+)";
-                Regex regex = new Regex(regexMatchString, RegexOptions.Compiled);
-                Version remoteVersion = new Version(ActGlobals.oFormActMain.PluginGetRemoteVersion(pluginId));
-                Match version = regex.Match(Assembly.GetExecutingAssembly().FullName);
-
+                Regex assemblyVersionRegex = new Regex(EverQuestDPSPluginResource.assemblyVersionRegex, RegexOptions.Compiled);
+                SecureString secureString = new SecureString();
+                
+                
+                foreach (char c in ActGlobals.oFormActMain.PluginGetRemoteVersion(pluginId).ToCharArray())
+                    secureString.AppendChar(c);
+                Version remoteVersion = new Version(secureString.ToString());
+                Match version = assemblyVersionRegex.Match(Assembly.GetExecutingAssembly().FullName);
                 Version currentVersionv = new Version(version.Groups["AssemblyVersion"].Value);
                 if (remoteVersion > currentVersionv)
                 {
@@ -1203,7 +1212,7 @@ namespace EverQuestDPSPlugin
             if (regex == null)
                 throw new ArgumentNullException("Missing value for regex");
             else
-                return $@"\[(?<{EverQuestDPSPluginResource.dateTimeOfLogLineString}>.+)\] {regex}";
+                return $@"\[(?<{EverQuestDPSPluginResource.dateTimeOfLogLine}>.+)\] {regex}";
         }
 
         private void PopulateRegexNonCombat()
@@ -1242,7 +1251,7 @@ namespace EverQuestDPSPlugin
             ActGlobals.oFormEncounterLogs.LogTypeToColorMapping.Add(regexTupleList.Count, regexTupleList[regexTupleList.Count - 1].Item1);
             regexTupleList.Add(new Tuple<Color, Regex>(Color.DarkOliveGreen, new Regex(RegexString(EverQuestDPSPluginResource.DamageShieldUnknownOrigin), RegexOptions.Compiled)));
             ActGlobals.oFormEncounterLogs.LogTypeToColorMapping.Add(regexTupleList.Count, regexTupleList[regexTupleList.Count - 1].Item1);
-            regexTupleList.Add(new Tuple<Color, Regex>(Color.SaddleBrown, new Regex(RegexString(EverQuestDPSPluginResource.zoneChangeRgxString))));
+            regexTupleList.Add(new Tuple<Color, Regex>(Color.SaddleBrown, new Regex(RegexString(EverQuestDPSPluginResource.zoneChangeRgx))));
             ActGlobals.oFormEncounterLogs.LogTypeToColorMapping.Add(regexTupleList.Count, regexTupleList[regexTupleList.Count - 1].Item1);
             regexTupleList.Add(new Tuple<Color, Regex>(Color.Tan, new Regex(RegexString(EverQuestDPSPluginResource.spellResist), RegexOptions.Compiled)));
             ActGlobals.oFormEncounterLogs.LogTypeToColorMapping.Add(regexTupleList.Count, regexTupleList[regexTupleList.Count - 1].Item1);
@@ -1283,7 +1292,7 @@ namespace EverQuestDPSPlugin
 
         private void ParseEverQuestLogLine(Match regexMatch, int logMatched)
         {
-            DateTime dateTimeOfParse = ParseDateTime(regexMatch.Groups[EverQuestDPSPluginResource.dateTimeOfLogLineString].Value);
+            DateTime dateTimeOfParse = ParseDateTime(regexMatch.Groups[EverQuestDPSPluginResource.dateTimeOfLogLine].Value);
             Tuple<String, String> petTypeAndName = GetTypeAndNameForPet(CharacterNamePersonaReplace(regexMatch.Groups["attacker"].Value));
             Tuple<String, String> victimPetTypeAndName = GetTypeAndNameForPet(regexMatch.Groups["victim"].Value);
 
@@ -1639,6 +1648,8 @@ namespace EverQuestDPSPlugin
                     break;
                 case false:
                     ChangeLblStatus($"Reporting sample variance {EverQuestDPSPluginResource.pluginName}");
+                    break;
+                default:
                     break;
             }
         }

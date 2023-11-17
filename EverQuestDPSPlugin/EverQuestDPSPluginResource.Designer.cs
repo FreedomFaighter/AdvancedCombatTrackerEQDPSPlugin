@@ -61,6 +61,15 @@ namespace EverQuestDPSPlugin {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Version=(?&lt;AssemblyVersion&gt;\S+).
+        /// </summary>
+        internal static string assemblyVersionRegex {
+            get {
+                return ResourceManager.GetString("assemblyVersionRegex", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to backstab|throw|pierce|gore|crush|slash|hit|kick|slam|bash|shoot|strike|bite|grab|punch|scratch|rake|swipe|claw|maul|smash|frenzies on|frenzy.
         /// </summary>
         internal static string attackTypes {
@@ -126,9 +135,9 @@ namespace EverQuestDPSPlugin {
         /// <summary>
         ///   Looks up a localized string similar to dateTimeOfLogLine.
         /// </summary>
-        internal static string dateTimeOfLogLineString {
+        internal static string dateTimeOfLogLine {
             get {
-                return ResourceManager.GetString("dateTimeOfLogLineString", resourceCulture);
+                return ResourceManager.GetString("dateTimeOfLogLine", resourceCulture);
             }
         }
         
@@ -351,9 +360,9 @@ namespace EverQuestDPSPlugin {
         /// <summary>
         ///   Looks up a localized string similar to You have entered (?&lt;zoneName&gt;.+)\..
         /// </summary>
-        internal static string zoneChangeRgxString {
+        internal static string zoneChangeRgx {
             get {
-                return ResourceManager.GetString("zoneChangeRgxString", resourceCulture);
+                return ResourceManager.GetString("zoneChangeRgx", resourceCulture);
             }
         }
     }
