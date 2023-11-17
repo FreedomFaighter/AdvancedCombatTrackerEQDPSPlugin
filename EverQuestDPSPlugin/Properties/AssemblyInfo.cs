@@ -25,5 +25,5 @@ using System.Runtime.InteropServices;
 //      Build Number
 //      Revision
 //
-[assembly: AssemblyVersion("0.2.0.16")]
+[assembly: AssemblyVersion("0.2.0.17")]
 [assembly: InternalsVisibleTo("EQDPSPluginUnitTests")]
