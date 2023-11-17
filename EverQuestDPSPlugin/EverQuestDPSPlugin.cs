@@ -11,7 +11,6 @@ using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using System.Xml;
-using System.Text.Json;
 using System.Security;
 
 /*
@@ -182,14 +181,9 @@ namespace EverQuestDPSPlugin
             try
             {
                 Regex assemblyVersionRegex = new Regex(EverQuestDPSPluginResource.assemblyVersionRegex, RegexOptions.Compiled);
-                SecureString secureString = new SecureString();
-                
-                
-                foreach (char c in ActGlobals.oFormActMain.PluginGetRemoteVersion(pluginId).ToCharArray())
-                    secureString.AppendChar(c);
-                Version remoteVersion = new Version(secureString.ToString());
+                Version remoteVersion = new Version(ActGlobals.oFormActMain.PluginGetRemoteVersion(pluginId));
                 Match version = assemblyVersionRegex.Match(Assembly.GetExecutingAssembly().FullName);
-                Version currentVersionv = new Version(version.Groups["AssemblyVersion"].Value);
+;               Version currentVersionv = new Version(version.Groups["AssemblyVersion"].Value);
                 if (remoteVersion > currentVersionv)
                 {
                     DialogResult result = MessageBox.Show($"There is an updated version of the {EverQuestDPSPluginResource.pluginName}.  Update it now?{Environment.NewLine}{Environment.NewLine}(If there is an update to ACT, you should click No and update ACT first.)", "New Version", MessageBoxButtons.YesNo, MessageBoxIcon.Question);
