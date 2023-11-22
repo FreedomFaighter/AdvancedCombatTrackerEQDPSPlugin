@@ -117,7 +117,7 @@ namespace EverQuestDPSPlugin
         /// <param name="pluginStatusText"></param>
         public void InitPlugin(TabPage pluginScreenSpace, Label pluginStatusText)
         {
-            Localization.EverQuest_DPS_Plugin_Localization.EditLocalizations();
+            Localization.EverQuestDPSPluginLocalization.EditLocalizations();
             settingsFile = Path.Combine(ActGlobals.oFormActMain.AppDataFolder.FullName, PluginSettingsFileName);
             lblStatus = pluginStatusText;   // Hand the status label's reference to our local var
 
