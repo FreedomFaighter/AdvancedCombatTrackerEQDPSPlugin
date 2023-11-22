@@ -1,5 +1,5 @@
 # Build Status
-[![ACT EverQuest DPS Plugin](https://github.com/FreedomFaighter/AdvancedCombatTrackerEverQuest/actions/workflows/build-plugin.yml/badge.svg?branch=EQDPSPlugin)](https://github.com/FreedomFaighter/AdvancedCombatTrackerEverQuest/actions/workflows/build-plugin.yml)
+[![ACT EverQuest DPS Plugin](https://github.com/FreedomFaighter/AdvancedCombatTrackerEverQuest/actions/workflows/build-plugin-and-release-on-tag.yml/badge.svg)](https://github.com/FreedomFaighter/AdvancedCombatTrackerEverQuest/actions/workflows/build-plugin-and-release-on-tag.yml)
 
 # EverQuestDPSPlugin
 Compiles with .NET 4.8 which is a version unavailable with github actions
