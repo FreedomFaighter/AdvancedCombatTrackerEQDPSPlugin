@@ -13,6 +13,7 @@ using System.Windows.Forms;
 using System.Xml;
 using System.Security;
 using System.Runtime.InteropServices;
+using EverQuestDPSPlugin.Enums;
 
 /*
 * Project: EverQuest DPS Plugin
@@ -192,8 +193,6 @@ namespace EverQuestDPSPlugin
             const int pluginId = 92;
             try
             {
-                String assemblyVersionRegex = @"Version=(?<AssemblyVersion>\S+)";
-                Regex assemblyVersionFromRegexMatch = new Regex(assemblyVersionRegex, RegexOptions.Compiled);
                 SecureString secureString = new SecureString();
                 foreach (char c in ActGlobals.oFormActMain.PluginGetRemoteVersion(pluginId))
                     secureString.AppendChar(c);

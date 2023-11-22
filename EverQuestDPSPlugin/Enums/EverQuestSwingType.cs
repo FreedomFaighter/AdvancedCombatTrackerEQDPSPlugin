@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace EverQuestDPSPlugin
+namespace EverQuestDPSPlugin.Enums
 {
     [Flags]
     public enum EverQuestSwingType : int

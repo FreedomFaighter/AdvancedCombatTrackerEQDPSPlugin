@@ -71,8 +71,8 @@
       <DesignTime>True</DesignTime>
       <DependentUpon>EverQuestDPSPlugin.resx</DependentUpon>
     </Compile>
-    <Compile Include="EverQuestSwingType.cs" />
-    <Compile Include="EverQuest_DPS_Plugin_Localization.cs" />
+    <Compile Include="Enums\EverQuestSwingType.cs" />
+    <Compile Include="Localization\EverQuest_DPS_Plugin_Localization.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
