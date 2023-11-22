@@ -66,10 +66,10 @@
     <Compile Include="EverQuestDPSPlugin.cs">
       <SubType>UserControl</SubType>
     </Compile>
-    <Compile Include="EverQuestDPSPluginResource.Designer.cs">
+    <Compile Include="EverQuestDPSPlugin.Designer.cs">
       <AutoGen>True</AutoGen>
       <DesignTime>True</DesignTime>
-      <DependentUpon>EverQuestDPSPluginResource.resx</DependentUpon>
+      <DependentUpon>EverQuestDPSPlugin.resx</DependentUpon>
     </Compile>
     <Compile Include="EverQuestSwingType.cs" />
     <Compile Include="EverQuest_DPS_Plugin_Localization.cs" />
@@ -78,15 +78,13 @@
   <ItemGroup>
     <EmbeddedResource Include="EverQuestDPSPlugin.resx">
       <DependentUpon>EverQuestDPSPlugin.cs</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="EverQuestDPSPluginResource.resx">
+      <CustomToolNamespace>EverQuestDPSPluginResources</CustomToolNamespace>
       <Generator>ResXFileCodeGenerator</Generator>
-      <LastGenOutput>EverQuestDPSPluginResource.Designer.cs</LastGenOutput>
-      <SubType>Designer</SubType>
+      <LastGenOutput>EverQuestDPSPlugin.Designer.cs</LastGenOutput>
     </EmbeddedResource>
   </ItemGroup>
   <ItemGroup>
-    <None Include="Properties\DataSources\EverQuestDPSPlugin.datasource" />
+    <None Include="app.config" />
   </ItemGroup>
   <PropertyGroup>
     <PostBuildEvent>IF $(ConfigurationName)==Debug copy /Y $(TargetPath) "$(APPDATA)\Advanced Combat Tracker\Plugins"</PostBuildEvent>
