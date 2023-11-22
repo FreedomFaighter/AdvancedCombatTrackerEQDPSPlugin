@@ -56,6 +56,9 @@
     <Reference Include="System" />
     <Reference Include="System.Data" />
     <Reference Include="System.Drawing" />
+    <Reference Include="System.Memory, Version=4.0.1.2, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51" />
+    <Reference Include="System.Security" />
+    <Reference Include="System.Text.Json, Version=7.0.0.3, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51, processorArchitecture=MSIL" />
     <Reference Include="System.Windows.Forms" />
     <Reference Include="System.Xml" />
   </ItemGroup>
@@ -63,24 +66,24 @@
     <Compile Include="EverQuestDPSPlugin.cs">
       <SubType>UserControl</SubType>
     </Compile>
-    <Compile Include="EverQuestDPSPluginResource.Designer.cs">
+    <Compile Include="EverQuestDPSPlugin.Designer.cs">
       <AutoGen>True</AutoGen>
       <DesignTime>True</DesignTime>
-      <DependentUpon>EverQuestDPSPluginResource.resx</DependentUpon>
+      <DependentUpon>EverQuestDPSPlugin.resx</DependentUpon>
     </Compile>
     <Compile Include="EverQuestSwingType.cs" />
     <Compile Include="EverQuest_DPS_Plugin_Localization.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
-    <EmbeddedResource Include="EverQuestDPSPluginResource.resx">
+    <EmbeddedResource Include="EverQuestDPSPlugin.resx">
+      <DependentUpon>EverQuestDPSPlugin.cs</DependentUpon>
+      <CustomToolNamespace>EverQuestDPSPluginResources</CustomToolNamespace>
       <Generator>ResXFileCodeGenerator</Generator>
-      <LastGenOutput>EverQuestDPSPluginResource.Designer.cs</LastGenOutput>
-      <SubType>Designer</SubType>
+      <LastGenOutput>EverQuestDPSPlugin.Designer.cs</LastGenOutput>
     </EmbeddedResource>
   </ItemGroup>
-  <ItemGroup />
   <PropertyGroup>
-    <PostBuildEvent>IF $(ConfigurationName)==Debug copy /Y $(TargetDir)$(TargetFileName) "$(APPDATA)\Advanced Combat Tracker\Plugins"</PostBuildEvent>
+    <PostBuildEvent>IF $(ConfigurationName)==Debug copy /Y $(TargetPath) "$(APPDATA)\Advanced Combat Tracker\Plugins"</PostBuildEvent>
   </PropertyGroup>
 </Project>

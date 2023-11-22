@@ -117,6 +117,9 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
+  <data name="attackTypes" xml:space="preserve">
+    <value>backstab|throw|pierce|gore|crush|slash|hit|kick|slam|bash|shoot|strike|bite|grab|punch|scratch|rake|swipe|claw|maul|smash|frenzies on|frenzy</value>
+  </data>
   <data name="Banestrike" xml:space="preserve">
     <value>(?&lt;attacker&gt;.+) hit(|s) (?&lt;victim&gt;.+) for (?&lt;baneDamage&gt;[\d]+) points of (?&lt;typeOfDamage&gt;.+) by Banestrike (?&lt;baneAbilityRank&gt;.+\.)(?:\s\((?&lt;baneSpecial&gt;.+)\)){0,1}</value>
   </data>
@@ -135,7 +138,7 @@
   <data name="DamageSpecial" xml:space="preserve">
     <value>damageSpecial</value>
   </data>
-  <data name="dateTimeOfLogLineString" xml:space="preserve">
+  <data name="dateTimeOfLogLine" xml:space="preserve">
     <value>dateTimeOfLogLine</value>
   </data>
   <data name="DoubleBowShot" xml:space="preserve">
@@ -146,6 +149,13 @@
   </data>
   <data name="evasionTypes" xml:space="preserve">
     <value>block(|s)|dodge(|s)|parr(ies|y)|riposte(|s)</value>
+  </data>
+  <assembly alias="System.Drawing" name="System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a" />
+  <data name="everQuestDPSPluginBindingSource.TrayLocation" type="System.Drawing.Point, System.Drawing">
+    <value>17, 17</value>
+  </data>
+  <data name="everQuestDPSPluginBindingSource1.TrayLocation" type="System.Drawing.Point, System.Drawing">
+    <value>256, 17</value>
   </data>
   <data name="FinishingBlow" xml:space="preserve">
     <value>Finishing Blow</value>
@@ -192,6 +202,9 @@
   <data name="SpellDamageOverTime" xml:space="preserve">
     <value>(?&lt;victim&gt;.+) has taken (?&lt;damagePoints&gt;[\d]+) damage from (?&lt;damageEffect&gt;.*) by (?&lt;attacker&gt;.*)\.(?:[\s][\(](?&lt;spellSpecial&gt;.+)[\)]){0,1}</value>
   </data>
+  <data name="spellResist" xml:space="preserve">
+    <value>(?&lt;victim&gt;.+) resisted (?&lt;attacker&gt;.+) (?&lt;spellName&gt;.+)\!(?:\s\((?&lt;damageSpecial&gt;.+)\)){0,1}</value>
+  </data>
   <data name="Strikethrough" xml:space="preserve">
     <value>Strikethrough</value>
   </data>
@@ -206,5 +219,8 @@
   </data>
   <data name="WildRampage" xml:space="preserve">
     <value>Wild Rampage</value>
+  </data>
+  <data name="zoneChangeRgx" xml:space="preserve">
+    <value>You have entered (?&lt;zoneName&gt;.+)\.</value>
   </data>
 </root>

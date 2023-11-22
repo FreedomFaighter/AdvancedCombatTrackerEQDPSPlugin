@@ -10,7 +10,7 @@ using System.Runtime.InteropServices;
 [assembly: AssemblyCopyright("Copyright © 2023")]
 [assembly: AssemblyTitle("ACT EverQuest Damage Per Second Parsing")]
 [assembly: AssemblyDescription("Plugin for ACT EverQuest Damage Per Second Parsing")]
-[assembly: AssemblyCulture("")]
+[assembly: AssemblyCulture("en-US")]
 [assembly: NeutralResourcesLanguage("en-US")]
 
 // Setting ComVisible to false makes the types in this assembly not visible 
@@ -25,5 +25,5 @@ using System.Runtime.InteropServices;
 //      Build Number
 //      Revision
 //
-[assembly: AssemblyVersion("0.2.0.7")]
+[assembly: AssemblyVersion("0.2.4.*")]
 [assembly: InternalsVisibleTo("EQDPSPluginUnitTests")]
