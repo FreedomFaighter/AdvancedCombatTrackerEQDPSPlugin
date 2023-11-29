@@ -9,7 +9,7 @@ using System.Runtime.InteropServices;
 [assembly: AssemblyProduct("EverQuest Damage Per Second Plugin for ACT")]
 [assembly: AssemblyCopyright("Copyright © 2023")]
 [assembly: AssemblyTitle("ACT EverQuest Damage Per Second Parsing")]
-[assembly: AssemblyDescription("Plugin for ACT EverQuest Damage Per Second Parsing")]
+[assembly: AssemblyDescription("https://github.com/FreedomFaighter/AdvancedCombatTrackerEverQuest")]
 [assembly: AssemblyCulture("en-US")]
 [assembly: NeutralResourcesLanguage("en-US")]
 
