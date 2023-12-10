@@ -1,8 +1,23 @@
-[Bb]in/
-[Oo]bj/
+﻿################################################################################
+# This .gitignore file was automatically created by Microsoft(R) Visual Studio.
+################################################################################
 
-Localization/ja-JP/.vs/
+.vs/
+obj/
+bin/
+*.csproj.user
+/UpgradeLog.htm
+/packages/NUnit.3.13.3
+/packages
+TestResults/
+################################################################################
+# This .gitignore file was automatically created by Microsoft(R) Visual Studio.
+################################################################################
 
-Localization/ja-JP/Advanced Combat Tracker.exe
+obj/
+bin/
+*.csproj.user
+packages/
+TestResults/
 
-*.user
+
