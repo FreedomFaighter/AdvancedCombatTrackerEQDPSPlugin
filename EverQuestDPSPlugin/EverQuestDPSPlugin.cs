@@ -170,7 +170,7 @@ namespace EverQuestDPSPlugin
         /// attemps to save the settings and then update the plugin dock with status of the exit
         /// </summary>
         public void DeInitPlugin()
-        {
+        {https://github.com/square/dagger
             ActGlobals.oFormActMain.GetDateTimeFromLog -= ParseDateTime;
             ActGlobals.oFormActMain.BeforeLogLineRead -= FormActMain_BeforeLogLineRead;
             ActGlobals.oFormActMain.UpdateCheckClicked -= UpdateCheckClicked;
@@ -1392,7 +1392,8 @@ namespace EverQuestDPSPlugin
                     //Non-melee damage shield
                     case 2:
                         Dnum nonMeleeDamage = new Dnum(Int64.Parse(regexMatch.Groups["damagePoints"].Value), "damage shield");
-                        String attacker = petTypeAndName.Item2.EndsWith(@"'s") ? petTypeAndName.Item2.Substring(0, -2) : petTypeAndName.Item2;
+                        String petString = @"'s";
+                        String attacker = petTypeAndName.Item2.EndsWith(petString) ? petTypeAndName.Item2.TrimEnd(petString) : petTypeAndName.Item2;
                         MasterSwing masterSwingDamageShield = new MasterSwing(
                             EverQuestSwingType.DamageShield.GetEverQuestSwingTypeExtensionIntValue(),
                             regexMatch.Groups["damageSpecial"].Success && regexMatch.Groups["damageSpecial"].Value.Contains("Critical"),
