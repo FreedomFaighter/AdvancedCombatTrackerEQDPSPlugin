@@ -170,7 +170,7 @@ namespace EverQuestDPSPlugin
         /// attemps to save the settings and then update the plugin dock with status of the exit
         /// </summary>
         public void DeInitPlugin()
-        {https://github.com/square/dagger
+        {
             ActGlobals.oFormActMain.GetDateTimeFromLog -= ParseDateTime;
             ActGlobals.oFormActMain.BeforeLogLineRead -= FormActMain_BeforeLogLineRead;
             ActGlobals.oFormActMain.UpdateCheckClicked -= UpdateCheckClicked;
