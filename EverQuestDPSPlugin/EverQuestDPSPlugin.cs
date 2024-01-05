@@ -1392,7 +1392,7 @@ namespace EverQuestDPSPlugin
                     case 2:
                         Dnum nonMeleeDamage = new Dnum(Int64.Parse(regexMatch.Groups["damagePoints"].Value), "damage shield");
                         String petString = @"'s";
-                        String attacker = petTypeAndName.Item2.EndsWith(petString) ? petTypeAndName.Item2.TrimEnd(petString) : petTypeAndName.Item2;
+                        String attacker = petTypeAndName.Item2.EndsWith(petString) ? petTypeAndName.Item2.Substring(0, petTypeAndName.Item2.Length-3) : petTypeAndName.Item2;
                         MasterSwing masterSwingDamageShield = new MasterSwing(
                             EverQuestSwingType.DamageShield.GetEverQuestSwingTypeExtensionIntValue(),
                             regexMatch.Groups["damageSpecial"].Success && regexMatch.Groups["damageSpecial"].Value.Contains("Critical"),
