@@ -44,18 +44,24 @@ namespace EQDPSPluginUnitTests
         }
 
         [DataTestMethod]
-        [TestCategory("")]
-        [DataRow(EverQuestSwingType.NonMelee, String.Empty, 0, DateTime.Now, "attacker", "Hitpoints", "victim", )]
-        public void GetMasterSwing(EverQuestSwingType eqst
+        [TestCategory("MasterSwing Class Creation")]
+        [DataRow(EverQuestSwingType.NonMelee, String.Empty, 0, DateTime.Now, "smootches", "attacker", "Hitpoints", "victim")]
+        [DataRow(EverQuestSwingType.Melee, String.Empty, 0, DateTime.Now, "hugs", "attacker", "Hitpoints", "victim")]
+        public void GetMasterSwing(
+            EverQuestSwingType eqst
             , String criticalAttack
-            , Int64 damage, DateTime timestampOfAttack
-            , String damageType, String attacker, String typeOfResource, String victim)
+            , Int64 damage
+            , DateTime timestampOfAttack
+            , String damageType
+            , String attacker
+            , String typeOfResource
+            , String victim)
         {
             MasterSwing testMasterSwing = 
                 EverQuestDPSPlugin.GetMasterSwing(
                     eqst
                 , criticalAttack
-                , new Dnum(damage)
+                , new Dnum(damage, "non-melee")
                 , timestampOfAttack
                 , damageType
                 , attacker
@@ -68,7 +74,8 @@ namespace EQDPSPluginUnitTests
             Assert.IsFalse(testMasterSwing.Victim == String.Empty);
             Assert.IsTrue(testMasterSwing.Critical == criticalAttack.Contains("Critical"));
             Assert.IsTrue(testMasterSwing.DamageType == damageType);
-            Assert.IsTrue()
+            //Assert.IsTrue()
+            Assert.IsTrue(testMasterSwing.DamageType != String.Empty);
         }
     }
 }
