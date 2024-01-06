@@ -3,6 +3,7 @@ using EverQuestDPSPlugin.Enums;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;
 using Advanced_Combat_Tracker;
+using System.Collections.Generic;
 
 namespace EQDPSPluginUnitTests
 {
@@ -71,7 +72,7 @@ namespace EQDPSPluginUnitTests
 		, new Dictionary<string, Object>() { new KeyValuePair<string, Object>("testTag", "testObject") });
             Assert.IsTrue(testMasterSwing.Victim == victim);
             Assert.IsTrue(testMasterSwing.Attacker == attacker);
-            Assert.IsTrue(testMasterSwing.Date == testDateTime);
+            Assert.IsTrue(testMasterSwing.Time == testDateTime);
             Assert.IsFalse(testMasterSwing.Attacker == String.Empty);
             Assert.IsFalse(testMasterSwing.Victim == String.Empty);
             Assert.IsTrue(testMasterSwing.Critical == criticalAttack.Contains("Critical"));
