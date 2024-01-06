@@ -2,6 +2,7 @@
 using EverQuestDPSPlugin.Enums;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;
+using Advanced_Combat_Tracker;
 
 namespace EQDPSPluginUnitTests
 {
@@ -65,7 +66,8 @@ namespace EQDPSPluginUnitTests
                 , damageType
                 , attacker
                 , typeOfResource
-                , victim);
+                , victim
+		, new Dictionary<string, Object>() { new KeyValuePair<string, Object>("testTag", "testObject") });
             Assert.IsTrue(testMasterSwing.Victim == victim);
             Assert.IsTrue(testMasterSwing.Attacker == attacker);
             Assert.IsTrue(testMasterSwing.Date == timestampOfAttack);
