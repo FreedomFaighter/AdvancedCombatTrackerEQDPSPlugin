@@ -1,7 +1,7 @@
 ﻿using EverQuestDPSPlugin;
+using EverQuestDPSPlugin.Enums;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;
-using System.Text.RegularExpressions;
 
 namespace EQDPSPluginUnitTests
 {
@@ -28,6 +28,7 @@ namespace EQDPSPluginUnitTests
         [DataTestMethod]
         [DataRow("ourself")]
         [DataRow("myself")]
+        [DataRow("weselves")]
         [DataRow("theirselves")]
         [TestCategory("Plugin Tests")]
         public void selfIsFalse(string selfTest)
@@ -40,6 +41,34 @@ namespace EQDPSPluginUnitTests
         public void RegexStringTestExceptionOnNullString()
         {
             Assert.ThrowsException<ArgumentNullException>(new Action(() => eqDPSPlugin.RegexString(null)));
+        }
+
+        [DataTestMethod]
+        [TestCategory("")]
+        [DataRow(EverQuestSwingType.NonMelee, String.Empty, 0, DateTime.Now, "attacker", "Hitpoints", "victim", )]
+        public void GetMasterSwing(EverQuestSwingType eqst
+            , String criticalAttack
+            , Int64 damage, DateTime timestampOfAttack
+            , String damageType, String attacker, String typeOfResource, String victim)
+        {
+            MasterSwing testMasterSwing = 
+                EverQuestDPSPlugin.GetMasterSwing(
+                    eqst
+                , criticalAttack
+                , new Dnum(damage)
+                , timestampOfAttack
+                , damageType
+                , attacker
+                , typeOfResource
+                , victim);
+            Assert.IsTrue(testMasterSwing.Victim == victim);
+            Assert.IsTrue(testMasterSwing.Attacker == attacker);
+            Assert.IsTrue(testMasterSwing.Date == timestampOfAttack);
+            Assert.IsFalse(testMasterSwing.Attacker == String.Empty);
+            Assert.IsFalse(testMasterSwing.Victim == String.Empty);
+            Assert.IsTrue(testMasterSwing.Critical == criticalAttack.Contains("Critical"));
+            Assert.IsTrue(testMasterSwing.DamageType == damageType);
+            Assert.IsTrue()
         }
     }
 }

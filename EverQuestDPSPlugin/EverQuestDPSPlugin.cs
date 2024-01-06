@@ -1272,6 +1272,11 @@ namespace EverQuestDPSPlugin
             regexTupleList = new List<Tuple<Color, Regex>>();
         }
         /// <summary>
+        /// Construct Master Swing object
+        /// </summary>
+
+
+        /// <summary>
         /// Populates the regex list with combat strings associated with combat actions in the character log file
         /// </summary>
         private void PopulateRegexCombat()
@@ -1353,6 +1358,33 @@ namespace EverQuestDPSPlugin
             Match m = regexSelf.Match(nameOfCharacter);
             return m.Success;
         }
+
+        internal static MasterSwing GetMasterSwing(
+            EverQuestSwingType eqst
+            , String attackSpecial
+            , Dnum damage
+            , DateTime dateTimeOfAttack
+            , String attackName
+            , String attacker
+            , String typeOfResource
+            , String victim
+            , params KeyValuePair<string, Object>[] tags
+            )
+        {
+            bool criticalSuccess = regexMatch.Groups["damageSpecial"].Success && regexMatch.Groups["damageSpecial"].Value.Contains("Critical")
+       
+            return new MasterSwing(eqst.GetEverQuestSwingTypeExtensionIntValue()
+                , criticalSuccess
+                , regexMatch.Groups["damageSpecial"].Success ? regexMatch.Groups["damageSpecial"].Value : String.Empty
+                , damage
+                , dateTimeOfAttack
+                , ActGlobals.oFormActMain.GlobalTimeSorter
+                , attackName
+                , attacker
+                , typeOfResource
+                , victim)
+            { Tags = tags };
+        }
         /// <summary>
         /// Parses if the line is a matched action read in the log file and provides a combat action entry with the swingtype method
         /// </summary>
@@ -1372,13 +1404,12 @@ namespace EverQuestDPSPlugin
                     case 1:
                         Dnum damage = new Dnum(Int64.Parse(regexMatch.Groups["damageAmount"].Value), "melee");
                         String attackName = regexMatch.Groups["attackType"].Value == "frenzies on" ? "frenzy" : regexMatch.Groups["attackType"].Value;
-                        MasterSwing masterSwingMelee = new MasterSwing(
-                            EverQuestSwingType.Melee.GetEverQuestSwingTypeExtensionIntValue(),
-                            regexMatch.Groups["damageSpecial"].Success && regexMatch.Groups["damageSpecial"].Value.Contains("Critical"),
-                            regexMatch.Groups["damageSpecial"].Success ? regexMatch.Groups["damageSpecial"].Value : String.Empty,
-                            damage,
-                            dateTimeOfParse,
-                            ActGlobals.oFormActMain.GlobalTimeSorter,
+                        MasterSwing masterSwingMelee = GetMasterSwing(
+                            EverQuestSwingType.Melee,
+                            
+                            , damage
+                            , dateTimeOfParse
+                            ,
                             attackName,
                             CharacterNamePersonaReplace(petTypeAndName.Item2),
                             "Hitpoints",
@@ -1399,7 +1430,7 @@ namespace EverQuestDPSPlugin
                             regexMatch.Groups["damageSpecial"].Success ? regexMatch.Groups["damageSpecial"].Value : String.Empty,
                             nonMeleeDamage,
                             dateTimeOfParse,
-                            ActGlobals.oFormActMain.GlobalTimeSorter,
+                            ,
                             regexMatch.Groups["damageShieldType"].Value,
                             CharacterNamePersonaReplace(petTypeAndName.Item2),
                             "Hitpoints",
