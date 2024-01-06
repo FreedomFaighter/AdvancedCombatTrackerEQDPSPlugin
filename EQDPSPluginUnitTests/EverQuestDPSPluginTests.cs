@@ -45,13 +45,12 @@ namespace EQDPSPluginUnitTests
 
         [DataTestMethod]
         [TestCategory("MasterSwing Class Creation")]
-        [DataRow(EverQuestSwingType.NonMelee, String.Empty, 0, DateTime.Now, "smootches", "attacker", "Hitpoints", "victim")]
-        [DataRow(EverQuestSwingType.Melee, String.Empty, 0, DateTime.Now, "hugs", "attacker", "Hitpoints", "victim")]
+        [DataRow(EverQuestSwingType.NonMelee, "", 0, "smootches", "attacker", "Hitpoints", "victim")]
+        [DataRow(EverQuestSwingType.Melee, String.Empty, 0, "hugs", "attacker", "Hitpoints", "victim")]
         public void GetMasterSwing(
             EverQuestSwingType eqst
             , String criticalAttack
             , Int64 damage
-            , DateTime timestampOfAttack
             , String damageType
             , String attacker
             , String typeOfResource
@@ -62,7 +61,7 @@ namespace EQDPSPluginUnitTests
                     eqst
                 , criticalAttack
                 , new Dnum(damage, "non-melee")
-                , timestampOfAttack
+                , DateTime.Now
                 , damageType
                 , attacker
                 , typeOfResource
