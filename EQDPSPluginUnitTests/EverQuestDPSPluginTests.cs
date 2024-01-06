@@ -58,10 +58,12 @@ namespace EQDPSPluginUnitTests
             , String typeOfResource
             , String victim)
         {
+	    Dictionary<string, Object> testDicitonary = new Dictionary<string, Object>();
+	    testDicitonary.Add("testKey", "testValue");
 	    DateTime testDateTime = DateTime.Now;
             MasterSwing testMasterSwing = 
                 EverQuestDPSPlugin.GetMasterSwing(
-                    eqst
+                  eqst
                 , criticalAttack
                 , new Dnum(damage, "non-melee")
                 , testDateTime
@@ -69,7 +71,7 @@ namespace EQDPSPluginUnitTests
                 , attacker
                 , typeOfResource
                 , victim
-		, new Dictionary<string, Object>() { new KeyValuePair<string, Object>("testTag", "testObject") });
+		, testDicitonary);
             Assert.IsTrue(testMasterSwing.Victim == victim);
             Assert.IsTrue(testMasterSwing.Attacker == attacker);
             Assert.IsTrue(testMasterSwing.Time == testDateTime);
@@ -79,6 +81,7 @@ namespace EQDPSPluginUnitTests
             Assert.IsTrue(testMasterSwing.DamageType == damageType);
             //Assert.IsTrue()
             Assert.IsTrue(testMasterSwing.DamageType != String.Empty);
+	    Assert.IsTrue(testMasterSwing.Tags.Equals(testDicitonary));
         }
     }
 }
