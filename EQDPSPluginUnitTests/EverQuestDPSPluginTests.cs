@@ -46,7 +46,7 @@ namespace EQDPSPluginUnitTests
         [DataTestMethod]
         [TestCategory("MasterSwing Class Creation")]
         [DataRow(EverQuestSwingType.NonMelee, "", 0, "smootches", "attacker", "Hitpoints", "victim")]
-        [DataRow(EverQuestSwingType.Melee, String.Empty, 0, "hugs", "attacker", "Hitpoints", "victim")]
+        [DataRow(EverQuestSwingType.Melee, "", 0, "hugs", "attacker", "Hitpoints", "victim")]
         public void GetMasterSwing(
             EverQuestSwingType eqst
             , String criticalAttack
