@@ -1373,7 +1373,7 @@ namespace EverQuestDPSPlugin
         {
             return new MasterSwing(eqst.GetEverQuestSwingTypeExtensionIntValue()
                 , attackSpecial.Contains("Critical")
-                , attackSpecial.Length > 0 ? attackSpecial : String.Empty;
+                , attackSpecial.Length > 0 ? attackSpecial : String.Empty
                 , damage
                 , dateTimeOfAttack
                 , ActGlobals.oFormActMain.GlobalTimeSorter
@@ -1393,7 +1393,8 @@ namespace EverQuestDPSPlugin
             DateTime dateTimeOfParse = ParseDateTime(regexMatch.Groups[EverQuestDPSPluginResources.EverQuestDPSPlugin.dateTimeOfLogLine].Value);
             Tuple<String, String> petTypeAndName = GetTypeAndNameForPet(CharacterNamePersonaReplace(regexMatch.Groups["attacker"].Value));
             Tuple<String, String> victimPetTypeAndName = GetTypeAndNameForPet(regexMatch.Groups["victim"].Value);
-
+            Dictionary<string, Object> tags = new Dictionary<string, Object>();
+            
             if (logMatched != 13 && logMatched != 6 && ActGlobals.oFormActMain.SetEncounter(ActGlobals.oFormActMain.LastKnownTime, CharacterNamePersonaReplace(regexMatch.Groups["attacker"].Value), CharacterNamePersonaReplace(regexMatch.Groups["victim"].Value)))
             {
                 switch (logMatched)
@@ -1402,19 +1403,20 @@ namespace EverQuestDPSPlugin
                     case 1:
                         Dnum damage = new Dnum(Int64.Parse(regexMatch.Groups["damageAmount"].Value), "melee");
                         String attackName = regexMatch.Groups["attackType"].Value == "frenzies on" ? "frenzy" : regexMatch.Groups["attackType"].Value;
-                        MasterSwing masterSwingMelee = GetMasterSwing(
-                            EverQuestSwingType.Melee,
-                            
-                            , damage
-                            , dateTimeOfParse
-                            ,
-                            attackName,
-                            CharacterNamePersonaReplace(petTypeAndName.Item2),
-                            "Hitpoints",
-                            CharacterNamePersonaReplace(victimPetTypeAndName.Item2)
-                        );
-                        masterSwingMelee.Tags.Add("Outgoing", petTypeAndName.Item1);
-                        masterSwingMelee.Tags.Add("Incoming", victimPetTypeAndName.Item1);
+                        tags.Add("Outgoing", petTypeAndName.Item1);
+                        tags.Add("Incoming", victimPetTypeAndName.Item1);
+                        MasterSwing masterSwingMelee = 
+                            GetMasterSwing(
+                                EverQuestSwingType.Melee
+                                , regexMatch.Groups["damageSpecial"].Success ? regexMatch.Groups["damageSpecial"].Value : String.Empty
+                                , damage
+                                , dateTimeOfParse
+                                , attackName
+                                , CharacterNamePersonaReplace(petTypeAndName.Item2)
+                                , "Hitpoints"
+                                , CharacterNamePersonaReplace(victimPetTypeAndName.Item2)
+                                , tags
+                            );
                         ActGlobals.oFormActMain.AddCombatAction(masterSwingMelee);
                         break;
                     //Non-melee damage shield
@@ -1428,7 +1430,7 @@ namespace EverQuestDPSPlugin
                             regexMatch.Groups["damageSpecial"].Success ? regexMatch.Groups["damageSpecial"].Value : String.Empty,
                             nonMeleeDamage,
                             dateTimeOfParse,
-                            ,
+                            ActGlobals.oFormActMain.GlobalTimeSorter,
                             regexMatch.Groups["damageShieldType"].Value,
                             CharacterNamePersonaReplace(petTypeAndName.Item2),
                             "Hitpoints",
@@ -1440,23 +1442,21 @@ namespace EverQuestDPSPlugin
                         break;
                     //Missed melee
                     case 3:
-
                         Dnum miss = new Dnum(Dnum.Miss, "melee");
-                        MasterSwing masterSwingMissedMelee
-                            = new MasterSwing(
-                                    EverQuestSwingType.Melee.GetEverQuestSwingTypeExtensionIntValue(),
-                                    regexMatch.Groups["damageSpecial"].Success && regexMatch.Groups["damageSpecial"].Value.Contains("Critical"),
-                                    regexMatch.Groups["damageSpecial"].Success ? regexMatch.Groups["damageSpecial"].Value : String.Empty,
-                                    miss,
-                                    dateTimeOfParse,
-                                    ActGlobals.oFormActMain.GlobalTimeSorter,
-                                    regexMatch.Groups["attackType"].Value,
-                                    CharacterNamePersonaReplace(petTypeAndName.Item2),
-                                    "Hitpoints",
-                                    CharacterNamePersonaReplace(victimPetTypeAndName.Item2)
-                                );
-                        masterSwingMissedMelee.Tags.Add("Outgoing", petTypeAndName.Item1);
-                        masterSwingMissedMelee.Tags.Add("Incoming", victimPetTypeAndName.Item1);
+                        tags.Add("Outgoing", petTypeAndName.Item1);
+                        tags.Add("Incoming", victimPetTypeAndName.Item1);
+                        MasterSwing masterSwingMelee = 
+                            GetMasterSwing(
+                                EverQuestSwingType.Melee
+                                , regexMatch.Groups["damageSpecial"].Success ? regexMatch.Groups["damageSpecial"].Value : String.Empty
+                                , miss
+                                , dateTimeOfParse
+                                , regexMatch.Groups["attackType"].Value
+                                , CharacterNamePersonaReplace(petTypeAndName.Item2)
+                                , "Hitpoints"
+                                , CharacterNamePersonaReplace(victimPetTypeAndName.Item2)
+                                , tags
+                            );
                         ActGlobals.oFormActMain.AddCombatAction(masterSwingMissedMelee);
                         break;
                     //Death message
