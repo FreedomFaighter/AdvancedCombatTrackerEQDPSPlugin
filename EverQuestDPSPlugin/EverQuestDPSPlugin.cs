@@ -1371,11 +1371,9 @@ namespace EverQuestDPSPlugin
             , params KeyValuePair<string, Object>[] tags
             )
         {
-            bool criticalSuccess = regexMatch.Groups["damageSpecial"].Success && regexMatch.Groups["damageSpecial"].Value.Contains("Critical")
-       
             return new MasterSwing(eqst.GetEverQuestSwingTypeExtensionIntValue()
-                , criticalSuccess
-                , regexMatch.Groups["damageSpecial"].Success ? regexMatch.Groups["damageSpecial"].Value : String.Empty
+                , attackSpecial.Contains("Critical")
+                , attackSpecial.Length > 0 ? attackSpecial : String.Empty;
                 , damage
                 , dateTimeOfAttack
                 , ActGlobals.oFormActMain.GlobalTimeSorter
