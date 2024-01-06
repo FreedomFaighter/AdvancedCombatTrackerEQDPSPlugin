@@ -57,12 +57,13 @@ namespace EQDPSPluginUnitTests
             , String typeOfResource
             , String victim)
         {
+	    DateTime testDateTime = DateTime.Now;
             MasterSwing testMasterSwing = 
                 EverQuestDPSPlugin.GetMasterSwing(
                     eqst
                 , criticalAttack
                 , new Dnum(damage, "non-melee")
-                , DateTime.Now
+                , testDateTime
                 , damageType
                 , attacker
                 , typeOfResource
@@ -70,7 +71,7 @@ namespace EQDPSPluginUnitTests
 		, new Dictionary<string, Object>() { new KeyValuePair<string, Object>("testTag", "testObject") });
             Assert.IsTrue(testMasterSwing.Victim == victim);
             Assert.IsTrue(testMasterSwing.Attacker == attacker);
-            Assert.IsTrue(testMasterSwing.Date == timestampOfAttack);
+            Assert.IsTrue(testMasterSwing.Date == testDateTime);
             Assert.IsFalse(testMasterSwing.Attacker == String.Empty);
             Assert.IsFalse(testMasterSwing.Victim == String.Empty);
             Assert.IsTrue(testMasterSwing.Critical == criticalAttack.Contains("Critical"));
