@@ -1368,7 +1368,7 @@ namespace EverQuestDPSPlugin
             , String attacker
             , String typeOfResource
             , String victim
-            , params KeyValuePair<string, Object>[] tags
+            , Dictionary<string, Object> tags
             )
         {
             return new MasterSwing(eqst.GetEverQuestSwingTypeExtensionIntValue()
@@ -1445,7 +1445,7 @@ namespace EverQuestDPSPlugin
                         Dnum miss = new Dnum(Dnum.Miss, "melee");
                         tags.Add("Outgoing", petTypeAndName.Item1);
                         tags.Add("Incoming", victimPetTypeAndName.Item1);
-                        MasterSwing masterSwingMelee = 
+                        MasterSwing masterSwingMissedMelee = 
                             GetMasterSwing(
                                 EverQuestSwingType.Melee
                                 , regexMatch.Groups["damageSpecial"].Success ? regexMatch.Groups["damageSpecial"].Value : String.Empty
