@@ -1,17 +1,19 @@
-﻿using EverQuestDPSPlugin;
-using EverQuestDPSPlugin.Enums;
+﻿using EverQuestDPS;
+using EverQuestDPS.Enums;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;
+using Advanced_Combat_Tracker;
+using System.Collections.Generic;
 
 namespace EQDPSPluginUnitTests
 {
     [TestClass]
     public sealed class EverQuestDPSPluginTests
     {
-        EverQuestDPSPlugin.EverQuestDPSPlugin eqDPSPlugin;
+        EverQuestDPSPlugin eqDPSPlugin;
         [TestInitialize] 
         public void Init() { 
-            eqDPSPlugin = new EverQuestDPSPlugin.EverQuestDPSPlugin();
+            eqDPSPlugin = new EverQuestDPSPlugin();
         }
 
         [DataTestMethod]
@@ -43,32 +45,48 @@ namespace EQDPSPluginUnitTests
             Assert.ThrowsException<ArgumentNullException>(new Action(() => eqDPSPlugin.RegexString(null)));
         }
 
+        /*
         [DataTestMethod]
-        [TestCategory("")]
-        [DataRow(EverQuestSwingType.NonMelee, String.Empty, 0, DateTime.Now, "attacker", "Hitpoints", "victim", )]
-        public void GetMasterSwing(EverQuestSwingType eqst
+        [TestCategory("MasterSwing Class Creation")]
+        [DataRow(EverQuestSwingType.NonMelee, "Critical", 0, "cheech", "attacker", "Hitpoints", "victim", "non-melee")]
+        [DataRow(EverQuestSwingType.Melee, "Flurry", 0, "chongya", "attacker", "Hitpoints", "victim", "melee")]
+        public void GetMasterSwingTest(
+            EverQuestSwingType eqst
             , String criticalAttack
-            , Int64 damage, DateTime timestampOfAttack
-            , String damageType, String attacker, String typeOfResource, String victim)
+            , Int64 damage
+            , String damageType
+            , String attacker
+            , String typeOfResource
+            , String victim
+            , String dnumAttackType)
         {
+	    Dictionary<string, Object> testDicitonary = new Dictionary<string, Object>
+        {
+            { "testKey", "testValue" }
+        };
+        Dnum dnum = new Dnum(damage, dnumAttackType);
+
+        DateTime testDateTime = DateTime.Now;
             MasterSwing testMasterSwing = 
                 EverQuestDPSPlugin.GetMasterSwing(
-                    eqst
+                  eqst
                 , criticalAttack
-                , new Dnum(damage)
-                , timestampOfAttack
+                , dnum
+                , testDateTime
                 , damageType
                 , attacker
                 , typeOfResource
-                , victim);
+                , victim
+		, testDicitonary);
             Assert.IsTrue(testMasterSwing.Victim == victim);
             Assert.IsTrue(testMasterSwing.Attacker == attacker);
-            Assert.IsTrue(testMasterSwing.Date == timestampOfAttack);
+            Assert.IsTrue(testMasterSwing.Time == testDateTime);
             Assert.IsFalse(testMasterSwing.Attacker == String.Empty);
             Assert.IsFalse(testMasterSwing.Victim == String.Empty);
             Assert.IsTrue(testMasterSwing.Critical == criticalAttack.Contains("Critical"));
             Assert.IsTrue(testMasterSwing.DamageType == damageType);
-            Assert.IsTrue()
-        }
+            Assert.IsTrue(testMasterSwing.DamageType != String.Empty);
+	        Assert.IsTrue(testMasterSwing.Tags.Equals(testDicitonary));
+        }*/
     }
 }

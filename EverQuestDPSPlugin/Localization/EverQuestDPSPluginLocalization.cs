@@ -3,7 +3,7 @@
 using Advanced_Combat_Tracker;
 using System;
 
-namespace EverQuestDPSPlugin.Localization
+namespace EverQuestDPS.Localization
 {
     internal class EverQuestDPSPluginLocalization
     {

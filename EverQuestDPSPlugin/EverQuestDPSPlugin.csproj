@@ -39,7 +39,10 @@
     <AssemblyName>EverQuestDPSPlugin</AssemblyName>
   </PropertyGroup>
   <PropertyGroup>
-    <RootNamespace>EverQuestDPSPlugin</RootNamespace>
+    <RootNamespace>EverQuestDPS</RootNamespace>
+  </PropertyGroup>
+  <PropertyGroup>
+    <AutoGenerateBindingRedirects>false</AutoGenerateBindingRedirects>
   </PropertyGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
@@ -82,6 +85,9 @@
       <Generator>ResXFileCodeGenerator</Generator>
       <LastGenOutput>EverQuestDPSPlugin.Designer.cs</LastGenOutput>
     </EmbeddedResource>
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="Structs\" />
   </ItemGroup>
   <PropertyGroup>
     <PostBuildEvent>IF $(ConfigurationName)==Debug copy /Y $(TargetPath) "$(APPDATA)\Advanced Combat Tracker\Plugins"</PostBuildEvent>
