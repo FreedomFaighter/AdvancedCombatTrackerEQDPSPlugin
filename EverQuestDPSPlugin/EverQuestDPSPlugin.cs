@@ -1273,10 +1273,6 @@ namespace EverQuestDPS
             selfCheck = new Regex(EverQuestDPSPluginResources.EverQuestDPSPlugin.selfMatch, RegexOptions.Compiled);
             regexTupleList = new List<Tuple<Color, Regex>>();
         }
-        /// <summary>
-        /// Construct Master Swing object
-        /// </summary>
-
 
         /// <summary>
         /// Populates the regex list with combat strings associated with combat actions in the character log file
@@ -1361,7 +1357,9 @@ namespace EverQuestDPS
             Match m = regexSelf.Match(nameOfCharacter);
             return m.Success;
         }
-
+        /// <summary>
+        /// Construct Master Swing object
+        /// </summary>
         internal static MasterSwing GetMasterSwing(
             EverQuestSwingType eqst
             , String attackSpecial
@@ -1426,21 +1424,17 @@ namespace EverQuestDPS
                     //Non-melee damage shield
                     case 2:
                         Dnum nonMeleeDamage = new Dnum(Int64.Parse(regexMatch.Groups["damagePoints"].Value), "damage shield");
-                        String petString = @"'s";
-                        MasterSwing msDamageShield = new MasterSwing(
-                            EverQuestSwingType.DamageShield.GetEverQuestSwingTypeExtensionIntValue(),
-                            regexMatch.Groups["damageSpecial"].Success && regexMatch.Groups["damageSpecial"].Value.Contains("Critical"),
+                        tags.Add("Outgoing", petTypeAndName.Item1);
+                        tags.Add("Incoming", victimPetTypeAndName.Item1);
+                        MasterSwing msDamageShield = GetMasterSwing(EverQuestSwingType.DamageShield,
                             regexMatch.Groups["damageSpecial"].Success ? regexMatch.Groups["damageSpecial"].Value : String.Empty,
                             nonMeleeDamage,
                             dateTimeOfParse,
-                            ActGlobals.oFormActMain.GlobalTimeSorter,
                             regexMatch.Groups["damageShieldType"].Value,
                             CharacterNamePersonaReplace(petTypeAndName.Item2),
                             "Hitpoints",
-                            CharacterNamePersonaReplace(victimPetTypeAndName.Item2)
-                            );
-                        msDamageShield.Tags.Add("Outgoing", petTypeAndName.Item1);
-                        msDamageShield.Tags.Add("Incoming", victimPetTypeAndName.Item1);
+                            CharacterNamePersonaReplace(victimPetTypeAndName.Item2),
+                            tags);
                         ActGlobals.oFormActMain.AddCombatAction(msDamageShield);
                         break;
                     //Missed melee
