@@ -1338,11 +1338,9 @@ namespace EverQuestDPS
         internal Tuple<String, String> GetTypeAndNameForPet(String nameToSetTypeTo)
         {
             Match possessiveMatch = possesive.Match(nameToSetTypeTo);
-            String possessed = possessiveMatch.Groups[EverQuestDPSPluginResources.EverQuestDPSPlugin.possesiveOf].Value;
-            String summonedEntity = posessed.SingleOrDefault(x => x == possessed);
-            if (possessiveMatch.Success && summonedEntity != default)
+            if (possessiveMatch.Success)
             {
-                return new Tuple<String, string>(summonedEntity, nameToSetTypeTo.Substring(0, possessiveMatch.Index));
+                return new Tuple<String, string>(possessiveMatch.Groups[EverQuestDPSPluginResources.EverQuestDPSPlugin.possesiveOf].Value, nameToSetTypeTo.Substring(0, possessiveMatch.Index));
             }
             else return new Tuple<String, string>(String.Empty, nameToSetTypeTo);
         }
