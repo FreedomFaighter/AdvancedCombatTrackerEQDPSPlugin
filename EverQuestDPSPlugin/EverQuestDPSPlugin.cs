@@ -58,28 +58,66 @@ namespace EverQuestDPS
         /// </summary>
         private void InitializeComponent()
         {
-            this.components = new System.ComponentModel.Container();
-
-            this.varianceChkBx = new System.Windows.Forms.CheckBox();
+            this.groupBox1 = new System.Windows.Forms.GroupBox();
+            this.populVariance = new System.Windows.Forms.RadioButton();
+            this.sampVariance = new System.Windows.Forms.RadioButton();
+            this.varianceOff = new System.Windows.Forms.RadioButton();
+            this.groupBox1.SuspendLayout();
             this.SuspendLayout();
-            // varianceChkBx
             // 
-            this.varianceChkBx.AutoSize = true;
-            this.varianceChkBx.Location = new System.Drawing.Point(31, 22);
-            this.varianceChkBx.Name = "varianceChkBx";
-            this.varianceChkBx.Size = new System.Drawing.Size(121, 17);
-            this.varianceChkBx.TabIndex = 0;
-            this.varianceChkBx.Text = "Population Variance";
-            this.varianceChkBx.UseVisualStyleBackColor = true;
-            this.varianceChkBx.CheckedChanged += new System.EventHandler(this.VarianceChkBx_CheckedChanged);
+            // groupBox1
+            // 
+            this.groupBox1.Controls.Add(this.varianceOff);
+            this.groupBox1.Controls.Add(this.sampVariance);
+            this.groupBox1.Controls.Add(this.populVariance);
+            this.groupBox1.Location = new System.Drawing.Point(210, 22);
+            this.groupBox1.Name = "groupBox1";
+            this.groupBox1.Size = new System.Drawing.Size(200, 100);
+            this.groupBox1.TabIndex = 1;
+            this.groupBox1.TabStop = false;
+            this.groupBox1.Text = "Variance";
+            // 
+            // populVariance
+            // 
+            this.populVariance.AutoSize = true;
+            this.populVariance.Location = new System.Drawing.Point(37, 20);
+            this.populVariance.Name = "populVariance";
+            this.populVariance.Size = new System.Drawing.Size(75, 17);
+            this.populVariance.TabIndex = 0;
+            this.populVariance.TabStop = true;
+            this.populVariance.Text = "Popluation";
+            this.populVariance.UseVisualStyleBackColor = true;
+            // 
+            // sampVariance
+            // 
+            this.sampVariance.AutoSize = true;
+            this.sampVariance.Location = new System.Drawing.Point(37, 44);
+            this.sampVariance.Name = "sampVariance";
+            this.sampVariance.Size = new System.Drawing.Size(60, 17);
+            this.sampVariance.TabIndex = 1;
+            this.sampVariance.TabStop = true;
+            this.sampVariance.Text = "Sample";
+            this.sampVariance.UseVisualStyleBackColor = true;
+            // 
+            // varianceOff
+            // 
+            this.varianceOff.AutoSize = true;
+            this.varianceOff.Location = new System.Drawing.Point(37, 68);
+            this.varianceOff.Name = "varianceOff";
+            this.varianceOff.Size = new System.Drawing.Size(39, 17);
+            this.varianceOff.TabIndex = 2;
+            this.varianceOff.TabStop = true;
+            this.varianceOff.Text = "Off";
+            this.varianceOff.UseVisualStyleBackColor = true;
             // 
             // EverQuestDPSPlugin
             // 
-            this.Controls.Add(this.varianceChkBx);
+            this.Controls.Add(this.groupBox1);
             this.Name = "EverQuestDPSPlugin";
             this.Size = new System.Drawing.Size(467, 150);
+            this.groupBox1.ResumeLayout(false);
+            this.groupBox1.PerformLayout();
             this.ResumeLayout(false);
-            this.PerformLayout();
 
         }
 
@@ -88,7 +126,6 @@ namespace EverQuestDPS
 
         #region Class Members
         TreeNode optionsNode = null;
-        private CheckBox varianceChkBx;
         Label lblStatus;    // The status label that appears in ACT's Plugin tab
         delegate void matchParse(Match regexMatch);
         List<Tuple<Color, Regex>> regexTupleList;
@@ -99,6 +136,10 @@ namespace EverQuestDPS
         SettingsSerializer xmlSettings;
         readonly object varianceChkBxLockObject = new object();//, nonMatchChkBxLockObject = new object()
         readonly string PluginSettingsFileName = $"Config{Path.DirectorySeparatorChar}ACT_EverQuest_English_Parser.config.xml";
+        private GroupBox groupBox1;
+        private RadioButton varianceOff;
+        private RadioButton sampVariance;
+        private RadioButton populVariance;
         readonly string[] posessed = new string[] { "pet", "ward", "warder" };
 
         #endregion
@@ -234,7 +275,6 @@ namespace EverQuestDPS
         /// </summary>
         void LoadSettings()
         {
-            xmlSettings.AddControlSetting(varianceChkBx.Name, varianceChkBx);
             if (File.Exists(settingsFile))
             {
                 using (FileStream fs = new FileStream(settingsFile, FileMode.Open, FileAccess.Read, FileShare.ReadWrite))
@@ -260,10 +300,6 @@ namespace EverQuestDPS
                         ChangeLblStatus($"With message: {ex.Message}");
                     }
                 }
-                if (varianceChkBx.InvokeRequired)
-                    varianceChkBx.Invoke(new Action<object, EventArgs>(VarianceChkBx_CheckedChanged));
-                else
-                    this.populationVariance = varianceChkBx.Checked;
             }
             else
             {
@@ -1374,14 +1410,14 @@ namespace EverQuestDPS
                 eqst.GetEverQuestSwingTypeExtensionIntValue()
                 , attackSpecial.Contains("Critical")
                 , attackSpecial.Length > 0 ? attackSpecial : String.Empty
-                , damage.Number
+                , damage
                 , dateTimeOfAttack
                 , ActGlobals.oFormActMain.GlobalTimeSorter
                 , attackName
                 , attacker
                 , typeOfResource
                 , victim)
-            { Tags = tags }; ;
+            { Tags = tags };
         }
         /// <summary>
         /// Parses if the line is a matched action read in the log file and provides a combat action entry with the swingtype method
@@ -1679,33 +1715,30 @@ namespace EverQuestDPS
         /// <summary>
         /// gets the variance of the attack type for display in the ACT application
         /// </summary>
-        /// <param name="Data"></param>
+        /// <param name="Data">data from attacktype collection to be parsed for variance type selected</param>
         /// <returns></returns>
         private double AttackTypeGetVariance(AttackType Data)
         {
             List<MasterSwing> ms = Data.Items.ToList().Where((item) => item.Damage.Number >= 0).ToList();
             double average;
-            lock (varianceChkBxLockObject)
-            {
-                if (!populationVariance && ms.Count > 1)
+                if (sampVariance.Checked && ms.Count > 1)
                 {
                     average = ms.Select((item) => item.Damage.Number).Average();
-                    return ms.Sum((item) =>
+                    return (ms.Sum((item) =>
                     {
                         return Math.Pow(average - item.Damage.Number, 2.0);
-                    }) / (ms.Count - 1);
+                    }) / (ms.Count - 1));
                 }
-                else if (populationVariance && Data.Items.Count > 0)
+                else if (populVariance.Checked && Data.Items.Count > 0)
                 {
                     average = ms.Select((item) => item.Damage.Number).Average();
-                    return ms.Sum((item) =>
+                    return (ms.Sum((item) =>
                     {
                         return Math.Pow(average - item.Damage.Number, 2.0);
-                    }) / ms.Count;
+                    }) / ms.Count);
                 }
                 else
                     return default;
-            }
         }
         #endregion
         /// <summary>
