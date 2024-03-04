@@ -200,17 +200,7 @@ namespace EverQuestDPS
             SetupEverQuestEnvironment();
             ActGlobals.oFormActMain.GetDateTimeFromLog += new FormActMain.DateTimeLogParser(ParseDateTime);
             ActGlobals.oFormActMain.BeforeLogLineRead += new LogLineEventDelegate(FormActMain_BeforeLogLineRead);
-            ActGlobals.oFormActMain.UpdateCheckClicked += new FormActMain.NullDelegate(UpdateCheckClicked);
 
-
-            if (ActGlobals.oFormActMain.GetAutomaticUpdatesAllowed())
-            {// If ACT is set to automatically check for updates, check for updates to the plugin
-                Task updateCheckClicked = new Task(() =>
-                {
-                    UpdateCheckClicked();
-                });
-                updateCheckClicked.Start();   // If we don't put this on a separate thread, web latency will delay the plugin init phase
-            }
             ActGlobals.oFormActMain.CharacterFileNameRegex = new Regex(@"(?:.+)[\\]eqlog_(?<characterName>\S+)_(?<server>.+).txt", RegexOptions.Compiled);
             ChangeLblStatus($"{EverQuestDPSPluginResources.EverQuestDPSPlugin.pluginName} Plugin Started");
         }
@@ -222,7 +212,6 @@ namespace EverQuestDPS
         {
             ActGlobals.oFormActMain.GetDateTimeFromLog -= ParseDateTime;
             ActGlobals.oFormActMain.BeforeLogLineRead -= FormActMain_BeforeLogLineRead;
-            ActGlobals.oFormActMain.UpdateCheckClicked -= UpdateCheckClicked;
 
             if (!(optionsNode == null))    // If we added our user control to the Options tab, remove it
             {
@@ -233,48 +222,7 @@ namespace EverQuestDPS
             SaveSettings();
             ChangeLblStatus($"{EverQuestDPSPluginResources.EverQuestDPSPlugin.pluginName} Plugin Exited");
         }
-        /// <summary>
-        /// Method that updates the plugin if user agrees to dialog box
-        /// </summary>
-        void UpdateCheckClicked()
-        {
-            const int pluginId = 92;
-            try
-            {
-                SecureString secureString = new SecureString();
-                foreach (char c in ActGlobals.oFormActMain.PluginGetRemoteVersion(pluginId))
-                    secureString.AppendChar(c);
-                String remoteVersionFromGithub = Marshal.PtrToStringAuto(SecureStringMarshal.SecureStringToCoTaskMemUnicode(secureString));
-                Version remoteVersion = new Version(remoteVersionFromGithub);
-                Version currentVersion = typeof(EverQuestDPSPlugin).Assembly.GetName().Version;
-                if (remoteVersion > currentVersion)
-                {
-                    DialogResult result = MessageBox.Show($"There is an updated version of the {EverQuestDPSPluginResources.EverQuestDPSPlugin.pluginName}.  Update it now?{Environment.NewLine}{Environment.NewLine}(If there is an update to ACT, you should click No and update ACT first.)", "New Version", MessageBoxButtons.YesNo, MessageBoxIcon.Question);
-                    switch (result)
-                    {
-                        case DialogResult.Yes:
-                            FileInfo updatedFile = ActGlobals.oFormActMain.PluginDownload(pluginId);
-                            ActPluginData pluginData = ActGlobals.oFormActMain.PluginGetSelfData(this);
-                            pluginData.pluginFile.Delete();
-                            updatedFile.MoveTo(pluginData.pluginFile.FullName);
-                            ThreadInvokes.CheckboxSetChecked(ActGlobals.oFormActMain, pluginData.cbEnabled, false);
-                            Application.DoEvents();
-                            ThreadInvokes.CheckboxSetChecked(ActGlobals.oFormActMain, pluginData.cbEnabled, true);
-                            break;
-                        case DialogResult.No:
-                            ChangeLblStatus($"Update for {EverQuestDPSPluginResources.EverQuestDPSPlugin.pluginName} declined.");
-                            break;
-                        default:
-                            break;
 
-                    }
-                }
-            }
-            catch (Exception ex)
-            {
-                ActGlobals.oFormActMain.WriteExceptionLog(ex, "Plugin Update Check");
-            }
-        }
         /// <summary>
         /// Loads settings file and attempts to assign values to the controls added in the method
         /// </summary>
@@ -1442,7 +1390,7 @@ namespace EverQuestDPS
                 {
                     //Melee attack
                     case 1:
-                        Dnum damage = new Dnum(Int64.Parse(regexMatch.Groups["damageAmount"].Value));
+                        Dnum damage = new Dnum(Int64.Parse(regexMatch.Groups["damageAmount"].Value), "melee");
                         String attackName = regexMatch.Groups["attackType"].Value == "frenzies on" ? "frenzy" : regexMatch.Groups["attackType"].Value;
                         tags.Add("Outgoing", petTypeAndName.Item1);
                         tags.Add("Incoming", victimPetTypeAndName.Item1);
@@ -1460,7 +1408,7 @@ namespace EverQuestDPS
                         break;
                     //Non-melee damage shield
                     case 2:
-                        Dnum nonMeleeDamage = new Dnum(Int64.Parse(regexMatch.Groups["damagePoints"].Value));
+                        Dnum nonMeleeDamage = new Dnum(Int64.Parse(regexMatch.Groups["damagePoints"].Value), "damage shield");
                         tags.Add("Outgoing", petTypeAndName.Item1);
                         tags.Add("Incoming", victimPetTypeAndName.Item1);
                         AddMasterSwing(EverQuestSwingType.DamageShield,
@@ -1475,7 +1423,7 @@ namespace EverQuestDPS
                         break;
                     //Missed melee
                     case 3:
-                        Dnum miss = new Dnum(Dnum.Miss);
+                        Dnum miss = new Dnum(Dnum.Miss, "melee");
                         tags.Add("Outgoing", petTypeAndName.Item1);
                         tags.Add("Incoming", victimPetTypeAndName.Item1);
                         AddMasterSwing(
@@ -1576,7 +1524,7 @@ namespace EverQuestDPS
                         break;
                     //Damage over time
                     case 10:
-                        Dnum spellDamageOverTimeDamage = new Dnum(Int64.Parse(regexMatch.Groups["damagePoints"].Value), "non-melee dot");
+                        Dnum spellDamageOverTimeDamage = new Dnum(Int64.Parse(regexMatch.Groups["damagePoints"].Value), "spell dot");
                         tags.Add("Outgoing", petTypeAndName.Item1);
                         tags.Add("Incoming", victimPetTypeAndName.Item1);
                         AddMasterSwing(
@@ -1598,7 +1546,7 @@ namespace EverQuestDPS
                         AddMasterSwing(
                                EverQuestSwingType.DamageOverTimeSpell
                                , regexMatch.Groups["focusSpecial"].Success ? regexMatch.Groups["focusSpecial"].Value : String.Empty
-                               , new Dnum(Int64.Parse(regexMatch.Groups["damagePoints"].Value), "non-melee")
+                               , new Dnum(Int64.Parse(regexMatch.Groups["damagePoints"].Value), "spell focus")
                                , dateTimeOfParse
                                , regexMatch.Groups["damageEffect"].Value
                                , CharacterNamePersonaReplace(petTypeAndName.Item2)
@@ -1629,7 +1577,7 @@ namespace EverQuestDPS
                         AddMasterSwing(
                                EverQuestSwingType.DirectDamageSpell
                                , regexMatch.Groups["damageSpecial"].Success ? regexMatch.Groups["damageSpecial"].Value : String.Empty
-                               , new Dnum(Dnum.NoDamage, "non-melee")
+                               , new Dnum(Dnum.NoDamage, "spell")
                                , dateTimeOfParse
                                , regexMatch.Groups["spellName"].Value
                                , CharacterNamePersonaReplace(petTypeAndName.Item2)
