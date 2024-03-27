@@ -160,6 +160,15 @@ namespace EverQuestDPS.Properties {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to (?:.+)[\\]eqlog_(?&lt;characterName&gt;\S+)_(?&lt;server&gt;.+).txt.
+        /// </summary>
+        internal static string fileNameForLog {
+            get {
+                return ResourceManager.GetString("fileNameForLog", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Finishing Blow.
         /// </summary>
         internal static string FinishingBlow {
@@ -385,11 +394,11 @@ namespace EverQuestDPS.Properties {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to You have entered (?&lt;zoneName&gt;.+)\..
+        ///   Looks up a localized string similar to You have entered (?!.*an area where levitation effects do not function)(?!.*the Drunken Monkey stance adequately)(?&lt;zoneName&gt;.*)..
         /// </summary>
-        internal static string zoneChangeRgx {
+        internal static string zoneChange {
             get {
-                return ResourceManager.GetString("zoneChangeRgx", resourceCulture);
+                return ResourceManager.GetString("zoneChange", resourceCulture);
             }
         }
         

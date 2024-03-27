@@ -150,6 +150,9 @@
   <data name="evasionTypes" xml:space="preserve">
     <value>block(|s)|dodge(|s)|parr(ies|y)|riposte(|s)</value>
   </data>
+  <data name="fileNameForLog" xml:space="preserve">
+    <value>(?:.+)[\\]eqlog_(?&lt;characterName&gt;\S+)_(?&lt;server&gt;.+).txt</value>
+  </data>
   <data name="FinishingBlow" xml:space="preserve">
     <value>Finishing Blow</value>
   </data>
@@ -225,8 +228,8 @@
   <data name="WildRampage" xml:space="preserve">
     <value>Wild Rampage</value>
   </data>
-  <data name="zoneChangeRgx" xml:space="preserve">
-    <value>You have entered (?&lt;zoneName&gt;.+)\.</value>
+  <data name="zoneChange" xml:space="preserve">
+    <value>You have entered (?!.*an area where levitation effects do not function)(?!.*the Drunken Monkey stance adequately)(?&lt;zoneName&gt;.*).</value>
   </data>
   <data name="zoneEnter" xml:space="preserve">
     <value>\[(?:.+)\](?:[\d]+):Received MSG_EQ_ADDPLAYER, Player = (?&lt;characterEnteringZone&gt;.+), zone = (?&lt;ZoneName&gt;.+)</value>

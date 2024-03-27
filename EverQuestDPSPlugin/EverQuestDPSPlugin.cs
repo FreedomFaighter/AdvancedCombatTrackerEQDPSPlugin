@@ -37,6 +37,14 @@ namespace EverQuestDPS
             {
                 components.Dispose();
             }
+            if (disposing && (!(watcherForDebugFile == null)))
+            {
+                watcherForDebugFile.Dispose();
+            }
+            if (disposing && (!(watcherForRaidRoster == null)))
+            {
+                watcherForRaidRoster.Dispose();
+            }
             base.Dispose(disposing);
         }
 
@@ -225,11 +233,10 @@ namespace EverQuestDPS
             SetupEverQuestEnvironment();
             ActGlobals.oFormActMain.GetDateTimeFromLog += new FormActMain.DateTimeLogParser(ParseDateTime);
             ActGlobals.oFormActMain.BeforeLogLineRead += new LogLineEventDelegate(FormActMain_BeforeLogLineRead);
-
-            ActGlobals.oFormActMain.CharacterFileNameRegex = new Regex(@"(?:.+)[\\]eqlog_(?<characterName>\S+)_(?<server>.+).txt", RegexOptions.Compiled);
-            ActGlobals.oFormActMain.ZoneChangeRegex = new Regex(@"\[(?:.+)\] You have entered (?!.*an area where levitation effects do not function)(?!.*the Drunken Monkey stance adequately)(?<zoneName>.*).", RegexOptions.Compiled);
+            ActGlobals.oFormActMain.CharacterFileNameRegex = new Regex(Properties.EQDPSPlugin.fileNameForLog, RegexOptions.Compiled);
+            ActGlobals.oFormActMain.ZoneChangeRegex = new Regex($@"\[(?:.+)\] {Properties.EQDPSPlugin.zoneChange}", RegexOptions.Compiled);
             ChangeLblStatus($"{Properties.EQDPSPlugin.pluginName} {Properties.EQDPSPlugin.pluginStarted}");
-
+            
         }
         /// <summary>
         /// Removes methods from the delegates assigned during initialization
@@ -239,7 +246,6 @@ namespace EverQuestDPS
         {
             ActGlobals.oFormActMain.GetDateTimeFromLog -= ParseDateTime;
             ActGlobals.oFormActMain.BeforeLogLineRead -= FormActMain_BeforeLogLineRead;
-
             if (!(optionsNode == null))    // If we added our user control to the Options tab, remove it
             {
                 optionsNode.Remove();
@@ -1327,7 +1333,7 @@ namespace EverQuestDPS
             ActGlobals.oFormEncounterLogs.LogTypeToColorMapping.Add(regexTupleList.Count, regexTupleList[regexTupleList.Count - 1].Item1);
             regexTupleList.Add(new Tuple<Color, Regex>(Color.DarkOliveGreen, new Regex(RegexString(Properties.EQDPSPlugin.DamageShieldUnknownOrigin), RegexOptions.Compiled)));
             ActGlobals.oFormEncounterLogs.LogTypeToColorMapping.Add(regexTupleList.Count, regexTupleList[regexTupleList.Count - 1].Item1);
-            regexTupleList.Add(new Tuple<Color, Regex>(Color.SaddleBrown, new Regex(RegexString(Properties.EQDPSPlugin.zoneChangeRgx))));
+            regexTupleList.Add(new Tuple<Color, Regex>(Color.SaddleBrown, new Regex(RegexString(Properties.EQDPSPlugin.zoneChange))));
             ActGlobals.oFormEncounterLogs.LogTypeToColorMapping.Add(regexTupleList.Count, regexTupleList[regexTupleList.Count - 1].Item1);
             regexTupleList.Add(new Tuple<Color, Regex>(Color.Tan, new Regex(RegexString(Properties.EQDPSPlugin.spellResist), RegexOptions.Compiled)));
             ActGlobals.oFormEncounterLogs.LogTypeToColorMapping.Add(regexTupleList.Count, regexTupleList[regexTupleList.Count - 1].Item1);
