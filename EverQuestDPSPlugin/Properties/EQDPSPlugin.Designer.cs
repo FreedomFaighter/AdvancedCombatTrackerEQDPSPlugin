@@ -223,6 +223,15 @@ namespace EverQuestDPS.Properties {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Plugin Exited.
+        /// </summary>
+        internal static string pluginExited {
+            get {
+                return ResourceManager.GetString("pluginExited", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to EverQuest Damage Per Second Parser.
         /// </summary>
         internal static string pluginName {
@@ -232,11 +241,38 @@ namespace EverQuestDPS.Properties {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Plugin Started.
+        /// </summary>
+        internal static string pluginStarted {
+            get {
+                return ResourceManager.GetString("pluginStarted", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to possesiveOf.
         /// </summary>
         internal static string possesiveOf {
             get {
                 return ResourceManager.GetString("possesiveOf", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to RaidRoster_(?&lt;serverName&gt;.+)-(?&lt;date&gt;[\d]+)-(?&lt;time&gt;[\d]+).txt.
+        /// </summary>
+        internal static string raidAllyFileName {
+            get {
+                return ResourceManager.GetString("raidAllyFileName", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to (?&lt;groupId&gt;[\d]+)\s(?&lt;playerName&gt;\S+)\s(?&lt;playerLevel&gt;[\d]+)\s(?&lt;playerClass&gt;\S+)\s(?&lt;raidRole&gt;.+\b).
+        /// </summary>
+        internal static string raidAllyFormat {
+            get {
+                return ResourceManager.GetString("raidAllyFormat", resourceCulture);
             }
         }
         
@@ -354,6 +390,15 @@ namespace EverQuestDPS.Properties {
         internal static string zoneChangeRgx {
             get {
                 return ResourceManager.GetString("zoneChangeRgx", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to \[(?:.+)\](?:[\d]+):Received MSG_EQ_ADDPLAYER, Player = (?&lt;characterEnteringZone&gt;.+), zone = (?&lt;ZoneName&gt;.+).
+        /// </summary>
+        internal static string zoneEnter {
+            get {
+                return ResourceManager.GetString("zoneEnter", resourceCulture);
             }
         }
     }

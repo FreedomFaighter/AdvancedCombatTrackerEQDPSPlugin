@@ -21,5 +21,12 @@ namespace EverQuestDPS.Enums
         {
             return (int)type;
         }
+
+        internal static EverQuestSwingType GetFromIntEverQuestSwingType(this int intValue)
+        {
+            if (intValue > byte.MaxValue)
+                throw new ArgumentOutOfRangeException($@"Value of passed int {intValue}");
+            return (EverQuestSwingType)intValue;
+        }
     }
 }

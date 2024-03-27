@@ -171,11 +171,23 @@
   <data name="MissedMeleeAttack" xml:space="preserve">
     <value>(?&lt;attacker&gt;.+) (?:tr(?:ies|y)) to (?&lt;attackType&gt;(\S+|frenzy on)) (?&lt;victim&gt;.+), but (?:miss(?:|es))!(?:\s\((?&lt;damageSpecial&gt;.+)\)){0,1}</value>
   </data>
+  <data name="pluginExited" xml:space="preserve">
+    <value>Plugin Exited</value>
+  </data>
   <data name="pluginName" xml:space="preserve">
     <value>EverQuest Damage Per Second Parser</value>
   </data>
+  <data name="pluginStarted" xml:space="preserve">
+    <value>Plugin Started</value>
+  </data>
   <data name="possesiveOf" xml:space="preserve">
     <value>possesiveOf</value>
+  </data>
+  <data name="raidAllyFileName" xml:space="preserve">
+    <value>RaidRoster_(?&lt;serverName&gt;.+)-(?&lt;date&gt;[\d]+)-(?&lt;time&gt;[\d]+).txt</value>
+  </data>
+  <data name="raidAllyFormat" xml:space="preserve">
+    <value>(?&lt;groupId&gt;[\d]+)\s(?&lt;playerName&gt;\S+)\s(?&lt;playerLevel&gt;[\d]+)\s(?&lt;playerClass&gt;\S+)\s(?&lt;raidRole&gt;.+\b)</value>
   </data>
   <data name="Riposte" xml:space="preserve">
     <value>Riposte</value>
@@ -215,5 +227,8 @@
   </data>
   <data name="zoneChangeRgx" xml:space="preserve">
     <value>You have entered (?&lt;zoneName&gt;.+)\.</value>
+  </data>
+  <data name="zoneEnter" xml:space="preserve">
+    <value>\[(?:.+)\](?:[\d]+):Received MSG_EQ_ADDPLAYER, Player = (?&lt;characterEnteringZone&gt;.+), zone = (?&lt;ZoneName&gt;.+)</value>
   </data>
 </root>

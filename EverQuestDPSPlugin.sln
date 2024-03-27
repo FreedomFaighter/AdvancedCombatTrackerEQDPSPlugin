@@ -7,10 +7,6 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EverQuestDPSPlugin", "EverQ
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EQDPSPluginUnitTests", "EQDPSPluginUnitTests\EQDPSPluginUnitTests.csproj", "{DB458853-081A-4EDB-926B-F7C88276CBB2}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EverQuestRaidAllies", "EverQuestRaidAllies\EverQuestRaidAllies.csproj", "{1749AF3B-F485-4EA5-9F25-6C8805501A02}"
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EverQuestZoneChangeUpdater", "ACT_EverQuestZoneChangeUpdater\EverQuestZoneChangeUpdater.csproj", "{2BD18E06-15BC-4A35-A0E6-E5B285BFA2C0}"
-EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -25,14 +21,6 @@ Global
 		{DB458853-081A-4EDB-926B-F7C88276CBB2}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{DB458853-081A-4EDB-926B-F7C88276CBB2}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{DB458853-081A-4EDB-926B-F7C88276CBB2}.Release|Any CPU.Build.0 = Release|Any CPU
-		{1749AF3B-F485-4EA5-9F25-6C8805501A02}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{1749AF3B-F485-4EA5-9F25-6C8805501A02}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{1749AF3B-F485-4EA5-9F25-6C8805501A02}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{1749AF3B-F485-4EA5-9F25-6C8805501A02}.Release|Any CPU.Build.0 = Release|Any CPU
-		{2BD18E06-15BC-4A35-A0E6-E5B285BFA2C0}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{2BD18E06-15BC-4A35-A0E6-E5B285BFA2C0}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{2BD18E06-15BC-4A35-A0E6-E5B285BFA2C0}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{2BD18E06-15BC-4A35-A0E6-E5B285BFA2C0}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

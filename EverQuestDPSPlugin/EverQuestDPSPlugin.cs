@@ -5,7 +5,6 @@ using System.Drawing;
 using System.Globalization;
 using System.IO;
 using System.Linq;
-using System.Reflection;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Windows.Forms;
@@ -18,15 +17,9 @@ using EverQuestDPS.Enums;
 * Description: Missing from the arsenal of the plugin based Advanced Combat Tracker to track EverQuest's current combat messages.  Ignores chat as that is displayed in game.
 */
 
-#if DEBUG
-[assembly: AssemblyConfiguration("Debug")]
-#else
-[assembly: AssemblyConfiguration("Release")]
-#endif
-
 namespace EverQuestDPS
 {
-    public class EverQuestDPSPlugin : UserControl, IActPluginV1
+    public partial class EverQuestDPSPlugin : UserControl, IActPluginV1
     {
         #region Designer generated code (Avoid editing)
         /// <summary> 
@@ -56,9 +49,12 @@ namespace EverQuestDPS
         private void InitializeComponent()
         {
             this.groupBox1 = new System.Windows.Forms.GroupBox();
-            this.populVariance = new System.Windows.Forms.RadioButton();
-            this.sampVariance = new System.Windows.Forms.RadioButton();
             this.varianceOff = new System.Windows.Forms.RadioButton();
+            this.sampVariance = new System.Windows.Forms.RadioButton();
+            this.populVariance = new System.Windows.Forms.RadioButton();
+            this.selectDirectory = new System.Windows.Forms.Button();
+            this.eqDirectory = new System.Windows.Forms.Label();
+            this.directoryPathTB = new System.Windows.Forms.TextBox();
             this.groupBox1.SuspendLayout();
             this.SuspendLayout();
             // 
@@ -67,34 +63,12 @@ namespace EverQuestDPS
             this.groupBox1.Controls.Add(this.varianceOff);
             this.groupBox1.Controls.Add(this.sampVariance);
             this.groupBox1.Controls.Add(this.populVariance);
-            this.groupBox1.Location = new System.Drawing.Point(210, 22);
+            this.groupBox1.Location = new System.Drawing.Point(33, 19);
             this.groupBox1.Name = "groupBox1";
             this.groupBox1.Size = new System.Drawing.Size(200, 100);
             this.groupBox1.TabIndex = 1;
             this.groupBox1.TabStop = false;
             this.groupBox1.Text = "Variance";
-            // 
-            // populVariance
-            // 
-            this.populVariance.AutoSize = true;
-            this.populVariance.Location = new System.Drawing.Point(37, 20);
-            this.populVariance.Name = "populVariance";
-            this.populVariance.Size = new System.Drawing.Size(75, 17);
-            this.populVariance.TabIndex = 0;
-            this.populVariance.TabStop = true;
-            this.populVariance.Text = "Popluation";
-            this.populVariance.UseVisualStyleBackColor = true;
-            // 
-            // sampVariance
-            // 
-            this.sampVariance.AutoSize = true;
-            this.sampVariance.Location = new System.Drawing.Point(37, 44);
-            this.sampVariance.Name = "sampVariance";
-            this.sampVariance.Size = new System.Drawing.Size(60, 17);
-            this.sampVariance.TabIndex = 1;
-            this.sampVariance.TabStop = true;
-            this.sampVariance.Text = "Sample";
-            this.sampVariance.UseVisualStyleBackColor = true;
             // 
             // varianceOff
             // 
@@ -107,14 +81,67 @@ namespace EverQuestDPS
             this.varianceOff.Text = "Off";
             this.varianceOff.UseVisualStyleBackColor = true;
             // 
+            // sampVariance
+            // 
+            this.sampVariance.AutoSize = true;
+            this.sampVariance.Location = new System.Drawing.Point(37, 44);
+            this.sampVariance.Name = "sampVariance";
+            this.sampVariance.Size = new System.Drawing.Size(60, 17);
+            this.sampVariance.TabIndex = 1;
+            this.sampVariance.TabStop = true;
+            this.sampVariance.Text = "Sample";
+            this.sampVariance.UseVisualStyleBackColor = true;
+            // 
+            // populVariance
+            // 
+            this.populVariance.AutoSize = true;
+            this.populVariance.Location = new System.Drawing.Point(37, 20);
+            this.populVariance.Name = "populVariance";
+            this.populVariance.Size = new System.Drawing.Size(75, 17);
+            this.populVariance.TabIndex = 0;
+            this.populVariance.TabStop = true;
+            this.populVariance.Text = "Popluation";
+            this.populVariance.UseVisualStyleBackColor = true;
+            // 
+            // selectDirectory
+            // 
+            this.selectDirectory.Location = new System.Drawing.Point(33, 232);
+            this.selectDirectory.Name = "selectDirectory";
+            this.selectDirectory.Size = new System.Drawing.Size(189, 23);
+            this.selectDirectory.TabIndex = 4;
+            this.selectDirectory.Text = "Select EverQuest Directory";
+            this.selectDirectory.UseVisualStyleBackColor = true;
+            this.selectDirectory.Click += new System.EventHandler(this.selectDirectory_Click);
+            // 
+            // eqDirectory
+            // 
+            this.eqDirectory.AutoSize = true;
+            this.eqDirectory.Location = new System.Drawing.Point(28, 190);
+            this.eqDirectory.Name = "eqDirectory";
+            this.eqDirectory.Size = new System.Drawing.Size(102, 13);
+            this.eqDirectory.TabIndex = 5;
+            this.eqDirectory.Text = "EverQuest Directory";
+            // 
+            // directoryPathTB
+            // 
+            this.directoryPathTB.Location = new System.Drawing.Point(33, 206);
+            this.directoryPathTB.Name = "directoryPathTB";
+            this.directoryPathTB.ReadOnly = true;
+            this.directoryPathTB.Size = new System.Drawing.Size(366, 20);
+            this.directoryPathTB.TabIndex = 2;
+            // 
             // EverQuestDPSPlugin
             // 
+            this.Controls.Add(this.eqDirectory);
+            this.Controls.Add(this.selectDirectory);
+            this.Controls.Add(this.directoryPathTB);
             this.Controls.Add(this.groupBox1);
             this.Name = "EverQuestDPSPlugin";
-            this.Size = new System.Drawing.Size(467, 150);
+            this.Size = new System.Drawing.Size(818, 281);
             this.groupBox1.ResumeLayout(false);
             this.groupBox1.PerformLayout();
             this.ResumeLayout(false);
+            this.PerformLayout();
 
         }
 
@@ -128,22 +155,22 @@ namespace EverQuestDPS
         List<Tuple<Color, Regex>> regexTupleList;
         Regex selfCheck;
         Regex possesive;
-        bool populationVariance; //for keeping track of whether population variance or sample variance is displayed
         string settingsFile;
         SettingsSerializer xmlSettings;
-        readonly object varianceChkBxLockObject = new object();//, nonMatchChkBxLockObject = new object()
         readonly string PluginSettingsFileName = $"Config{Path.DirectorySeparatorChar}ACT_EverQuest_English_Parser.config.xml";
         private GroupBox groupBox1;
         private RadioButton varianceOff;
         private RadioButton sampVariance;
         private RadioButton populVariance;
         readonly string[] posessed = new string[] { "pet", "ward", "warder" };
+        private TextBox directoryPathTB;
+        private Button selectDirectory;
+        private Label eqDirectory;
         readonly List<string> ignoreStringsForZoneParse = new List<string>()
                         {
                             "an area where levitation effects do not function",
                             "the Drunken Monkey stance adequately"
                         };
-
         #endregion
         /// <summary>
         /// Constructor that calls initialize component
@@ -165,11 +192,13 @@ namespace EverQuestDPS
             Localization.EverQuestDPSPluginLocalization.EditLocalizations();
             settingsFile = Path.Combine(ActGlobals.oFormActMain.AppDataFolder.FullName, PluginSettingsFileName);
             lblStatus = pluginStatusText;   // Hand the status label's reference to our local var
-
+            watcherForDebugFile = new FileSystemWatcher();
+            watcherForRaidRoster = new FileSystemWatcher();
             pluginScreenSpace.Controls.Add(this);
             this.Dock = DockStyle.Fill;
 
-            /*int dcIndex = -1;   // Find the Data Correction node in the Options tab
+            int dcIndex = -1;   // Find the Data Correction node in the Options tab
+            
             for (int i = 0; i < ActGlobals.oFormActMain.OptionsTreeView.Nodes.Count; i++)
             {
                 if (ActGlobals.oFormActMain.OptionsTreeView.Nodes[i].Text == "Data Correction")
@@ -178,18 +207,17 @@ namespace EverQuestDPS
             if (dcIndex != -1)
             {
                 // Add our own node to the Data Correction node
-                optionsNode = ActGlobals.oFormActMain.OptionsTreeView.Nodes[dcIndex].Nodes.Add($"{EverQuestDPSPluginResource.pluginName} Settings");
+                optionsNode = ActGlobals.oFormActMain.OptionsTreeView.Nodes[dcIndex].Nodes.Add($"{Properties.EQDPSPlugin.pluginName} Settings");
                 // Register our user control(this) to our newly create node path.  All controls added to the list will be laid out left to right, top to bottom
-                ActGlobals.oFormActMain.OptionsControlSets.Add($"Data Correction\\{EverQuestDPSPluginResource.pluginName}", new List<Control> { this });
+                ActGlobals.oFormActMain.OptionsControlSets.Add($"Data Correction\\{Properties.EQDPSPlugin.pluginName}", new List<Control> { this });
                 Label lblConfig = new Label
                 {
                     AutoSize = true,
-                    Text = $"Settings under the {EverQuestDPSPluginResource.pluginName} tab."
+                    Text = $"Settings under the {Properties.EQDPSPlugin.pluginName} tab."
                 };
                 pluginScreenSpace.Controls.Add(lblConfig);
             }
-            */
-
+            
             xmlSettings = new SettingsSerializer(this); // Create a new settings serializer and pass it this instance
             LoadSettings();
             PopulateRegexNonCombat();
@@ -199,7 +227,9 @@ namespace EverQuestDPS
             ActGlobals.oFormActMain.BeforeLogLineRead += new LogLineEventDelegate(FormActMain_BeforeLogLineRead);
 
             ActGlobals.oFormActMain.CharacterFileNameRegex = new Regex(@"(?:.+)[\\]eqlog_(?<characterName>\S+)_(?<server>.+).txt", RegexOptions.Compiled);
-            ChangeLblStatus($"{Properties.EQDPSPlugin.pluginName} Plugin Started");
+            ActGlobals.oFormActMain.ZoneChangeRegex = new Regex(@"\[(?:.+)\] You have entered (?!.*an area where levitation effects do not function)(?!.*the Drunken Monkey stance adequately)(?<zoneName>.*).", RegexOptions.Compiled);
+            ChangeLblStatus($"{Properties.EQDPSPlugin.pluginName} {Properties.EQDPSPlugin.pluginStarted}");
+
         }
         /// <summary>
         /// Removes methods from the delegates assigned during initialization
@@ -217,7 +247,7 @@ namespace EverQuestDPS
             }
 
             SaveSettings();
-            ChangeLblStatus($"{Properties.EQDPSPlugin.pluginName} Plugin Exited");
+            ChangeLblStatus($"{Properties.EQDPSPlugin.pluginName} {Properties.EQDPSPlugin.pluginExited}");
         }
 
         /// <summary>
@@ -225,6 +255,10 @@ namespace EverQuestDPS
         /// </summary>
         void LoadSettings()
         {
+            xmlSettings.AddControlSetting(directoryPathTB.Name, directoryPathTB);
+            xmlSettings.AddControlSetting(populVariance.Name, populVariance);
+            xmlSettings.AddControlSetting(sampVariance.Name, sampVariance);
+            xmlSettings.AddControlSetting(varianceOff.Name, varianceOff);
             if (File.Exists(settingsFile))
             {
                 using (FileStream fs = new FileStream(settingsFile, FileMode.Open, FileAccess.Read, FileShare.ReadWrite))
@@ -708,7 +742,7 @@ namespace EverQuestDPS
         /// <returns></returns>
         private string CombatantFormatSwitch(CombatantData Data, string VarName, string Extra)
         {
-            int len = 0;
+            int len;
             switch (VarName)
             {
                 case "name":
@@ -1255,6 +1289,7 @@ namespace EverQuestDPS
         /// </summary>
         private void PopulateRegexNonCombat()
         {
+            zoneEnterRgx = new Regex(Properties.EQDPSPlugin.zoneEnter);
             possesive = new Regex(@"(?:[`|']s\s)(?<" + $@"{Properties.EQDPSPlugin.possesiveOf}" + @">\S[^']+)(?:[']s\s(?<" + $@"{Properties.EQDPSPlugin.secondaryPossesiveOf}" + @">\S+)){0,1}", RegexOptions.Compiled);
             selfCheck = new Regex(Properties.EQDPSPlugin.selfMatch, RegexOptions.Compiled);
             regexTupleList = new List<Tuple<Color, Regex>>();
@@ -1637,6 +1672,39 @@ namespace EverQuestDPS
             return selfCheck.Match(PersonaString).Success ? ActGlobals.charName : PersonaString;
         }
 
+        #region File System Watcher
+        private void SetWatcherToDirectory()
+        {
+            if (Directory.Exists(directoryPathTB.Text))
+            {
+                dbgFilePath = Path.Combine(directoryPathTB.Text, fileNameExpected);
+                watcherForDebugFile = new FileSystemWatcher(Path.GetDirectoryName(dbgFilePath), "dbg.txt");
+                watcherForDebugFile.EnableRaisingEvents = true;
+                watcherForDebugFile.NotifyFilter = NotifyFilters.LastWrite | NotifyFilters.Attributes | NotifyFilters.CreationTime;
+                watcherForDebugFile.Changed += Watcher_Changed;
+                watcherForDebugFile.Created += Watcher_CreatedForDebugFile;
+                if (File.Exists(dbgFilePath))
+                {
+                    sr = new StreamReader(new FileStream(dbgFilePath, FileMode.Open, FileAccess.Read, FileShare.ReadWrite));
+                }
+
+                watcherForRaidRoster = new FileSystemWatcher(Path.GetFullPath(directoryPathTB.Text), "RaidRoster_*-*-*.txt")
+                {
+                    EnableRaisingEvents = true,
+                    IncludeSubdirectories = false,
+                    NotifyFilter = NotifyFilters.FileName | NotifyFilters.LastWrite | NotifyFilters.Attributes | NotifyFilters.CreationTime
+                };
+                watcherForRaidRoster.Created += Watcher_Created;
+            }
+            else
+            {
+                watcherForDebugFile.Dispose();
+                watcherForRaidRoster.Dispose();
+            }
+        }
+        #endregion
+
+
         #region Statistic processing
 
         //Variance calculation for attack damage
@@ -1713,30 +1781,6 @@ namespace EverQuestDPS
                     break;
                 case false:
                     this.lblStatus.Text = status;
-                    break;
-                default:
-                    break;
-            }
-        }
-
-        //checkbox processing event for population or sample variance
-        /// <summary>
-        /// updates the plugin on whether to use population or sample variance
-        /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
-        private void VarianceChkBx_CheckedChanged(object sender, EventArgs e)
-        {
-            var checkBx = sender as CheckBox;
-            lock (varianceChkBxLockObject)
-                this.populationVariance = checkBx.Checked;
-            switch (this.populationVariance)
-            {
-                case true:
-                    ChangeLblStatus($"Reporting population variance {Properties.EQDPSPlugin.pluginName}");
-                    break;
-                case false:
-                    ChangeLblStatus($"Reporting sample variance {Properties.EQDPSPlugin.pluginName}");
                     break;
                 default:
                     break;
@@ -1846,6 +1890,24 @@ namespace EverQuestDPS
             return $"---";
         }
 
+        private void selectDirectory_Click(object sender, EventArgs e)
+        {
+            using (var EverQuestInstallPath = new FolderBrowserDialog())
+            {
+                DialogResult dr = EverQuestInstallPath.ShowDialog();
+
+                if (dr == DialogResult.OK && Directory.Exists(EverQuestInstallPath.SelectedPath))
+                {
+                    ChangedbgLogFileTextValue(EverQuestInstallPath.SelectedPath);
+                    SetWatcherToDirectory();
+                    SaveSettings();
+                }
+                else
+                {
+                    MessageBox.Show($"{EverQuestInstallPath.SelectedPath} is not a valid path.", "File Name not as expected", MessageBoxButtons.OK, MessageBoxIcon.Asterisk);
+                }
+            }
+        }
     }
 
 }
