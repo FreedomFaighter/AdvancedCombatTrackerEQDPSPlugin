@@ -79,6 +79,15 @@ namespace EverQuestDPS.Properties {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to (?&lt;victim&gt;.+) was chilled to the bone for (?&lt;damageAmount&gt;[\d]+) point(|s) of non-melee damage.(?:[\s][\(](?&lt;damageShieldSpecial&gt;.+)[\)]){0,1}.
+        /// </summary>
+        internal static string chilledDamageShield {
+            get {
+                return ResourceManager.GetString("chilledDamageShield", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Crippling Blow.
         /// </summary>
         internal static string CripplingBlow {
