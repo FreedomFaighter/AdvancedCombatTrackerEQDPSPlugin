@@ -227,7 +227,6 @@ namespace EverQuestDPS
             }
             
             xmlSettings = new SettingsSerializer(this); // Create a new settings serializer and pass it this instance
-            lastHitNoAttackerDamageShield = false;
             LoadSettings();
             PopulateRegexNonCombat();
             PopulateRegexCombat();
