@@ -1296,7 +1296,7 @@ namespace EverQuestDPS
         private void PopulateRegexNonCombat()
         {
             zoneEnterRgx = new Regex(Properties.EQDPSPlugin.zoneEnter);
-            possesive = new Regex(@"(?:[`|']s\s)(?<" + $@"{Properties.EQDPSPlugin.possesiveOf}" + @">\S[^']+)(?:[']s\s(?<" + $@"{Properties.EQDPSPlugin.secondaryPossesiveOf}" + @">\S+)){0,1}", RegexOptions.Compiled);
+            possesive = new Regex(Properties.EQDPSPlugin.petAndPlayerName, RegexOptions.Compiled);
             selfCheck = new Regex(Properties.EQDPSPlugin.selfMatch, RegexOptions.Compiled);
             regexTupleList = new List<Tuple<Color, Regex>>();
         }
@@ -1367,7 +1367,7 @@ namespace EverQuestDPS
             Match possessiveMatch = possesive.Match(nameToSetTypeTo);
             if (possessiveMatch.Success)
             {
-                return new Tuple<String, string>(possessiveMatch.Groups[Properties.EQDPSPlugin.possesiveOf].Value, nameToSetTypeTo.Substring(0, possessiveMatch.Index));
+                return new Tuple<String, string>(possessiveMatch.Groups["petName"].Value, possessiveMatch.Groups["playerName"].Value);
             }
             else return new Tuple<String, string>(String.Empty, nameToSetTypeTo);
         }

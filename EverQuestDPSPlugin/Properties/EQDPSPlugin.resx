@@ -174,6 +174,9 @@
   <data name="MissedMeleeAttack" xml:space="preserve">
     <value>(?&lt;attacker&gt;.+) (?:tr(?:ies|y)) to (?&lt;attackType&gt;(\S+|frenzy on)) (?&lt;victim&gt;.+), but (?:miss(?:|es))!(?:\s\((?&lt;damageSpecial&gt;.+)\)){0,1}</value>
   </data>
+  <data name="petAndPlayerName" xml:space="preserve">
+    <value>(?&lt;playerName&gt;.+)`s\s(?&lt;petName&gt;(pet|familiar|ward|warder))</value>
+  </data>
   <data name="pluginExited" xml:space="preserve">
     <value>Plugin Exited</value>
   </data>

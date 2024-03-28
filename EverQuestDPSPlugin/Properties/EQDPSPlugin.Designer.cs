@@ -232,6 +232,15 @@ namespace EverQuestDPS.Properties {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to (?&lt;playerName&gt;.+)`s\s(?&lt;petName&gt;(pet|familiar|ward|warder)).
+        /// </summary>
+        internal static string petAndPlayerName {
+            get {
+                return ResourceManager.GetString("petAndPlayerName", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Plugin Exited.
         /// </summary>
         internal static string pluginExited {
