@@ -1503,13 +1503,13 @@ namespace EverQuestDPS
                         tags.Add("Outgoing", petTypeAndName.Item1);
                         tags.Add("Incoming", victimPetTypeAndName.Item1);
                         AddMasterSwing(
-                                0
+                                EverQuestSwingType.NonMelee
                                 , String.Empty
                                 , Dnum.Death
                                 , dateTimeOfParse
-                                , String.Empty
+                                , "Killing"
                                 , CharacterNamePersonaReplace(petTypeAndName.Item2)
-                                , "Hitpoints"
+                                , "Death"
                                 , CharacterNamePersonaReplace(victimPetTypeAndName.Item2)
                                 , tags
                             );
