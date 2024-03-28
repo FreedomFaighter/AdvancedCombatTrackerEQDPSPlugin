@@ -1383,6 +1383,12 @@ namespace EverQuestDPS
             Match m = regexSelf.Match(nameOfCharacter);
             return m.Success;
         }
+
+        private static Tuple<bool, string> GetCriticalAndSpecialString(String special)
+        {
+            return new Tuple<bool, String>(special.Contains("Critical"), special.Replace("Critical", "").Replace("  ", " "));
+        }
+
         /// <summary>
         /// Construct Master Swing object
         /// </summary>
@@ -1398,10 +1404,11 @@ namespace EverQuestDPS
             , Dictionary<string, Object> tags
             )
         {
+            Tuple<bool, string> specCrit = GetCriticalAndSpecialString(attackSpecial);
             ActGlobals.oFormActMain.AddCombatAction(new MasterSwing(
                 eqst.GetEverQuestSwingTypeExtensionIntValue()
-                , attackSpecial.Contains("Critical")
-                , attackSpecial.Length > 0 ? attackSpecial : String.Empty
+                , specCrit.Item1
+                , specCrit.Item2
                 , damage
                 , dateTimeOfAttack
                 , ActGlobals.oFormActMain.GlobalTimeSorter
