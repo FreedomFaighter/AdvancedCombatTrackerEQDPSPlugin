@@ -33,17 +33,20 @@ namespace EverQuestDPS
         /// <param name="disposing">true if managed resources should be disposed; otherwise, false.</param>
         protected override void Dispose(bool disposing)
         {
-            if (disposing && (!(components == null)))
+            if (disposing)
             {
-                components.Dispose();
-            }
-            if (disposing && (!(watcherForDebugFile == null)))
-            {
-                watcherForDebugFile.Dispose();
-            }
-            if (disposing && (!(watcherForRaidRoster == null)))
-            {
-                watcherForRaidRoster.Dispose();
+                if (!(components == null))
+                {
+                    components.Dispose();
+                }
+                if (!(watcherForDebugFile == null))
+                {
+                    watcherForDebugFile.Dispose();
+                }
+                if (!(watcherForRaidRoster == null))
+                {
+                    watcherForRaidRoster.Dispose();
+                }
             }
             base.Dispose(disposing);
         }
@@ -1315,7 +1318,7 @@ namespace EverQuestDPS
             ActGlobals.oFormEncounterLogs.LogTypeToColorMapping.Add(regexTupleList.Count, regexTupleList[regexTupleList.Count - 1].Item1);
             regexTupleList.Add(new Tuple<Color, Regex>(Color.Plum, new Regex(RegexString(Properties.EQDPSPlugin.MissedMeleeAttack), RegexOptions.Compiled)));
             ActGlobals.oFormEncounterLogs.LogTypeToColorMapping.Add(regexTupleList.Count, regexTupleList[regexTupleList.Count - 1].Item1);
-            regexTupleList.Add(new Tuple<Color, Regex>(Color.Goldenrod, new Regex(RegexString(Properties.EQDPSPlugin.SlainMessage), RegexOptions.Compiled)));
+            regexTupleList.Add(new Tuple<Color, Regex>(Color.Black, new Regex(RegexString(Properties.EQDPSPlugin.SlainMessage), RegexOptions.Compiled)));
             ActGlobals.oFormEncounterLogs.LogTypeToColorMapping.Add(regexTupleList.Count, regexTupleList[regexTupleList.Count - 1].Item1);
             regexTupleList.Add(new Tuple<Color, Regex>(Color.Red, new Regex(RegexString(Properties.EQDPSPlugin.SpellDamage), RegexOptions.Compiled)));
             ActGlobals.oFormEncounterLogs.LogTypeToColorMapping.Add(regexTupleList.Count, regexTupleList[regexTupleList.Count - 1].Item1);
@@ -1338,6 +1341,8 @@ namespace EverQuestDPS
             regexTupleList.Add(new Tuple<Color, Regex>(Color.Tan, new Regex(RegexString(Properties.EQDPSPlugin.spellResist), RegexOptions.Compiled)));
             ActGlobals.oFormEncounterLogs.LogTypeToColorMapping.Add(regexTupleList.Count, regexTupleList[regexTupleList.Count - 1].Item1);
             regexTupleList.Add(new Tuple<Color, Regex>(Color.ForestGreen, new Regex(RegexString(Properties.EQDPSPlugin.chilledDamageShield), RegexOptions.Compiled)));
+            ActGlobals.oFormEncounterLogs.LogTypeToColorMapping.Add(regexTupleList.Count, regexTupleList[regexTupleList.Count - 1].Item1);
+            regexTupleList.Add(new Tuple<Color, Regex>(Color.Black, new Regex(RegexString(Properties.EQDPSPlugin.youDied), RegexOptions.Compiled)));
             ActGlobals.oFormEncounterLogs.LogTypeToColorMapping.Add(regexTupleList.Count, regexTupleList[regexTupleList.Count - 1].Item1);
         }
         /// <summary>
@@ -1429,7 +1434,9 @@ namespace EverQuestDPS
             Tuple<String, String> petTypeAndName = GetTypeAndNameForPet(CharacterNamePersonaReplace(regexMatch.Groups["attacker"].Value));
             Tuple<String, String> victimPetTypeAndName = GetTypeAndNameForPet(regexMatch.Groups["victim"].Value);
             Dictionary<string, Object> tags = new Dictionary<string, Object>();
-            if(chilled != default)
+            tags.Add("Outgoing", petTypeAndName.Item1);
+            tags.Add("Incoming", victimPetTypeAndName.Item1);
+            if (chilled != default)
             {
                 chilled.Tags.Add("Outgoing", petTypeAndName.Item1);
                 AddMasterSwing(chilled.SwingType.GetFromIntEverQuestSwingType(),
@@ -1444,7 +1451,7 @@ namespace EverQuestDPS
                     );
                 chilled = default;
             }
-            if (logMatched != 13 && logMatched != 6 && ActGlobals.oFormActMain.SetEncounter(ActGlobals.oFormActMain.LastKnownTime, CharacterNamePersonaReplace(regexMatch.Groups["attacker"].Value), CharacterNamePersonaReplace(regexMatch.Groups["victim"].Value)))
+            if (logMatched != 15 && logMatched != 13 && logMatched != 6 && ActGlobals.oFormActMain.SetEncounter(ActGlobals.oFormActMain.LastKnownTime, CharacterNamePersonaReplace(regexMatch.Groups["attacker"].Value), CharacterNamePersonaReplace(regexMatch.Groups["victim"].Value)))
             {
                 switch (logMatched)
                 {
@@ -1452,8 +1459,6 @@ namespace EverQuestDPS
                     case 1:
                         Dnum damage = new Dnum(Int64.Parse(regexMatch.Groups["damageAmount"].Value), "melee");
                         String attackName = regexMatch.Groups["attackType"].Value == "frenzies on" ? "frenzy" : regexMatch.Groups["attackType"].Value;
-                        tags.Add("Outgoing", petTypeAndName.Item1);
-                        tags.Add("Incoming", victimPetTypeAndName.Item1);
                         AddMasterSwing(
                                 EverQuestSwingType.Melee
                                 , regexMatch.Groups["damageSpecial"].Success ? regexMatch.Groups["damageSpecial"].Value : String.Empty
@@ -1469,8 +1474,6 @@ namespace EverQuestDPS
                     //Non-melee damage shield
                     case 2:
                         Dnum nonMeleeDamage = new Dnum(Int64.Parse(regexMatch.Groups["damagePoints"].Value), "damage shield");
-                        tags.Add("Outgoing", petTypeAndName.Item1);
-                        tags.Add("Incoming", victimPetTypeAndName.Item1);
                         AddMasterSwing(EverQuestSwingType.DamageShield,
                             regexMatch.Groups["damageSpecial"].Success ? regexMatch.Groups["damageSpecial"].Value : String.Empty,
                             nonMeleeDamage,
@@ -1484,8 +1487,6 @@ namespace EverQuestDPS
                     //Missed melee
                     case 3:
                         Dnum miss = new Dnum(Dnum.Miss, "melee");
-                        tags.Add("Outgoing", petTypeAndName.Item1);
-                        tags.Add("Incoming", victimPetTypeAndName.Item1);
                         AddMasterSwing(
                                 EverQuestSwingType.Melee
                                 , regexMatch.Groups["damageSpecial"].Success ? regexMatch.Groups["damageSpecial"].Value : String.Empty
@@ -1500,8 +1501,6 @@ namespace EverQuestDPS
                         break;
                     //Death message
                     case 4:
-                        tags.Add("Outgoing", petTypeAndName.Item1);
-                        tags.Add("Incoming", victimPetTypeAndName.Item1);
                         AddMasterSwing(
                                 EverQuestSwingType.NonMelee
                                 , String.Empty
@@ -1517,8 +1516,6 @@ namespace EverQuestDPS
                     //Spell Cast
                     case 5:
                         Dnum spellCastDamage = new Dnum(Int64.Parse(regexMatch.Groups["damagePoints"].Value), regexMatch.Groups["typeOfDamage"].Value);
-                        tags.Add("Outgoing", petTypeAndName.Item1);
-                        tags.Add("Incoming", victimPetTypeAndName.Item1);
                         AddMasterSwing(
                                 EverQuestSwingType.DirectDamageSpell
                                 , regexMatch.Groups["damageSpecial"].Success ? regexMatch.Groups["damageSpecial"].Value : String.Empty
@@ -1537,23 +1534,20 @@ namespace EverQuestDPS
                             EverQuestSwingType.NonMelee.GetEverQuestSwingTypeExtensionIntValue()
                             , false
                             , new Dnum(Dnum.Unknown)
-                        {
-                            DamageString2 = regexMatch.Value
-                        }, 
-                            dateTimeOfParse, 
-                            ActGlobals.oFormActMain.GlobalTimeSorter, 
-                            "Unknown", 
-                            "Unknown", 
-                            "Unknown", 
-                            "Unknown");
-                        msUnknown.Tags.Add("Outgoing", default);
-                        msUnknown.Tags.Add("Incoming", default);
+                            {
+                                DamageString2 = regexMatch.Value
+                            },
+                            dateTimeOfParse,
+                            ActGlobals.oFormActMain.GlobalTimeSorter,
+                            "Unknown",
+                            "Unknown",
+                            "Unknown",
+                            "Unknown")
+                        { Tags = tags };
                         ActGlobals.oFormActMain.AddCombatAction(msUnknown);
                         break;
                     //Evasion
                     case 8:
-                        tags.Add("Outgoing", petTypeAndName.Item1);
-                        tags.Add("Incoming", victimPetTypeAndName.Item1);
                         AddMasterSwing(
                                EverQuestSwingType.Melee
                                , regexMatch.Groups["evasionSpecial"].Success ? regexMatch.Groups["evasionSpecial"].Value : String.Empty
@@ -1568,8 +1562,6 @@ namespace EverQuestDPS
                         break;
                     //Bane damage
                     case 9:
-                        tags.Add("Outgoing", petTypeAndName.Item1);
-                        tags.Add("Incoming", victimPetTypeAndName.Item1);
                         AddMasterSwing(
                                EverQuestSwingType.Bane
                                , regexMatch.Groups["baneSpecial"].Success ? regexMatch.Groups["baneSpecial"].Value : String.Empty
@@ -1585,8 +1577,6 @@ namespace EverQuestDPS
                     //Damage over time
                     case 10:
                         Dnum spellDamageOverTimeDamage = new Dnum(Int64.Parse(regexMatch.Groups["damagePoints"].Value), "spell dot");
-                        tags.Add("Outgoing", petTypeAndName.Item1);
-                        tags.Add("Incoming", victimPetTypeAndName.Item1);
                         AddMasterSwing(
                                EverQuestSwingType.DamageOverTimeSpell
                                , regexMatch.Groups["spellSpecial"].Success ? regexMatch.Groups["spellSpecial"].Value : String.Empty
@@ -1601,8 +1591,6 @@ namespace EverQuestDPS
                         break;
                     //Focus Direct Damage Spell
                     case 11:
-                        tags.Add("Outgoing", petTypeAndName.Item1);
-                        tags.Add("Incoming", victimPetTypeAndName.Item1);
                         AddMasterSwing(
                                EverQuestSwingType.DamageOverTimeSpell
                                , regexMatch.Groups["focusSpecial"].Success ? regexMatch.Groups["focusSpecial"].Value : String.Empty
@@ -1617,8 +1605,6 @@ namespace EverQuestDPS
                         break;
                     //Unknown damage shield
                     case 12:
-                        tags.Add("Outgoing", petTypeAndName.Item1);
-                        tags.Add("Incoming", victimPetTypeAndName.Item1);
                         AddMasterSwing(
                                EverQuestSwingType.DamageShield
                                , regexMatch.Groups["damageSpecial"].Success ? regexMatch.Groups["damageSpecial"].Value : String.Empty
@@ -1632,8 +1618,6 @@ namespace EverQuestDPS
                            );
                         break;
                     case 14:
-                        tags.Add("Outgoing", petTypeAndName.Item1);
-                        tags.Add("Incoming", victimPetTypeAndName.Item1);
                         AddMasterSwing(
                                EverQuestSwingType.DirectDamageSpell
                                , regexMatch.Groups["damageSpecial"].Success ? regexMatch.Groups["damageSpecial"].Value : String.Empty
@@ -1646,13 +1630,26 @@ namespace EverQuestDPS
                                , tags
                            );
                         break;
+                    case 16:
+                        AddMasterSwing(
+                                EverQuestSwingType.NonMelee
+                                , String.Empty
+                                , Dnum.Death
+                                , dateTimeOfParse
+                                , "Killing"
+                                , CharacterNamePersonaReplace(petTypeAndName.Item2)
+                                , "Death"
+                                , CharacterNamePersonaReplace(victimPetTypeAndName.Item2)
+                                , tags
+                            );
+                        break;
                     default:
                         ArgumentOutOfRangeException argumentOutOfRangeException = new ArgumentOutOfRangeException(logMatched.GetType().Name, "Match found but no case to assign to");
                         ActGlobals.oFormActMain.WriteExceptionLog(argumentOutOfRangeException, "Method invoked with no matching case");
                         break;
                 }
             }
-            else if (logMatched == 13 || logMatched == 6)
+            else if ((logMatched == 13 || logMatched == 6) && logMatched != 15)
             {
                 switch (logMatched)
                 {
