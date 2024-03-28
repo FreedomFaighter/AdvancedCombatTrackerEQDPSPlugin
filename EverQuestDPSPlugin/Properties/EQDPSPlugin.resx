@@ -234,6 +234,9 @@
   <data name="WildRampage" xml:space="preserve">
     <value>Wild Rampage</value>
   </data>
+  <data name="youDied" xml:space="preserve">
+    <value>(?&lt;victim&gt;.+) died.</value>
+  </data>
   <data name="zoneChange" xml:space="preserve">
     <value>You have entered (?!.*an area where levitation effects do not function)(?!.*the Drunken Monkey stance adequately)(?&lt;zoneName&gt;.*).</value>
   </data>

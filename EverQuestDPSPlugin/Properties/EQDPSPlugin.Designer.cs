@@ -412,6 +412,15 @@ namespace EverQuestDPS.Properties {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to (?&lt;victim&gt;.+) died..
+        /// </summary>
+        internal static string youDied {
+            get {
+                return ResourceManager.GetString("youDied", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to You have entered (?!.*an area where levitation effects do not function)(?!.*the Drunken Monkey stance adequately)(?&lt;zoneName&gt;.*)..
         /// </summary>
         internal static string zoneChange {
