@@ -170,10 +170,10 @@ namespace EverQuestDPS
         private RadioButton varianceOff;
         private RadioButton sampVariance;
         private RadioButton populVariance;
-        readonly string[] posessed = new string[] { "pet", "ward", "warder" };
         private TextBox directoryPathTB;
         private Button selectDirectory;
         private Label eqDirectory;
+        private MasterSwing chilled;
         readonly List<string> ignoreStringsForZoneParse = new List<string>()
                         {
                             "an area where levitation effects do not function",
@@ -227,6 +227,7 @@ namespace EverQuestDPS
             }
             
             xmlSettings = new SettingsSerializer(this); // Create a new settings serializer and pass it this instance
+            lastHitNoAttackerDamageShield = false;
             LoadSettings();
             PopulateRegexNonCombat();
             PopulateRegexCombat();
@@ -1337,6 +1338,8 @@ namespace EverQuestDPS
             ActGlobals.oFormEncounterLogs.LogTypeToColorMapping.Add(regexTupleList.Count, regexTupleList[regexTupleList.Count - 1].Item1);
             regexTupleList.Add(new Tuple<Color, Regex>(Color.Tan, new Regex(RegexString(Properties.EQDPSPlugin.spellResist), RegexOptions.Compiled)));
             ActGlobals.oFormEncounterLogs.LogTypeToColorMapping.Add(regexTupleList.Count, regexTupleList[regexTupleList.Count - 1].Item1);
+            regexTupleList.Add(new Tuple<Color, Regex>(Color.ForestGreen, new Regex(RegexString(Properties.EQDPSPlugin.chilledDamageShield), RegexOptions.Compiled)));
+            ActGlobals.oFormEncounterLogs.LogTypeToColorMapping.Add(regexTupleList.Count, regexTupleList[regexTupleList.Count - 1].Item1);
         }
         /// <summary>
         /// Attempts to read before the log line is parsed
@@ -1355,7 +1358,6 @@ namespace EverQuestDPS
                     return;
                 }
             }
-            logInfo.detectedType = 0;
         }
         /// <summary>
         /// Examines the parameter for summoned entities and provides such type entity back to the parsing method with entity name and character name
@@ -1421,7 +1423,21 @@ namespace EverQuestDPS
             Tuple<String, String> petTypeAndName = GetTypeAndNameForPet(CharacterNamePersonaReplace(regexMatch.Groups["attacker"].Value));
             Tuple<String, String> victimPetTypeAndName = GetTypeAndNameForPet(regexMatch.Groups["victim"].Value);
             Dictionary<string, Object> tags = new Dictionary<string, Object>();
-            
+            if(chilled != null)
+            {
+                chilled.Tags.Add("Outgoing", petTypeAndName.Item1);
+                AddMasterSwing(chilled.SwingType.GetFromIntEverQuestSwingType(),
+                    chilled.Special,
+                    chilled.Damage,
+                    chilled.Time,
+                    chilled.AttackType,
+                    CharacterNamePersonaReplace(petTypeAndName.Item2),
+                    chilled.DamageType,
+                    chilled.Victim,
+                    chilled.Tags
+                    );
+                chilled = null;
+            }
             if (logMatched != 13 && logMatched != 6 && ActGlobals.oFormActMain.SetEncounter(ActGlobals.oFormActMain.LastKnownTime, CharacterNamePersonaReplace(regexMatch.Groups["attacker"].Value), CharacterNamePersonaReplace(regexMatch.Groups["victim"].Value)))
             {
                 switch (logMatched)
@@ -1661,6 +1677,24 @@ namespace EverQuestDPS
                         break;
                     default:
                         break;
+                }
+            }
+            else if(logMatched == 15)
+            {
+                if(ActGlobals.oFormActMain.InCombat)
+                {
+                    tags.Add("Incoming", victimPetTypeAndName.Item1);
+                    chilled = new MasterSwing(EverQuestSwingType.DamageShield.GetEverQuestSwingTypeExtensionIntValue(),
+                        regexMatch.Groups["damageShieldSpecial"].Success ? regexMatch.Groups["damageShieldSpecial"].Value.Contains("Critical") : false,
+                        regexMatch.Groups["damageShieldSpecial"].Success ? regexMatch.Groups["damageShieldSpecial"].Value : String.Empty,
+                        new Dnum(Int64.Parse(regexMatch.Groups["damageAmount"].Value), "damage shield"),
+                        dateTimeOfParse,
+                        ActGlobals.oFormActMain.GlobalTimeSorter,
+                        "chilled",
+                        String.Empty,
+                        "Hitpoints",
+                        regexMatch.Groups["victim"].Value)
+                    { Tags = tags };
                 }
             }
             else
