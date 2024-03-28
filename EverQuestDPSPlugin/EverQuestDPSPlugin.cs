@@ -1429,7 +1429,7 @@ namespace EverQuestDPS
             Tuple<String, String> petTypeAndName = GetTypeAndNameForPet(CharacterNamePersonaReplace(regexMatch.Groups["attacker"].Value));
             Tuple<String, String> victimPetTypeAndName = GetTypeAndNameForPet(regexMatch.Groups["victim"].Value);
             Dictionary<string, Object> tags = new Dictionary<string, Object>();
-            if(chilled != null)
+            if(chilled != default)
             {
                 chilled.Tags.Add("Outgoing", petTypeAndName.Item1);
                 AddMasterSwing(chilled.SwingType.GetFromIntEverQuestSwingType(),
@@ -1442,7 +1442,7 @@ namespace EverQuestDPS
                     chilled.Victim,
                     chilled.Tags
                     );
-                chilled = null;
+                chilled = default;
             }
             if (logMatched != 13 && logMatched != 6 && ActGlobals.oFormActMain.SetEncounter(ActGlobals.oFormActMain.LastKnownTime, CharacterNamePersonaReplace(regexMatch.Groups["attacker"].Value), CharacterNamePersonaReplace(regexMatch.Groups["victim"].Value)))
             {
