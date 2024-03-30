@@ -1,3 +1,5 @@
+Update feature removed and plugin file must be gotten from repository releases manually
+
 # Build Status
 [![ACT EverQuest DPS Plugin](https://github.com/FreedomFaighter/AdvancedCombatTrackerEverQuest/actions/workflows/build-plugin-and-release-on-tag.yml/badge.svg)](https://github.com/FreedomFaighter/AdvancedCombatTrackerEverQuest/actions/workflows/build-plugin-and-release-on-tag.yml)
 
