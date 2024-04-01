@@ -1451,7 +1451,7 @@ namespace EverQuestDPS
                     );
                 chilled = default;
             }
-            if (logMatched != 15 && logMatched != 13 && logMatched != 6 && ActGlobals.oFormActMain.SetEncounter(ActGlobals.oFormActMain.LastKnownTime, CharacterNamePersonaReplace(regexMatch.Groups["attacker"].Value), CharacterNamePersonaReplace(regexMatch.Groups["victim"].Value)))
+            if (logMatched != 15 && logMatched != 13 && logMatched != 6 && ActGlobals.oFormActMain.SetEncounter(ActGlobals.oFormActMain.LastKnownTime, CharacterNamePersonaReplace(petTypeAndName.Item2), CharacterNamePersonaReplace(victimPetTypeAndName.Item2)))
             {
                 switch (logMatched)
                 {
@@ -1682,23 +1682,20 @@ namespace EverQuestDPS
                         break;
                 }
             }
-            else if(logMatched == 15)
+            else if(logMatched == 15 && ActGlobals.oFormActMain.SetEncounter(ActGlobals.oFormActMain.LastKnownTime, CharacterNamePersonaReplace(petTypeAndName.Item2), CharacterNamePersonaReplace(victimPetTypeAndName.Item2)))
             {
-                if(ActGlobals.oFormActMain.InCombat)
-                {
-                    tags.Add("Incoming", victimPetTypeAndName.Item1);
-                    chilled = new MasterSwing(EverQuestSwingType.DamageShield.GetEverQuestSwingTypeExtensionIntValue(),
-                        regexMatch.Groups["damageShieldSpecial"].Success ? regexMatch.Groups["damageShieldSpecial"].Value.Contains("Critical") : false,
-                        regexMatch.Groups["damageShieldSpecial"].Success ? regexMatch.Groups["damageShieldSpecial"].Value : String.Empty,
-                        new Dnum(Int64.Parse(regexMatch.Groups["damageAmount"].Value), "damage shield"),
-                        dateTimeOfParse,
-                        ActGlobals.oFormActMain.GlobalTimeSorter,
-                        "chilled",
-                        String.Empty,
-                        "Hitpoints",
-                        regexMatch.Groups["victim"].Value)
-                    { Tags = tags };
-                }
+                tags.Add("Incoming", victimPetTypeAndName.Item1);
+                chilled = new MasterSwing(EverQuestSwingType.DamageShield.GetEverQuestSwingTypeExtensionIntValue(),
+                    regexMatch.Groups["damageShieldSpecial"].Success ? regexMatch.Groups["damageShieldSpecial"].Value.Contains("Critical") : false,
+                    regexMatch.Groups["damageShieldSpecial"].Success ? regexMatch.Groups["damageShieldSpecial"].Value : String.Empty,
+                    new Dnum(Int64.Parse(regexMatch.Groups["damageAmount"].Value), "damage shield"),
+                    dateTimeOfParse,
+                    ActGlobals.oFormActMain.GlobalTimeSorter,
+                    "chilled",
+                    String.Empty,
+                    "Hitpoints",
+                    regexMatch.Groups["victim"].Value)
+                { Tags = tags };
             }
             else
             {
