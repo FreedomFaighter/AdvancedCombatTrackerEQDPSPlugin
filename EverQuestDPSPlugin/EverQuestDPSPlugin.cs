@@ -191,6 +191,17 @@ namespace EverQuestDPS
             InitializeComponent();
         }
 
+        private void pluginScreenSpaceAdd(TabPage screenSpace, Control control)
+        {
+            Action addControl = new Action(() => { screenSpace.Controls.Add(control); });
+            if (screenSpace.InvokeRequired)
+            {
+                screenSpace.Invoke(addControl);
+            }
+            else
+                addControl.Invoke();
+        }
+
         /// <summary>
         /// Called by the ACT program to start the plugin initialization
         /// Calls regex initialization methods and check for update methods
@@ -205,11 +216,17 @@ namespace EverQuestDPS
             lblStatus = pluginStatusText;   // Hand the status label's reference to our local var
             watcherForDebugFile = new FileSystemWatcher();
             watcherForRaidRoster = new FileSystemWatcher();
-            pluginScreenSpace.Controls.Add(this);
+
+            pluginScreenSpaceAdd(pluginScreenSpace, this);
+
             this.Dock = DockStyle.Fill;
 
             int dcIndex = -1;   // Find the Data Correction node in the Options tab
-            
+            Action optionsTreeViewAdd = () =>
+            {
+                // Add our own node to the Data Correction node
+                optionsNode = ActGlobals.oFormActMain.OptionsTreeView.Nodes[dcIndex].Nodes.Add($"{Properties.EQDPSPlugin.pluginName} Settings");
+            };
             for (int i = 0; i < ActGlobals.oFormActMain.OptionsTreeView.Nodes.Count; i++)
             {
                 if (ActGlobals.oFormActMain.OptionsTreeView.Nodes[i].Text == "Data Correction")
@@ -217,16 +234,34 @@ namespace EverQuestDPS
             }
             if (dcIndex != -1)
             {
-                // Add our own node to the Data Correction node
-                optionsNode = ActGlobals.oFormActMain.OptionsTreeView.Nodes[dcIndex].Nodes.Add($"{Properties.EQDPSPlugin.pluginName} Settings");
-                // Register our user control(this) to our newly create node path.  All controls added to the list will be laid out left to right, top to bottom
-                ActGlobals.oFormActMain.OptionsControlSets.Add($"Data Correction\\{Properties.EQDPSPlugin.pluginName}", new List<Control> { this });
+                if (ActGlobals.oFormActMain.OptionsTreeView.InvokeRequired)
+                {
+                    ActGlobals.oFormActMain.OptionsTreeView.Invoke(optionsTreeViewAdd);
+                }
+                else
+                {
+                    // Add our own node to the Data Correction node
+                    optionsTreeViewAdd.Invoke();
+                }
+                Action optionsControlSetsAdd = () =>
+                {
+                    // Register our user control(this) to our newly create node path.  All controls added to the list will be laid out left to right, top to bottom
+                    ActGlobals.oFormActMain.OptionsControlSets.Add($"Data Correction\\{Properties.EQDPSPlugin.pluginName}", new List<Control> { this });
+                };
+                if(ActGlobals.oFormActMain.InvokeRequired)
+                {
+                    ActGlobals.oFormActMain.Invoke(optionsControlSetsAdd);
+                }
+                else
+                {
+                    optionsControlSetsAdd.Invoke();
+                }
                 Label lblConfig = new Label
                 {
                     AutoSize = true,
                     Text = $"Settings under the {Properties.EQDPSPlugin.pluginName} tab."
                 };
-                pluginScreenSpace.Controls.Add(lblConfig);
+                pluginScreenSpaceAdd(pluginScreenSpace, lblConfig);
             }
             
             xmlSettings = new SettingsSerializer(this); // Create a new settings serializer and pass it this instance
