@@ -276,6 +276,7 @@ namespace EverQuestDPS
             ChangeLblStatus($"{Properties.EQDPSPlugin.pluginName} {Properties.EQDPSPlugin.pluginStarted}");
             
         }
+
         /// <summary>
         /// Removes methods from the delegates assigned during initialization
         /// attemps to save the settings and then update the plugin dock with status of the exit
@@ -284,10 +285,16 @@ namespace EverQuestDPS
         {
             ActGlobals.oFormActMain.GetDateTimeFromLog -= ParseDateTime;
             ActGlobals.oFormActMain.BeforeLogLineRead -= FormActMain_BeforeLogLineRead;
+            
             if (!(optionsNode == null))    // If we added our user control to the Options tab, remove it
             {
                 optionsNode.Remove();
-                ActGlobals.oFormActMain.OptionsControlSets.Remove($"Data Correction\\{Properties.EQDPSPlugin.pluginName}");
+                Action removeOption = () => { ActGlobals.oFormActMain.OptionsControlSets.Remove($"Data Correction\\{Properties.EQDPSPlugin.pluginName}"); };
+                if (ActGlobals.oFormActMain.InvokeRequired)
+                    ActGlobals.oFormActMain.Invoke(removeOption);
+                else
+                    removeOption.Invoke();
+
             }
 
             SaveSettings();
@@ -638,8 +645,8 @@ namespace EverQuestDPS
             DamageTypeData.ColumnDefs.Add("DPS", new DamageTypeData.ColumnDef("DPS", false, "DOUBLE", "DPS", (Data) => { return Data.DPS.ToString(); }, (Data) => { return Data.DPS.ToString(usCulture); }));
             DamageTypeData.ColumnDefs.Add("Average", new DamageTypeData.ColumnDef("Average", true, "DOUBLE", "Average", (Data) => { return Data.Average.ToString(); }, (Data) => { return Data.Average.ToString(usCulture); }));
             DamageTypeData.ColumnDefs.Add("Median", new DamageTypeData.ColumnDef("Median", false, "BIGINT", "Median", (Data) => { return Data.Median.ToString(); }, (Data) => { return Data.Median.ToString(); }));
-            DamageTypeData.ColumnDefs.Add("MinHit", new DamageTypeData.ColumnDef("MinHit", true, "BIGINT", "MinHit", (Data) => { return Data.MinHit.ToString(); }, (Data) => { return Data.MinHit.ToString(); }));
-            DamageTypeData.ColumnDefs.Add("MaxHit", new DamageTypeData.ColumnDef("MaxHit", true, "BIGINT", "MaxHit", (Data) => { return Data.MaxHit.ToString(); }, (Data) => { return Data.MaxHit.ToString(); }));
+            DamageTypeData.ColumnDefs.Add("MinHit", new DamageTypeData.ColumnDef("MinHit", true, "BIGINT", "MinHit", (Data) => { return Data.Swings == 0 ? String.Empty : Data.MinHit.ToString(); }, (Data) => { return Data.Swings == 0 ? String.Empty : Data.MinHit.ToString(); }));
+            DamageTypeData.ColumnDefs.Add("MaxHit", new DamageTypeData.ColumnDef("MaxHit", true, "BIGINT", "MaxHit", (Data) => { return Data.Swings == 0 ? String.Empty : Data.MaxHit.ToString(); }, (Data) => { return Data.Swings == 0 ? String.Empty : Data.MaxHit.ToString(); }));
             DamageTypeData.ColumnDefs.Add("Hits", new DamageTypeData.ColumnDef("Hits", true, "INT", "Hits", (Data) => { return Data.Hits.ToString(); }, (Data) => { return Data.Hits.ToString(); }));
             DamageTypeData.ColumnDefs.Add("CritHits", new DamageTypeData.ColumnDef("CritHits", false, "INT", "CritHits", (Data) => { return Data.CritHits.ToString(); }, (Data) => { return Data.CritHits.ToString(); }));
             DamageTypeData.ColumnDefs.Add("Avoids", new DamageTypeData.ColumnDef("Avoids", false, "INT", "Blocked", (Data) => { return Data.Blocked.ToString(); }, (Data) => { return Data.Blocked.ToString(); }));
@@ -1779,7 +1786,6 @@ namespace EverQuestDPS
         }
         #endregion
 
-
         #region Statistic processing
 
         //Variance calculation for attack damage
@@ -1867,7 +1873,7 @@ namespace EverQuestDPS
         /// Gets the attack type crit types percentages for special attacks in the log lines
         /// </summary>
         /// <param name="Data"></param>
-        /// <returns></returns>
+        /// <returns>string attack crit type percentage information</returns>
         internal string AttackTypeGetCritTypes(AttackType Data)
         {
             List<MasterSwing> ms = Data.Items.ToList().Where((item) => item.Damage >= 0).ToList();
