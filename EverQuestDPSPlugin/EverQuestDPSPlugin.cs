@@ -530,34 +530,34 @@ namespace EverQuestDPS
         {
             {EverQuestSwingType.Melee.GetEverQuestSwingTypeExtensionIntValue(), new List<string> { "Auto-Attack (Out)", "Outgoing Damage" } },
             {EverQuestSwingType.NonMelee.GetEverQuestSwingTypeExtensionIntValue(), new List<string> { "Skill/Ability (Out)", "Outgoing Damage" } },
-            {EverQuestSwingType.DirectDamageSpell.GetEverQuestSwingTypeExtensionIntValue(), new List<string> { "Direct Damage Spell (Out)" , "Outgoing Damage"} },
-            {EverQuestSwingType.DamageOverTimeSpell.GetEverQuestSwingTypeExtensionIntValue(), new List<string>{"Damage Over Time Spell (Out)", "Outgoing Damage"} },
-            {EverQuestSwingType.InstantHealing.GetEverQuestSwingTypeExtensionIntValue(), new List<string> { "Instant Healed (Out)" } },
-            {EverQuestSwingType.HealOverTime.GetEverQuestSwingTypeExtensionIntValue(), new List<string> { "Heal Over Time (Out)" } },
+            {(EverQuestSwingType.Spell | EverQuestSwingType.Instant).GetEverQuestSwingTypeExtensionIntValue(), new List<string> { "Direct Damage Spell (Out)" , "Outgoing Damage"} },
+            {(EverQuestSwingType.Spell | EverQuestSwingType.OverTime).GetEverQuestSwingTypeExtensionIntValue(), new List<string>{"Damage Over Time Spell (Out)", "Outgoing Damage"} },
+            {(EverQuestSwingType.Healing | EverQuestSwingType.Instant).GetEverQuestSwingTypeExtensionIntValue(), new List<string> { "Instant Healed (Out)" } },
+            {(EverQuestSwingType.Healing | EverQuestSwingType.OverTime).GetEverQuestSwingTypeExtensionIntValue(), new List<string> { "Heal Over Time (Out)" } },
                 {EverQuestSwingType.DamageShield.GetEverQuestSwingTypeExtensionIntValue(), new List<string> { "Damage Shield (Out)"} },
         };
             CombatantData.SwingTypeToDamageTypeDataLinksIncoming = new SortedDictionary<int, List<string>>
         {
             {EverQuestSwingType.Melee.GetEverQuestSwingTypeExtensionIntValue(), new List<string> { "Incoming Damage" } },
             {EverQuestSwingType.NonMelee.GetEverQuestSwingTypeExtensionIntValue(), new List<string> { "Incoming NonMelee Damage", "Incoming Damage" } },
-            {EverQuestSwingType.DirectDamageSpell.GetEverQuestSwingTypeExtensionIntValue(), new List<string> { "Direct Damage Spell (Inc)", "Incoming Damage" } },
-            {EverQuestSwingType.InstantHealing.GetEverQuestSwingTypeExtensionIntValue(), new List<string> { "Instant Healed (Inc)" } },
-            {EverQuestSwingType.DamageOverTimeSpell.GetEverQuestSwingTypeExtensionIntValue(), new List<string> {"Damage Over Time Spell (Inc)", "Incoming Damage" } },
-            {EverQuestSwingType.HealOverTime.GetEverQuestSwingTypeExtensionIntValue(), new List<string> { "Heal Over Time (Inc)" } },
+            {(EverQuestSwingType.Spell | EverQuestSwingType.Instant).GetEverQuestSwingTypeExtensionIntValue(), new List<string> { "Direct Damage Spell (Inc)", "Incoming Damage" } },
+            {(EverQuestSwingType.Healing | EverQuestSwingType.Instant).GetEverQuestSwingTypeExtensionIntValue(), new List<string> { "Instant Healed (Inc)" } },
+            {(EverQuestSwingType.Spell | EverQuestSwingType.OverTime).GetEverQuestSwingTypeExtensionIntValue(), new List<string> {"Damage Over Time Spell (Inc)", "Incoming Damage" } },
+            {(EverQuestSwingType.Healing | EverQuestSwingType.OverTime).GetEverQuestSwingTypeExtensionIntValue(), new List<string> { "Heal Over Time (Inc)" } },
                 {EverQuestSwingType.DamageShield.GetEverQuestSwingTypeExtensionIntValue(), new List<string> { "Damage Shield (Inc)"} },
         };
 
             CombatantData.DamageSwingTypes = new List<int> {
                 EverQuestSwingType.Melee.GetEverQuestSwingTypeExtensionIntValue(),
                 EverQuestSwingType.NonMelee.GetEverQuestSwingTypeExtensionIntValue(),
-                EverQuestSwingType.DirectDamageSpell.GetEverQuestSwingTypeExtensionIntValue(),
-                EverQuestSwingType.DamageOverTimeSpell.GetEverQuestSwingTypeExtensionIntValue(),
+                (EverQuestSwingType.Spell | EverQuestSwingType.Instant).GetEverQuestSwingTypeExtensionIntValue(),
+                (EverQuestSwingType.Spell | EverQuestSwingType.OverTime).GetEverQuestSwingTypeExtensionIntValue(),
                 EverQuestSwingType.DamageShield.GetEverQuestSwingTypeExtensionIntValue(),
                 EverQuestSwingType.Bane.GetEverQuestSwingTypeExtensionIntValue(),
             };
             CombatantData.HealingSwingTypes = new List<int> {
-                EverQuestSwingType.InstantHealing.GetEverQuestSwingTypeExtensionIntValue(),
-                EverQuestSwingType.HealOverTime.GetEverQuestSwingTypeExtensionIntValue(),
+                (EverQuestSwingType.Healing | EverQuestSwingType.Instant).GetEverQuestSwingTypeExtensionIntValue(),
+                (EverQuestSwingType.Healing | EverQuestSwingType.OverTime).GetEverQuestSwingTypeExtensionIntValue(),
             };
 
             CombatantData.ExportVariables.Clear();
@@ -704,9 +704,9 @@ namespace EverQuestDPS
             MasterSwing.ColumnDefs.Add("DamageType", new MasterSwing.ColumnDef("DamageType", true, "VARCHAR(64)", "DamageType", (Data) => { return Data.DamageType; }, (Data) => { return Data.DamageType; }, (Left, Right) => { return Left.DamageType.CompareTo(Right.DamageType); }));
             MasterSwing.ColumnDefs.Add("Victim", new MasterSwing.ColumnDef("Victim", true, "VARCHAR(64)", "Victim", (Data) => { return Data.Victim; }, (Data) => { return Data.Victim; }, (Left, Right) => { return Left.Victim.CompareTo(Right.Victim); }));
 
-            MasterSwing.ColumnDefs.Add("DamageNum", new MasterSwing.ColumnDef("DamageNum", false, "BIGINT", "Damage", (Data) =>
+            MasterSwing.ColumnDefs.Add("DamageNum", new MasterSwing.ColumnDef("DamageNum", false, "BIGINT", "DamageNum", (Data) =>
             {
-                if ((long)Data.Damage < 0)
+                if (Data.Damage.Number < 0)
                     return String.Empty;
                 else
                     return ((long)Data.Damage).ToString();
@@ -714,7 +714,7 @@ namespace EverQuestDPS
             ,
             (Data) =>
             {
-                if ((long)Data.Damage < 0)
+                if (Data.Damage.Number < 0)
                     return String.Empty;
                 else
                     return ((long)Data.Damage).ToString();
@@ -1589,7 +1589,7 @@ namespace EverQuestDPS
                     case 5:
                         Dnum spellCastDamage = new Dnum(Int64.Parse(regexMatch.Groups["damagePoints"].Value), regexMatch.Groups["typeOfDamage"].Value);
                         AddMasterSwing(
-                                EverQuestSwingType.DirectDamageSpell
+                                EverQuestSwingType.Spell | EverQuestSwingType.Instant
                                 , regexMatch.Groups["damageSpecial"].Success ? regexMatch.Groups["damageSpecial"].Value : String.Empty
                                 , spellCastDamage
                                 , dateTimeOfParse
@@ -1623,7 +1623,7 @@ namespace EverQuestDPS
                         AddMasterSwing(
                                EverQuestSwingType.Melee
                                , regexMatch.Groups["evasionSpecial"].Success ? regexMatch.Groups["evasionSpecial"].Value : String.Empty
-                               , new Dnum(Dnum.NoDamage, regexMatch.Groups["evasionType"].Value)
+                               , new Dnum(Dnum.Miss, regexMatch.Groups["evasionType"].Value)
                                , dateTimeOfParse
                                , regexMatch.Groups["attackType"].Value
                                , CharacterNamePersonaReplace(petTypeAndName.Item2)
@@ -1650,7 +1650,7 @@ namespace EverQuestDPS
                     case 10:
                         Dnum spellDamageOverTimeDamage = new Dnum(Int64.Parse(regexMatch.Groups["damagePoints"].Value), "spell dot");
                         AddMasterSwing(
-                               EverQuestSwingType.DamageOverTimeSpell
+                               EverQuestSwingType.Spell | EverQuestSwingType.OverTime
                                , regexMatch.Groups["spellSpecial"].Success ? regexMatch.Groups["spellSpecial"].Value : String.Empty
                                , spellDamageOverTimeDamage
                                , dateTimeOfParse
@@ -1664,7 +1664,7 @@ namespace EverQuestDPS
                     //Focus Direct Damage Spell
                     case 11:
                         AddMasterSwing(
-                               EverQuestSwingType.DamageOverTimeSpell
+                               EverQuestSwingType.Spell
                                , regexMatch.Groups["focusSpecial"].Success ? regexMatch.Groups["focusSpecial"].Value : String.Empty
                                , new Dnum(Int64.Parse(regexMatch.Groups["damagePoints"].Value), "spell focus")
                                , dateTimeOfParse
@@ -1689,9 +1689,10 @@ namespace EverQuestDPS
                                , tags
                            );
                         break;
+                    //Spell resist
                     case 14:
                         AddMasterSwing(
-                               EverQuestSwingType.DirectDamageSpell
+                               EverQuestSwingType.Spell
                                , regexMatch.Groups["damageSpecial"].Success ? regexMatch.Groups["damageSpecial"].Value : String.Empty
                                , new Dnum(Dnum.NoDamage, "spell")
                                , dateTimeOfParse
@@ -1731,7 +1732,7 @@ namespace EverQuestDPS
                             if (regexMatch.Groups["overHealPoints"].Success)
                                 tags["overheal"] = Int64.Parse(regexMatch.Groups["overHealPoints"].Value);
                             AddMasterSwing(
-                                        regexMatch.Groups["overTime"].Success ? EverQuestSwingType.HealOverTime : EverQuestSwingType.InstantHealing,
+                                        EverQuestSwingType.Healing | ( regexMatch.Groups["overTime"].Success ? EverQuestSwingType.OverTime : EverQuestSwingType.Instant),
                                         regexMatch.Groups["healingSpecial"].Success ? regexMatch.Groups["healingSpecial"].Value : String.Empty,
                                         new Dnum(Int64.Parse(regexMatch.Groups["pointsOfHealing"].Value), "healing"),
                                         dateTimeOfParse,
@@ -1865,9 +1866,9 @@ namespace EverQuestDPS
                     return Color.DarkViolet;
                 case EverQuestSwingType.NonMelee:
                     return Color.DarkRed;
-                case EverQuestSwingType.InstantHealing:
+                case EverQuestSwingType.Healing | EverQuestSwingType.Instant:
                     return Color.DodgerBlue;
-                case EverQuestSwingType.HealOverTime:
+                case EverQuestSwingType.Healing | EverQuestSwingType.OverTime:
                     return Color.GreenYellow;
                 case EverQuestSwingType.Bane:
                     return Color.Honeydew;
@@ -1911,18 +1912,18 @@ namespace EverQuestDPS
         internal string AttackTypeGetCritTypes(AttackType Data)
         {
             List<MasterSwing> ms = Data.Items.ToList().Where((item) => item.Damage >= 0).ToList();
-            int CripplingBlowCount = 0;
-            int LockedCount = 0;
-            int CriticalCount = 0;
-            int StrikethroughCount = 0;
-            int RiposteCount = 0;
-            int NonDefinedCount = 0;
-            int FlurryCount = 0;
-            int LuckyCount = 0;
-            int DoubleBowShotCount = 0;
-            int TwincastCount = 0;
-            int WildRampageCount = 0;
-            int FinishingBlowCount = 0;
+            int CripplingBlowCount = default;
+            int LockedCount = default;
+            int CriticalCount = default;
+            int StrikethroughCount = default;
+            int RiposteCount = default;
+            int NonDefinedCount = default;
+            int FlurryCount = default;
+            int LuckyCount = default;
+            int DoubleBowShotCount = default;
+            int TwincastCount = default;
+            int WildRampageCount = default;
+            int FinishingBlowCount = default;
             int count = ms.Count;
 
             FinishingBlowCount = ms.Where((finishingBlow) =>
