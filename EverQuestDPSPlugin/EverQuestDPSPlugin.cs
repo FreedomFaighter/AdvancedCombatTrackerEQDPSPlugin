@@ -229,7 +229,7 @@ namespace EverQuestDPS
             };
             for (int i = 0; i < ActGlobals.oFormActMain.OptionsTreeView.Nodes.Count; i++)
             {
-                if (ActGlobals.oFormActMain.OptionsTreeView.Nodes[i].Text == "Data Correction")
+                if (ActGlobals.oFormActMain.OptionsTreeView.Nodes[i].Text.Equals("Data Correction"))
                     dcIndex = i;
             }
             if (dcIndex != -1)
@@ -1513,9 +1513,16 @@ namespace EverQuestDPS
             Tuple<String, String> petTypeAndName = GetTypeAndNameForPet(CharacterNamePersonaReplace(regexMatch.Groups["attacker"].Value));
             Tuple<String, String> victimPetTypeAndName = GetTypeAndNameForPet(regexMatch.Groups["victim"].Value);
             Dictionary<string, Object> tags = new Dictionary<string, Object>();
-            tags.Add("Outgoing", petTypeAndName.Item1);
-            tags.Add("Incoming", victimPetTypeAndName.Item1);
 
+            try
+            {
+                tags.Add("Outgoing", petTypeAndName.Item1);
+                tags.Add("Incoming", victimPetTypeAndName.Item1);
+            }
+            catch(Exception ex)
+            {
+                ActGlobals.oFormActMain.WriteExceptionLog(ex, regexMatch.Value);
+            }
             if (logMatched != 15 && logMatched != 13 && logMatched != 6 && ActGlobals.oFormActMain.SetEncounter(ActGlobals.oFormActMain.LastKnownTime, CharacterNamePersonaReplace(petTypeAndName.Item2), CharacterNamePersonaReplace(victimPetTypeAndName.Item2)))
             {
                 switch (logMatched)
@@ -1723,8 +1730,6 @@ namespace EverQuestDPS
                         {
                             if (regexMatch.Groups["overHealPoints"].Success)
                                 tags["overheal"] = Int64.Parse(regexMatch.Groups["overHealPoints"].Value);
-                            tags.Add("Outgoing", petTypeAndName.Item1);
-                            tags.Add("Incoming", victimPetTypeAndName.Item1);
                             AddMasterSwing(
                                         regexMatch.Groups["overTime"].Success ? EverQuestSwingType.HealOverTime : EverQuestSwingType.InstantHealing,
                                         regexMatch.Groups["healingSpecial"].Success ? regexMatch.Groups["healingSpecial"].Value : String.Empty,
