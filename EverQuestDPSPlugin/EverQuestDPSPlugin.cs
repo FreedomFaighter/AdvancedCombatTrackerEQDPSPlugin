@@ -269,8 +269,20 @@ namespace EverQuestDPS
             PopulateRegexNonCombat();
             PopulateRegexCombat();
             SetupEverQuestEnvironment();
-            ActGlobals.oFormActMain.GetDateTimeFromLog += new FormActMain.DateTimeLogParser(ParseDateTime);
-            ActGlobals.oFormActMain.BeforeLogLineRead += new LogLineEventDelegate(FormActMain_BeforeLogLineRead);
+            if (ActGlobals.oFormActMain.InvokeRequired)
+            {
+                ActGlobals.oFormActMain.Invoke(new Action(() =>
+                {
+                    ActGlobals.oFormActMain.GetDateTimeFromLog += new FormActMain.DateTimeLogParser(ParseDateTime);
+                    ActGlobals.oFormActMain.BeforeLogLineRead += new LogLineEventDelegate(FormActMain_BeforeLogLineRead);
+                }));
+            }
+            else
+            {
+                ActGlobals.oFormActMain.GetDateTimeFromLog += new FormActMain.DateTimeLogParser(ParseDateTime);
+                ActGlobals.oFormActMain.BeforeLogLineRead += new LogLineEventDelegate(FormActMain_BeforeLogLineRead);
+            }
+               
             ActGlobals.oFormActMain.CharacterFileNameRegex = new Regex(Properties.EQDPSPlugin.fileNameForLog, RegexOptions.Compiled);
             ActGlobals.oFormActMain.ZoneChangeRegex = new Regex($@"\[(?:.+)\] {Properties.EQDPSPlugin.zoneChange}", RegexOptions.Compiled);
             ChangeLblStatus($"{Properties.EQDPSPlugin.pluginName} {Properties.EQDPSPlugin.pluginStarted}");
@@ -283,20 +295,21 @@ namespace EverQuestDPS
         /// </summary>
         public void DeInitPlugin()
         {
-            ActGlobals.oFormActMain.GetDateTimeFromLog -= ParseDateTime;
-            ActGlobals.oFormActMain.BeforeLogLineRead -= FormActMain_BeforeLogLineRead;
-            
-            if (!(optionsNode == null))    // If we added our user control to the Options tab, remove it
-            {
-                optionsNode.Remove();
-                Action removeOption = () => { ActGlobals.oFormActMain.OptionsControlSets.Remove($"Data Correction\\{Properties.EQDPSPlugin.pluginName}"); };
-                if (ActGlobals.oFormActMain.InvokeRequired)
-                    ActGlobals.oFormActMain.Invoke(removeOption);
-                else
-                    removeOption.Invoke();
 
-            }
+            Action removeOption = () => {
+                if (!(optionsNode == null))    // If we added our user control to the Options tab, remove it
+                {
+                    optionsNode.Remove();
+                    ActGlobals.oFormActMain.OptionsControlSets.Remove($"Data Correction\\{Properties.EQDPSPlugin.pluginName}");
+                }
+                ActGlobals.oFormActMain.GetDateTimeFromLog -= ParseDateTime;
+                ActGlobals.oFormActMain.BeforeLogLineRead -= FormActMain_BeforeLogLineRead;
+            };
 
+            if (ActGlobals.oFormActMain.InvokeRequired)
+                ActGlobals.oFormActMain.Invoke(removeOption);
+            else
+                removeOption.Invoke();
             SaveSettings();
             ChangeLblStatus($"{Properties.EQDPSPlugin.pluginName} {Properties.EQDPSPlugin.pluginExited}");
         }
@@ -1465,6 +1478,7 @@ namespace EverQuestDPS
                 , victim)
             { Tags = tags });
         }
+
         /// <summary>
         /// Parses if the line is a matched action read in the log file and provides a combat action entry with the swingtype method
         /// </summary>
