@@ -1788,14 +1788,20 @@ namespace EverQuestDPS
             if (Directory.Exists(directoryPathTB.Text))
             {
                 dbgFilePath = Path.Combine(directoryPathTB.Text, fileNameExpected);
-                watcherForDebugFile = new FileSystemWatcher(Path.GetDirectoryName(dbgFilePath), "dbg.txt");
-                watcherForDebugFile.EnableRaisingEvents = true;
-                watcherForDebugFile.NotifyFilter = NotifyFilters.LastWrite | NotifyFilters.Attributes | NotifyFilters.CreationTime;
-                watcherForDebugFile.Changed += Watcher_Changed;
-                watcherForDebugFile.Created += Watcher_CreatedForDebugFile;
+
                 if (File.Exists(dbgFilePath))
                 {
+                    watcherForDebugFile = new FileSystemWatcher(Path.GetDirectoryName(dbgFilePath), "dbg.txt");
+                    watcherForDebugFile.EnableRaisingEvents = true;
+                    watcherForDebugFile.NotifyFilter = NotifyFilters.LastWrite | NotifyFilters.Attributes | NotifyFilters.CreationTime;
+                    watcherForDebugFile.Changed += Watcher_Changed;
+                    watcherForDebugFile.Created += Watcher_CreatedForDebugFile;
                     sr = new StreamReader(new FileStream(dbgFilePath, FileMode.Open, FileAccess.Read, FileShare.ReadWrite));
+                }
+                else
+                {
+                    ActGlobals.oFormActMain.WriteInfoLog($"{dbgFilePath.ToString()} does not exist for reading.");
+                    return;
                 }
 
                 watcherForRaidRoster = new FileSystemWatcher(Path.GetFullPath(directoryPathTB.Text), "RaidRoster_*-*-*.txt")
