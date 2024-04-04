@@ -281,8 +281,9 @@ namespace EverQuestDPS
             {
                 ActGlobals.oFormActMain.GetDateTimeFromLog += new FormActMain.DateTimeLogParser(ParseDateTime);
                 ActGlobals.oFormActMain.BeforeLogLineRead += new LogLineEventDelegate(FormActMain_BeforeLogLineRead);
+                ActGlobals.oFormActMain.OnLogLineRead += new LogLineEventDelegate(FormActMain_OnLogLineRead);
             }
-               
+             
             ActGlobals.oFormActMain.CharacterFileNameRegex = new Regex(Properties.EQDPSPlugin.fileNameForLog, RegexOptions.Compiled);
             ActGlobals.oFormActMain.ZoneChangeRegex = new Regex($@"\[(?:.+)\] {Properties.EQDPSPlugin.zoneChange}", RegexOptions.Compiled);
             ChangeLblStatus($"{Properties.EQDPSPlugin.pluginName} {Properties.EQDPSPlugin.pluginStarted}");
@@ -304,6 +305,7 @@ namespace EverQuestDPS
                 }
                 ActGlobals.oFormActMain.GetDateTimeFromLog -= ParseDateTime;
                 ActGlobals.oFormActMain.BeforeLogLineRead -= FormActMain_BeforeLogLineRead;
+                ActGlobals.oFormActMain.OnLogLineRead -= FormActMain_OnLogLineRead;
             };
 
             if (ActGlobals.oFormActMain.InvokeRequired)
@@ -1400,12 +1402,33 @@ namespace EverQuestDPS
             regexTupleList.Add(new Tuple<Color, Regex>(Color.Black, new Regex(RegexString(Properties.EQDPSPlugin.youDied), RegexOptions.Compiled)));
             ActGlobals.oFormEncounterLogs.LogTypeToColorMapping.Add(regexTupleList.Count, regexTupleList[regexTupleList.Count - 1].Item1);
         }
+
+        private void FormActMain_BeforeLogLineRead(bool isImport, LogLineEventArgs logInfo)
+        {
+            if (chilled != default)
+            {
+                Match meleeMatch = regexTupleList[0].Item2.Match(logInfo.logLine);
+                Tuple<String, String> petTypeAndName = GetTypeAndNameForPet(CharacterNamePersonaReplace(meleeMatch.Groups["attacker"].Value));
+                chilled.Tags.Add("Outgoing", petTypeAndName.Item1);
+                AddMasterSwing(chilled.SwingType.GetFromIntEverQuestSwingType(),
+                    chilled.Special,
+                    chilled.Damage,
+                    chilled.Time,
+                    chilled.AttackType,
+                    CharacterNamePersonaReplace(petTypeAndName.Item2),
+                    chilled.DamageType,
+                    chilled.Victim,
+                    chilled.Tags
+                    );
+                chilled = default;
+            }
+        }
         /// <summary>
         /// Attempts to read before the log line is parsed
         /// </summary>
         /// <param name="isImport"></param>
         /// <param name="logInfo"></param>
-        private void FormActMain_BeforeLogLineRead(bool isImport, LogLineEventArgs logInfo)
+        private void FormActMain_OnLogLineRead(bool isImport, LogLineEventArgs logInfo)
         {
             for (int i = 0; i < regexTupleList.Count; i++)
             {
@@ -1492,21 +1515,7 @@ namespace EverQuestDPS
             Dictionary<string, Object> tags = new Dictionary<string, Object>();
             tags.Add("Outgoing", petTypeAndName.Item1);
             tags.Add("Incoming", victimPetTypeAndName.Item1);
-            if (chilled != default)
-            {
-                chilled.Tags.Add("Outgoing", petTypeAndName.Item1);
-                AddMasterSwing(chilled.SwingType.GetFromIntEverQuestSwingType(),
-                    chilled.Special,
-                    chilled.Damage,
-                    chilled.Time,
-                    chilled.AttackType,
-                    CharacterNamePersonaReplace(petTypeAndName.Item2),
-                    chilled.DamageType,
-                    chilled.Victim,
-                    chilled.Tags
-                    );
-                chilled = default;
-            }
+
             if (logMatched != 15 && logMatched != 13 && logMatched != 6 && ActGlobals.oFormActMain.SetEncounter(ActGlobals.oFormActMain.LastKnownTime, CharacterNamePersonaReplace(petTypeAndName.Item2), CharacterNamePersonaReplace(victimPetTypeAndName.Item2)))
             {
                 switch (logMatched)
