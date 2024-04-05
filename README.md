@@ -1,4 +1,4 @@
-This repository contains a build from GitHub's workflows but it is suggested that you create a fork of the repository and clone off your own account and then build from source
+This repository contains a build from GitHub's workflows but it is suggested that you create a fork of the repository and in this instance uncheck only clone Master branch and clone off your own account and then build from source
 
 Update feature removed and plugin file must be gotten from repository releases manually
 
