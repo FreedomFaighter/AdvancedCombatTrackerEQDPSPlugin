@@ -177,6 +177,7 @@ namespace EverQuestDPS
         private Button selectDirectory;
         private Label eqDirectory;
         private MasterSwing chilled;
+        private Match meleeMatch;
         readonly List<string> ignoreStringsForZoneParse = new List<string>()
                         {
                             "an area where levitation effects do not function",
@@ -1407,9 +1408,10 @@ namespace EverQuestDPS
         {
             if (chilled != default)
             {
-                Match meleeMatch = regexTupleList[0].Item2.Match(logInfo.logLine);
+                meleeMatch = regexTupleList[0].Item2.Match(logInfo.logLine);
                 Tuple<String, String> petTypeAndName = GetTypeAndNameForPet(CharacterNamePersonaReplace(meleeMatch.Groups["attacker"].Value));
-                chilled.Tags.Add("Outgoing", petTypeAndName.Item1);
+                Dictionary<String, object> newPetInfo = chilled.Tags;
+                newPetInfo.Add("Outgoing", petTypeAndName.Item1);
                 AddMasterSwing(chilled.SwingType.GetFromIntEverQuestSwingType(),
                     chilled.Special,
                     chilled.Damage,
@@ -1418,11 +1420,12 @@ namespace EverQuestDPS
                     CharacterNamePersonaReplace(petTypeAndName.Item2),
                     chilled.DamageType,
                     chilled.Victim,
-                    chilled.Tags
+                    newPetInfo
                     );
                 chilled = default;
             }
         }
+
         /// <summary>
         /// Attempts to read before the log line is parsed
         /// </summary>
@@ -1432,11 +1435,13 @@ namespace EverQuestDPS
         {
             for (int i = 0; i < regexTupleList.Count; i++)
             {
-                Match regexMatch = regexTupleList[i].Item2.Match(logInfo.logLine);
+                Match regexMatch = meleeMatch != default ? meleeMatch : regexTupleList[i].Item2.Match(logInfo.logLine);
                 if (regexMatch.Success)
                 {
                     logInfo.detectedType = i + 1;
                     ParseEverQuestLogLine(regexMatch, i + 1);
+                    if(meleeMatch != default)
+                        meleeMatch = default;
                     return;
                 }
             }
@@ -1516,7 +1521,8 @@ namespace EverQuestDPS
 
             try
             {
-                tags.Add("Outgoing", petTypeAndName.Item1);
+                if(logMatched != 15)
+                    tags.Add("Outgoing", petTypeAndName.Item1);
                 tags.Add("Incoming", victimPetTypeAndName.Item1);
             }
             catch(Exception ex)
@@ -1755,7 +1761,6 @@ namespace EverQuestDPS
             }
             else if(logMatched == 15 && ActGlobals.oFormActMain.SetEncounter(ActGlobals.oFormActMain.LastKnownTime, CharacterNamePersonaReplace(petTypeAndName.Item2), CharacterNamePersonaReplace(victimPetTypeAndName.Item2)))
             {
-                tags.Add("Incoming", victimPetTypeAndName.Item1);
                 chilled = new MasterSwing(EverQuestSwingType.DamageShield.GetEverQuestSwingTypeExtensionIntValue(),
                     regexMatch.Groups["damageShieldSpecial"].Success ? regexMatch.Groups["damageShieldSpecial"].Value.Contains("Critical") : false,
                     regexMatch.Groups["damageShieldSpecial"].Success ? regexMatch.Groups["damageShieldSpecial"].Value : String.Empty,
