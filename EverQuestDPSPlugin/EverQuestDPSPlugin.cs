@@ -19,7 +19,7 @@ using EverQuestDPS.Enums;
 
 namespace EverQuestDPS
 {
-    public partial class EverQuestDPSPlugin : UserControl, IActPluginV1
+    public class EverQuestDPSPlugin : UserControl, IActPluginV1
     {
         #region Designer generated code (Avoid editing)
         /// <summary> 
@@ -160,6 +160,7 @@ namespace EverQuestDPS
         #endregion
 
         #region Class Members
+        private FileSystemWatcher watcherForRaidRoster;
         TreeNode optionsNode = null;
         Label lblStatus;    // The status label that appears in ACT's Plugin tab
         delegate void matchParse(Match regexMatch);
@@ -183,13 +184,99 @@ namespace EverQuestDPS
                             "an area where levitation effects do not function",
                             "the Drunken Monkey stance adequately"
                         };
+        FileSystemWatcher watcherForDebugFile;
+        StreamReader sr;
+        String dbgFilePath;
+        bool readingLine = false;
+        readonly string fileNameExpected = $"Logs{Path.DirectorySeparatorChar}dbg.txt";
+        Regex zoneEnterRgx;
         #endregion
+
         /// <summary>
         /// Constructor that calls initialize component
         /// </summary>
         public EverQuestDPSPlugin()
         {
             InitializeComponent();
+        }
+
+               private void Watcher_CreatedForDebugFile(object sender, FileSystemEventArgs e)
+        {
+            if (e.ChangeType.HasFlag(WatcherChangeTypes.Created))
+            {
+                SetWatcherToDirectory();
+            }
+        }
+
+        private void Watcher_Changed(object sender, FileSystemEventArgs e)
+        {
+            if (e.ChangeType.HasFlag(WatcherChangeTypes.Changed) && !readingLine)
+                ReadLineFromFileStreamAtPosition();
+        }
+
+        private void ReadLineFromFileStreamAtPosition()
+        {
+            string line;
+            readingLine = true;
+            while ((line = sr.ReadLine()) != null)
+            {
+                Match m = zoneEnterRgx.Match(line);
+                if (m.Success && (ActGlobals.charName == m.Groups["characterEnteringZone"].Value))
+                {
+                    ActGlobals.oFormActMain.ChangeZone(m.Groups["ZoneName"].Value);
+                }
+            }
+            readingLine = false;
+        }
+
+        private void DirectoryPathTxtBox_TextChanged(object sender, EventArgs e)
+        {
+            if (Directory.Exists(directoryPathTB.Text))
+            {
+                SetWatcherToDirectory();
+            }
+            else
+            {
+                ChangeLblStatus("EverQuest install directory is missing from plugin settings.");
+            }
+            ChangeLblStatus($"dbg.txt log file changed to {dbgFilePath}.");
+        }
+        /// <summary>
+        /// Once a file is created read the lines from the roster and include them on the Raid Allies list for the encounter
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void Watcher_Created(object sender, FileSystemEventArgs e)
+        {
+            if (ActGlobals.oFormActMain.ActiveZone.ActiveEncounter == null)
+            {
+                ChangeLblStatus("No active encounter and no raid allies will be tracked.");
+                return;
+            }
+            ChangeLblStatus($"Reading {e.FullPath}");
+            Regex raidAllyLineRegex = new Regex(Properties.EQDPSPlugin.raidAllyFormat);
+            Regex filename = new Regex(Properties.EQDPSPlugin.raidAllyFileName);
+            Match m = filename.Match(e.Name);
+            if (e.ChangeType.HasFlag(WatcherChangeTypes.Created) && m.Success)
+            {
+                List<CombatantData> data = new List<CombatantData>();
+
+                using (StreamReader sr = new StreamReader(new FileStream(e.FullPath, FileMode.Open)))
+                {
+                    String line;
+
+                    while ((line = sr.ReadLine()) != null)
+                    {
+                        Match raidLineMatch = raidAllyLineRegex.Match(line);
+                        CombatantData combatantData = new CombatantData(raidLineMatch.Groups["playerName"].Value, ActGlobals.oFormActMain.ActiveZone.ActiveEncounter);
+
+                        if (combatantData != null && combatantData.Name != ActGlobals.charName)
+                            data.Add(combatantData);
+                    }
+                }
+
+                ActGlobals.oFormActMain.ActiveZone.ActiveEncounter.SetAllies(data);
+            }
         }
 
         private void pluginScreenSpaceAdd(TabPage screenSpace, Control control)
@@ -1826,7 +1913,7 @@ namespace EverQuestDPS
         }
         #endregion
 
-        #region Statistic processing
+        #region Statistical processing
 
         //Variance calculation for attack damage
         /// <summary>
@@ -1885,6 +1972,36 @@ namespace EverQuestDPS
         }
 
         #region User Interface Update code
+        private void ChangedbgLogFileTextValue(String status)
+        {
+            switch (directoryPathTB.InvokeRequired)
+            {
+                case true:
+                    this.directoryPathTB.Invoke(new Action(() =>
+                    {
+                        this.directoryPathTB.Text = status;
+                    }));
+                    break;
+                case false:
+                    this.directoryPathTB.Text = status;
+                    break;
+                default:
+                    break;
+            }
+        }
+
+        private void ChangeEditabilityOfLogFileTextValue(bool enabled)
+        {
+            if (directoryPathTB.InvokeRequired)
+            {
+                this.directoryPathTB.Invoke(new Action(() =>
+                {
+                    this.directoryPathTB.Enabled = enabled;
+                }));
+            }
+            else
+                this.directoryPathTB.Enabled = enabled;
+        }
         /// <summary>
         /// updates the status label with thread safety based on whether the plugin needs to invoke the codes in separate thread to update the user interface control
         /// </summary>
