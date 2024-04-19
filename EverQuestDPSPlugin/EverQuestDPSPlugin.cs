@@ -91,6 +91,7 @@ namespace EverQuestDPS
             this.varianceOff.TabStop = true;
             this.varianceOff.Text = "Off";
             this.varianceOff.UseVisualStyleBackColor = true;
+            this.varianceOff.CheckedChanged += new System.EventHandler(this.varianceType_CheckedChanged);
             // 
             // sampVariance
             // 
@@ -102,6 +103,7 @@ namespace EverQuestDPS
             this.sampVariance.TabStop = true;
             this.sampVariance.Text = "Sample";
             this.sampVariance.UseVisualStyleBackColor = true;
+            this.sampVariance.CheckedChanged += new System.EventHandler(this.varianceType_CheckedChanged);
             // 
             // populVariance
             // 
@@ -113,6 +115,7 @@ namespace EverQuestDPS
             this.populVariance.TabStop = true;
             this.populVariance.Text = "Popluation";
             this.populVariance.UseVisualStyleBackColor = true;
+            this.populVariance.CheckedChanged += new System.EventHandler(this.varianceType_CheckedChanged);
             // 
             // selectDirectory
             // 
@@ -200,7 +203,7 @@ namespace EverQuestDPS
             InitializeComponent();
         }
 
-               private void Watcher_CreatedForDebugFile(object sender, FileSystemEventArgs e)
+        private void Watcher_CreatedForDebugFile(object sender, FileSystemEventArgs e)
         {
             if (e.ChangeType.HasFlag(WatcherChangeTypes.Created))
             {
@@ -415,8 +418,8 @@ namespace EverQuestDPS
             xmlSettings.AddControlSetting(varianceOff.Name, varianceOff);
             if (File.Exists(settingsFile))
             {
-                using (FileStream fs = new FileStream(settingsFile, FileMode.Open, FileAccess.Read, FileShare.ReadWrite))
-                using (XmlTextReader xReader = new XmlTextReader(fs))
+                using (FileStream settingsFileStream = new FileStream(settingsFile, FileMode.Open, FileAccess.Read, FileShare.ReadWrite))
+                using (XmlTextReader xReader = new XmlTextReader(settingsFileStream))
                 {
                     try
                     {
@@ -444,7 +447,17 @@ namespace EverQuestDPS
                 ChangeLblStatus($"{settingsFile} does not exist and no settings were loaded, first time loading {Properties.EQDPSPlugin.pluginName}?");
                 SaveSettings();
             }
+            if (populVariance.Checked)
+                varianceCalc = populationVariance;
+            else if (sampVariance.Checked)
+                varianceCalc = sampleVariance;
+            else
+                varianceCalc = new Func<List<MasterSwing>, double>((msList) =>
+                {
+                    return default;
+                });
         }
+
         /// <summary>
         /// Saves the settings file usually called when there is a change in the settings, 
         /// a settings file doesn't exist during LoadSettings method call, 
@@ -1914,6 +1927,23 @@ namespace EverQuestDPS
         #endregion
 
         #region Statistical processing
+        Func<List<MasterSwing>, double> varianceCalc = default;
+        Func<List<MasterSwing>, double> populationVariance = new Func<List<MasterSwing>, double>((msList) =>
+        {
+            double mean = msList.Select((item) => item.Damage.Number).Average();
+            return (msList.Sum((item) =>
+            {
+                return Math.Pow(mean - item.Damage.Number, 2.0);
+            }) / msList.Count);
+        });
+        Func<List<MasterSwing>, double> sampleVariance = new Func<List<MasterSwing>, double>((msList) =>
+        {
+            double mean = msList.Select((item) => item.Damage.Number).Average();
+            return (msList.Sum((item) =>
+            {
+                return Math.Pow(mean - item.Damage.Number, 2.0);
+            }) / (msList.Count - 1));
+        });
 
         //Variance calculation for attack damage
         /// <summary>
@@ -1923,26 +1953,15 @@ namespace EverQuestDPS
         /// <returns></returns>
         private double AttackTypeGetVariance(AttackType Data)
         {
-            List<MasterSwing> ms = Data.Items.ToList().Where((item) => item.Damage.Number >= 0).ToList();
-            double average;
-                if (sampVariance.Checked && ms.Count > 1)
-                {
-                    average = ms.Select((item) => item.Damage.Number).Average();
-                    return (ms.Sum((item) =>
-                    {
-                        return Math.Pow(average - item.Damage.Number, 2.0);
-                    }) / (ms.Count - 1));
-                }
-                else if (populVariance.Checked && Data.Items.Count > 0)
-                {
-                    average = ms.Select((item) => item.Damage.Number).Average();
-                    return (ms.Sum((item) =>
-                    {
-                        return Math.Pow(average - item.Damage.Number, 2.0);
-                    }) / ms.Count);
-                }
-                else
-                    return default;
+            List<MasterSwing> masterSwingList = Data.Items.ToList().Where((item) => item.Damage.Number >= 0).ToList();
+            if (masterSwingList.Count > 0)
+            {
+                return varianceCalc(masterSwingList);
+            }
+            else
+            {
+                return default;
+            }
         }
         #endregion
         /// <summary>
@@ -2146,6 +2165,27 @@ namespace EverQuestDPS
                 }
             }
         }
-    }
 
+        private void varianceType_CheckedChanged(object sender, EventArgs e)
+        {
+            if (sender.Equals(populVariance))
+            {
+                ChangeLblStatus("population variance radio button selected");
+                varianceCalc = populationVariance;
+            }
+            else if (sender.Equals(sampVariance))
+            {
+                ChangeLblStatus("sample variance radio button selected");
+                varianceCalc = sampleVariance;
+            }
+            else
+            {
+                ChangeLblStatus("off variance radio button selected");
+                varianceCalc = new Func<List<MasterSwing>, double>((msList) =>
+                {
+                    return default;
+                });
+            }
+        }
+    }
 }
