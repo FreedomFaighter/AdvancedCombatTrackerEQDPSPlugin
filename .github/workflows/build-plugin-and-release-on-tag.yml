@@ -7,7 +7,7 @@ on:
   push:
     branches-ignore: [ 'EQPlugins' ]
     tags:
-    - "1.*.*"
+    - "2.*.*"
   pull_request:
     branches: [ EQPlugins ]
   
