@@ -9,7 +9,7 @@ using System.Runtime.InteropServices;
 [assembly: AssemblyProduct("EverQuest Damage Per Second Plugin for ACT")]
 [assembly: AssemblyCopyright("Copyright © 2024")]
 [assembly: AssemblyTitle("ACT EverQuest Damage Per Second Parsing")]
-[assembly: AssemblyDescription("https://github.com/FreedomFaighter/AdvancedCombatTrackerEverQuest")]
+[assembly: AssemblyDescription("https://github.com/FreedomFaighter/AdvancedCombatTrackerEQDPSPlugin")]
 [assembly: AssemblyCulture("en-US")]
 [assembly: NeutralResourcesLanguage("en-US")]
 
@@ -25,5 +25,5 @@ using System.Runtime.InteropServices;
 //      Build Number
 //      Revision
 //
-[assembly: AssemblyVersion("2.0.1.*")]
+[assembly: AssemblyVersion("2.0.2.*")]
 [assembly: InternalsVisibleTo("EQDPSPluginUnitTests")]

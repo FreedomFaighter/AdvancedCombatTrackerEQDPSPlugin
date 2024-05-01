@@ -1956,7 +1956,8 @@ namespace EverQuestDPS
             List<MasterSwing> masterSwingList = Data.Items.ToList().Where((item) => item.Damage.Number >= 0).ToList();
             if (masterSwingList.Count > 0)
             {
-                return varianceCalc(masterSwingList);
+                lock(varianceMethodChangeLockObj)
+                    return varianceCalc(masterSwingList);
             }
             else
             {
@@ -2165,26 +2166,31 @@ namespace EverQuestDPS
                 }
             }
         }
+        Object varianceMethodChangeLockObj = new Object();
 
         private void varianceType_CheckedChanged(object sender, EventArgs e)
         {
-            if (sender.Equals(populVariance))
+            lock (varianceMethodChangeLockObj)
             {
-                ChangeLblStatus("population variance radio button selected");
-                varianceCalc = populationVariance;
-            }
-            else if (sender.Equals(sampVariance))
-            {
-                ChangeLblStatus("sample variance radio button selected");
-                varianceCalc = sampleVariance;
-            }
-            else
-            {
-                ChangeLblStatus("off variance radio button selected");
-                varianceCalc = new Func<List<MasterSwing>, double>((msList) =>
+
+                if (sender.Equals(populVariance))
                 {
-                    return default;
-                });
+                    ChangeLblStatus("population variance radio button selected");
+                    varianceCalc = populationVariance;
+                }
+                else if (sender.Equals(sampVariance))
+                {
+                    ChangeLblStatus("sample variance radio button selected");
+                    varianceCalc = sampleVariance;
+                }
+                else
+                {
+                    ChangeLblStatus("off variance radio button selected");
+                    varianceCalc = new Func<List<MasterSwing>, double>((msList) =>
+                    {
+                        return default;
+                    });
+                }
             }
         }
     }
