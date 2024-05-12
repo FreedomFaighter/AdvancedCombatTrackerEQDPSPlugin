@@ -2190,10 +2190,7 @@ namespace EverQuestDPS
                 else
                 {
                     ChangeLblStatus("off variance radio button selected");
-                    varianceCalc = new Func<List<MasterSwing>, double>((msList) =>
-                    {
-                        return default;
-                    });
+                    varianceCalc = default;
                 }
             }
         }
