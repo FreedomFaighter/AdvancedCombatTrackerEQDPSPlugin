@@ -789,7 +789,7 @@ namespace EverQuestDPS
             AttackType.ColumnDefs.Add("DPS", new AttackType.ColumnDef("DPS", false, "DOUBLE", "DPS", (Data) => { return Data.DPS.ToString(); }, (Data) => { return Data.DPS.ToString(usCulture); }, (Left, Right) => { return Left.DPS.CompareTo(Right.DPS); }));
             AttackType.ColumnDefs.Add("Average", new AttackType.ColumnDef("Average", true, "DOUBLE", "Average", (Data) => { return Data.Average.ToString(); }, (Data) => { return Data.Average.ToString(); }, (Left, Right) => { return Left.Average.CompareTo(Right.Average); }));
             AttackType.ColumnDefs.Add("Median", new AttackType.ColumnDef("Median", true, "BIGINT", "Median", (Data) => { return Data.Median.ToString(); }, (Data) => { return Data.Median.ToString(); }, (Left, Right) => { return Left.Median.CompareTo(Right.Median); }));
-            AttackType.ColumnDefs.Add("StdDev", new AttackType.ColumnDef("StdDev", true, "DOUBLE", "StdDev", (Data) => { return Math.Sqrt(AttackTypeGetVariance(Data)).ToString(); }, (Data) => { return Math.Sqrt(AttackTypeGetVariance(Data)).ToString(); }, (Left, Right) => { return Math.Sqrt(AttackTypeGetVariance(Left)).CompareTo(Math.Sqrt(AttackTypeGetVariance(Right))); }));
+            AttackType.ColumnDefs.Add("StdDev", new AttackType.ColumnDef("StdDev", true, "DOUBLE", "StdDev", (Data) => { return Data. Math.Sqrt(AttackTypeGetVariance(Data)).ToString(); }, (Data) => { return Math.Sqrt(AttackTypeGetVariance(Data)).ToString(); }, (Left, Right) => { return Math.Sqrt(AttackTypeGetVariance(Left)).CompareTo(Math.Sqrt(AttackTypeGetVariance(Right))); }));
             AttackType.ColumnDefs.Add("CritTypes", new AttackType.ColumnDef("CritTypes", true, "VARCHAR(32)", "CritTypes", AttackTypeGetCritTypes, AttackTypeGetCritTypes, (Left, Right) => { return AttackTypeGetCritTypes(Left).CompareTo(AttackTypeGetCritTypes(Right)); }));
             AttackType.ColumnDefs.Add("Max", new AttackType.ColumnDef("Max", true, "BIGINT", "Max", (Data) => { return Data.MaxHit.ToString(); }, (Data) => { return Data.MaxHit.ToString(); }, (Left, Right) => { return Left.MaxHit.CompareTo(Right.MaxHit); }));
             AttackType.ColumnDefs.Add("Min", new AttackType.ColumnDef("Min", true, "BIGINT", "Min", (Data) => { return Data.MinHit.ToString(); }, (Data) => { return Data.MinHit.ToString(); }, (Left, Right) => { return Left.MinHit.CompareTo(Right.MinHit); }));
@@ -1927,22 +1927,26 @@ namespace EverQuestDPS
         #endregion
 
         #region Statistical processing
-        Func<List<MasterSwing>, double> varianceCalc = default;
-        Func<List<MasterSwing>, double> populationVariance = new Func<List<MasterSwing>, double>((msList) =>
+        Func<AttackType, double> varianceCalc = default;
+        Func<AttackType, double> populationVariance = new Func<AttackType, double>((Data) =>
         {
-            double mean = msList.Select((item) => item.Damage.Number).Average();
-            return (msList.Sum((item) =>
+            List<MasterSwing> masterSwingList = Data.Items.ToList().Where((item) => item.Damage.Number >= 0).ToList();
+            if (Data.Swings < 1)
+                return double.NaN;
+            return (masterSwingList.Sum((item) =>
             {
-                return Math.Pow(mean - item.Damage.Number, 2.0);
-            }) / msList.Count);
+                return Math.Pow(Data.Average - item.Damage.Number, 2.0);
+            }) / Data.Swings);
         });
-        Func<List<MasterSwing>, double> sampleVariance = new Func<List<MasterSwing>, double>((msList) =>
+        Func<AttackType, double> sampleVariance = new Func<AttackType, double>((Data) =>
         {
-            double mean = msList.Select((item) => item.Damage.Number).Average();
-            return (msList.Sum((item) =>
+            List<MasterSwing> masterSwingList = Data.Items.ToList().Where((item) => item.Damage.Number >= 0).ToList();
+            if (Data.Swings < 2)
+                return double.NaN;
+            return (masterSwingList.Sum((item) =>
             {
-                return Math.Pow(mean - item.Damage.Number, 2.0);
-            }) / (msList.Count - 1));
+                return Math.Pow(Data.Average - item.Damage.Number, 2.0);
+            }) / (Data.Swings - 1));
         });
 
         //Variance calculation for attack damage
@@ -1953,11 +1957,11 @@ namespace EverQuestDPS
         /// <returns></returns>
         private double AttackTypeGetVariance(AttackType Data)
         {
-            List<MasterSwing> masterSwingList = Data.Items.ToList().Where((item) => item.Damage.Number >= 0).ToList();
-            if (masterSwingList.Count > 0)
+             
+            if (Data.Swings > 0)
             {
                 lock(varianceMethodChangeLockObj)
-                    return varianceCalc(masterSwingList);
+                    return varianceCalc(Data);
             }
             else
             {
