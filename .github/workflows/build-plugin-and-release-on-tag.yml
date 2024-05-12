@@ -5,11 +5,9 @@ name: ACT EverQuest DPS Plugin
 
 on:
   push:
-    branches-ignore: [ 'EQPlugins' ]
+    branches-ignore: [ 'main' ]
     tags:
-    - "2.*.*"
-  pull_request:
-    branches: [ EQPlugins ]
+    - "v2.*.*"
   
 jobs:
   build:
@@ -35,35 +33,8 @@ jobs:
         run: msbuild -t:build -property:Configuration=Release /p:TargetFrameworkVersion=v4.8 EverQuestDPSPlugin.sln
       - name: Test solution
         run: '& "$(vswhere -property installationPath)\Common7\IDE\MSTest.exe" /testcontainer:${{env.EQDPSPluginUnitTestLibraryPath}}'
-      - name: Test Success
-        uses: rjstone/discord-webhook-notify@v1
-        if: success()
-        with:
-          username: ACT EverQuest DPS Plugin
-          severity: info
-          details: Test Succeeded!
-          text: ACT EverQuest DPS Plugin
-          webhookUrl: ${{ secrets.ACT_EQ_DISCORD_WEBHOOK }}
-      - name: Test Failure
-        uses: rjstone/discord-webhook-notify@v1
-        if: failure()
-        with:
-          username: ACT EverQuest DPS Plugin
-          severity: error
-          details: Test Failed!
-          text: ACT EverQuest DPS Plugin
-          webhookUrl: ${{ secrets.ACT_EQ_DISCORD_WEBHOOK }}
-      - name: Test Cancelled
-        uses: rjstone/discord-webhook-notify@v1
-        if: cancelled()
-        with:
-            username: ACT EverQuest DPS Plugin
-            severity: warn
-            details: Test Cancelled!
-            text: ACT EverQuest DPS Plugin
-            webhookUrl: ${{ secrets.ACT_EQ_DISCORD_WEBHOOK }}
       - name: Upload dll file to artifact repository
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v4
         if: github.ref_type == 'tag'
         with:
           name: EQDPSPluginPath
@@ -85,7 +56,7 @@ jobs:
           release_name: Release ${{ github.ref }}
           draft: false
           prerelease: false
-      - uses: actions/download-artifact@v2
+      - uses: actions/download-artifact@v4
         with:
           name: EQDPSPluginPath
       - name: Upload Release Asset
@@ -98,30 +69,3 @@ jobs:
           asset_path: .\EverQuestDPSPlugin.dll
           asset_name: EverQuestDPSPlugin.dll
           asset_content_type: application/dll
-      - name: Release Success
-        uses: rjstone/discord-webhook-notify@v1
-        if: success()
-        with:
-          username: ACT EverQuest DPS Plugin
-          severity: info
-          details: Release Succeeded!
-          text: ACT EverQuest DPS Plugin
-          webhookUrl: ${{ secrets.ACT_EQ_DISCORD_WEBHOOK }}
-      - name: Release Failure
-        uses: rjstone/discord-webhook-notify@v1
-        if: failure()
-        with:
-          username: ACT EverQuest DPS Plugin
-          severity: error
-          details: Release Failed!
-          text: ACT EverQuest DPS Plugin
-          webhookUrl: ${{ secrets.ACT_EQ_DISCORD_WEBHOOK }}
-      - name: Release Cancelled
-        uses: rjstone/discord-webhook-notify@v1
-        if: cancelled()
-        with:
-            username: ACT EverQuest DPS Plugin
-            severity: warn
-            details: Release Cancelled!
-            text: ACT EverQuest DPS Plugin
-            webhookUrl: ${{ secrets.ACT_EQ_DISCORD_WEBHOOK }}
