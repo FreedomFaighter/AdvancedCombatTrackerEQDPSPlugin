@@ -452,10 +452,7 @@ namespace EverQuestDPS
             else if (sampVariance.Checked)
                 varianceCalc = sampleVariance;
             else
-                varianceCalc = new Func<List<MasterSwing>, double>((msList) =>
-                {
-                    return default;
-                });
+                varianceCalc = default;
         }
 
         /// <summary>
