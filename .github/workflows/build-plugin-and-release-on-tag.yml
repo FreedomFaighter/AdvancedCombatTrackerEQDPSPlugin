@@ -22,7 +22,7 @@ jobs:
     steps:
       - uses: actions/checkout@main
       - name: Setup MSBuild
-        uses: microsoft/setup-msbuild@v1.1
+        uses: microsoft/setup-msbuild@v2
       - name: Download ACTv3 file
         run: Invoke-WebRequest ${{env.ACTDownloadURI}} -OutFile ${{github.workspace}}\${{env.ACTFileName}}
       - name: Silent Install of ACTv3
