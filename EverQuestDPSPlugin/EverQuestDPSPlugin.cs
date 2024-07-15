@@ -193,7 +193,6 @@ namespace EverQuestDPS
         bool readingLine = false;
         readonly string fileNameExpected = $"Logs{Path.DirectorySeparatorChar}dbg.txt";
         Regex zoneEnterRgx;
-        readonly String logFilter = "eqlog_*.txt";
         #endregion
 
         /// <summary>
@@ -361,7 +360,7 @@ namespace EverQuestDPS
             PopulateRegexNonCombat();
             PopulateRegexCombat();
             SetupEverQuestEnvironment();
-            ActGlobals.oFormActMain.LogFileFilter = logFilter;
+            ActGlobals.oFormActMain.LogFileFilter = Properties.EQDPSPlugin.logFilter;
             if (ActGlobals.oFormActMain.InvokeRequired)
             {
                 ActGlobals.oFormActMain.Invoke(new Action(() =>
@@ -911,50 +910,6 @@ namespace EverQuestDPS
             int len;
             switch (VarName)
             {
-                case "name":
-                    return Data.Name;
-                case "NAME":
-                    len = Int32.Parse(Extra);
-                    return Data.Name.Length - len > 0 ? Data.Name.Remove(len, Data.Name.Length - len).Trim() : Data.Name;
-                case "NAME3":
-                    len = 3;
-                    return Data.Name.Length - len > 0 ? Data.Name.Remove(len, Data.Name.Length - len).Trim() : Data.Name;
-                case "NAME4":
-                    len = 4;
-                    return Data.Name.Length - len > 0 ? Data.Name.Remove(len, Data.Name.Length - len).Trim() : Data.Name;
-                case "NAME5":
-                    len = 5;
-                    return Data.Name.Length - len > 0 ? Data.Name.Remove(len, Data.Name.Length - len).Trim() : Data.Name;
-                case "NAME6":
-                    len = 6;
-                    return Data.Name.Length - len > 0 ? Data.Name.Remove(len, Data.Name.Length - len).Trim() : Data.Name;
-                case "NAME7":
-                    len = 7;
-                    return Data.Name.Length - len > 0 ? Data.Name.Remove(len, Data.Name.Length - len).Trim() : Data.Name;
-                case "NAME8":
-                    len = 8;
-                    return Data.Name.Length - len > 0 ? Data.Name.Remove(len, Data.Name.Length - len).Trim() : Data.Name;
-                case "NAME9":
-                    len = 9;
-                    return Data.Name.Length - len > 0 ? Data.Name.Remove(len, Data.Name.Length - len).Trim() : Data.Name;
-                case "NAME10":
-                    len = 10;
-                    return Data.Name.Length - len > 0 ? Data.Name.Remove(len, Data.Name.Length - len).Trim() : Data.Name;
-                case "NAME11":
-                    len = 11;
-                    return Data.Name.Length - len > 0 ? Data.Name.Remove(len, Data.Name.Length - len).Trim() : Data.Name;
-                case "NAME12":
-                    len = 12;
-                    return Data.Name.Length - len > 0 ? Data.Name.Remove(len, Data.Name.Length - len).Trim() : Data.Name;
-                case "NAME13":
-                    len = 13;
-                    return Data.Name.Length - len > 0 ? Data.Name.Remove(len, Data.Name.Length - len).Trim() : Data.Name;
-                case "NAME14":
-                    len = 14;
-                    return Data.Name.Length - len > 0 ? Data.Name.Remove(len, Data.Name.Length - len).Trim() : Data.Name;
-                case "NAME15":
-                    len = 15;
-                    return Data.Name.Length - len > 0 ? Data.Name.Remove(len, Data.Name.Length - len).Trim() : Data.Name;
                 case "DURATION":
                     return Data.Duration.TotalSeconds.ToString("0");
                 case "duration":
