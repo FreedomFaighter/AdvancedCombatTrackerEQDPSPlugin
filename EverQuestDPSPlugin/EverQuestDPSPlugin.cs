@@ -193,6 +193,7 @@ namespace EverQuestDPS
         bool readingLine = false;
         readonly string fileNameExpected = $"Logs{Path.DirectorySeparatorChar}dbg.txt";
         Regex zoneEnterRgx;
+        readonly String logFilter = "eqlog_*.txt";
         #endregion
 
         /// <summary>
@@ -360,6 +361,7 @@ namespace EverQuestDPS
             PopulateRegexNonCombat();
             PopulateRegexCombat();
             SetupEverQuestEnvironment();
+            ActGlobals.oFormActMain.LogFileFilter = logFilter;
             if (ActGlobals.oFormActMain.InvokeRequired)
             {
                 ActGlobals.oFormActMain.Invoke(new Action(() =>
