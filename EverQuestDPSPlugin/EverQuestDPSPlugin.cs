@@ -1473,7 +1473,7 @@ namespace EverQuestDPS
             ActGlobals.oFormEncounterLogs.LogTypeToColorMapping.Add(regexTupleList.Count, regexTupleList[regexTupleList.Count - 1].Item1);
             regexTupleList.Add(new Tuple<Color, Regex>(Color.Plum, new Regex(RegexString(Properties.EQDPSPlugin.MissedMeleeAttack), RegexOptions.Compiled)));
             ActGlobals.oFormEncounterLogs.LogTypeToColorMapping.Add(regexTupleList.Count, regexTupleList[regexTupleList.Count - 1].Item1);
-            regexTupleList.Add(new Tuple<Color, Regex>(Color.Black, new Regex(RegexString(Properties.EQDPSPlugin.SlainMessage), RegexOptions.Compiled)));
+            regexTupleList.Add(new Tuple<Color, Regex>(Color.Black, new Regex(RegexString(Properties.EQDPSPlugin.SlainMessage1), RegexOptions.Compiled)));
             ActGlobals.oFormEncounterLogs.LogTypeToColorMapping.Add(regexTupleList.Count, regexTupleList[regexTupleList.Count - 1].Item1);
             regexTupleList.Add(new Tuple<Color, Regex>(Color.Red, new Regex(RegexString(Properties.EQDPSPlugin.SpellDamage), RegexOptions.Compiled)));
             ActGlobals.oFormEncounterLogs.LogTypeToColorMapping.Add(regexTupleList.Count, regexTupleList[regexTupleList.Count - 1].Item1);
@@ -1498,6 +1498,8 @@ namespace EverQuestDPS
             regexTupleList.Add(new Tuple<Color, Regex>(Color.ForestGreen, new Regex(RegexString(Properties.EQDPSPlugin.chilledDamageShield), RegexOptions.Compiled)));
             ActGlobals.oFormEncounterLogs.LogTypeToColorMapping.Add(regexTupleList.Count, regexTupleList[regexTupleList.Count - 1].Item1);
             regexTupleList.Add(new Tuple<Color, Regex>(Color.Black, new Regex(RegexString(Properties.EQDPSPlugin.youDied), RegexOptions.Compiled)));
+            ActGlobals.oFormEncounterLogs.LogTypeToColorMapping.Add(regexTupleList.Count, regexTupleList[regexTupleList.Count - 1].Item1);
+            regexTupleList.Add(new Tuple<Color, Regex>(Color.Black, new Regex(RegexString(Properties.EQDPSPlugin.SlainMessage2), RegexOptions.Compiled)));
             ActGlobals.oFormEncounterLogs.LogTypeToColorMapping.Add(regexTupleList.Count, regexTupleList[regexTupleList.Count - 1].Item1);
         }
 
@@ -1626,7 +1628,7 @@ namespace EverQuestDPS
             {
                 ActGlobals.oFormActMain.WriteExceptionLog(ex, regexMatch.Value);
             }
-            if (logMatched != 15 && logMatched != 13 && logMatched != 6 && ActGlobals.oFormActMain.SetEncounter(ActGlobals.oFormActMain.LastKnownTime, CharacterNamePersonaReplace(petTypeAndName.Item2), CharacterNamePersonaReplace(victimPetTypeAndName.Item2)))
+            if (logMatched != 4 && logMatched != 16 && logMatched != 15 && logMatched != 13 && logMatched != 6 && ActGlobals.oFormActMain.SetEncounter(ActGlobals.oFormActMain.LastKnownTime, CharacterNamePersonaReplace(petTypeAndName.Item2), CharacterNamePersonaReplace(victimPetTypeAndName.Item2)))
             {
                 switch (logMatched)
                 {
@@ -1670,20 +1672,6 @@ namespace EverQuestDPS
                                 , regexMatch.Groups["attackType"].Value
                                 , CharacterNamePersonaReplace(petTypeAndName.Item2)
                                 , "Hitpoints"
-                                , CharacterNamePersonaReplace(victimPetTypeAndName.Item2)
-                                , tags
-                            );
-                        break;
-                    //Death message
-                    case 4:
-                        AddMasterSwing(
-                                EverQuestSwingType.NonMelee
-                                , String.Empty
-                                , Dnum.Death
-                                , dateTimeOfParse
-                                , "Killing"
-                                , CharacterNamePersonaReplace(petTypeAndName.Item2)
-                                , "Death"
                                 , CharacterNamePersonaReplace(victimPetTypeAndName.Item2)
                                 , tags
                             );
@@ -1870,6 +1858,20 @@ namespace EverQuestDPS
                     regexMatch.Groups["victim"].Value)
                 { Tags = tags };
             }
+            else if(logMatched.Equals(4) || logMatched.Equals(16))
+            {
+
+                AddMasterSwing(EverQuestSwingType.NonMelee
+                    , String.Empty
+                    , Dnum.Death
+                    , dateTimeOfParse
+                    , "Killing"
+                    , CharacterNamePersonaReplace(petTypeAndName.Item2)
+                    , "Death"
+                    , CharacterNamePersonaReplace(victimPetTypeAndName.Item2)
+                    , tags);
+
+                }
             else
             {
                 ActGlobals.oFormActMain.WriteExceptionLog(new Exception($"{logMatched} matched but case not set for parsing"), "Case not set for parsing but match was found");
