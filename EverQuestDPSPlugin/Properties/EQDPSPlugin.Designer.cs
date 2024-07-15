@@ -223,6 +223,15 @@ namespace EverQuestDPS.Properties {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to eqlog_*.txt.
+        /// </summary>
+        internal static string logFilter {
+            get {
+                return ResourceManager.GetString("logFilter", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Lucky.
         /// </summary>
         internal static string Lucky {
