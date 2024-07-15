@@ -207,8 +207,11 @@
   <data name="selfMatch" xml:space="preserve">
     <value>(You|you|yourself|Yourself|YOURSELF|YOU|your|YOUR)</value>
   </data>
-  <data name="SlainMessage" xml:space="preserve">
-    <value>(?&lt;victim&gt;.+) (?:(ha(ve|s) been slain by|have slain)) (?&lt;attacker&gt;.+)!</value>
+  <data name="SlainMessage1" xml:space="preserve">
+    <value>(?&lt;attacker&gt;.+) ha(ve|s) slain (?&lt;victim&gt;.+)!</value>
+  </data>
+  <data name="SlainMessage2" xml:space="preserve">
+    <value>(?&lt;victim&gt;.+) ha(ve|s) been slain by (?&lt;attacker&gt;.+)!</value>
   </data>
   <data name="SpellDamage" xml:space="preserve">
     <value>(?&lt;attacker&gt;.+) hit (?&lt;victim&gt;.*) for (?&lt;damagePoints&gt;[\d]+) (?:point[|s]) of (?&lt;typeOfDamage&gt;.+) damage by (?&lt;attackType&gt;.*)\.(?:[\s][\(](?&lt;damageSpecial&gt;.+)[\)]){0,1}</value>

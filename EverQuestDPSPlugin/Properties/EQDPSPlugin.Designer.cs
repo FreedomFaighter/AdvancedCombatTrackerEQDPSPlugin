@@ -331,11 +331,20 @@ namespace EverQuestDPS.Properties {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to (?&lt;victim&gt;.+) (?:(ha(ve|s) been slain by|have slain)) (?&lt;attacker&gt;.+)!.
+        ///   Looks up a localized string similar to (?&lt;attacker&gt;.+) ha(ve|s) slain (?&lt;victim&gt;.+)!.
         /// </summary>
-        internal static string SlainMessage {
+        internal static string SlainMessage1 {
             get {
-                return ResourceManager.GetString("SlainMessage", resourceCulture);
+                return ResourceManager.GetString("SlainMessage1", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to (?&lt;victim&gt;.+) ha(ve|s) been slain by (?&lt;attacker&gt;.+)!.
+        /// </summary>
+        internal static string SlainMessage2 {
+            get {
+                return ResourceManager.GetString("SlainMessage2", resourceCulture);
             }
         }
         
