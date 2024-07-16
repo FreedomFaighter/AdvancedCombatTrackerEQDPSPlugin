@@ -358,6 +358,15 @@ namespace EverQuestDPS.Properties {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to (?&lt;victim&gt;.+) died..
+        /// </summary>
+        internal static string SlainMessage3 {
+            get {
+                return ResourceManager.GetString("SlainMessage3", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to (?&lt;attacker&gt;.+) hit (?&lt;victim&gt;.*) for (?&lt;damagePoints&gt;[\d]+) (?:point[|s]) of (?&lt;typeOfDamage&gt;.+) damage by (?&lt;attackType&gt;.*)\.(?:[\s][\(](?&lt;damageSpecial&gt;.+)[\)]){0,1}.
         /// </summary>
         internal static string SpellDamage {

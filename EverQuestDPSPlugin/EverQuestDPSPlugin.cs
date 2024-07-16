@@ -907,7 +907,7 @@ namespace EverQuestDPS
         /// <returns></returns>
         private string CombatantFormatSwitch(CombatantData Data, string VarName, string Extra)
         {
-            int len;
+            //int len;
             switch (VarName)
             {
                 case "DURATION":
@@ -1458,6 +1458,8 @@ namespace EverQuestDPS
             ActGlobals.oFormEncounterLogs.LogTypeToColorMapping.Add(regexTupleList.Count, regexTupleList[regexTupleList.Count - 1].Item1);
             regexTupleList.Add(new Tuple<Color, Regex>(Color.Black, new Regex(RegexString(Properties.EQDPSPlugin.SlainMessage2), RegexOptions.Compiled)));
             ActGlobals.oFormEncounterLogs.LogTypeToColorMapping.Add(regexTupleList.Count, regexTupleList[regexTupleList.Count - 1].Item1);
+            regexTupleList.Add(new Tuple<Color, Regex>(Color.Black, new Regex(RegexString(Properties.EQDPSPlugin.SlainMessage3), RegexOptions.Compiled)));
+            ActGlobals.oFormEncounterLogs.LogTypeToColorMapping.Add(regexTupleList.Count, regexTupleList[regexTupleList.Count - 1].Item1);
         }
 
         private void FormActMain_BeforeLogLineRead(bool isImport, LogLineEventArgs logInfo)
@@ -1585,7 +1587,7 @@ namespace EverQuestDPS
             {
                 ActGlobals.oFormActMain.WriteExceptionLog(ex, regexMatch.Value);
             }
-            if (logMatched != 4 && logMatched != 16 && logMatched != 15 && logMatched != 13 && logMatched != 6 && ActGlobals.oFormActMain.SetEncounter(ActGlobals.oFormActMain.LastKnownTime, CharacterNamePersonaReplace(petTypeAndName.Item2), CharacterNamePersonaReplace(victimPetTypeAndName.Item2)))
+            if (logMatched != 17 && logMatched != 4 && logMatched != 16 && logMatched != 15 && logMatched != 13 && logMatched != 6 && ActGlobals.oFormActMain.SetEncounter(ActGlobals.oFormActMain.LastKnownTime, CharacterNamePersonaReplace(petTypeAndName.Item2), CharacterNamePersonaReplace(victimPetTypeAndName.Item2)))
             {
                 switch (logMatched)
                 {
@@ -1815,7 +1817,7 @@ namespace EverQuestDPS
                     regexMatch.Groups["victim"].Value)
                 { Tags = tags };
             }
-            else if(logMatched.Equals(4) || logMatched.Equals(16))
+            else if(logMatched.Equals(4) || logMatched.Equals(16) || logMatched.Equals(17))
             {
 
                 AddMasterSwing(EverQuestSwingType.NonMelee

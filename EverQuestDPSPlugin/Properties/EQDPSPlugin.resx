@@ -216,6 +216,9 @@
   <data name="SlainMessage2" xml:space="preserve">
     <value>(?&lt;victim&gt;.+) ha(ve|s) been slain by (?&lt;attacker&gt;.+)!</value>
   </data>
+  <data name="SlainMessage3" xml:space="preserve">
+    <value>(?&lt;victim&gt;.+) died.</value>
+  </data>
   <data name="SpellDamage" xml:space="preserve">
     <value>(?&lt;attacker&gt;.+) hit (?&lt;victim&gt;.*) for (?&lt;damagePoints&gt;[\d]+) (?:point[|s]) of (?&lt;typeOfDamage&gt;.+) damage by (?&lt;attackType&gt;.*)\.(?:[\s][\(](?&lt;damageSpecial&gt;.+)[\)]){0,1}</value>
   </data>
