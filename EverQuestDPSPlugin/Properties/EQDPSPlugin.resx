@@ -132,6 +132,9 @@
   <data name="Critical" xml:space="preserve">
     <value>Critical</value>
   </data>
+  <data name="cultureSetting" xml:space="preserve">
+    <value>en-US</value>
+  </data>
   <data name="DamageShield" xml:space="preserve">
     <value>(?&lt;victim&gt;.+) is (?&lt;damageShieldDamageType&gt;\S+) by (?&lt;attacker&gt;.+)('s) (?&lt;damageShieldType&gt;\S+) for (?&lt;damagePoints&gt;[\d]+) points of non-melee damage.</value>
   </data>
