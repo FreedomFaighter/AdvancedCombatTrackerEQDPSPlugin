@@ -70,7 +70,7 @@ namespace EverQuestDPS.Properties {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to (?&lt;attacker&gt;.+) hit(|s) (?&lt;victim&gt;.+) for (?&lt;baneDamage&gt;[\d]+) points of (?&lt;typeOfDamage&gt;.+) by Banestrike (?&lt;baneAbilityRank&gt;.+\.)(?:\s\((?&lt;baneSpecial&gt;.+)\)){0,1}.
+        ///   Looks up a localized string similar to (?&lt;attacker&gt;.+) hit(|s) (?&lt;victim&gt;.+) for (?&lt;baneDamage&gt;[\d]+) points of (?&lt;typeOfDamage&gt;.+) by Banestrike (?&lt;baneAbilityRank&gt;.+\.)(?:\s\((?&lt;special&gt;.+)\)){0,1}.
         /// </summary>
         internal static string Banestrike {
             get {
@@ -79,7 +79,7 @@ namespace EverQuestDPS.Properties {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to (?&lt;victim&gt;.+) (was|is) chilled to the bone for (?&lt;damageAmount&gt;[\d]+) point(|s) of non-melee damage.(?:[\s][\(](?&lt;damageShieldSpecial&gt;.+)[\)]){0,1}.
+        ///   Looks up a localized string similar to (?&lt;victim&gt;.+) (was|is) chilled to the bone for (?&lt;damageAmount&gt;[\d]+) point(|s) of non-melee damage.(?:[\s][\(](?&lt;special&gt;.+)[\)]){0,1}.
         /// </summary>
         internal static string chilledDamageShield {
             get {
@@ -205,7 +205,7 @@ namespace EverQuestDPS.Properties {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to (?&lt;victim&gt;.+) has taken (?&lt;damagePoints&gt;[\d]+) damage from (?&lt;attacker&gt;(your)+) (?&lt;damageEffect&gt;.[^.]+)\.(?:[\s][\(](?&lt;focusSpecial&gt;.+)[\)]){0,1}.
+        ///   Looks up a localized string similar to (?&lt;victim&gt;.+) has taken (?&lt;damagePoints&gt;[\d]+) damage from (?&lt;attacker&gt;(your)+) (?&lt;damageEffect&gt;.[^.]+)\.(?:[\s][\(](?&lt;special&gt;.+)[\)]){0,1}.
         /// </summary>
         internal static string FocusDamageEffect {
             get {
@@ -214,7 +214,7 @@ namespace EverQuestDPS.Properties {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to (?&lt;attacker&gt;.+?) (?:has been\s){0,1}healed (?&lt;victim&gt;^[over time]|.+?)(?:\s(?&lt;overTime&gt;over time)){0,1} for (?&lt;pointsOfHealing&gt;[\d]+)(?:\s\((?&lt;pointsOfDamage&gt;[\d]+)\)){0,1} hit point(|s)(?:\sby(?&lt;healingSpellName&gt;.+)){0,1}\.(?:[\s][\(](?&lt;damageSpecial&gt;.+)[\)]){0,1}.
+        ///   Looks up a localized string similar to (?&lt;attacker&gt;.+?) (?:has been\s){0,1}healed (?&lt;victim&gt;^[over time]|.+?)(?:\s(?&lt;overTime&gt;over time)){0,1} for (?&lt;pointsOfHealing&gt;[\d]+)(?:\s\((?&lt;pointsOfDamage&gt;[\d]+)\)){0,1} hit point(|s)(?:\sby(?&lt;healingSpellName&gt;.+)){0,1}\.(?:[\s][\(](?&lt;special&gt;.+)[\)]){0,1}.
         /// </summary>
         internal static string Heal {
             get {
@@ -250,7 +250,7 @@ namespace EverQuestDPS.Properties {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to (?&lt;attacker&gt;.+) (?:tr(?:ies|y)) to (?&lt;attackType&gt;(\S+|frenzy on)) (?&lt;victim&gt;.+), but (?:miss(?:|es))!(?:\s\((?&lt;damageSpecial&gt;.+)\)){0,1}.
+        ///   Looks up a localized string similar to (?&lt;attacker&gt;.+) (?:tr(?:ies|y)) to (?&lt;attackType&gt;(\S+|frenzy on)) (?&lt;victim&gt;.+), but (?:miss(?:|es))!(?:\s\((?&lt;special&gt;.+)\)){0,1}.
         /// </summary>
         internal static string MissedMeleeAttack {
             get {
@@ -376,7 +376,16 @@ namespace EverQuestDPS.Properties {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to (?&lt;attacker&gt;.+) hit (?&lt;victim&gt;.*) for (?&lt;damagePoints&gt;[\d]+) (?:point[|s]) of (?&lt;typeOfDamage&gt;.+) damage by (?&lt;attackType&gt;.*)\.(?:[\s][\(](?&lt;damageSpecial&gt;.+)[\)]){0,1}.
+        ///   Looks up a localized string similar to specialAttackTerm-none.
+        /// </summary>
+        internal static string specialAttackNoneLocalization {
+            get {
+                return ResourceManager.GetString("specialAttackNoneLocalization", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to (?&lt;attacker&gt;.+) hit (?&lt;victim&gt;.*) for (?&lt;damagePoints&gt;[\d]+) (?:point[|s]) of (?&lt;typeOfDamage&gt;.+) damage by (?&lt;attackType&gt;.*)\.(?:[\s][\(](?&lt;special&gt;.+)[\)]){0,1}.
         /// </summary>
         internal static string SpellDamage {
             get {
@@ -385,7 +394,7 @@ namespace EverQuestDPS.Properties {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to (?&lt;victim&gt;.+) has taken (?&lt;damagePoints&gt;[\d]+) damage from (?&lt;damageEffect&gt;.*) by (?&lt;attacker&gt;.*)\.(?:[\s][\(](?&lt;spellSpecial&gt;.+)[\)]){0,1}.
+        ///   Looks up a localized string similar to (?&lt;victim&gt;.+) has taken (?&lt;damagePoints&gt;[\d]+) damage from (?&lt;damageEffect&gt;.*) by (?&lt;attacker&gt;.*)\.(?:[\s][\(](?&lt;special&gt;.+)[\)]){0,1}.
         /// </summary>
         internal static string SpellDamageOverTime {
             get {
@@ -394,7 +403,7 @@ namespace EverQuestDPS.Properties {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to (?&lt;victim&gt;.+) resisted (?&lt;attacker&gt;.+) (?&lt;spellName&gt;.+)\!(?:\s\((?&lt;damageSpecial&gt;.+)\)){0,1}.
+        ///   Looks up a localized string similar to (?&lt;victim&gt;.+) resisted (?&lt;attacker&gt;.+) (?&lt;spellName&gt;.+)\!(?:\s\((?&lt;special&gt;.+)\)){0,1}.
         /// </summary>
         internal static string spellResist {
             get {
@@ -444,15 +453,6 @@ namespace EverQuestDPS.Properties {
         internal static string WildRampage {
             get {
                 return ResourceManager.GetString("WildRampage", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to (?&lt;victim&gt;.+) died..
-        /// </summary>
-        internal static string youDied {
-            get {
-                return ResourceManager.GetString("youDied", resourceCulture);
             }
         }
         

@@ -10,6 +10,7 @@ using System.Text.RegularExpressions;
 using System.Windows.Forms;
 using System.Xml;
 using EverQuestDPS.Enums;
+using EverQuestDPS.ParserObjectGenerators;
 
 /*
 * Project: EverQuest DPS Plugin
@@ -35,18 +36,9 @@ namespace EverQuestDPS
         {
             if (disposing)
             {
-                if (!(components == null))
-                {
-                    components.Dispose();
-                }
-                if (!(watcherForDebugFile == null))
-                {
-                    watcherForDebugFile.Dispose();
-                }
-                if (!(watcherForRaidRoster == null))
-                {
-                    watcherForRaidRoster.Dispose();
-                }
+                components?.Dispose();
+                watcherForDebugFile?.Dispose();
+                watcherForRaidRoster?.Dispose();
             }
             base.Dispose(disposing);
         }
@@ -91,7 +83,7 @@ namespace EverQuestDPS
             this.varianceOff.TabStop = true;
             this.varianceOff.Text = "Off";
             this.varianceOff.UseVisualStyleBackColor = true;
-            this.varianceOff.CheckedChanged += new System.EventHandler(this.varianceType_CheckedChanged);
+            this.varianceOff.CheckedChanged += new System.EventHandler(this.VarianceTypeCheckedChanged);
             // 
             // sampVariance
             // 
@@ -103,7 +95,7 @@ namespace EverQuestDPS
             this.sampVariance.TabStop = true;
             this.sampVariance.Text = "Sample";
             this.sampVariance.UseVisualStyleBackColor = true;
-            this.sampVariance.CheckedChanged += new System.EventHandler(this.varianceType_CheckedChanged);
+            this.sampVariance.CheckedChanged += new System.EventHandler(this.VarianceTypeCheckedChanged);
             // 
             // populVariance
             // 
@@ -115,7 +107,7 @@ namespace EverQuestDPS
             this.populVariance.TabStop = true;
             this.populVariance.Text = "Popluation";
             this.populVariance.UseVisualStyleBackColor = true;
-            this.populVariance.CheckedChanged += new System.EventHandler(this.varianceType_CheckedChanged);
+            this.populVariance.CheckedChanged += new System.EventHandler(this.VarianceTypeCheckedChanged);
             // 
             // selectDirectory
             // 
@@ -125,7 +117,7 @@ namespace EverQuestDPS
             this.selectDirectory.TabIndex = 4;
             this.selectDirectory.Text = "Select EverQuest Directory";
             this.selectDirectory.UseVisualStyleBackColor = true;
-            this.selectDirectory.Click += new System.EventHandler(this.selectDirectory_Click);
+            this.selectDirectory.Click += new System.EventHandler(this.SelectDirectoryClick);
             // 
             // eqDirectory
             // 
@@ -167,7 +159,8 @@ namespace EverQuestDPS
         TreeNode optionsNode = null;
         Label lblStatus;    // The status label that appears in ACT's Plugin tab
         delegate void matchParse(Match regexMatch);
-        List<Tuple<Color, Regex>> regexTupleList;
+        List<Tuple<Color, Regex, Action<Match>>> beforeLogLineRead;
+        List<Tuple<Color, Regex, Action<Match>>> onLogLineRead;
         Regex selfCheck;
         Regex possesive;
         string settingsFile;
@@ -181,24 +174,30 @@ namespace EverQuestDPS
         private Button selectDirectory;
         private Label eqDirectory;
         private MasterSwing chilled;
-        private Match meleeMatch;
-        readonly List<string> ignoreStringsForZoneParse = new List<string>()
-                        {
-                            "an area where levitation effects do not function",
-                            "the Drunken Monkey stance adequately"
-                        };
         FileSystemWatcher watcherForDebugFile;
         StreamReader sr;
         String dbgFilePath;
         bool readingLine = false;
         readonly string fileNameExpected = $"Logs{Path.DirectorySeparatorChar}dbg.txt";
         Regex zoneEnterRgx;
-        #endregion
+        readonly private string[] SpecialAttack = new string[] {
+                Properties.EQDPSPlugin.CripplingBlow
+                , Properties.EQDPSPlugin.WildRampage
+                , Properties.EQDPSPlugin.Twincast
+                , Properties.EQDPSPlugin.Strikethrough
+                , Properties.EQDPSPlugin.Riposte
+                , Properties.EQDPSPlugin.Lucky
+                , Properties.EQDPSPlugin.Locked
+                , Properties.EQDPSPlugin.Flurry
+                , Properties.EQDPSPlugin.DoubleBowShot
+                , Properties.EQDPSPlugin.FinishingBlow
+        };
+    #endregion
 
-        /// <summary>
-        /// Constructor that calls initialize component
-        /// </summary>
-        public EverQuestDPSPlugin()
+    /// <summary>
+    /// Constructor that calls initialize component
+    /// </summary>
+    public EverQuestDPSPlugin()
         {
             InitializeComponent();
         }
@@ -282,7 +281,7 @@ namespace EverQuestDPS
             }
         }
 
-        private void pluginScreenSpaceAdd(TabPage screenSpace, Control control)
+        private void PluginScreenSpaceAdd(TabPage screenSpace, Control control)
         {
             Action addControl = new Action(() => { screenSpace.Controls.Add(control); });
             if (screenSpace.InvokeRequired)
@@ -308,7 +307,7 @@ namespace EverQuestDPS
             watcherForDebugFile = new FileSystemWatcher();
             watcherForRaidRoster = new FileSystemWatcher();
 
-            pluginScreenSpaceAdd(pluginScreenSpace, this);
+            PluginScreenSpaceAdd(pluginScreenSpace, this);
 
             this.Dock = DockStyle.Fill;
 
@@ -352,7 +351,7 @@ namespace EverQuestDPS
                     AutoSize = true,
                     Text = $"Settings under the {Properties.EQDPSPlugin.pluginName} tab."
                 };
-                pluginScreenSpaceAdd(pluginScreenSpace, lblConfig);
+                PluginScreenSpaceAdd(pluginScreenSpace, lblConfig);
             }
             
             xmlSettings = new SettingsSerializer(this); // Create a new settings serializer and pass it this instance
@@ -442,18 +441,22 @@ namespace EverQuestDPS
                         ChangeLblStatus($"With message: {ex.Message}");
                     }
                 }
+                if (populVariance.Checked)
+                    StatisticalProcessors.Variance.varianceCalc = StatisticalProcessors.Variance.populationVariance;
+                else if (sampVariance.Checked)
+                    StatisticalProcessors.Variance.varianceCalc = StatisticalProcessors.Variance.sampleVariance;
+                else
+                    StatisticalProcessors.Variance.varianceCalc = default;
             }
             else
             {
                 ChangeLblStatus($"{settingsFile} does not exist and no settings were loaded, first time loading {Properties.EQDPSPlugin.pluginName}?");
                 SaveSettings();
+                varianceOff.Checked = true;
+                StatisticalProcessors.Variance.varianceCalc = default;
+                VarianceTypeCheckedChanged(this, EventArgs.Empty);
             }
-            if (populVariance.Checked)
-                varianceCalc = populationVariance;
-            else if (sampVariance.Checked)
-                varianceCalc = sampleVariance;
-            else
-                varianceCalc = default;
+                
         }
 
         /// <summary>
@@ -504,62 +507,62 @@ namespace EverQuestDPS
             EncounterData.ColumnDefs.Add("Damage", new EncounterData.ColumnDef("Damage", true, "BIGINT", "Damage", (Data) => { return Data.Damage.ToString(); }, (Data) => { return Data.Damage.ToString(); }));
             EncounterData.ColumnDefs.Add("EncDPS", new EncounterData.ColumnDef("EncDPS", true, "DOUBLE", "EncDPS", (Data) => { return Data.DPS.ToString(); }, (Data) => { return Data.DPS.ToString(usCulture); }));
             EncounterData.ColumnDefs.Add("Zone", new EncounterData.ColumnDef("Zone", false, "VARCHAR(64)", "Zone", (Data) => { return Data.ZoneName; }, (Data) => { return Data.ZoneName; }));
-            EncounterData.ColumnDefs.Add("Kills", new EncounterData.ColumnDef("Kills", true, "INT", "Kills", (Data) => { return Data.AlliedKills.ToString(); }, (Data) => { return Data.AlliedKills.ToString(); }));
-            EncounterData.ColumnDefs.Add("Deaths", new EncounterData.ColumnDef("Deaths", true, "INT", "Deaths", (Data) => { return Data.AlliedDeaths.ToString(); }, (Data) => { return Data.AlliedDeaths.ToString(); }));
+            EncounterData.ColumnDefs.Add("Kills on", new EncounterData.ColumnDef("Kills", true, "INT", "Kills", (Data) => { return Data.AlliedKills.ToString(); }, (Data) => { return Data.AlliedKills.ToString(); }));
+            EncounterData.ColumnDefs.Add("Deaths by", new EncounterData.ColumnDef("Deaths", true, "INT", "Deaths", (Data) => { return Data.AlliedDeaths.ToString(); }, (Data) => { return Data.AlliedDeaths.ToString(); }));
 
             EncounterData.ExportVariables.Clear();
             EncounterData.ExportVariables.Add("n", new EncounterData.TextExportFormatter("n", "New Line", "Formatting after this element will appear on a new line.", (Data, SelectiveAllies, Extra) => { return "\n"; }));
             EncounterData.ExportVariables.Add("t", new EncounterData.TextExportFormatter("t", "Tab Character", "Formatting after this element will appear in a relative column arrangement.  (The formatting example cannot display this properly)", (Data, SelectiveAllies, Extra) => { return "\t"; }));
-            EncounterData.ExportVariables.Add("title", new EncounterData.TextExportFormatter("title", "Encounter Title", "The title of the completed encounter.  This may only be used in Allies formatting.", (Data, SelectiveAllies, Extra) => { return EncounterFormatSwitch(Data, SelectiveAllies, "title", Extra); }));
-            EncounterData.ExportVariables.Add("duration", new EncounterData.TextExportFormatter("duration", "Duration", "The duration of the combatant or the duration of the encounter, displayed as mm:ss", (Data, SelectiveAllies, Extra) => { return EncounterFormatSwitch(Data, SelectiveAllies, "duration", Extra); }));
-            EncounterData.ExportVariables.Add("DURATION", new EncounterData.TextExportFormatter("DURATION", "Short Duration", "The duration of the combatant or encounter displayed in whole seconds.", (Data, SelectiveAllies, Extra) => { return EncounterFormatSwitch(Data, SelectiveAllies, "DURATION", Extra); }));
-            EncounterData.ExportVariables.Add("damage", new EncounterData.TextExportFormatter("damage", "Damage", "The amount of damage from auto-attack, spells, CAs, etc done to other combatants.", (Data, SelectiveAllies, Extra) => { return EncounterFormatSwitch(Data, SelectiveAllies, "damage", Extra); }));
-            EncounterData.ExportVariables.Add("damage-m", new EncounterData.TextExportFormatter("damage-m", "Damage M", "Damage divided by 1,000,000 (with two decimal places)", (Data, SelectiveAllies, Extra) => { return EncounterFormatSwitch(Data, SelectiveAllies, "damage-m", Extra); }));
-            EncounterData.ExportVariables.Add("damage-*", new EncounterData.TextExportFormatter("damage-*", "Damage w/suffix", "Damage divided 1/K/M/B/T/Q (with two decimal places)", (Data, SelectiveAllies, Extra) => { return EncounterFormatSwitch(Data, SelectiveAllies, "damage-*", Extra); }));
-            EncounterData.ExportVariables.Add("DAMAGE-k", new EncounterData.TextExportFormatter("DAMAGE-k", "Short Damage K", "Damage divided by 1,000 (with no decimal places)", (Data, SelectiveAllies, Extra) => { return EncounterFormatSwitch(Data, SelectiveAllies, "DAMAGE-k", Extra); }));
-            EncounterData.ExportVariables.Add("DAMAGE-m", new EncounterData.TextExportFormatter("DAMAGE-m", "Short Damage M", "Damage divided by 1,000,000 (with no decimal places)", (Data, SelectiveAllies, Extra) => { return EncounterFormatSwitch(Data, SelectiveAllies, "DAMAGE-m", Extra); }));
-            EncounterData.ExportVariables.Add("DAMAGE-b", new EncounterData.TextExportFormatter("DAMAGE-b", "Short Damage B", "Damage divided by 1,000,000,000 (with no decimal places)", (Data, SelectiveAllies, Extra) => { return EncounterFormatSwitch(Data, SelectiveAllies, "DAMAGE-b", Extra); }));
-            EncounterData.ExportVariables.Add("DAMAGE-*", new EncounterData.TextExportFormatter("DAMAGE-*", "Short Damage w/suffix", "Damage divided by 1/K/M/B/T/Q (with no decimal places)", (Data, SelectiveAllies, Extra) => { return EncounterFormatSwitch(Data, SelectiveAllies, "DAMAGE-*", Extra); }));
-            EncounterData.ExportVariables.Add("dps", new EncounterData.TextExportFormatter("dps", "DPS", "The damage total of the combatant divided by their personal duration, formatted as 12.34", (Data, SelectiveAllies, Extra) => { return EncounterFormatSwitch(Data, SelectiveAllies, "dps", Extra); }));
-            EncounterData.ExportVariables.Add("dps-*", new EncounterData.TextExportFormatter("dps-*", "DPS w/suffix", "The damage total of the combatant divided by their personal duration, formatted as 12.34K", (Data, SelectiveAllies, Extra) => { return EncounterFormatSwitch(Data, SelectiveAllies, "dps-*", Extra); }));
-            EncounterData.ExportVariables.Add("DPS", new EncounterData.TextExportFormatter("DPS", "Short DPS", "The damage total of the combatatant divided by their personal duration, formatted as 12", (Data, SelectiveAllies, Extra) => { return EncounterFormatSwitch(Data, SelectiveAllies, "DPS", Extra); }));
-            EncounterData.ExportVariables.Add("encdps", new EncounterData.TextExportFormatter("encdps", "Encounter DPS", "The damage total of the combatant divided by the duration of the encounter, formatted as 12.34 -- This is more commonly used than DPS", (Data, SelectiveAllies, Extra) => { return EncounterFormatSwitch(Data, SelectiveAllies, "encdps", Extra); }));
-            EncounterData.ExportVariables.Add("encdps-*", new EncounterData.TextExportFormatter("encdps-*", "Encounter DPS w/suffix", "The damage total of the combatant divided by the duration of the encounter, formatted as 12.34 -- This is more commonly used than DPS", (Data, SelectiveAllies, Extra) => { return EncounterFormatSwitch(Data, SelectiveAllies, "encdps-*", Extra); }));
-            EncounterData.ExportVariables.Add("ENCDPS", new EncounterData.TextExportFormatter("ENCDPS", "Short Encounter DPS", "The damage total of the combatant divided by the duration of the encounter, formatted as 12 -- This is more commonly used than DPS", (Data, SelectiveAllies, Extra) => { return EncounterFormatSwitch(Data, SelectiveAllies, "ENCDPS", Extra); }));
-            EncounterData.ExportVariables.Add("hits", new EncounterData.TextExportFormatter("hits", "Hits", "The number of attack attempts that produced damage.  IE a spell successfully doing damage.", (Data, SelectiveAllies, Extra) => { return EncounterFormatSwitch(Data, SelectiveAllies, "hits", Extra); }));
-            EncounterData.ExportVariables.Add("crithits", new EncounterData.TextExportFormatter("crithits", "Critical Hit Count", "The number of damaging attacks that were critical.", (Data, SelectiveAllies, Extra) => { return EncounterFormatSwitch(Data, SelectiveAllies, "crithits", Extra); }));
-            EncounterData.ExportVariables.Add("crithit%", new EncounterData.TextExportFormatter("crithit%", "Critical Hit Percentage", "The percentage of damaging attacks that were critical.", (Data, SelectiveAllies, Extra) => { return EncounterFormatSwitch(Data, SelectiveAllies, "crithit%", Extra); }));
-            EncounterData.ExportVariables.Add("misses", new EncounterData.TextExportFormatter("misses", "Misses", "The number of auto-attacks or CAs that produced a miss message.", (Data, SelectiveAllies, Extra) => { return EncounterFormatSwitch(Data, SelectiveAllies, "misses", Extra); }));
-            EncounterData.ExportVariables.Add("hitfailed", new EncounterData.TextExportFormatter("hitfailed", "Other Avoid", "Any type of failed attack that was not a miss.  This includes resists, reflects, blocks, dodging, etc.", (Data, SelectiveAllies, Extra) => { return EncounterFormatSwitch(Data, SelectiveAllies, "hitfailed", Extra); }));
-            EncounterData.ExportVariables.Add("swings", new EncounterData.TextExportFormatter("swings", "Swings (Attacks)", "The number of attack attempts.  This includes any auto-attacks or abilities, also including resisted abilities that do no damage.", (Data, SelectiveAllies, Extra) => { return EncounterFormatSwitch(Data, SelectiveAllies, "swings", Extra); }));
-            EncounterData.ExportVariables.Add("tohit", new EncounterData.TextExportFormatter("tohit", "To Hit %", "The percentage of hits to swings as 12.34", (Data, SelectiveAllies, Extra) => { return EncounterFormatSwitch(Data, SelectiveAllies, "tohit", Extra); }));
-            EncounterData.ExportVariables.Add("TOHIT", new EncounterData.TextExportFormatter("TOHIT", "Short To Hit %", "The percentage of hits to swings as 12", (Data, SelectiveAllies, Extra) => { return EncounterFormatSwitch(Data, SelectiveAllies, "TOHIT", Extra); }));
-            EncounterData.ExportVariables.Add("maxhit", new EncounterData.TextExportFormatter("maxhit", "Highest Hit", "The highest single damaging hit formatted as [Combatant-]SkillName-Damage#", (Data, SelectiveAllies, Extra) => { return EncounterFormatSwitch(Data, SelectiveAllies, "maxhit", Extra); }));
-            EncounterData.ExportVariables.Add("MAXHIT", new EncounterData.TextExportFormatter("MAXHIT", "Short Highest Hit", "The highest single damaging hit formatted as [Combatant-]Damage#", (Data, SelectiveAllies, Extra) => { return EncounterFormatSwitch(Data, SelectiveAllies, "MAXHIT", Extra); }));
-            EncounterData.ExportVariables.Add("maxhit-*", new EncounterData.TextExportFormatter("maxhit-*", "Highest Hit w/ suffix", "MaxHit divided by 1/K/M/B/T/Q", (Data, SelectiveAllies, Extra) => { return EncounterFormatSwitch(Data, SelectiveAllies, "maxhit-*", Extra); }));
-            EncounterData.ExportVariables.Add("MAXHIT-*", new EncounterData.TextExportFormatter("MAXHIT-*", "Short Highest Hit w/ suffix", "Short MaxHit divided by 1/K/M/B/T/Q", (Data, SelectiveAllies, Extra) => { return EncounterFormatSwitch(Data, SelectiveAllies, "MAXHIT-*", Extra); }));
-            EncounterData.ExportVariables.Add("healed", new EncounterData.TextExportFormatter("healed", "Healed", "The numerical total of all heals, wards or similar sourced from this combatant.", (Data, SelectiveAllies, Extra) => { return EncounterFormatSwitch(Data, SelectiveAllies, "healed", Extra); }));
+            EncounterData.ExportVariables.Add("title", new EncounterData.TextExportFormatter("title", "Encounter Title", "The title of the completed encounter.  This may only be used in Allies formatting.", (Data, SelectiveAllies, Extra) => { return EncounterFormatSwitch(Data, SelectiveAllies, "title"); }));
+            EncounterData.ExportVariables.Add("duration", new EncounterData.TextExportFormatter("duration", "Duration", "The duration of the combatant or the duration of the encounter, displayed as mm:ss", (Data, SelectiveAllies, Extra) => { return EncounterFormatSwitch(Data, SelectiveAllies, "duration"); }));
+            EncounterData.ExportVariables.Add("DURATION", new EncounterData.TextExportFormatter("DURATION", "Short Duration", "The duration of the combatant or encounter displayed in whole seconds.", (Data, SelectiveAllies, Extra) => { return EncounterFormatSwitch(Data, SelectiveAllies, "DURATION"); }));
+            EncounterData.ExportVariables.Add("damage", new EncounterData.TextExportFormatter("damage", "Damage", "The amount of damage from auto-attack, spells, CAs, etc done to other combatants.", (Data, SelectiveAllies, Extra) => { return EncounterFormatSwitch(Data, SelectiveAllies, "damage"); }));
+            EncounterData.ExportVariables.Add("damage-m", new EncounterData.TextExportFormatter("damage-m", "Damage M", "Damage divided by 1,000,000 (with two decimal places)", (Data, SelectiveAllies, Extra) => { return EncounterFormatSwitch(Data, SelectiveAllies, "damage-m"); }));
+            EncounterData.ExportVariables.Add("damage-*", new EncounterData.TextExportFormatter("damage-*", "Damage w/suffix", "Damage divided 1/K/M/B/T/Q (with two decimal places)", (Data, SelectiveAllies, Extra) => { return EncounterFormatSwitch(Data, SelectiveAllies, "damage-*"); }));
+            EncounterData.ExportVariables.Add("DAMAGE-k", new EncounterData.TextExportFormatter("DAMAGE-k", "Short Damage K", "Damage divided by 1,000 (with no decimal places)", (Data, SelectiveAllies, Extra) => { return EncounterFormatSwitch(Data, SelectiveAllies, "DAMAGE-k"); }));
+            EncounterData.ExportVariables.Add("DAMAGE-m", new EncounterData.TextExportFormatter("DAMAGE-m", "Short Damage M", "Damage divided by 1,000,000 (with no decimal places)", (Data, SelectiveAllies, Extra) => { return EncounterFormatSwitch(Data, SelectiveAllies, "DAMAGE-m"); }));
+            EncounterData.ExportVariables.Add("DAMAGE-b", new EncounterData.TextExportFormatter("DAMAGE-b", "Short Damage B", "Damage divided by 1,000,000,000 (with no decimal places)", (Data, SelectiveAllies, Extra) => { return EncounterFormatSwitch(Data, SelectiveAllies, "DAMAGE-b"); }));
+            EncounterData.ExportVariables.Add("DAMAGE-*", new EncounterData.TextExportFormatter("DAMAGE-*", "Short Damage w/suffix", "Damage divided by 1/K/M/B/T/Q (with no decimal places)", (Data, SelectiveAllies, Extra) => { return EncounterFormatSwitch(Data, SelectiveAllies, "DAMAGE-*"); }));
+            EncounterData.ExportVariables.Add("dps", new EncounterData.TextExportFormatter("dps", "DPS", "The damage total of the combatant divided by their personal duration, formatted as 12.34", (Data, SelectiveAllies, Extra) => { return EncounterFormatSwitch(Data, SelectiveAllies, "dps"); }));
+            EncounterData.ExportVariables.Add("dps-*", new EncounterData.TextExportFormatter("dps-*", "DPS w/suffix", "The damage total of the combatant divided by their personal duration, formatted as 12.34K", (Data, SelectiveAllies, Extra) => { return EncounterFormatSwitch(Data, SelectiveAllies, "dps-*"); }));
+            EncounterData.ExportVariables.Add("DPS", new EncounterData.TextExportFormatter("DPS", "Short DPS", "The damage total of the combatatant divided by their personal duration, formatted as 12", (Data, SelectiveAllies, Extra) => { return EncounterFormatSwitch(Data, SelectiveAllies, "DPS"); }));
+            EncounterData.ExportVariables.Add("encdps", new EncounterData.TextExportFormatter("encdps", "Encounter DPS", "The damage total of the combatant divided by the duration of the encounter, formatted as 12.34 -- This is more commonly used than DPS", (Data, SelectiveAllies, Extra) => { return EncounterFormatSwitch(Data, SelectiveAllies, "encdps"); }));
+            EncounterData.ExportVariables.Add("encdps-*", new EncounterData.TextExportFormatter("encdps-*", "Encounter DPS w/suffix", "The damage total of the combatant divided by the duration of the encounter, formatted as 12.34 -- This is more commonly used than DPS", (Data, SelectiveAllies, Extra) => { return EncounterFormatSwitch(Data, SelectiveAllies, "encdps-*"); }));
+            EncounterData.ExportVariables.Add("ENCDPS", new EncounterData.TextExportFormatter("ENCDPS", "Short Encounter DPS", "The damage total of the combatant divided by the duration of the encounter, formatted as 12 -- This is more commonly used than DPS", (Data, SelectiveAllies, Extra) => { return EncounterFormatSwitch(Data, SelectiveAllies, "ENCDPS"); }));
+            EncounterData.ExportVariables.Add("hits", new EncounterData.TextExportFormatter("hits", "Hits", "The number of attack attempts that produced damage.  IE a spell successfully doing damage.", (Data, SelectiveAllies, Extra) => { return EncounterFormatSwitch(Data, SelectiveAllies, "hits"); }));
+            EncounterData.ExportVariables.Add("crithits", new EncounterData.TextExportFormatter("crithits", "Critical Hit Count", "The number of damaging attacks that were critical.", (Data, SelectiveAllies, Extra) => { return EncounterFormatSwitch(Data, SelectiveAllies, "crithits"); }));
+            EncounterData.ExportVariables.Add("crithit%", new EncounterData.TextExportFormatter("crithit%", "Critical Hit Percentage", "The percentage of damaging attacks that were critical.", (Data, SelectiveAllies, Extra) => { return EncounterFormatSwitch(Data, SelectiveAllies, "crithit%"); }));
+            EncounterData.ExportVariables.Add("misses", new EncounterData.TextExportFormatter("misses", "Misses", "The number of auto-attacks or CAs that produced a miss message.", (Data, SelectiveAllies, Extra) => { return EncounterFormatSwitch(Data, SelectiveAllies, "misses"); }));
+            EncounterData.ExportVariables.Add("hitfailed", new EncounterData.TextExportFormatter("hitfailed", "Other Avoid", "Any type of failed attack that was not a miss.  This includes resists, reflects, blocks, dodging, etc.", (Data, SelectiveAllies, Extra) => { return EncounterFormatSwitch(Data, SelectiveAllies, "hitfailed"); }));
+            EncounterData.ExportVariables.Add("swings", new EncounterData.TextExportFormatter("swings", "Swings (Attacks)", "The number of attack attempts.  This includes any auto-attacks or abilities, also including resisted abilities that do no damage.", (Data, SelectiveAllies, Extra) => { return EncounterFormatSwitch(Data, SelectiveAllies, "swings"); }));
+            EncounterData.ExportVariables.Add("tohit", new EncounterData.TextExportFormatter("tohit", "To Hit %", "The percentage of hits to swings as 12.34", (Data, SelectiveAllies, Extra) => { return EncounterFormatSwitch(Data, SelectiveAllies, "tohit"); }));
+            EncounterData.ExportVariables.Add("TOHIT", new EncounterData.TextExportFormatter("TOHIT", "Short To Hit %", "The percentage of hits to swings as 12", (Data, SelectiveAllies, Extra) => { return EncounterFormatSwitch(Data, SelectiveAllies, "TOHIT"); }));
+            EncounterData.ExportVariables.Add("maxhit", new EncounterData.TextExportFormatter("maxhit", "Highest Hit", "The highest single damaging hit formatted as [Combatant-]SkillName-Damage#", (Data, SelectiveAllies, Extra) => { return EncounterFormatSwitch(Data, SelectiveAllies, "maxhit"); }));
+            EncounterData.ExportVariables.Add("MAXHIT", new EncounterData.TextExportFormatter("MAXHIT", "Short Highest Hit", "The highest single damaging hit formatted as [Combatant-]Damage#", (Data, SelectiveAllies, Extra) => { return EncounterFormatSwitch(Data, SelectiveAllies, "MAXHIT"); }));
+            EncounterData.ExportVariables.Add("maxhit-*", new EncounterData.TextExportFormatter("maxhit-*", "Highest Hit w/ suffix", "MaxHit divided by 1/K/M/B/T/Q", (Data, SelectiveAllies, Extra) => { return EncounterFormatSwitch(Data, SelectiveAllies, "maxhit-*"); }));
+            EncounterData.ExportVariables.Add("MAXHIT-*", new EncounterData.TextExportFormatter("MAXHIT-*", "Short Highest Hit w/ suffix", "Short MaxHit divided by 1/K/M/B/T/Q", (Data, SelectiveAllies, Extra) => { return EncounterFormatSwitch(Data, SelectiveAllies, "MAXHIT-*"); }));
+            EncounterData.ExportVariables.Add("healed", new EncounterData.TextExportFormatter("healed", "Healed", "The numerical total of all heals, wards or similar sourced from this combatant.", (Data, SelectiveAllies, Extra) => { return EncounterFormatSwitch(Data, SelectiveAllies, "healed"); }));
             //EncounterData.ExportVariables.Add("enchps", new EncounterData.TextExportFormatter("enchps", "Encounter HPS", "The healing total of the combatant divided by the duration of the encounter, formatted as 12.34", (Data, SelectiveAllies, Extra) => { return EncounterFormatSwitch(Data, SelectiveAllies, "enchps", Extra); }));
             //EncounterData.ExportVariables.Add("enchps-*", new EncounterData.TextExportFormatter("enchps-*", "Encounter HPS w/suffix", "Encounter HPS divided by 1/K/M/B/T/Q", (Data, SelectiveAllies, Extra) => { return EncounterFormatSwitch(Data, SelectiveAllies, "enchps-*", Extra); }));
             //EncounterData.ExportVariables.Add("ENCHPS", new EncounterData.TextExportFormatter("ENCHPS", "Short Encounter HPS", "The healing total of the combatant divided by the duration of the encounter, formatted as 12", (Data, SelectiveAllies, Extra) => { return EncounterFormatSwitch(Data, SelectiveAllies, "ENCHPS", Extra); }));
-            EncounterData.ExportVariables.Add("heals", new EncounterData.TextExportFormatter("heals", "Heal Count", "The total number of heals from this combatant.", (Data, SelectiveAllies, Extra) => { return EncounterFormatSwitch(Data, SelectiveAllies, "heals", Extra); }));
-            EncounterData.ExportVariables.Add("critheals", new EncounterData.TextExportFormatter("critheals", "Critical Heal Count", "The number of heals that were critical.", (Data, SelectiveAllies, Extra) => { return EncounterFormatSwitch(Data, SelectiveAllies, "critheals", Extra); }));
-            EncounterData.ExportVariables.Add("critheal%", new EncounterData.TextExportFormatter("critheal%", "Critical Heal Percentage", "The percentage of heals that were critical.", (Data, SelectiveAllies, Extra) => { return EncounterFormatSwitch(Data, SelectiveAllies, "critheal%", Extra); }));
-            EncounterData.ExportVariables.Add("cures", new EncounterData.TextExportFormatter("cures", "Cure or Dispel Count", "The total number of times the combatant cured or dispelled", (Data, SelectiveAllies, Extra) => { return EncounterFormatSwitch(Data, SelectiveAllies, "cures", Extra); }));
-            EncounterData.ExportVariables.Add("maxheal", new EncounterData.TextExportFormatter("maxheal", "Highest Heal", "The highest single healing amount formatted as [Combatant-]SkillName-Healing#", (Data, SelectiveAllies, Extra) => { return EncounterFormatSwitch(Data, SelectiveAllies, "maxheal", Extra); }));
-            EncounterData.ExportVariables.Add("MAXHEAL", new EncounterData.TextExportFormatter("MAXHEAL", "Short Highest Heal", "The highest single healing amount formatted as [Combatant-]Healing#", (Data, SelectiveAllies, Extra) => { return EncounterFormatSwitch(Data, SelectiveAllies, "MAXHEAL", Extra); }));
-            EncounterData.ExportVariables.Add("maxhealward", new EncounterData.TextExportFormatter("maxhealward", "Highest Heal/Ward", "The highest single healing/warding amount formatted as [Combatant-]SkillName-Healing#", (Data, SelectiveAllies, Extra) => { return EncounterFormatSwitch(Data, SelectiveAllies, "maxhealward", Extra); }));
-            EncounterData.ExportVariables.Add("MAXHEALWARD", new EncounterData.TextExportFormatter("MAXHEALWARD", "Short Highest Heal/Ward", "The highest single healing/warding amount formatted as [Combatant-]Healing#", (Data, SelectiveAllies, Extra) => { return EncounterFormatSwitch(Data, SelectiveAllies, "MAXHEALWARD", Extra); }));
-            EncounterData.ExportVariables.Add("maxheal-*", new EncounterData.TextExportFormatter("maxheal-*", "Highest Heal w/ suffix", "Highest Heal divided by 1/K/M/B/T/Q", (Data, SelectiveAllies, Extra) => { return EncounterFormatSwitch(Data, SelectiveAllies, "maxheal-*", Extra); }));
-            EncounterData.ExportVariables.Add("MAXHEAL-*", new EncounterData.TextExportFormatter("MAXHEAL-*", "Short Highest Heal w/ suffix", "Short Highest Heal divided by 1/K/M/B/T/Q", (Data, SelectiveAllies, Extra) => { return EncounterFormatSwitch(Data, SelectiveAllies, "MAXHEAL-*", Extra); }));
-            EncounterData.ExportVariables.Add("maxhealward-*", new EncounterData.TextExportFormatter("maxhealward-*", "Highest Heal/Ward w/ suffix", "Highest Heal/Ward divided by 1/K/M/B/T/Q", (Data, SelectiveAllies, Extra) => { return EncounterFormatSwitch(Data, SelectiveAllies, "maxhealward-*", Extra); }));
-            EncounterData.ExportVariables.Add("MAXHEALWARD-*", new EncounterData.TextExportFormatter("MAXHEALWARD-*", "Short Highest Heal/Ward w/ suffix", "Short Highest Heal/Ward divided by 1/K/M/B/T/Q", (Data, SelectiveAllies, Extra) => { return EncounterFormatSwitch(Data, SelectiveAllies, "MAXHEALWARD-*", Extra); }));
-            EncounterData.ExportVariables.Add("damagetaken", new EncounterData.TextExportFormatter("damagetaken", "Damage Received", "The total amount of damage this combatant received.", (Data, SelectiveAllies, Extra) => { return EncounterFormatSwitch(Data, SelectiveAllies, "damagetaken", Extra); }));
-            EncounterData.ExportVariables.Add("damagetaken-*", new EncounterData.TextExportFormatter("damagetaken-*", "Damage Received w/suffix", "Damage Received divided by 1/K/M/B/T/Q", (Data, SelectiveAllies, Extra) => { return EncounterFormatSwitch(Data, SelectiveAllies, "damagetaken-*", Extra); }));
-            EncounterData.ExportVariables.Add("healstaken", new EncounterData.TextExportFormatter("healstaken", "Healing Received", "The total amount of healing this combatant received.", (Data, SelectiveAllies, Extra) => { return EncounterFormatSwitch(Data, SelectiveAllies, "healstaken", Extra); }));
-            EncounterData.ExportVariables.Add("healstaken-*", new EncounterData.TextExportFormatter("healstaken-*", "Healing Received w/suffix", "Healing Received divided by 1/K/M/B/T/Q", (Data, SelectiveAllies, Extra) => { return EncounterFormatSwitch(Data, SelectiveAllies, "healstaken-*", Extra); }));
-            EncounterData.ExportVariables.Add("kills", new EncounterData.TextExportFormatter("kills", "Killing Blows", "The total number of times this character landed a killing blow.", (Data, SelectiveAllies, Extra) => { return EncounterFormatSwitch(Data, SelectiveAllies, "kills", Extra); }));
-            EncounterData.ExportVariables.Add("deaths", new EncounterData.TextExportFormatter("deaths", "Deaths", "The total number of times this character was killed by another.", (Data, SelectiveAllies, Extra) => { return EncounterFormatSwitch(Data, SelectiveAllies, "deaths", Extra); }));
+            EncounterData.ExportVariables.Add("heals", new EncounterData.TextExportFormatter("heals", "Heal Count", "The total number of heals from this combatant.", (Data, SelectiveAllies, Extra) => { return EncounterFormatSwitch(Data, SelectiveAllies, "heals"); }));
+            EncounterData.ExportVariables.Add("critheals", new EncounterData.TextExportFormatter("critheals", "Critical Heal Count", "The number of heals that were critical.", (Data, SelectiveAllies, Extra) => { return EncounterFormatSwitch(Data, SelectiveAllies, "critheals"); }));
+            EncounterData.ExportVariables.Add("critheal%", new EncounterData.TextExportFormatter("critheal%", "Critical Heal Percentage", "The percentage of heals that were critical.", (Data, SelectiveAllies, Extra) => { return EncounterFormatSwitch(Data, SelectiveAllies, "critheal%"); }));
+            EncounterData.ExportVariables.Add("cures", new EncounterData.TextExportFormatter("cures", "Cure or Dispel Count", "The total number of times the combatant cured or dispelled", (Data, SelectiveAllies, Extra) => { return EncounterFormatSwitch(Data, SelectiveAllies, "cures"); }));
+            EncounterData.ExportVariables.Add("maxheal", new EncounterData.TextExportFormatter("maxheal", "Highest Heal", "The highest single healing amount formatted as [Combatant-]SkillName-Healing#", (Data, SelectiveAllies, Extra) => { return EncounterFormatSwitch(Data, SelectiveAllies, "maxheal"); }));
+            EncounterData.ExportVariables.Add("MAXHEAL", new EncounterData.TextExportFormatter("MAXHEAL", "Short Highest Heal", "The highest single healing amount formatted as [Combatant-]Healing#", (Data, SelectiveAllies, Extra) => { return EncounterFormatSwitch(Data, SelectiveAllies, "MAXHEAL"); }));
+            EncounterData.ExportVariables.Add("maxhealward", new EncounterData.TextExportFormatter("maxhealward", "Highest Heal/Ward", "The highest single healing/warding amount formatted as [Combatant-]SkillName-Healing#", (Data, SelectiveAllies, Extra) => { return EncounterFormatSwitch(Data, SelectiveAllies, "maxhealward"); }));
+            EncounterData.ExportVariables.Add("MAXHEALWARD", new EncounterData.TextExportFormatter("MAXHEALWARD", "Short Highest Heal/Ward", "The highest single healing/warding amount formatted as [Combatant-]Healing#", (Data, SelectiveAllies, Extra) => { return EncounterFormatSwitch(Data, SelectiveAllies, "MAXHEALWARD"); }));
+            EncounterData.ExportVariables.Add("maxheal-*", new EncounterData.TextExportFormatter("maxheal-*", "Highest Heal w/ suffix", "Highest Heal divided by 1/K/M/B/T/Q", (Data, SelectiveAllies, Extra) => { return EncounterFormatSwitch(Data, SelectiveAllies, "maxheal-*"); }));
+            EncounterData.ExportVariables.Add("MAXHEAL-*", new EncounterData.TextExportFormatter("MAXHEAL-*", "Short Highest Heal w/ suffix", "Short Highest Heal divided by 1/K/M/B/T/Q", (Data, SelectiveAllies, Extra) => { return EncounterFormatSwitch(Data, SelectiveAllies, "MAXHEAL-*"); }));
+            EncounterData.ExportVariables.Add("maxhealward-*", new EncounterData.TextExportFormatter("maxhealward-*", "Highest Heal/Ward w/ suffix", "Highest Heal/Ward divided by 1/K/M/B/T/Q", (Data, SelectiveAllies, Extra) => { return EncounterFormatSwitch(Data, SelectiveAllies, "maxhealward-*"); }));
+            EncounterData.ExportVariables.Add("MAXHEALWARD-*", new EncounterData.TextExportFormatter("MAXHEALWARD-*", "Short Highest Heal/Ward w/ suffix", "Short Highest Heal/Ward divided by 1/K/M/B/T/Q", (Data, SelectiveAllies, Extra) => { return EncounterFormatSwitch(Data, SelectiveAllies, "MAXHEALWARD-*"); }));
+            EncounterData.ExportVariables.Add("damagetaken", new EncounterData.TextExportFormatter("damagetaken", "Damage Received", "The total amount of damage this combatant received.", (Data, SelectiveAllies, Extra) => { return EncounterFormatSwitch(Data, SelectiveAllies, "damagetaken"); }));
+            EncounterData.ExportVariables.Add("damagetaken-*", new EncounterData.TextExportFormatter("damagetaken-*", "Damage Received w/suffix", "Damage Received divided by 1/K/M/B/T/Q", (Data, SelectiveAllies, Extra) => { return EncounterFormatSwitch(Data, SelectiveAllies, "damagetaken-*"); }));
+            EncounterData.ExportVariables.Add("healstaken", new EncounterData.TextExportFormatter("healstaken", "Healing Received", "The total amount of healing this combatant received.", (Data, SelectiveAllies, Extra) => { return EncounterFormatSwitch(Data, SelectiveAllies, "healstaken"); }));
+            EncounterData.ExportVariables.Add("healstaken-*", new EncounterData.TextExportFormatter("healstaken-*", "Healing Received w/suffix", "Healing Received divided by 1/K/M/B/T/Q", (Data, SelectiveAllies, Extra) => { return EncounterFormatSwitch(Data, SelectiveAllies, "healstaken-*"); }));
+            EncounterData.ExportVariables.Add("kills", new EncounterData.TextExportFormatter("kills", "Killing Blows", "The total number of times this character landed a killing blow.", (Data, SelectiveAllies, Extra) => { return EncounterFormatSwitch(Data, SelectiveAllies, "kills"); }));
+            EncounterData.ExportVariables.Add("deaths", new EncounterData.TextExportFormatter("deaths", "Deaths", "The total number of times this character was killed by another.", (Data, SelectiveAllies, Extra) => { return EncounterFormatSwitch(Data, SelectiveAllies, "deaths"); }));
 
             CombatantData.ColumnDefs.Clear();
             CombatantData.ColumnDefs.Add("EncId", new CombatantData.ColumnDef("EncId", false, "CHAR(8)", "EncId", (Data) => { return string.Empty; }, (Data) => { return Data.Parent.EncId; }, (Left, Right) => { return 0; }));
@@ -592,7 +595,6 @@ namespace EverQuestDPS
             CombatantData.ColumnDefs.Add("ToHit%", new CombatantData.ColumnDef("ToHit%", false, "FLOAT", "ToHit", (Data) => { return Data.ToHit.ToString(); }, (Data) => { return Data.ToHit.ToString(usCulture); }, (Left, Right) => { return Left.ToHit.CompareTo(Right.ToHit); }));
             CombatantData.ColumnDefs.Add("CritDam%", new CombatantData.ColumnDef("CritDam%", false, "VARCHAR(8)", "CritDamPerc", (Data) => { return Data.CritDamPerc.ToString("0'%"); }, (Data) => { return Data.CritDamPerc.ToString("0'%"); }, (Left, Right) => { return Left.CritDamPerc.CompareTo(Right.CritDamPerc); }));
             CombatantData.ColumnDefs.Add("CritHeal%", new CombatantData.ColumnDef("CritHeal%", false, "VARCHAR(8)", "CritHealPerc", (Data) => { return Data.CritHealPerc.ToString("0'%"); }, (Data) => { return Data.CritHealPerc.ToString("0'%"); }, (Left, Right) => { return Left.CritHealPerc.CompareTo(Right.CritHealPerc); }));
-            CombatantData.ColumnDefs.Add("CritTypes", new CombatantData.ColumnDef("CritTypes", true, "VARCHAR(32)", "CritTypes", CombatantDataGetCritTypes, CombatantDataGetCritTypes, (Left, Right) => { return CombatantDataGetCritTypes(Left).CompareTo(CombatantDataGetCritTypes(Right)); }));
 
             CombatantData.ColumnDefs["Damage"].GetCellForeColor = (Data) => { return Color.DarkRed; };
             CombatantData.ColumnDefs["Damage%"].GetCellForeColor = (Data) => { return Color.DarkRed; };
@@ -663,88 +665,88 @@ namespace EverQuestDPS
             CombatantData.ExportVariables.Add("n", new CombatantData.TextExportFormatter("n", "New Line", "Formatting after this element will appear on a new line.", (Data, Extra) => { return "\n"; }));
             CombatantData.ExportVariables.Add("t", new CombatantData.TextExportFormatter("t", "Tab Character", "Formatting after this element will appear in a relative column arrangement.  (The formatting example cannot display this properly)", (Data, Extra) => { return "\t"; }));
             CombatantData.ExportVariables.Add("name", new CombatantData.TextExportFormatter("name", "Name", "The combatant's name.", (Data, Extra) => { return Data.Name; }));
-            CombatantData.ExportVariables.Add("NAME", new CombatantData.TextExportFormatter("NAME", "Short Name", "The combatant's name shortened to a number of characters after a colon, like: \"NAME:5\"", (Data, Extra) => { return NameFormatChange(Data, "NAME", Extra, Int32.Parse(Extra)); }));
-            CombatantData.ExportVariables.Add("duration", new CombatantData.TextExportFormatter("duration", "Duration", "The duration of the combatant or the duration of the encounter, displayed as mm:ss", (Data, Extra) => { return CombatantFormatSwitch(Data, "duration", Extra); }));
-            CombatantData.ExportVariables.Add("DURATION", new CombatantData.TextExportFormatter("DURATION", "Short Duration", "The duration of the combatant or encounter displayed in whole seconds.", (Data, Extra) => { return CombatantFormatSwitch(Data, "DURATION", Extra); }));
-            CombatantData.ExportVariables.Add("damage", new CombatantData.TextExportFormatter("damage", "Damage", "The amount of damage from auto-attack, spells, CAs, etc done to other combatants.", (Data, Extra) => { return CombatantFormatSwitch(Data, "damage", Extra); }));
-            CombatantData.ExportVariables.Add("damage-m", new CombatantData.TextExportFormatter("damage-m", "Damage M", "Damage divided by 1,000,000 (with two decimal places)", (Data, Extra) => { return CombatantFormatSwitch(Data, "damage-m", Extra); }));
-            CombatantData.ExportVariables.Add("damage-b", new CombatantData.TextExportFormatter("damage-b", "Damage B", "Damage divided by 1,000,000,000 (with two decimal places)", (Data, Extra) => { return CombatantFormatSwitch(Data, "damage-b", Extra); }));
-            CombatantData.ExportVariables.Add("damage-*", new CombatantData.TextExportFormatter("damage-*", "Damage w/suffix", "Damage divided by 1/K/M/B/T/Q (with one decimal places)", (Data, Extra) => { return CombatantFormatSwitch(Data, "damage-*", Extra); }));
-            CombatantData.ExportVariables.Add("DAMAGE-k", new CombatantData.TextExportFormatter("DAMAGE-k", "Short Damage K", "Damage divided by 1,000 (with no decimal places)", (Data, Extra) => { return CombatantFormatSwitch(Data, "DAMAGE-k", Extra); }));
-            CombatantData.ExportVariables.Add("DAMAGE-m", new CombatantData.TextExportFormatter("DAMAGE-m", "Short Damage M", "Damage divided by 1,000,000 (with no decimal places)", (Data, Extra) => { return CombatantFormatSwitch(Data, "DAMAGE-m", Extra); }));
-            CombatantData.ExportVariables.Add("DAMAGE-b", new CombatantData.TextExportFormatter("DAMAGE-b", "Short Damage B", "Damage divided by 1,000,000,000 (with no decimal places)", (Data, Extra) => { return CombatantFormatSwitch(Data, "DAMAGE-b", Extra); }));
-            CombatantData.ExportVariables.Add("DAMAGE-*", new CombatantData.TextExportFormatter("DAMAGE-*", "Short Damage w/suffix", "Damage divided by 1/K/M/B/T/Q (with no decimal places)", (Data, Extra) => { return CombatantFormatSwitch(Data, "DAMAGE-*", Extra); }));
-            CombatantData.ExportVariables.Add("damage%", new CombatantData.TextExportFormatter("damage%", "Damage %", "This value represents the percent share of all damage done by allies in this encounter.", (Data, Extra) => { return CombatantFormatSwitch(Data, "damage%", Extra); }));
-            CombatantData.ExportVariables.Add("dps", new CombatantData.TextExportFormatter("dps", "DPS", "The damage total of the combatant divided by their personal duration, formatted as 12.34", (Data, Extra) => { return CombatantFormatSwitch(Data, "dps", Extra); }));
-            CombatantData.ExportVariables.Add("dps-*", new CombatantData.TextExportFormatter("dps-*", "DPS w/suffix", "The damage total of the combatant divided by their personal duration, formatted as 12.34K", (Data, Extra) => { return CombatantFormatSwitch(Data, "dps-*", Extra); }));
-            CombatantData.ExportVariables.Add("DPS", new CombatantData.TextExportFormatter("DPS", "Short DPS", "The damage total of the combatatant divided by their personal duration, formatted as 12K", (Data, Extra) => { return CombatantFormatSwitch(Data, "DPS", Extra); }));
-            CombatantData.ExportVariables.Add("DPS-k", new CombatantData.TextExportFormatter("DPS-k", "Short DPS K", "Short DPS divided by 1,000 (with no decimal places)", (Data, Extra) => { return CombatantFormatSwitch(Data, "DPS-k", Extra); }));
-            CombatantData.ExportVariables.Add("DPS-m", new CombatantData.TextExportFormatter("DPS-m", "Short DPS M", "Short DPS divided by 1,000,000 (with no decimal places)", (Data, Extra) => { return CombatantFormatSwitch(Data, "DPS-m", Extra); }));
-            CombatantData.ExportVariables.Add("DPS-*", new CombatantData.TextExportFormatter("DPS-*", "Short DPS w/suffix", "Short DPS divided by 1/K/M/B/T/Q (with no decimal places)", (Data, Extra) => { return CombatantFormatSwitch(Data, "DPS-*", Extra); }));
-            CombatantData.ExportVariables.Add("encdps", new CombatantData.TextExportFormatter("encdps", "Encounter DPS", "The damage total of the combatant divided by the duration of the encounter, formatted as 12.34 -- This is more commonly used than DPS", (Data, Extra) => { return CombatantFormatSwitch(Data, "encdps", Extra); }));
-            CombatantData.ExportVariables.Add("encdps-*", new CombatantData.TextExportFormatter("encdps-*", "Encounter DPS w/suffix", "The damage total of the combatant divided by the duration of the encounter, formatted as 12.34 -- This is more commonly used than DPS", (Data, Extra) => { return CombatantFormatSwitch(Data, "encdps-*", Extra); }));
-            CombatantData.ExportVariables.Add("ENCDPS", new CombatantData.TextExportFormatter("ENCDPS", "Short Encounter DPS", "The damage total of the combatant divided by the duration of the encounter, formatted as 12 -- This is more commonly used than DPS", (Data, Extra) => { return CombatantFormatSwitch(Data, "ENCDPS", Extra); }));
-            CombatantData.ExportVariables.Add("ENCDPS-k", new CombatantData.TextExportFormatter("ENCDPS-k", "Short Encounter DPS K", "Short Encounter DPS divided by 1,000 (with no decimal places)", (Data, Extra) => { return CombatantFormatSwitch(Data, "ENCDPS-k", Extra); }));
-            CombatantData.ExportVariables.Add("ENCDPS-m", new CombatantData.TextExportFormatter("ENCDPS-m", "Short Encounter DPS M", "Short Encounter DPS divided by 1,000,000 (with no decimal places)", (Data, Extra) => { return CombatantFormatSwitch(Data, "ENCDPS-m", Extra); }));
-            CombatantData.ExportVariables.Add("ENCDPS-*", new CombatantData.TextExportFormatter("ENCDPS-*", "Short Encounter DPS w/suffix", "Short Encounter DPS divided by 1/K/M/B/T/Q (with no decimal places)", (Data, Extra) => { return CombatantFormatSwitch(Data, "ENCDPS-*", Extra); }));
-            CombatantData.ExportVariables.Add("hits", new CombatantData.TextExportFormatter("hits", "Hits", "The number of attack attempts that produced damage.  IE a spell successfully doing damage.", (Data, Extra) => { return CombatantFormatSwitch(Data, "hits", Extra); }));
-            CombatantData.ExportVariables.Add("crithits", new CombatantData.TextExportFormatter("crithits", "Critical Hit Count", "The number of damaging attacks that were critical.", (Data, Extra) => { return CombatantFormatSwitch(Data, "crithits", Extra); }));
-            CombatantData.ExportVariables.Add("crithit%", new CombatantData.TextExportFormatter("crithit%", "Critical Hit Percentage", "The percentage of damaging attacks that were critical.", (Data, Extra) => { return CombatantFormatSwitch(Data, "crithit%", Extra); }));
-            CombatantData.ExportVariables.Add("crittypes", new CombatantData.TextExportFormatter("crittypes", "Critical Types", "Distribution of Critical Types  (Normal|Legendary|Fabled|Mythical)", (Data, Extra) => { return CombatantFormatSwitch(Data, "crittypes", Extra); }));
-            CombatantData.ExportVariables.Add("misses", new CombatantData.TextExportFormatter("misses", "Misses", "The number of auto-attacks or CAs that produced a miss message.", (Data, Extra) => { return CombatantFormatSwitch(Data, "misses", Extra); }));
-            CombatantData.ExportVariables.Add("hitfailed", new CombatantData.TextExportFormatter("hitfailed", "Other Avoid", "Any type of failed attack that was not a miss.  This includes resists, reflects, blocks, dodging, etc.", (Data, Extra) => { return CombatantFormatSwitch(Data, "hitfailed", Extra); }));
-            CombatantData.ExportVariables.Add("swings", new CombatantData.TextExportFormatter("swings", "Swings (Attacks)", "The number of attack attempts.  This includes any auto-attacks or abilities, also including resisted abilities that do no damage.", (Data, Extra) => { return CombatantFormatSwitch(Data, "swings", Extra); }));
-            CombatantData.ExportVariables.Add("tohit", new CombatantData.TextExportFormatter("tohit", "To Hit %", "The percentage of hits to swings as 12.34", (Data, Extra) => { return CombatantFormatSwitch(Data, "tohit", Extra); }));
-            CombatantData.ExportVariables.Add("TOHIT", new CombatantData.TextExportFormatter("TOHIT", "Short To Hit %", "The percentage of hits to swings as 12", (Data, Extra) => { return CombatantFormatSwitch(Data, "TOHIT", Extra); }));
-            CombatantData.ExportVariables.Add("maxhit", new CombatantData.TextExportFormatter("maxhit", "Highest Hit", "The highest single damaging hit formatted as [Combatant-]SkillName-Damage#", (Data, Extra) => { return CombatantFormatSwitch(Data, "maxhit", Extra); }));
-            CombatantData.ExportVariables.Add("MAXHIT", new CombatantData.TextExportFormatter("MAXHIT", "Short Highest Hit", "The highest single damaging hit formatted as [Combatant-]Damage#", (Data, Extra) => { return CombatantFormatSwitch(Data, "MAXHIT", Extra); }));
-            CombatantData.ExportVariables.Add("maxhit-*", new CombatantData.TextExportFormatter("maxhit-*", "Highest Hit w/ suffix", "MaxHit divided by 1/K/M/B/T/Q", (Data, Extra) => { return CombatantFormatSwitch(Data, "maxhit-*", Extra); }));
-            CombatantData.ExportVariables.Add("MAXHIT-*", new CombatantData.TextExportFormatter("MAXHIT-*", "Short Highest Hit w/ suffix", "Short MaxHit divided by 1/K/M/B/T/Q", (Data, Extra) => { return CombatantFormatSwitch(Data, "MAXHIT-*", Extra); }));
-            CombatantData.ExportVariables.Add("healed", new CombatantData.TextExportFormatter("healed", "Healed", "The numerical total of all heals, wards or similar sourced from this combatant.", (Data, Extra) => { return CombatantFormatSwitch(Data, "healed", Extra); }));
-            CombatantData.ExportVariables.Add("healed%", new CombatantData.TextExportFormatter("healed%", "Healed %", "This value represents the percent share of all healing done by allies in this encounter.", (Data, Extra) => { return CombatantFormatSwitch(Data, "healed%", Extra); }));
-            CombatantData.ExportVariables.Add("enchps", new CombatantData.TextExportFormatter("enchps", "Encounter HPS", "The healing total of the combatant divided by the duration of the encounter, formatted as 12.34", (Data, Extra) => { return CombatantFormatSwitch(Data, "enchps", Extra); }));
-            CombatantData.ExportVariables.Add("enchps-*", new CombatantData.TextExportFormatter("enchps-*", "Encounter HPS w/suffix", "Encounter HPS divided by 1/K/M/B/T/Q", (Data, Extra) => { return CombatantFormatSwitch(Data, "enchps-*", Extra); }));
-            CombatantData.ExportVariables.Add("ENCHPS", new CombatantData.TextExportFormatter("ENCHPS", "Short Encounter HPS", "The healing total of the combatant divided by the duration of the encounter, formatted as 12", (Data, Extra) => { return CombatantFormatSwitch(Data, "ENCHPS", Extra); }));
-            CombatantData.ExportVariables.Add("ENCHPS-k", new CombatantData.TextExportFormatter("ENCHPS-k", "Short Encounter HPS K", "Short Encounter HPS divided by 1,000 (with no decimal places)", (Data, Extra) => { return CombatantFormatSwitch(Data, "ENCHPS-k", Extra); }));
-            CombatantData.ExportVariables.Add("ENCHPS-m", new CombatantData.TextExportFormatter("ENCHPS-m", "Short Encounter HPS M", "Short Encounter HPS divided by 1,000,000 (with no decimal places)", (Data, Extra) => { return CombatantFormatSwitch(Data, "ENCHPS-m", Extra); }));
-            CombatantData.ExportVariables.Add("ENCHPS-*", new CombatantData.TextExportFormatter("ENCHPS-*", "Short Encounter HPS w/suffix", "Short Encounter HPS divided by 1/K/M/B/T/Q (with no decimal places)", (Data, Extra) => { return CombatantFormatSwitch(Data, "ENCHPS-*", Extra); }));
-            CombatantData.ExportVariables.Add("critheals", new CombatantData.TextExportFormatter("critheals", "Critical Heal Count", "The number of heals that were critical.", (Data, Extra) => { return CombatantFormatSwitch(Data, "critheals", Extra); }));
-            CombatantData.ExportVariables.Add("critheal%", new CombatantData.TextExportFormatter("critheal%", "Critical Heal Percentage", "The percentage of heals that were critical.", (Data, Extra) => { return CombatantFormatSwitch(Data, "critheal%", Extra); }));
-            CombatantData.ExportVariables.Add("heals", new CombatantData.TextExportFormatter("heals", "Heal Count", "The total number of heals from this combatant.", (Data, Extra) => { return CombatantFormatSwitch(Data, "heals", Extra); }));
-            CombatantData.ExportVariables.Add("cures", new CombatantData.TextExportFormatter("cures", "Cure or Dispel Count", "The total number of times the combatant cured or dispelled", (Data, Extra) => { return CombatantFormatSwitch(Data, "cures", Extra); }));
-            CombatantData.ExportVariables.Add("maxheal", new CombatantData.TextExportFormatter("maxheal", "Highest Heal", "The highest single healing amount formatted as [Combatant-]SkillName-Healing#", (Data, Extra) => { return CombatantFormatSwitch(Data, "maxheal", Extra); }));
-            CombatantData.ExportVariables.Add("MAXHEAL", new CombatantData.TextExportFormatter("MAXHEAL", "Short Highest Heal", "The highest single healing amount formatted as [Combatant-]Healing#", (Data, Extra) => { return CombatantFormatSwitch(Data, "MAXHEAL", Extra); }));
-            CombatantData.ExportVariables.Add("maxhealward", new CombatantData.TextExportFormatter("maxhealward", "Highest Heal/Ward", "The highest single healing/warding amount formatted as [Combatant-]SkillName-Healing#", (Data, Extra) => { return CombatantFormatSwitch(Data, "maxhealward", Extra); }));
-            CombatantData.ExportVariables.Add("MAXHEALWARD", new CombatantData.TextExportFormatter("MAXHEALWARD", "Short Highest Heal/Ward", "The highest single healing/warding amount formatted as [Combatant-]Healing#", (Data, Extra) => { return CombatantFormatSwitch(Data, "MAXHEALWARD", Extra); }));
-            CombatantData.ExportVariables.Add("maxheal-*", new CombatantData.TextExportFormatter("maxheal-*", "Highest Heal w/ suffix", "Highest Heal divided by 1/K/M/B/T/Q", (Data, Extra) => { return CombatantFormatSwitch(Data, "maxheal-*", Extra); }));
-            CombatantData.ExportVariables.Add("MAXHEAL-*", new CombatantData.TextExportFormatter("MAXHEAL-*", "Short Highest Heal w/ suffix", "Short Highest Heal divided by 1/K/M/B/T/Q", (Data, Extra) => { return CombatantFormatSwitch(Data, "MAXHEAL-*", Extra); }));
-            CombatantData.ExportVariables.Add("maxhealward-*", new CombatantData.TextExportFormatter("maxhealward-*", "Highest Heal/Ward w/ suffix", "Highest Heal/Ward divided by 1/K/M/B/T/Q", (Data, Extra) => { return CombatantFormatSwitch(Data, "maxhealward-*", Extra); }));
-            CombatantData.ExportVariables.Add("MAXHEALWARD-*", new CombatantData.TextExportFormatter("MAXHEALWARD-*", "Short Highest Heal/Ward w/ suffix", "Short Highest Heal/Ward divided by 1/K/M/B/T/Q", (Data, Extra) => { return CombatantFormatSwitch(Data, "MAXHEALWARD-*", Extra); }));
-            CombatantData.ExportVariables.Add("damagetaken", new CombatantData.TextExportFormatter("damagetaken", "Damage Received", "The total amount of damage this combatant received.", (Data, Extra) => { return CombatantFormatSwitch(Data, "damagetaken", Extra); }));
-            CombatantData.ExportVariables.Add("damagetaken-*", new CombatantData.TextExportFormatter("damagetaken-*", "Damage Received w/suffix", "Damage Received divided by 1/K/M/B/T/Q", (Data, Extra) => { return CombatantFormatSwitch(Data, "damagetaken-*", Extra); }));
-            CombatantData.ExportVariables.Add("healstaken", new CombatantData.TextExportFormatter("healstaken", "Healing Received", "The total amount of healing this combatant received.", (Data, Extra) => { return CombatantFormatSwitch(Data, "healstaken", Extra); }));
-            CombatantData.ExportVariables.Add("healstaken-*", new CombatantData.TextExportFormatter("healstaken-*", "Healing Received w/suffix", "Healing Received divided by 1/K/M/B/T/Q", (Data, Extra) => { return CombatantFormatSwitch(Data, "healstaken-*", Extra); }));
-            CombatantData.ExportVariables.Add("powerdrain", new CombatantData.TextExportFormatter("powerdrain", "Power Drain", "The amount of power this combatant drained from others.", (Data, Extra) => { return CombatantFormatSwitch(Data, "powerdrain", Extra); }));
-            CombatantData.ExportVariables.Add("powerdrain-*", new CombatantData.TextExportFormatter("powerdrain-*", "Power Drain w/suffix", "Power Drain divided by 1/K/M/B/T/Q", (Data, Extra) => { return CombatantFormatSwitch(Data, "powerdrain-*", Extra); }));
-            CombatantData.ExportVariables.Add("powerheal", new CombatantData.TextExportFormatter("powerheal", "Power Replenish", "The amount of power this combatant replenished to others.", (Data, Extra) => { return CombatantFormatSwitch(Data, "powerheal", Extra); }));
-            CombatantData.ExportVariables.Add("powerheal-*", new CombatantData.TextExportFormatter("powerheal-*", "Power Replenish w/suffix", "Power Replenish divided by 1/K/M/B/T/Q", (Data, Extra) => { return CombatantFormatSwitch(Data, "powerheal-*", Extra); }));
-            CombatantData.ExportVariables.Add("kills", new CombatantData.TextExportFormatter("kills", "Killing Blows", "The total number of times this character landed a killing blow.", (Data, Extra) => { return CombatantFormatSwitch(Data, "kills", Extra); }));
-            CombatantData.ExportVariables.Add("deaths", new CombatantData.TextExportFormatter("deaths", "Deaths", "The total number of times this character was killed by another.", (Data, Extra) => { return CombatantFormatSwitch(Data, "deaths", Extra); }));
-            CombatantData.ExportVariables.Add("threatstr", new CombatantData.TextExportFormatter("threatstr", "Threat Increase/Decrease", "The amount of direct threat output that was increased/decreased.", (Data, Extra) => { return CombatantFormatSwitch(Data, "threatstr", Extra); }));
-            CombatantData.ExportVariables.Add("threatdelta", new CombatantData.TextExportFormatter("threatdelta", "Threat Delta", "The amount of direct threat output relative to zero.", (Data, Extra) => { return CombatantFormatSwitch(Data, "threatdelta", Extra); }));
-            CombatantData.ExportVariables.Add("NAME3", new CombatantData.TextExportFormatter("NAME3", "Name (3 chars)", "The combatant's name, up to 3 characters will be displayed.", (Data, Extra) => { return NameFormatChange(Data, "NAME3", Extra, 3); }));
-            CombatantData.ExportVariables.Add("NAME4", new CombatantData.TextExportFormatter("NAME4", "Name (4 chars)", "The combatant's name, up to 4 characters will be displayed.", (Data, Extra) => { return NameFormatChange(Data, "NAME4", Extra, 4); }));
-            CombatantData.ExportVariables.Add("NAME5", new CombatantData.TextExportFormatter("NAME5", "Name (5 chars)", "The combatant's name, up to 5 characters will be displayed.", (Data, Extra) => { return NameFormatChange(Data, "NAME5", Extra, 5); }));
-            CombatantData.ExportVariables.Add("NAME6", new CombatantData.TextExportFormatter("NAME6", "Name (6 chars)", "The combatant's name, up to 6 characters will be displayed.", (Data, Extra) => { return NameFormatChange(Data, "NAME6", Extra, 6); }));
-            CombatantData.ExportVariables.Add("NAME7", new CombatantData.TextExportFormatter("NAME7", "Name (7 chars)", "The combatant's name, up to 7 characters will be displayed.", (Data, Extra) => { return NameFormatChange(Data, "NAME7", Extra, 7); }));
-            CombatantData.ExportVariables.Add("NAME8", new CombatantData.TextExportFormatter("NAME8", "Name (8 chars)", "The combatant's name, up to 8 characters will be displayed.", (Data, Extra) => { return NameFormatChange(Data, "NAME8", Extra, 8); }));
-            CombatantData.ExportVariables.Add("NAME9", new CombatantData.TextExportFormatter("NAME9", "Name (9 chars)", "The combatant's name, up to 9 characters will be displayed.", (Data, Extra) => { return NameFormatChange(Data, "NAME9", Extra, 9); }));
-            CombatantData.ExportVariables.Add("NAME10", new CombatantData.TextExportFormatter("NAME10", "Name (10 chars)", "The combatant's name, up to 10 characters will be displayed.", (Data, Extra) => { return NameFormatChange(Data, "NAME10", Extra, 10); }));
-            CombatantData.ExportVariables.Add("NAME11", new CombatantData.TextExportFormatter("NAME11", "Name (11 chars)", "The combatant's name, up to 11 characters will be displayed.", (Data, Extra) => { return NameFormatChange(Data, "NAME11", Extra, 11); }));
-            CombatantData.ExportVariables.Add("NAME12", new CombatantData.TextExportFormatter("NAME12", "Name (12 chars)", "The combatant's name, up to 12 characters will be displayed.", (Data, Extra) => { return NameFormatChange(Data, "NAME12", Extra, 12); }));
-            CombatantData.ExportVariables.Add("NAME13", new CombatantData.TextExportFormatter("NAME13", "Name (13 chars)", "The combatant's name, up to 13 characters will be displayed.", (Data, Extra) => { return NameFormatChange(Data, "NAME13", Extra, 13); }));
-            CombatantData.ExportVariables.Add("NAME14", new CombatantData.TextExportFormatter("NAME14", "Name (14 chars)", "The combatant's name, up to 14 characters will be displayed.", (Data, Extra) => { return NameFormatChange(Data, "NAME14", Extra, 14); }));
-            CombatantData.ExportVariables.Add("NAME15", new CombatantData.TextExportFormatter("NAME15", "Name (15 chars)", "The combatant's name, up to 15 characters will be displayed.", (Data, Extra) => { return NameFormatChange(Data, "NAME15", Extra, 15); }));
+            CombatantData.ExportVariables.Add("NAME", new CombatantData.TextExportFormatter("NAME", "Short Name", "The combatant's name shortened to a number of characters after a colon, like: \"NAME:5\"", (Data, Extra) => { return NameFormatChange(Data, Int32.Parse(Extra)); }));
+            CombatantData.ExportVariables.Add("duration", new CombatantData.TextExportFormatter("duration", "Duration", "The duration of the combatant or the duration of the encounter, displayed as mm:ss", (Data, Extra) => { return CombatantFormatSwitch(Data, "duration"); }));
+            CombatantData.ExportVariables.Add("DURATION", new CombatantData.TextExportFormatter("DURATION", "Short Duration", "The duration of the combatant or encounter displayed in whole seconds.", (Data, Extra) => { return CombatantFormatSwitch(Data, "DURATION"); }));
+            CombatantData.ExportVariables.Add("damage", new CombatantData.TextExportFormatter("damage", "Damage", "The amount of damage from auto-attack, spells, CAs, etc done to other combatants.", (Data, Extra) => { return CombatantFormatSwitch(Data, "damage"); }));
+            CombatantData.ExportVariables.Add("damage-m", new CombatantData.TextExportFormatter("damage-m", "Damage M", "Damage divided by 1,000,000 (with two decimal places)", (Data, Extra) => { return CombatantFormatSwitch(Data, "damage-m"); }));
+            CombatantData.ExportVariables.Add("damage-b", new CombatantData.TextExportFormatter("damage-b", "Damage B", "Damage divided by 1,000,000,000 (with two decimal places)", (Data, Extra) => { return CombatantFormatSwitch(Data, "damage-b"); }));
+            CombatantData.ExportVariables.Add("damage-*", new CombatantData.TextExportFormatter("damage-*", "Damage w/suffix", "Damage divided by 1/K/M/B/T/Q (with one decimal places)", (Data, Extra) => { return CombatantFormatSwitch(Data, "damage-*"); }));
+            CombatantData.ExportVariables.Add("DAMAGE-k", new CombatantData.TextExportFormatter("DAMAGE-k", "Short Damage K", "Damage divided by 1,000 (with no decimal places)", (Data, Extra) => { return CombatantFormatSwitch(Data, "DAMAGE-k"); }));
+            CombatantData.ExportVariables.Add("DAMAGE-m", new CombatantData.TextExportFormatter("DAMAGE-m", "Short Damage M", "Damage divided by 1,000,000 (with no decimal places)", (Data, Extra) => { return CombatantFormatSwitch(Data, "DAMAGE-m"); }));
+            CombatantData.ExportVariables.Add("DAMAGE-b", new CombatantData.TextExportFormatter("DAMAGE-b", "Short Damage B", "Damage divided by 1,000,000,000 (with no decimal places)", (Data, Extra) => { return CombatantFormatSwitch(Data, "DAMAGE-b"); }));
+            CombatantData.ExportVariables.Add("DAMAGE-*", new CombatantData.TextExportFormatter("DAMAGE-*", "Short Damage w/suffix", "Damage divided by 1/K/M/B/T/Q (with no decimal places)", (Data, Extra) => { return CombatantFormatSwitch(Data, "DAMAGE-*"); }));
+            CombatantData.ExportVariables.Add("damage%", new CombatantData.TextExportFormatter("damage%", "Damage %", "This value represents the percent share of all damage done by allies in this encounter.", (Data, Extra) => { return CombatantFormatSwitch(Data, "damage%"); }));
+            CombatantData.ExportVariables.Add("dps", new CombatantData.TextExportFormatter("dps", "DPS", "The damage total of the combatant divided by their personal duration, formatted as 12.34", (Data, Extra) => { return CombatantFormatSwitch(Data, "dps"); }));
+            CombatantData.ExportVariables.Add("dps-*", new CombatantData.TextExportFormatter("dps-*", "DPS w/suffix", "The damage total of the combatant divided by their personal duration, formatted as 12.34K", (Data, Extra) => { return CombatantFormatSwitch(Data, "dps-*"); }));
+            CombatantData.ExportVariables.Add("DPS", new CombatantData.TextExportFormatter("DPS", "Short DPS", "The damage total of the combatatant divided by their personal duration, formatted as 12K", (Data, Extra) => { return CombatantFormatSwitch(Data, "DPS"); }));
+            CombatantData.ExportVariables.Add("DPS-k", new CombatantData.TextExportFormatter("DPS-k", "Short DPS K", "Short DPS divided by 1,000 (with no decimal places)", (Data, Extra) => { return CombatantFormatSwitch(Data, "DPS-k"); }));
+            CombatantData.ExportVariables.Add("DPS-m", new CombatantData.TextExportFormatter("DPS-m", "Short DPS M", "Short DPS divided by 1,000,000 (with no decimal places)", (Data, Extra) => { return CombatantFormatSwitch(Data, "DPS-m"); }));
+            CombatantData.ExportVariables.Add("DPS-*", new CombatantData.TextExportFormatter("DPS-*", "Short DPS w/suffix", "Short DPS divided by 1/K/M/B/T/Q (with no decimal places)", (Data, Extra) => { return CombatantFormatSwitch(Data, "DPS-*"); }));
+            CombatantData.ExportVariables.Add("encdps", new CombatantData.TextExportFormatter("encdps", "Encounter DPS", "The damage total of the combatant divided by the duration of the encounter, formatted as 12.34 -- This is more commonly used than DPS", (Data, Extra) => { return CombatantFormatSwitch(Data, "encdps"); }));
+            CombatantData.ExportVariables.Add("encdps-*", new CombatantData.TextExportFormatter("encdps-*", "Encounter DPS w/suffix", "The damage total of the combatant divided by the duration of the encounter, formatted as 12.34 -- This is more commonly used than DPS", (Data, Extra) => { return CombatantFormatSwitch(Data, "encdps-*"); }));
+            CombatantData.ExportVariables.Add("ENCDPS", new CombatantData.TextExportFormatter("ENCDPS", "Short Encounter DPS", "The damage total of the combatant divided by the duration of the encounter, formatted as 12 -- This is more commonly used than DPS", (Data, Extra) => { return CombatantFormatSwitch(Data, "ENCDPS"); }));
+            CombatantData.ExportVariables.Add("ENCDPS-k", new CombatantData.TextExportFormatter("ENCDPS-k", "Short Encounter DPS K", "Short Encounter DPS divided by 1,000 (with no decimal places)", (Data, Extra) => { return CombatantFormatSwitch(Data, "ENCDPS-k"); }));
+            CombatantData.ExportVariables.Add("ENCDPS-m", new CombatantData.TextExportFormatter("ENCDPS-m", "Short Encounter DPS M", "Short Encounter DPS divided by 1,000,000 (with no decimal places)", (Data, Extra) => { return CombatantFormatSwitch(Data, "ENCDPS-m"); }));
+            CombatantData.ExportVariables.Add("ENCDPS-*", new CombatantData.TextExportFormatter("ENCDPS-*", "Short Encounter DPS w/suffix", "Short Encounter DPS divided by 1/K/M/B/T/Q (with no decimal places)", (Data, Extra) => { return CombatantFormatSwitch(Data, "ENCDPS-*"); }));
+            CombatantData.ExportVariables.Add("hits", new CombatantData.TextExportFormatter("hits", "Hits", "The number of attack attempts that produced damage.  IE a spell successfully doing damage.", (Data, Extra) => { return CombatantFormatSwitch(Data, "hits"); }));
+            CombatantData.ExportVariables.Add("crithits", new CombatantData.TextExportFormatter("crithits", "Critical Hit Count", "The number of damaging attacks that were critical.", (Data, Extra) => { return CombatantFormatSwitch(Data, "crithits"); }));
+            CombatantData.ExportVariables.Add("crithit%", new CombatantData.TextExportFormatter("crithit%", "Critical Hit Percentage", "The percentage of damaging attacks that were critical.", (Data, Extra) => { return CombatantFormatSwitch(Data, "crithit%"); }));
+            //CombatantData.ExportVariables.Add("crittypes", new CombatantData.TextExportFormatter("crittypes", "Critical Types", "Distribution of Critical Types  (Normal|Legendary|Fabled|Mythical)", (Data, Extra) => { return CombatantFormatSwitch(Data, "crittypes", Extra); }));
+            CombatantData.ExportVariables.Add("misses", new CombatantData.TextExportFormatter("misses", "Misses", "The number of auto-attacks or CAs that produced a miss message.", (Data, Extra) => { return CombatantFormatSwitch(Data, "misses"); }));
+            CombatantData.ExportVariables.Add("hitfailed", new CombatantData.TextExportFormatter("hitfailed", "Other Avoid", "Any type of failed attack that was not a miss.  This includes resists, reflects, blocks, dodging, etc.", (Data, Extra) => { return CombatantFormatSwitch(Data, "hitfailed"); }));
+            CombatantData.ExportVariables.Add("swings", new CombatantData.TextExportFormatter("swings", "Swings (Attacks)", "The number of attack attempts.  This includes any auto-attacks or abilities, also including resisted abilities that do no damage.", (Data, Extra) => { return CombatantFormatSwitch(Data, "swings"); }));
+            CombatantData.ExportVariables.Add("tohit", new CombatantData.TextExportFormatter("tohit", "To Hit %", "The percentage of hits to swings as 12.34", (Data, Extra) => { return CombatantFormatSwitch(Data, "tohit"); }));
+            CombatantData.ExportVariables.Add("TOHIT", new CombatantData.TextExportFormatter("TOHIT", "Short To Hit %", "The percentage of hits to swings as 12", (Data, Extra) => { return CombatantFormatSwitch(Data, "TOHIT"); }));
+            CombatantData.ExportVariables.Add("maxhit", new CombatantData.TextExportFormatter("maxhit", "Highest Hit", "The highest single damaging hit formatted as [Combatant-]SkillName-Damage#", (Data, Extra) => { return CombatantFormatSwitch(Data, "maxhit"); }));
+            CombatantData.ExportVariables.Add("MAXHIT", new CombatantData.TextExportFormatter("MAXHIT", "Short Highest Hit", "The highest single damaging hit formatted as [Combatant-]Damage#", (Data, Extra) => { return CombatantFormatSwitch(Data, "MAXHIT"); }));
+            CombatantData.ExportVariables.Add("maxhit-*", new CombatantData.TextExportFormatter("maxhit-*", "Highest Hit w/ suffix", "MaxHit divided by 1/K/M/B/T/Q", (Data, Extra) => { return CombatantFormatSwitch(Data, "maxhit-*"); }));
+            CombatantData.ExportVariables.Add("MAXHIT-*", new CombatantData.TextExportFormatter("MAXHIT-*", "Short Highest Hit w/ suffix", "Short MaxHit divided by 1/K/M/B/T/Q", (Data, Extra) => { return CombatantFormatSwitch(Data, "MAXHIT-*"); }));
+            CombatantData.ExportVariables.Add("healed", new CombatantData.TextExportFormatter("healed", "Healed", "The numerical total of all heals, wards or similar sourced from this combatant.", (Data, Extra) => { return CombatantFormatSwitch(Data, "healed"); }));
+            CombatantData.ExportVariables.Add("healed%", new CombatantData.TextExportFormatter("healed%", "Healed %", "This value represents the percent share of all healing done by allies in this encounter.", (Data, Extra) => { return CombatantFormatSwitch(Data, "healed%"); }));
+            CombatantData.ExportVariables.Add("enchps", new CombatantData.TextExportFormatter("enchps", "Encounter HPS", "The healing total of the combatant divided by the duration of the encounter, formatted as 12.34", (Data, Extra) => { return CombatantFormatSwitch(Data, "enchps"); }));
+            CombatantData.ExportVariables.Add("enchps-*", new CombatantData.TextExportFormatter("enchps-*", "Encounter HPS w/suffix", "Encounter HPS divided by 1/K/M/B/T/Q", (Data, Extra) => { return CombatantFormatSwitch(Data, "enchps-*"); }));
+            CombatantData.ExportVariables.Add("ENCHPS", new CombatantData.TextExportFormatter("ENCHPS", "Short Encounter HPS", "The healing total of the combatant divided by the duration of the encounter, formatted as 12", (Data, Extra) => { return CombatantFormatSwitch(Data, "ENCHPS"); }));
+            CombatantData.ExportVariables.Add("ENCHPS-k", new CombatantData.TextExportFormatter("ENCHPS-k", "Short Encounter HPS K", "Short Encounter HPS divided by 1,000 (with no decimal places)", (Data, Extra) => { return CombatantFormatSwitch(Data, "ENCHPS-k"); }));
+            CombatantData.ExportVariables.Add("ENCHPS-m", new CombatantData.TextExportFormatter("ENCHPS-m", "Short Encounter HPS M", "Short Encounter HPS divided by 1,000,000 (with no decimal places)", (Data, Extra) => { return CombatantFormatSwitch(Data, "ENCHPS-m"); }));
+            CombatantData.ExportVariables.Add("ENCHPS-*", new CombatantData.TextExportFormatter("ENCHPS-*", "Short Encounter HPS w/suffix", "Short Encounter HPS divided by 1/K/M/B/T/Q (with no decimal places)", (Data, Extra) => { return CombatantFormatSwitch(Data, "ENCHPS-*"); }));
+            CombatantData.ExportVariables.Add("critheals", new CombatantData.TextExportFormatter("critheals", "Critical Heal Count", "The number of heals that were critical.", (Data, Extra) => { return CombatantFormatSwitch(Data, "critheals"); }));
+            CombatantData.ExportVariables.Add("critheal%", new CombatantData.TextExportFormatter("critheal%", "Critical Heal Percentage", "The percentage of heals that were critical.", (Data, Extra) => { return CombatantFormatSwitch(Data, "critheal%"); }));
+            CombatantData.ExportVariables.Add("heals", new CombatantData.TextExportFormatter("heals", "Heal Count", "The total number of heals from this combatant.", (Data, Extra) => { return CombatantFormatSwitch(Data, "heals"); }));
+            CombatantData.ExportVariables.Add("cures", new CombatantData.TextExportFormatter("cures", "Cure or Dispel Count", "The total number of times the combatant cured or dispelled", (Data, Extra) => { return CombatantFormatSwitch(Data, "cures"); }));
+            CombatantData.ExportVariables.Add("maxheal", new CombatantData.TextExportFormatter("maxheal", "Highest Heal", "The highest single healing amount formatted as [Combatant-]SkillName-Healing#", (Data, Extra) => { return CombatantFormatSwitch(Data, "maxheal"); }));
+            CombatantData.ExportVariables.Add("MAXHEAL", new CombatantData.TextExportFormatter("MAXHEAL", "Short Highest Heal", "The highest single healing amount formatted as [Combatant-]Healing#", (Data, Extra) => { return CombatantFormatSwitch(Data, "MAXHEAL"); }));
+            CombatantData.ExportVariables.Add("maxhealward", new CombatantData.TextExportFormatter("maxhealward", "Highest Heal/Ward", "The highest single healing/warding amount formatted as [Combatant-]SkillName-Healing#", (Data, Extra) => { return CombatantFormatSwitch(Data, "maxhealward"); }));
+            CombatantData.ExportVariables.Add("MAXHEALWARD", new CombatantData.TextExportFormatter("MAXHEALWARD", "Short Highest Heal/Ward", "The highest single healing/warding amount formatted as [Combatant-]Healing#", (Data, Extra) => { return CombatantFormatSwitch(Data, "MAXHEALWARD"); }));
+            CombatantData.ExportVariables.Add("maxheal-*", new CombatantData.TextExportFormatter("maxheal-*", "Highest Heal w/ suffix", "Highest Heal divided by 1/K/M/B/T/Q", (Data, Extra) => { return CombatantFormatSwitch(Data, "maxheal-*"); }));
+            CombatantData.ExportVariables.Add("MAXHEAL-*", new CombatantData.TextExportFormatter("MAXHEAL-*", "Short Highest Heal w/ suffix", "Short Highest Heal divided by 1/K/M/B/T/Q", (Data, Extra) => { return CombatantFormatSwitch(Data, "MAXHEAL-*"); }));
+            CombatantData.ExportVariables.Add("maxhealward-*", new CombatantData.TextExportFormatter("maxhealward-*", "Highest Heal/Ward w/ suffix", "Highest Heal/Ward divided by 1/K/M/B/T/Q", (Data, Extra) => { return CombatantFormatSwitch(Data, "maxhealward-*"); }));
+            CombatantData.ExportVariables.Add("MAXHEALWARD-*", new CombatantData.TextExportFormatter("MAXHEALWARD-*", "Short Highest Heal/Ward w/ suffix", "Short Highest Heal/Ward divided by 1/K/M/B/T/Q", (Data, Extra) => { return CombatantFormatSwitch(Data, "MAXHEALWARD-*"); }));
+            CombatantData.ExportVariables.Add("damagetaken", new CombatantData.TextExportFormatter("damagetaken", "Damage Received", "The total amount of damage this combatant received.", (Data, Extra) => { return CombatantFormatSwitch(Data, "damagetaken"); }));
+            CombatantData.ExportVariables.Add("damagetaken-*", new CombatantData.TextExportFormatter("damagetaken-*", "Damage Received w/suffix", "Damage Received divided by 1/K/M/B/T/Q", (Data, Extra) => { return CombatantFormatSwitch(Data, "damagetaken-*"); }));
+            CombatantData.ExportVariables.Add("healstaken", new CombatantData.TextExportFormatter("healstaken", "Healing Received", "The total amount of healing this combatant received.", (Data, Extra) => { return CombatantFormatSwitch(Data, "healstaken"); }));
+            CombatantData.ExportVariables.Add("healstaken-*", new CombatantData.TextExportFormatter("healstaken-*", "Healing Received w/suffix", "Healing Received divided by 1/K/M/B/T/Q", (Data, Extra) => { return CombatantFormatSwitch(Data, "healstaken-*"); }));
+            //CombatantData.ExportVariables.Add("powerdrain", new CombatantData.TextExportFormatter("powerdrain", "Power Drain", "The amount of power this combatant drained from others.", (Data, Extra) => { return CombatantFormatSwitch(Data, "powerdrain"); }));
+            //CombatantData.ExportVariables.Add("powerdrain-*", new CombatantData.TextExportFormatter("powerdrain-*", "Power Drain w/suffix", "Power Drain divided by 1/K/M/B/T/Q", (Data, Extra) => { return CombatantFormatSwitch(Data, "powerdrain-*"); }));
+            //CombatantData.ExportVariables.Add("powerheal", new CombatantData.TextExportFormatter("powerheal", "Power Replenish", "The amount of power this combatant replenished to others.", (Data, Extra) => { return CombatantFormatSwitch(Data, "powerheal"); }));
+            //CombatantData.ExportVariables.Add("powerheal-*", new CombatantData.TextExportFormatter("powerheal-*", "Power Replenish w/suffix", "Power Replenish divided by 1/K/M/B/T/Q", (Data, Extra) => { return CombatantFormatSwitch(Data, "powerheal-*"); }));
+            CombatantData.ExportVariables.Add("kills", new CombatantData.TextExportFormatter("kills", "Killing Blows", "The total number of times this character landed a killing blow.", (Data, Extra) => { return CombatantFormatSwitch(Data, "kills"); }));
+            CombatantData.ExportVariables.Add("deaths", new CombatantData.TextExportFormatter("deaths", "Deaths", "The total number of times this character was killed by another.", (Data, Extra) => { return CombatantFormatSwitch(Data, "deaths"); }));
+            //CombatantData.ExportVariables.Add("threatstr", new CombatantData.TextExportFormatter("threatstr", "Threat Increase/Decrease", "The amount of direct threat output that was increased/decreased.", (Data, Extra) => { return CombatantFormatSwitch(Data, "threatstr"); }));
+            //CombatantData.ExportVariables.Add("threatdelta", new CombatantData.TextExportFormatter("threatdelta", "Threat Delta", "The amount of direct threat output relative to zero.", (Data, Extra) => { return CombatantFormatSwitch(Data, "threatdelta"); }));
+            CombatantData.ExportVariables.Add("NAME3", new CombatantData.TextExportFormatter("NAME3", "Name (3 chars)", "The combatant's name, up to 3 characters will be displayed.", (Data, Extra) => { return NameFormatChange(Data, 3); }));
+            CombatantData.ExportVariables.Add("NAME4", new CombatantData.TextExportFormatter("NAME4", "Name (4 chars)", "The combatant's name, up to 4 characters will be displayed.", (Data, Extra) => { return NameFormatChange(Data, 4); }));
+            CombatantData.ExportVariables.Add("NAME5", new CombatantData.TextExportFormatter("NAME5", "Name (5 chars)", "The combatant's name, up to 5 characters will be displayed.", (Data, Extra) => { return NameFormatChange(Data, 5); }));
+            CombatantData.ExportVariables.Add("NAME6", new CombatantData.TextExportFormatter("NAME6", "Name (6 chars)", "The combatant's name, up to 6 characters will be displayed.", (Data, Extra) => { return NameFormatChange(Data, 6); }));
+            CombatantData.ExportVariables.Add("NAME7", new CombatantData.TextExportFormatter("NAME7", "Name (7 chars)", "The combatant's name, up to 7 characters will be displayed.", (Data, Extra) => { return NameFormatChange(Data, 7); }));
+            CombatantData.ExportVariables.Add("NAME8", new CombatantData.TextExportFormatter("NAME8", "Name (8 chars)", "The combatant's name, up to 8 characters will be displayed.", (Data, Extra) => { return NameFormatChange(Data, 8); }));
+            CombatantData.ExportVariables.Add("NAME9", new CombatantData.TextExportFormatter("NAME9", "Name (9 chars)", "The combatant's name, up to 9 characters will be displayed.", (Data, Extra) => { return NameFormatChange(Data, 9); }));
+            CombatantData.ExportVariables.Add("NAME10", new CombatantData.TextExportFormatter("NAME10", "Name (10 chars)", "The combatant's name, up to 10 characters will be displayed.", (Data, Extra) => { return NameFormatChange(Data, 10); }));
+            CombatantData.ExportVariables.Add("NAME11", new CombatantData.TextExportFormatter("NAME11", "Name (11 chars)", "The combatant's name, up to 11 characters will be displayed.", (Data, Extra) => { return NameFormatChange(Data, 11); }));
+            CombatantData.ExportVariables.Add("NAME12", new CombatantData.TextExportFormatter("NAME12", "Name (12 chars)", "The combatant's name, up to 12 characters will be displayed.", (Data, Extra) => { return NameFormatChange(Data, 12); }));
+            CombatantData.ExportVariables.Add("NAME13", new CombatantData.TextExportFormatter("NAME13", "Name (13 chars)", "The combatant's name, up to 13 characters will be displayed.", (Data, Extra) => { return NameFormatChange(Data, 13); }));
+            CombatantData.ExportVariables.Add("NAME14", new CombatantData.TextExportFormatter("NAME14", "Name (14 chars)", "The combatant's name, up to 14 characters will be displayed.", (Data, Extra) => { return NameFormatChange(Data, 14); }));
+            CombatantData.ExportVariables.Add("NAME15", new CombatantData.TextExportFormatter("NAME15", "Name (15 chars)", "The combatant's name, up to 15 characters will be displayed.", (Data, Extra) => { return NameFormatChange(Data, 15); }));
 
             DamageTypeData.ColumnDefs.Clear();
             DamageTypeData.ColumnDefs.Add("EncId", new DamageTypeData.ColumnDef("EncId", false, "CHAR(8)", "EncId", (Data) => { return string.Empty; }, (Data) => { return Data.Parent.Parent.EncId; }));
@@ -769,8 +771,6 @@ namespace EverQuestDPS
             DamageTypeData.ColumnDefs.Add("ToHit", new DamageTypeData.ColumnDef("ToHit", false, "FLOAT", "ToHit", (Data) => { return Data.ToHit.ToString(); }, (Data) => { return Data.ToHit.ToString(); }));
             DamageTypeData.ColumnDefs.Add("AvgDelay", new DamageTypeData.ColumnDef("AvgDelay", false, "FLOAT", "AverageDelay", (Data) => { return Data.AverageDelay.ToString(); }, (Data) => { return Data.AverageDelay.ToString(usCulture); }));
             DamageTypeData.ColumnDefs.Add("Crit%", new DamageTypeData.ColumnDef("Crit%", false, "VARCHAR(8)", "CritPerc", (Data) => { return Data.CritPerc.ToString("0'%"); }, (Data) => { return Data.CritPerc.ToString("0'%"); }));
-            DamageTypeData.ColumnDefs.Add("CritTypes", new DamageTypeData.ColumnDef("CritTypes", true, "VARCHAR(32)", "CritTypes", DamageTypeDataGetCritTypes, DamageTypeDataGetCritTypes));
-
 
             AttackType.ColumnDefs.Clear();
             AttackType.ColumnDefs.Add("EncId", new AttackType.ColumnDef("EncId", false, "CHAR(8)", "EncId", (Data) => { return string.Empty; }, (Data) => { return Data.Parent.Parent.Parent.EncId; }, (Left, Right) => { return 0; }));
@@ -788,9 +788,9 @@ namespace EverQuestDPS
             AttackType.ColumnDefs.Add("Average", new AttackType.ColumnDef("Average", true, "DOUBLE", "Average", (Data) => { return Data.Average.ToString(); }, (Data) => { return Data.Average.ToString(); }, (Left, Right) => { return Left.Average.CompareTo(Right.Average); }));
             AttackType.ColumnDefs.Add("Median", new AttackType.ColumnDef("Median", true, "BIGINT", "Median", (Data) => { return Data.Median.ToString(); }, (Data) => { return Data.Median.ToString(); }, (Left, Right) => { return Left.Median.CompareTo(Right.Median); }));
             AttackType.ColumnDefs.Add("StdDev", new AttackType.ColumnDef("StdDev", true, "DOUBLE", "StdDev", (Data) => { return Math.Sqrt(AttackTypeGetVariance(Data)).ToString(); }, (Data) => { return Math.Sqrt(AttackTypeGetVariance(Data)).ToString(); }, (Left, Right) => { return Math.Sqrt(AttackTypeGetVariance(Left)).CompareTo(Math.Sqrt(AttackTypeGetVariance(Right))); }));
-            AttackType.ColumnDefs.Add("CritTypes", new AttackType.ColumnDef("CritTypes", true, "VARCHAR(32)", "CritTypes", AttackTypeGetCritTypes, AttackTypeGetCritTypes, (Left, Right) => { return AttackTypeGetCritTypes(Left).CompareTo(AttackTypeGetCritTypes(Right)); }));
             AttackType.ColumnDefs.Add("Max", new AttackType.ColumnDef("Max", true, "BIGINT", "Max", (Data) => { return Data.MaxHit.ToString(); }, (Data) => { return Data.MaxHit.ToString(); }, (Left, Right) => { return Left.MaxHit.CompareTo(Right.MaxHit); }));
             AttackType.ColumnDefs.Add("Min", new AttackType.ColumnDef("Min", true, "BIGINT", "Min", (Data) => { return Data.MinHit.ToString(); }, (Data) => { return Data.MinHit.ToString(); }, (Left, Right) => { return Left.MinHit.CompareTo(Right.MinHit); }));
+            SetupCritPercentage(SpecialAttack);
 
 
             MasterSwing.ColumnDefs.Clear();
@@ -825,7 +825,7 @@ namespace EverQuestDPS
             ));
             MasterSwing.ColumnDefs.Add("Damage", new MasterSwing.ColumnDef("Damage", true, "VARCHAR(128)", "DamageString", (Data) => { return Data.Damage.ToString(); }, (Data) => { return Data.Damage.ToString(); }, (Left, Right) => { return Left.Damage.CompareTo(Right.Damage); }));
             MasterSwing.ColumnDefs.Add("Critical", new MasterSwing.ColumnDef("Critical", false, "BOOLEAN", "Critical", (Data) => { return Data.Critical.ToString(); }, (Data) => { return Data.Critical.ToString(usCulture)[0].ToString(); }, (Left, Right) => { return Left.Critical.CompareTo(Right.Critical); }));
-            MasterSwing.ColumnDefs.Add("Special", new MasterSwing.ColumnDef("Special", true, "VARCHAR(90)", "Special", (Data) => { return Data.Special; }, (Data) => { return Data.Special; }, (Left, Right) => { return Left.Special.CompareTo(Left.Special); }));
+            
             MasterSwing.ColumnDefs.Add("Overheal", new MasterSwing.ColumnDef("Overheal", true, "BIGINT", "Overheal", (Data) => { return Data.Tags.ContainsKey("overheal") ? ((long)Data.Tags["overheal"]).ToString() : string.Empty; }, (Data) => { return Data.Tags.ContainsKey("overheal") ? ((long)Data.Tags["overheal"]).ToString() : string.Empty; }, (Left, Right) =>
             {
                 return (Left.Tags.ContainsKey("overheal") && Right.Tags.ContainsKey("overheal")) ? ((long)Left.Tags["overheal"]).CompareTo((long)Right.Tags["overheal"]) : 0;
@@ -844,6 +844,7 @@ namespace EverQuestDPS
                     return (Left.Tags.ContainsKey("Incoming") && Right.Tags.ContainsKey("Incoming")) ? Left.Tags["Incoming"].ToString().CompareTo(Right.Tags["Incoming"].ToString()) : 0;
                 })
             );
+            SetupSpecialTypeForMasterSwing();
             foreach (KeyValuePair<string, MasterSwing.ColumnDef> pair in MasterSwing.ColumnDefs)
                 pair.Value.GetCellForeColor = (Data) => { return GetSwingTypeColor((EverQuestSwingType)Data.SwingType); };
 
@@ -851,30 +852,35 @@ namespace EverQuestDPS
             ActGlobals.oFormActMain.ValidateTableSetup();
         }
 
-        //modified to display an empty string in the event no special type of attack is detected by the regex processing
-        private string CombatantDataGetCritTypes(CombatantData Data)
+        private void SetupSpecialTypeForMasterSwing()
         {
-            if (Data.AllOut.TryGetValue(ActGlobals.ActLocalization.LocalizationStrings["attackTypeTerm-all"].DisplayedText, out AttackType at))
-            {
-                return AttackTypeGetCritTypes(at);
-            }
-            else
-                return String.Empty;
+            foreach (String s in SpecialAttack)
+                MasterSwing.ColumnDefs.Add(s, new MasterSwing.ColumnDef(s, false, "BOOLEAN", s,
+                    (Data) =>
+                    {
+                        return Data.Tags.ContainsKey(s).ToString();
+                    },
+                    (Data) =>
+                    {
+                        return Data.Tags.ContainsKey(s).ToString();
+                    },
+                    (Left, Right) =>
+                    {
+                        return Left.Tags.ContainsKey(s).CompareTo(Right.Tags.ContainsKey(s));
+                    })
+                    );
         }
-        /// <summary>
-        /// Gets the data type's display type from the localization and attempt to parse the value
-        /// </summary>
-        /// <param name="Data"></param>
-        /// <returns></returns>
-        private string DamageTypeDataGetCritTypes(DamageTypeData Data)
+
+        private void SetupCritPercentage(String[] critTypes)
         {
-            if (Data.Items.TryGetValue(ActGlobals.ActLocalization.LocalizationStrings["attackTypeTerm-all"].DisplayedText, out AttackType at))
+            foreach(String critType in critTypes)
             {
-                return AttackTypeGetCritTypes(at);
+                AttackTypeColumnDefGenerator.GetAttackTypeCritColumnDef(critType, true, "DOUBLE");
+                DamageTypeDataColumnDefGenerator.GetDamageTypeDataCritColumnDef(critType, true, "DOUBLE");
+                CombatantDataColumnDefGenerator.GetCombatantDataCritColumnDef(critType, true, "DOUBLE");
             }
-            else
-                return String.Empty;
         }
+
         /// <summary>
         /// attempts to get attack type and the swing type
         /// </summary>
@@ -899,10 +905,11 @@ namespace EverQuestDPS
                 return !(swingType == null) ? String.Empty : swingType.ToString();
         }
 
-        private string NameFormatChange(CombatantData Data, String VarName, String Extra, int len)
+        private string NameFormatChange(CombatantData Data, int len)
         {
             return Data.Name.Length - len > 0 ? Data.Name.Remove(len, Data.Name.Length - len).Trim() : Data.Name;
         }
+
         /// <summary>
         /// parses the combatant format switch
         /// </summary>
@@ -910,7 +917,7 @@ namespace EverQuestDPS
         /// <param name="VarName"></param>
         /// <param name="Extra"></param>
         /// <returns></returns>
-        private string CombatantFormatSwitch(CombatantData Data, string VarName, string Extra)
+        private string CombatantFormatSwitch(CombatantData Data, string VarName)
         {
             //int len;
             switch (VarName)
@@ -973,8 +980,8 @@ namespace EverQuestDPS
                     return Data.CritHits.ToString();
                 case "critheals":
                     return Data.CritHeals.ToString();
-                case "crittypes":
-                    return CombatantDataGetCritTypes(Data);
+                //case "crittypes":
+                //    return CombatantDataGetCritTypes(Data);
                 case "crithit%":
                     return Data.CritDamPerc.ToString("0'%");
                 case "critheal%":
@@ -1045,14 +1052,14 @@ namespace EverQuestDPS
                     return Data.DamageTaken.ToString();
                 case "damagetaken-*":
                     return ActGlobals.oFormActMain.CreateDamageString((long)Data.DamageTaken, true, true);
-                case "powerdrain":
-                    return Data.PowerDamage.ToString();
-                case "powerdrain-*":
-                    return ActGlobals.oFormActMain.CreateDamageString((long)Data.PowerDamage, true, true);
-                case "powerheal":
-                    return Data.PowerReplenish.ToString();
-                case "powerheal-*":
-                    return ActGlobals.oFormActMain.CreateDamageString((long)Data.PowerReplenish, true, true);
+                //case "powerdrain":
+                //    return Data.PowerDamage.ToString();
+                //case "powerdrain-*":
+                //    return ActGlobals.oFormActMain.CreateDamageString((long)Data.PowerDamage, true, true);
+                //case "powerheal":
+                //    return Data.PowerReplenish.ToString();
+                //case "powerheal-*":
+                //    return ActGlobals.oFormActMain.CreateDamageString((long)Data.PowerReplenish, true, true);
                 case "kills":
                     return Data.Kills.ToString();
                 case "deaths":
@@ -1061,10 +1068,10 @@ namespace EverQuestDPS
                     return Data.DamagePercent;
                 case "healed%":
                     return Data.HealedPercent;
-                case "threatstr":
-                    return Data.GetThreatStr("Threat (Out)");
-                case "threatdelta":
-                    return Data.GetThreatDelta("Threat (Out)").ToString();
+                //case "threatstr":
+                //    return Data.GetThreatStr("Threat (Out)");
+                //case "threatdelta":
+                //    return Data.GetThreatDelta("Threat (Out)").ToString();
                 case "n":
                     return "\n";
                 case "t":
@@ -1082,26 +1089,8 @@ namespace EverQuestDPS
         /// <param name="VarName"></param>
         /// <param name="Extra"></param>
         /// <returns></returns>
-        private string EncounterFormatSwitch(EncounterData Data, List<CombatantData> SelectiveAllies, string VarName, string Extra)
+        private string EncounterFormatSwitch(EncounterData Data, List<CombatantData> SelectiveAllies, string VarName)
         {
-            long damage = 0;
-            long healed = 0;
-            int swings = 0;
-            int hits = 0;
-            int crits = 0;
-            int heals = 0;
-            int critheals = 0;
-            int cures = 0;
-            int misses = 0;
-            int hitfail = 0;
-            float tohit = 0;
-            double dps;
-            double hps;
-            long healstaken = 0;
-            long damagetaken = 0;
-            int kills = 0;
-            int deaths = 0;
-
             switch (VarName)
             {
                 case "maxheal":
@@ -1176,213 +1165,101 @@ namespace EverQuestDPS
                     else
                         return Data.Duration.TotalSeconds.ToString("0");
                 case "damage":
-                    foreach (CombatantData cd in SelectiveAllies)
-                        damage += cd.Damage;
-                    return damage.ToString();
+                    return SelectiveAllies.Sum((cd) => cd.Damage).ToString();
                 case "damage-m":
-                    foreach (CombatantData cd in SelectiveAllies)
-                        damage += cd.Damage;
-                    return (damage / 1000000.0).ToString("0.00");
+                    return (SelectiveAllies.Sum((cd) => cd.Damage) / 1000000.0).ToString("0.00");
                 case "damage-b":
-                    foreach (CombatantData cd in SelectiveAllies)
-                        damage += cd.Damage;
-                    return (damage / 1000000000.0).ToString("0.00");
+                    return (SelectiveAllies.Sum((cd) => cd.Damage) / 1000000000.0).ToString("0.00");
                 case "damage-*":
-                    foreach (CombatantData cd in SelectiveAllies)
-                        damage += cd.Damage;
-                    return ActGlobals.oFormActMain.CreateDamageString(damage, true, true);
+                    return ActGlobals.oFormActMain.CreateDamageString(SelectiveAllies.Sum((cd) => cd.Damage), true, true);
                 case "DAMAGE-k":
-                    foreach (CombatantData cd in SelectiveAllies)
-                        damage += cd.Damage;
-                    return (damage / 1000.0).ToString("0");
+                    return (SelectiveAllies.Sum((cd) => cd.Damage) / 1000.0).ToString("0");
                 case "DAMAGE-m":
-                    foreach (CombatantData cd in SelectiveAllies)
-                        damage += cd.Damage;
-                    return (damage / 1000000.0).ToString("0");
+                    return (SelectiveAllies.Sum((cd) => cd.Damage) / 1000000.0).ToString("0");
                 case "DAMAGE-b":
-                    foreach (CombatantData cd in SelectiveAllies)
-                        damage += cd.Damage;
-                    return (damage / 1000000000.0).ToString("0");
+                    return (SelectiveAllies.Sum((cd) => cd.Damage) / 1000000000.0).ToString("0");
                 case "DAMAGE-*":
-                    foreach (CombatantData cd in SelectiveAllies)
-                        damage += cd.Damage;
-                    return ActGlobals.oFormActMain.CreateDamageString(damage, true, false);
+                    return ActGlobals.oFormActMain.CreateDamageString(SelectiveAllies.Sum((cd) => cd.Damage), true, false);
                 case "healed":
-                    foreach (CombatantData cd in SelectiveAllies)
-                        healed += cd.Healed;
-                    return healed.ToString();
+                    return SelectiveAllies.Sum((cd) => cd.Healed).ToString();
                 case "healed-*":
-                    foreach (CombatantData cd in SelectiveAllies)
-                        healed += cd.Healed;
-                    return ActGlobals.oFormActMain.CreateDamageString(healed, true, true);
+                    return ActGlobals.oFormActMain.CreateDamageString(SelectiveAllies.Sum((cd) => cd.Healed), true, true);
                 case "swings":
-                    foreach (CombatantData cd in SelectiveAllies)
-                        swings += cd.Swings;
-                    return swings.ToString();
+                    return SelectiveAllies.Sum((cd) => cd.Swings).ToString();
                 case "hits":
-                    foreach (CombatantData cd in SelectiveAllies)
-                        hits += cd.Hits;
-                    return hits.ToString();
+                    return SelectiveAllies.Sum((cd) => cd.Hits).ToString();
                 case "crithits":
-                    foreach (CombatantData cd in SelectiveAllies)
-                        crits += cd.CritHits;
-                    return crits.ToString();
+                    return SelectiveAllies.Sum((cd) => cd.CritHits).ToString();
                 case "crithit%":
-                    foreach (CombatantData cd in SelectiveAllies)
-                        crits += cd.CritHits;
-                    foreach (CombatantData cd in SelectiveAllies)
-                        hits += cd.Hits;
-                    float crithitperc = (float)crits / (float)hits;
-                    return crithitperc.ToString("0'%");
+                    return (SelectiveAllies.Sum((cd) => cd.CritHits) / SelectiveAllies.Sum((cd) => cd.Hits)).ToString("0'%");
                 case "heals":
-                    foreach (CombatantData cd in SelectiveAllies)
-                        heals += cd.Heals;
-                    return heals.ToString();
+                    return SelectiveAllies.Sum((cd) => cd.Heals).ToString();
                 case "critheals":
-                    foreach (CombatantData cd in SelectiveAllies)
-                        critheals += cd.CritHits;
-                    return critheals.ToString();
+                    return SelectiveAllies.Sum((cd) => cd.CritHits).ToString();
                 case "critheal%":
-                    foreach (CombatantData cd in SelectiveAllies)
-                        critheals += cd.CritHeals;
-                    foreach (CombatantData cd in SelectiveAllies)
-                        heals += cd.Heals;
-                    float crithealperc = (float)critheals / (float)heals;
-                    return crithealperc.ToString("0'%");
+                    return (SelectiveAllies.Sum((cd) => cd.CritHeals) / SelectiveAllies.Sum((cd) => cd.Heals)).ToString("0'%");
                 case "cures":
-                    foreach (CombatantData cd in SelectiveAllies)
-                        cures += cd.CureDispels;
-                    return cures.ToString();
+                    return SelectiveAllies.Sum((cd) => cd.CureDispels).ToString();
                 case "misses":
-                    foreach (CombatantData cd in SelectiveAllies)
-                        misses += cd.Misses;
-                    return misses.ToString();
+                    return SelectiveAllies.Sum((cd) => cd.Misses).ToString();
                 case "hitfailed":
-                    foreach (CombatantData cd in SelectiveAllies)
-                        hitfail += cd.Blocked;
-                    return hitfail.ToString();
+                    return SelectiveAllies.Sum((cd) => cd.Blocked).ToString();
                 case "TOHIT":
-                    foreach (CombatantData cd in SelectiveAllies)
-                        tohit += cd.ToHit;
-                    tohit /= SelectiveAllies.Count;
-                    return tohit.ToString("0");
+                    return (SelectiveAllies.Sum((cd) => cd.ToHit) / SelectiveAllies.Count).ToString("0");
                 case "DPS":
                 case "ENCDPS":
-                    foreach (CombatantData cd in SelectiveAllies)
-                        damage += cd.Damage;
-                    dps = damage / Data.Duration.TotalSeconds;
-                    return dps.ToString("0");
+                    return SelectiveAllies.Sum((cd) => cd.Damage / Data.Duration.TotalSeconds).ToString("0");
                 case "DPS-*":
                 case "ENCDPS-*":
-                    foreach (CombatantData cd in SelectiveAllies)
-                        damage += cd.Damage;
-                    dps = damage / Data.Duration.TotalSeconds;
-                    return ActGlobals.oFormActMain.CreateDamageString((long)dps, true, false);
+                    return ActGlobals.oFormActMain.CreateDamageString((long)(SelectiveAllies.Sum((cd) => cd.Damage) / Data.Duration.TotalSeconds), true, false);
                 case "DPS-k":
                 case "ENCDPS-k":
-                    foreach (CombatantData cd in SelectiveAllies)
-                        damage += cd.Damage;
-                    dps = damage / Data.Duration.TotalSeconds;
-                    return (dps / 1000.0).ToString("0");
+                    return ((SelectiveAllies.Sum((cd) => cd.Damage / Data.Duration.TotalSeconds)) / 1000.0).ToString("0");
                 case "ENCDPS-m":
-                    foreach (CombatantData cd in SelectiveAllies)
-                        damage += cd.Damage;
-                    dps = damage / Data.Duration.TotalSeconds;
-                    return (dps / 1000000.0).ToString("0");
+ 
+                    return ((SelectiveAllies.Sum((cd) => cd.Damage) / Data.Duration.TotalSeconds) / 1000000.0).ToString("0");
                 case "ENCHPS":
-                    foreach (CombatantData cd in SelectiveAllies)
-                        healed += cd.Healed;
-                    hps = healed / Data.Duration.TotalSeconds;
-                    return hps.ToString("0");
+                    return (SelectiveAllies.Sum((cd) => cd.Healed) / Data.Duration.TotalSeconds).ToString("0");
                 case "ENCHPS-k":
-                    foreach (CombatantData cd in SelectiveAllies)
-                        healed += cd.Healed;
-                    hps = healed / Data.Duration.TotalSeconds;
-                    return (hps / 1000.0).ToString("0");
+                    return ((SelectiveAllies.Sum((cd) => cd.Healed) /Data.Duration.TotalSeconds) / 1000.0).ToString("0");
                 case "ENCHPS-m":
-                    foreach (CombatantData cd in SelectiveAllies)
-                        healed += cd.Healed;
-                    hps = healed / Data.Duration.TotalSeconds;
-                    return (hps / 1000000.0).ToString("0");
+                    return ((SelectiveAllies.Sum((cd) => cd.Healed) / Data.Duration.TotalSeconds) / 1000000.0).ToString("0");
                 case "ENCHPS-*":
-                    foreach (CombatantData cd in SelectiveAllies)
-                        healed += cd.Healed;
-                    hps = healed / Data.Duration.TotalSeconds;
-                    return ActGlobals.oFormActMain.CreateDamageString((long)hps, true, false);
+                    return ActGlobals.oFormActMain.CreateDamageString((long)(SelectiveAllies.Sum((cd) => cd.Healed) / Data.Duration.TotalSeconds), true, false);
                 case "tohit":
-                    foreach (CombatantData cd in SelectiveAllies)
-                        tohit += cd.ToHit;
-                    tohit /= SelectiveAllies.Count;
-                    return tohit.ToString("F");
+                    return (SelectiveAllies.Sum((cd) => cd.ToHit) / SelectiveAllies.Count).ToString("F");
                 case "dps":
                 case "encdps":
-                    foreach (CombatantData cd in SelectiveAllies)
-                        damage += cd.Damage;
-                    dps = damage / Data.Duration.TotalSeconds;
-                    return dps.ToString("F");
+                    return (SelectiveAllies.Sum(cd => cd.Damage) / Data.Duration.TotalSeconds).ToString("F");
                 case "dps-k":
                 case "encdps-k":
-                    foreach (CombatantData cd in SelectiveAllies)
-                        damage += cd.Damage;
-                    dps = damage / Data.Duration.TotalSeconds;
-                    return (dps / 1000.0).ToString("F");
+                    return ((SelectiveAllies.Sum(cd => cd.Damage) / Data.Duration.TotalSeconds) / 1000.0).ToString("F");
                 case "encdps-m":
-                    foreach (CombatantData cd in SelectiveAllies)
-                        damage += cd.Damage;
-                    dps = damage / Data.Duration.TotalSeconds;
-                    return (dps / 1000000.0).ToString("F");
+                    return ((SelectiveAllies.Sum(cd => cd.Damage) / Data.Duration.TotalSeconds) / 1000000.0).ToString("F");
                 case "encdps-*":
-                    foreach (CombatantData cd in SelectiveAllies)
-                        damage += cd.Damage;
-                    dps = damage / Data.Duration.TotalSeconds;
-                    return ActGlobals.oFormActMain.CreateDamageString((long)dps, true, true);
+                    return ActGlobals.oFormActMain.CreateDamageString((long)(SelectiveAllies.Sum(cd => cd.Damage) / Data.Duration.TotalSeconds), true, true);
                 case "enchps":
-                    foreach (CombatantData cd in SelectiveAllies)
-                        healed += cd.Healed;
-                    hps = healed / Data.Duration.TotalSeconds;
-                    return hps.ToString("F");
+                    return (SelectiveAllies.Sum((cd) => cd.Healed) / Data.Duration.TotalSeconds).ToString("F");
                 case "enchps-k":
-                    foreach (CombatantData cd in SelectiveAllies)
-                        healed += cd.Healed;
-                    hps = healed / Data.Duration.TotalSeconds;
-                    return (hps / 1000.0).ToString("F");
+                    return ((SelectiveAllies.Sum((cd) => cd.Healed) / Data.Duration.TotalSeconds) / 1000.0).ToString("F");
                 case "enchps-m":
-                    foreach (CombatantData cd in SelectiveAllies)
-                        healed += cd.Healed;
-                    hps = healed / Data.Duration.TotalSeconds;
-                    return (hps / 1000000.0).ToString("F");
+                    return ((SelectiveAllies.Sum((cd) => cd.Healed) / Data.Duration.TotalSeconds) / 1000000.0).ToString("F");
                 case "enchps-*":
-                    foreach (CombatantData cd in SelectiveAllies)
-                        healed += cd.Healed;
-                    hps = healed / Data.Duration.TotalSeconds;
-                    return ActGlobals.oFormActMain.CreateDamageString((long)hps, true, true);
+                    return ActGlobals.oFormActMain.CreateDamageString((long)(SelectiveAllies.Sum((cd) => cd.Healed) / Data.Duration.TotalSeconds), true, true);
                 case "healstaken":
-                    foreach (CombatantData cd in SelectiveAllies)
-                        healstaken += cd.HealsTaken;
-                    return healstaken.ToString();
+                    return SelectiveAllies.Sum((cd) => cd.HealsTaken).ToString();
                 case "healstaken-*":
-                    foreach (CombatantData cd in SelectiveAllies)
-                        healstaken += cd.HealsTaken;
-                    return ActGlobals.oFormActMain.CreateDamageString(healstaken, true, true);
+                    return ActGlobals.oFormActMain.CreateDamageString(SelectiveAllies.Sum((cd) => cd.HealsTaken), true, true);
                 case "damagetaken":
-                    foreach (CombatantData cd in SelectiveAllies)
-                        damagetaken += cd.DamageTaken;
-                    return damagetaken.ToString();
+                    return SelectiveAllies.Sum((cd) => cd.DamageTaken).ToString();
                 case "damagetaken-*":
-                    foreach (CombatantData cd in SelectiveAllies)
-                        damagetaken += cd.DamageTaken;
-                    return ActGlobals.oFormActMain.CreateDamageString(damagetaken, true, true);
+                    return ActGlobals.oFormActMain.CreateDamageString(SelectiveAllies.Sum((cd) => cd.DamageTaken), true, true);
                 case "kills":
-                    foreach (CombatantData cd in SelectiveAllies)
-                        kills += cd.Kills;
-                    return kills.ToString();
+                    return SelectiveAllies.Sum(cd => cd.Kills).ToString();
                 case "deaths":
-                    foreach (CombatantData cd in SelectiveAllies)
-                        deaths += cd.Deaths;
-                    return deaths.ToString();
+                    return SelectiveAllies.Sum(cd => cd.Deaths).ToString();
                 case "title":
                     return Data.Title;
-
                 default:
                     return VarName;
             }
@@ -1397,6 +1274,7 @@ namespace EverQuestDPS
             DateTime.TryParseExact(timeStamp, Properties.EQDPSPlugin.eqDateTimeStampFormat, DateTimeFormatInfo.CurrentInfo, DateTimeStyles.AssumeLocal, out DateTime currentEQTimeStamp);
             return currentEQTimeStamp;
         }
+
         /// <summary>
         /// Builds a regex string with the timestamp and regex provided
         /// </summary>
@@ -1410,6 +1288,7 @@ namespace EverQuestDPS
             else
                 return $@"\[(?<{Properties.EQDPSPlugin.dateTimeOfLogLine}>.+)\] {regex}";
         }
+
         /// <summary>
         /// Populates noncombat style regexes
         /// </summary>
@@ -1418,7 +1297,6 @@ namespace EverQuestDPS
             zoneEnterRgx = new Regex(Properties.EQDPSPlugin.zoneEnter);
             possesive = new Regex(Properties.EQDPSPlugin.petAndPlayerName, RegexOptions.Compiled);
             selfCheck = new Regex(Properties.EQDPSPlugin.selfMatch, RegexOptions.Compiled);
-            regexTupleList = new List<Tuple<Color, Regex>>();
         }
 
         /// <summary>
@@ -1426,67 +1304,486 @@ namespace EverQuestDPS
         /// </summary>
         private void PopulateRegexCombat()
         {
+            onLogLineRead = new List<Tuple<Color, Regex, Action<Match>>>();
+            beforeLogLineRead = new List<Tuple<Color, Regex, Action<Match>>>();
             String MeleeAttack = @"(?<attacker>.+) (?<attackType>" + $@"{Properties.EQDPSPlugin.attackTypes}" + @")(|s|es|bed) (?<victim>.+)(\sfor\s)(?<damageAmount>[\d]+) ((?:point)(?:s|)) of damage.(?:\s\((?<damageSpecial>.+)\)){0,1}";
             String Evasion = @"(?<attacker>.*) tries to (?<attackType>\S+) (?:(?<victim>(.+)), but \1) (?:(?<evasionType>" + $@"{Properties.EQDPSPlugin.evasionTypes}" + @"))(?:\swith (your|his|hers|its) (shield|staff)){0,1}!(?:[\s][\(](?<evasionSpecial>.+)[\)]){0,1}";
             ActGlobals.oFormEncounterLogs.LogTypeToColorMapping.Clear();
-            regexTupleList.Add(new Tuple<Color, Regex>(Color.Red, new Regex(RegexString(MeleeAttack), RegexOptions.Compiled)));
-            ActGlobals.oFormEncounterLogs.LogTypeToColorMapping.Add(regexTupleList.Count, regexTupleList[regexTupleList.Count - 1].Item1);
-            regexTupleList.Add(new Tuple<Color, Regex>(Color.ForestGreen, new Regex(RegexString(Properties.EQDPSPlugin.DamageShield), RegexOptions.Compiled)));
-            ActGlobals.oFormEncounterLogs.LogTypeToColorMapping.Add(regexTupleList.Count, regexTupleList[regexTupleList.Count - 1].Item1);
-            regexTupleList.Add(new Tuple<Color, Regex>(Color.Plum, new Regex(RegexString(Properties.EQDPSPlugin.MissedMeleeAttack), RegexOptions.Compiled)));
-            ActGlobals.oFormEncounterLogs.LogTypeToColorMapping.Add(regexTupleList.Count, regexTupleList[regexTupleList.Count - 1].Item1);
-            regexTupleList.Add(new Tuple<Color, Regex>(Color.Black, new Regex(RegexString(Properties.EQDPSPlugin.SlainMessage1), RegexOptions.Compiled)));
-            ActGlobals.oFormEncounterLogs.LogTypeToColorMapping.Add(regexTupleList.Count, regexTupleList[regexTupleList.Count - 1].Item1);
-            regexTupleList.Add(new Tuple<Color, Regex>(Color.Red, new Regex(RegexString(Properties.EQDPSPlugin.SpellDamage), RegexOptions.Compiled)));
-            ActGlobals.oFormEncounterLogs.LogTypeToColorMapping.Add(regexTupleList.Count, regexTupleList[regexTupleList.Count - 1].Item1);
-            regexTupleList.Add(new Tuple<Color, Regex>(Color.DarkBlue, new Regex(RegexString(Properties.EQDPSPlugin.Heal), RegexOptions.Compiled)));
-            ActGlobals.oFormEncounterLogs.LogTypeToColorMapping.Add(regexTupleList.Count, regexTupleList[regexTupleList.Count - 1].Item1);
-            regexTupleList.Add(new Tuple<Color, Regex>(Color.Silver, new Regex(RegexString(Properties.EQDPSPlugin.Unknown), RegexOptions.Compiled)));
-            ActGlobals.oFormEncounterLogs.LogTypeToColorMapping.Add(regexTupleList.Count, regexTupleList[regexTupleList.Count - 1].Item1);
-            regexTupleList.Add(new Tuple<Color, Regex>(Color.DeepSkyBlue, new Regex(RegexString(Evasion), RegexOptions.Compiled)));
-            ActGlobals.oFormEncounterLogs.LogTypeToColorMapping.Add(regexTupleList.Count, regexTupleList[regexTupleList.Count - 1].Item1);
-            regexTupleList.Add(new Tuple<Color, Regex>(Color.LightBlue, new Regex(RegexString(Properties.EQDPSPlugin.Banestrike), RegexOptions.Compiled)));
-            ActGlobals.oFormEncounterLogs.LogTypeToColorMapping.Add(regexTupleList.Count, regexTupleList[regexTupleList.Count - 1].Item1);
-            regexTupleList.Add(new Tuple<Color, Regex>(Color.AliceBlue, new Regex(RegexString(Properties.EQDPSPlugin.SpellDamageOverTime), RegexOptions.Compiled)));
-            ActGlobals.oFormEncounterLogs.LogTypeToColorMapping.Add(regexTupleList.Count, regexTupleList[regexTupleList.Count - 1].Item1);
-            regexTupleList.Add(new Tuple<Color, Regex>(Color.PaleVioletRed, new Regex(RegexString(Properties.EQDPSPlugin.FocusDamageEffect), RegexOptions.Compiled)));
-            ActGlobals.oFormEncounterLogs.LogTypeToColorMapping.Add(regexTupleList.Count, regexTupleList[regexTupleList.Count - 1].Item1);
-            regexTupleList.Add(new Tuple<Color, Regex>(Color.DarkOliveGreen, new Regex(RegexString(Properties.EQDPSPlugin.DamageShieldUnknownOrigin), RegexOptions.Compiled)));
-            ActGlobals.oFormEncounterLogs.LogTypeToColorMapping.Add(regexTupleList.Count, regexTupleList[regexTupleList.Count - 1].Item1);
-            regexTupleList.Add(new Tuple<Color, Regex>(Color.SaddleBrown, new Regex(RegexString(Properties.EQDPSPlugin.zoneChange))));
-            ActGlobals.oFormEncounterLogs.LogTypeToColorMapping.Add(regexTupleList.Count, regexTupleList[regexTupleList.Count - 1].Item1);
-            regexTupleList.Add(new Tuple<Color, Regex>(Color.Tan, new Regex(RegexString(Properties.EQDPSPlugin.spellResist), RegexOptions.Compiled)));
-            ActGlobals.oFormEncounterLogs.LogTypeToColorMapping.Add(regexTupleList.Count, regexTupleList[regexTupleList.Count - 1].Item1);
-            regexTupleList.Add(new Tuple<Color, Regex>(Color.ForestGreen, new Regex(RegexString(Properties.EQDPSPlugin.chilledDamageShield), RegexOptions.Compiled)));
-            ActGlobals.oFormEncounterLogs.LogTypeToColorMapping.Add(regexTupleList.Count, regexTupleList[regexTupleList.Count - 1].Item1);
-            regexTupleList.Add(new Tuple<Color, Regex>(Color.Black, new Regex(RegexString(Properties.EQDPSPlugin.youDied), RegexOptions.Compiled)));
-            ActGlobals.oFormEncounterLogs.LogTypeToColorMapping.Add(regexTupleList.Count, regexTupleList[regexTupleList.Count - 1].Item1);
-            regexTupleList.Add(new Tuple<Color, Regex>(Color.Black, new Regex(RegexString(Properties.EQDPSPlugin.SlainMessage2), RegexOptions.Compiled)));
-            ActGlobals.oFormEncounterLogs.LogTypeToColorMapping.Add(regexTupleList.Count, regexTupleList[regexTupleList.Count - 1].Item1);
-            regexTupleList.Add(new Tuple<Color, Regex>(Color.Black, new Regex(RegexString(Properties.EQDPSPlugin.SlainMessage3), RegexOptions.Compiled)));
-            ActGlobals.oFormEncounterLogs.LogTypeToColorMapping.Add(regexTupleList.Count, regexTupleList[regexTupleList.Count - 1].Item1);
+            onLogLineRead.Add(new Tuple<Color, Regex, Action<Match>>(Color.Red, new Regex(RegexString(MeleeAttack), RegexOptions.Compiled), (match) =>
+            {
+                DateTime dateTimeOfParse = ParseDateTime(match.Groups[Properties.EQDPSPlugin.dateTimeOfLogLine].Value);
+                Tuple<String, String> petTypeAndName = GetTypeAndNameForPet(CharacterNamePersonaReplace(match.Groups["attacker"].Value));
+                Tuple<String, String> victimPetTypeAndName = GetTypeAndNameForPet(match.Groups["victim"].Value);
+                if (ActGlobals.oFormActMain.SetEncounter(ActGlobals.oFormActMain.LastKnownTime, CharacterNamePersonaReplace(petTypeAndName.Item2), CharacterNamePersonaReplace(victimPetTypeAndName.Item2)))
+                {
+
+                    if (chilled != default)
+                    {
+                        Dictionary<String, object> newPetInfo = chilled.Tags;
+                        newPetInfo.Add("Outgoing", petTypeAndName.Item1);
+                        AddMasterSwing(chilled.SwingType.GetFromIntEverQuestSwingType(),
+                            false,
+                            chilled.Damage,
+                            chilled.Time,
+                            chilled.AttackType,
+                            CharacterNamePersonaReplace(victimPetTypeAndName.Item2),
+                            chilled.DamageType,
+                            chilled.Victim,
+                            newPetInfo
+                            );
+                        chilled = default;
+                    }
+                    Dnum damage = new Dnum(Int64.Parse(match.Groups["damageAmount"].Value), "melee");
+                    String attackName = match.Groups["attackType"].Value == "frenzies on" ? "frenzy" : match.Groups["attackType"].Value;
+                    Dictionary<string, object> tags = new Dictionary<string, object>();
+                    if (match.Groups["special"].Success)
+                    {
+                        foreach (String specialAttack in SpecialAttack)
+                            tags.Add(specialAttack, match.Groups["special"].Value.Contains(specialAttack));
+                    }
+                    tags.Add("Outgoing", petTypeAndName.Item1);
+                    tags.Add("Incoming", victimPetTypeAndName.Item1);
+                    AddMasterSwing(
+                            EverQuestSwingType.Melee
+                            , match.Groups["special"].Value.Contains(Properties.EQDPSPlugin.Critical)
+                            , damage
+                            , dateTimeOfParse
+                            , attackName
+                            , CharacterNamePersonaReplace(petTypeAndName.Item2)
+                            , "Hitpoints"
+                            , CharacterNamePersonaReplace(victimPetTypeAndName.Item2)
+                            , tags
+                            );
+                }
+                })
+              );
+            ActGlobals.oFormEncounterLogs.LogTypeToColorMapping.Add(ActGlobals.oFormEncounterLogs.LogTypeToColorMapping.Count, onLogLineRead[onLogLineRead.Count - 1].Item1);
+            onLogLineRead.Add(new Tuple<Color, Regex, Action<Match>>(Color.Plum, new Regex(RegexString(Properties.EQDPSPlugin.MissedMeleeAttack), RegexOptions.Compiled), (match) =>
+            {
+                DateTime dateTimeOfParse = ParseDateTime(match.Groups[Properties.EQDPSPlugin.dateTimeOfLogLine].Value);
+                Tuple<String, String> petTypeAndName = GetTypeAndNameForPet(CharacterNamePersonaReplace(match.Groups["attacker"].Value));
+                Tuple<String, String> victimPetTypeAndName = GetTypeAndNameForPet(match.Groups["victim"].Value);
+                if (ActGlobals.oFormActMain.SetEncounter(ActGlobals.oFormActMain.LastKnownTime, CharacterNamePersonaReplace(petTypeAndName.Item2), CharacterNamePersonaReplace(victimPetTypeAndName.Item2)))
+                {
+                    Dnum miss = new Dnum(Dnum.Miss, "melee");
+                    Dictionary<string, object> tags = new Dictionary<string, object>
+                {
+                    { "Outgoing", petTypeAndName.Item1 },
+                    { "Incoming", victimPetTypeAndName.Item1 }
+                };
+                    if (match.Groups["special"].Success)
+                    {
+                        foreach (String specialAttack in SpecialAttack)
+                            if(match.Groups["special"].Value.Contains(specialAttack)) 
+                                tags.Add(specialAttack, match.Groups["special"].Value.Contains(specialAttack));
+                    }
+                    AddMasterSwing(
+                            EverQuestSwingType.Melee
+                            , match.Groups["special"].Value.Contains(Properties.EQDPSPlugin.Critical)
+                            , miss
+                            , dateTimeOfParse
+                            , match.Groups["attackType"].Value
+                            , CharacterNamePersonaReplace(petTypeAndName.Item2)
+                            , "Hitpoints"
+                            , CharacterNamePersonaReplace(victimPetTypeAndName.Item2)
+                            , tags
+                        );
+                }
+            }));
+            ActGlobals.oFormEncounterLogs.LogTypeToColorMapping.Add(ActGlobals.oFormEncounterLogs.LogTypeToColorMapping.Count, onLogLineRead[onLogLineRead.Count - 1].Item1);
+            onLogLineRead.Add(new Tuple<Color, Regex, Action<Match>>(Color.Red, new Regex(RegexString(Properties.EQDPSPlugin.SpellDamage), RegexOptions.Compiled), (match) =>
+            {
+                DateTime dateTimeOfParse = ParseDateTime(match.Groups[Properties.EQDPSPlugin.dateTimeOfLogLine].Value);
+                Tuple<String, String> petTypeAndName = GetTypeAndNameForPet(CharacterNamePersonaReplace(match.Groups["attacker"].Value));
+                Tuple<String, String> victimPetTypeAndName = GetTypeAndNameForPet(match.Groups["victim"].Value);
+                if (ActGlobals.oFormActMain.SetEncounter(ActGlobals.oFormActMain.LastKnownTime, CharacterNamePersonaReplace(petTypeAndName.Item2), CharacterNamePersonaReplace(victimPetTypeAndName.Item2)))
+                {
+                    Dnum spellCastDamage = new Dnum(Int64.Parse(match.Groups["damagePoints"].Value), match.Groups["typeOfDamage"].Value);
+                    Dictionary<string, object> tags = new Dictionary<string, object>
+                {
+                    { "Outgoing", petTypeAndName.Item1 },
+                    { "Incoming", victimPetTypeAndName.Item1 }
+                };
+                    if (match.Groups["special"].Success)
+                    {
+                        foreach (String specialAttack in SpecialAttack)
+                            if (match.Groups["special"].Value.Contains(specialAttack))
+                                tags.Add(specialAttack, match.Groups["special"].Value.Contains(specialAttack));
+                    }
+                    AddMasterSwing(
+                            EverQuestSwingType.Spell | EverQuestSwingType.Instant
+                            , match.Groups["special"].Value.Contains(Properties.EQDPSPlugin.Critical)
+                            , spellCastDamage
+                            , dateTimeOfParse
+                            , match.Groups["attackType"].Value
+                            , CharacterNamePersonaReplace(petTypeAndName.Item2)
+                            , "Hitpoints"
+                            , CharacterNamePersonaReplace(victimPetTypeAndName.Item2)
+                            , tags
+                        );
+                }
+            }));
+            ActGlobals.oFormEncounterLogs.LogTypeToColorMapping.Add(ActGlobals.oFormEncounterLogs.LogTypeToColorMapping.Count, onLogLineRead[onLogLineRead.Count - 1].Item1);
+            onLogLineRead.Add(new Tuple<Color, Regex, Action<Match>>(Color.DarkBlue, new Regex(RegexString(Properties.EQDPSPlugin.Heal), RegexOptions.Compiled),
+                (match) =>
+                {
+                    if (ActGlobals.oFormActMain.InCombat)
+                    {
+                        DateTime dateTimeOfParse = ParseDateTime(match.Groups[Properties.EQDPSPlugin.dateTimeOfLogLine].Value);
+                        Tuple<String, String> petTypeAndName = GetTypeAndNameForPet(CharacterNamePersonaReplace(match.Groups["attacker"].Value));
+                        Tuple<String, String> victimPetTypeAndName = GetTypeAndNameForPet(match.Groups["victim"].Value);
+                        Dictionary<string, Object> tags = new Dictionary<string, Object>();
+                        if (match.Groups["overHealPoints"].Success)
+                            tags["overheal"] = Int64.Parse(match.Groups["overHealPoints"].Value);
+                        tags.Add("Outgoing", petTypeAndName.Item1);
+                        tags.Add("Incoming", victimPetTypeAndName.Item1);
+                        if (match.Groups["special"].Success)
+                        {
+                            foreach (String specialAttack in SpecialAttack)
+                                if (match.Groups["special"].Value.Contains(specialAttack))
+                                    tags.Add(specialAttack, match.Groups["special"].Value.Contains(specialAttack));
+                        }
+                        AddMasterSwing(
+                                    EverQuestSwingType.Healing | (match.Groups["overTime"].Success ? EverQuestSwingType.OverTime : EverQuestSwingType.Instant),
+                                    match.Groups["special"].Value.Contains(Properties.EQDPSPlugin.Critical),
+                                    new Dnum(Int64.Parse(match.Groups["pointsOfHealing"].Value), "healing"),
+                                    dateTimeOfParse,
+                                    match.Groups["healingSpellName"].Success ? match.Groups["healingSpellName"].Value : new String("unnamed heal".ToCharArray()),
+                                    CharacterNamePersonaReplace(petTypeAndName.Item2),
+                                    "Hitpoints",
+                                    CheckIfSelf(victimPetTypeAndName.Item2) ? CharacterNamePersonaReplace(petTypeAndName.Item2) : CharacterNamePersonaReplace(victimPetTypeAndName.Item2),
+                                    tags);
+                    }
+                }));
+            ActGlobals.oFormEncounterLogs.LogTypeToColorMapping.Add(ActGlobals.oFormEncounterLogs.LogTypeToColorMapping.Count, onLogLineRead[onLogLineRead.Count - 1].Item1);
+            onLogLineRead.Add(new Tuple<Color, Regex, Action<Match>>(Color.Silver, new Regex(RegexString(Properties.EQDPSPlugin.Unknown), RegexOptions.Compiled), (match) =>
+            {
+                DateTime dateTimeOfParse = ParseDateTime(match.Groups[Properties.EQDPSPlugin.dateTimeOfLogLine].Value);
+                Tuple<String, String> petTypeAndName = GetTypeAndNameForPet(CharacterNamePersonaReplace(match.Groups["attacker"].Value));
+                Tuple<String, String> victimPetTypeAndName = GetTypeAndNameForPet(match.Groups["victim"].Value);
+                MasterSwing msUnknown = new MasterSwing(
+                            EverQuestSwingType.NonMelee.GetEverQuestSwingTypeExtensionIntValue()
+                            , false
+                            , new Dnum(Dnum.Unknown)
+                            {
+                                DamageString2 = match.Value
+                            },
+                            dateTimeOfParse,
+                            ActGlobals.oFormActMain.GlobalTimeSorter,
+                            "Unknown",
+                            "Unknown",
+                            "Unknown",
+                            "Unknown")
+                { Tags = new Dictionary<string, object> { { "Outgoing", petTypeAndName.Item1 }, { "Incoming", victimPetTypeAndName.Item1 } } };
+                ActGlobals.oFormActMain.AddCombatAction(msUnknown);
+            }));
+            ActGlobals.oFormEncounterLogs.LogTypeToColorMapping.Add(ActGlobals.oFormEncounterLogs.LogTypeToColorMapping.Count, onLogLineRead[onLogLineRead.Count - 1].Item1);
+            onLogLineRead.Add(new Tuple<Color, Regex, Action<Match>>(Color.DeepSkyBlue, new Regex(RegexString(Evasion), RegexOptions.Compiled),
+                (match) =>
+                {
+                    DateTime dateTimeOfParse = ParseDateTime(match.Groups[Properties.EQDPSPlugin.dateTimeOfLogLine].Value);
+                    Tuple<String, String> petTypeAndName = GetTypeAndNameForPet(CharacterNamePersonaReplace(match.Groups["attacker"].Value));
+                    Tuple<String, String> victimPetTypeAndName = GetTypeAndNameForPet(match.Groups["victim"].Value);
+                    if (ActGlobals.oFormActMain.SetEncounter(ActGlobals.oFormActMain.LastKnownTime, CharacterNamePersonaReplace(petTypeAndName.Item2), CharacterNamePersonaReplace(victimPetTypeAndName.Item2)))
+                    {
+                        Dictionary<string, Object> tags = new Dictionary<string, Object>
+                    {
+                        { "Outgoing", petTypeAndName.Item1 },
+                        { "Incoming", victimPetTypeAndName.Item1 }
+                    };
+                        if (match.Groups["special"].Success)
+                        {
+                            foreach (String specialAttack in SpecialAttack)
+                                tags.Add(specialAttack, match.Groups["special"].Value.Contains(specialAttack));
+                        }
+                        AddMasterSwing(
+                                   EverQuestSwingType.Melee
+                                   , match.Groups["special"].Value.Contains(Properties.EQDPSPlugin.Critical)
+                                   , new Dnum(Dnum.Miss, match.Groups["evasionType"].Value)
+                                   , dateTimeOfParse
+                                   , match.Groups["attackType"].Value
+                                   , CharacterNamePersonaReplace(petTypeAndName.Item2)
+                                   , "Hitpoints"
+                                   , CharacterNamePersonaReplace(victimPetTypeAndName.Item2)
+                                   , new Dictionary<string, object> { { "Outgoing", petTypeAndName.Item1 }, { "Incoming", victimPetTypeAndName.Item1 } }
+                               );
+                    }
+                }));
+            ActGlobals.oFormEncounterLogs.LogTypeToColorMapping.Add(ActGlobals.oFormEncounterLogs.LogTypeToColorMapping.Count, onLogLineRead[onLogLineRead.Count - 1].Item1);
+            onLogLineRead.Add(new Tuple<Color, Regex, Action<Match>>(Color.LightBlue, new Regex(RegexString(Properties.EQDPSPlugin.Banestrike), RegexOptions.Compiled), (match) =>
+            {
+                DateTime dateTimeOfParse = ParseDateTime(match.Groups[Properties.EQDPSPlugin.dateTimeOfLogLine].Value);
+                Tuple<String, String> petTypeAndName = GetTypeAndNameForPet(CharacterNamePersonaReplace(match.Groups["attacker"].Value));
+                Tuple<String, String> victimPetTypeAndName = GetTypeAndNameForPet(match.Groups["victim"].Value);
+                if (ActGlobals.oFormActMain.SetEncounter(ActGlobals.oFormActMain.LastKnownTime, CharacterNamePersonaReplace(petTypeAndName.Item2), CharacterNamePersonaReplace(victimPetTypeAndName.Item2))) {
+                    Dictionary<string, object> tags = new Dictionary<string, object>
+                {
+                    { "Outgoing", petTypeAndName.Item1 },
+                    { "Incoming", victimPetTypeAndName.Item1 }
+                };
+                if (match.Groups["special"].Success)
+                {
+                    foreach (String specialAttack in SpecialAttack)
+                        if (match.Groups["special"].Value.Contains(specialAttack))
+                            tags.Add(specialAttack, match.Groups["special"].Value.Contains(specialAttack));
+                    }
+                AddMasterSwing(
+                               EverQuestSwingType.Bane
+                               , match.Groups["special"].Value.Contains(Properties.EQDPSPlugin.Critical)
+                               , new Dnum(Int64.Parse(match.Groups["baneDamage"].Value), "bane")
+                               , dateTimeOfParse
+                               , match.Groups["typeOfDamage"].Value
+                               , CharacterNamePersonaReplace(petTypeAndName.Item2)
+                               , "Hitpoints"
+                               , CharacterNamePersonaReplace(victimPetTypeAndName.Item2)
+                               , tags
+                           );
+                }
+            }));
+            ActGlobals.oFormEncounterLogs.LogTypeToColorMapping.Add(ActGlobals.oFormEncounterLogs.LogTypeToColorMapping.Count, onLogLineRead[onLogLineRead.Count - 1].Item1);
+            onLogLineRead.Add(new Tuple<Color, Regex, Action<Match>>(Color.AliceBlue, new Regex(RegexString(Properties.EQDPSPlugin.SpellDamageOverTime), RegexOptions.Compiled),
+                (match) =>
+                {
+                    DateTime dateTimeOfParse = ParseDateTime(match.Groups[Properties.EQDPSPlugin.dateTimeOfLogLine].Value);
+                    Tuple<String, String> petTypeAndName = GetTypeAndNameForPet(CharacterNamePersonaReplace(match.Groups["attacker"].Value));
+                    Tuple<String, String> victimPetTypeAndName = GetTypeAndNameForPet(match.Groups["victim"].Value);
+                    if (ActGlobals.oFormActMain.SetEncounter(ActGlobals.oFormActMain.LastKnownTime, CharacterNamePersonaReplace(petTypeAndName.Item2), CharacterNamePersonaReplace(victimPetTypeAndName.Item2))){
+                        Dnum spellDamageOverTimeDamage = new Dnum(Int64.Parse(match.Groups["damagePoints"].Value), "spell dot");
+                    Dictionary<string, object> tags = new Dictionary<string, object>
+                    {
+                        { "Outgoing", petTypeAndName.Item1 },
+                        { "Incoming", victimPetTypeAndName.Item1 }
+                    };
+                    if (match.Groups["special"].Success)
+                    {
+                        foreach (String specialAttack in SpecialAttack)
+                            if (match.Groups["special"].Value.Contains(specialAttack))
+                                tags.Add(specialAttack, match.Groups["special"].Value.Contains(specialAttack));
+                    }
+                        AddMasterSwing(
+                               EverQuestSwingType.Spell | EverQuestSwingType.OverTime
+                               , match.Groups["special"].Value.Contains(Properties.EQDPSPlugin.Critical)
+                               , spellDamageOverTimeDamage
+                               , dateTimeOfParse
+                               , match.Groups["damageEffect"].Value
+                               , CharacterNamePersonaReplace(petTypeAndName.Item2)
+                               , "Hitpoints"
+                               , CharacterNamePersonaReplace(victimPetTypeAndName.Item2)
+                               , tags
+                           );
+                    }
+                }));
+            ActGlobals.oFormEncounterLogs.LogTypeToColorMapping.Add(ActGlobals.oFormEncounterLogs.LogTypeToColorMapping.Count, onLogLineRead[onLogLineRead.Count - 1].Item1);
+            onLogLineRead.Add(new Tuple<Color, Regex, Action<Match>>(Color.PaleVioletRed, new Regex(RegexString(Properties.EQDPSPlugin.FocusDamageEffect), RegexOptions.Compiled),
+                (match) =>
+                {
+                    DateTime dateTimeOfParse = ParseDateTime(match.Groups[Properties.EQDPSPlugin.dateTimeOfLogLine].Value);
+                    Tuple<String, String> petTypeAndName = GetTypeAndNameForPet(CharacterNamePersonaReplace(match.Groups["attacker"].Value));
+                    Tuple<String, String> victimPetTypeAndName = GetTypeAndNameForPet(match.Groups["victim"].Value);
+                    if (ActGlobals.oFormActMain.SetEncounter(ActGlobals.oFormActMain.LastKnownTime, CharacterNamePersonaReplace(petTypeAndName.Item2), CharacterNamePersonaReplace(victimPetTypeAndName.Item2))){
+                        Dictionary<string, object> tags = new Dictionary<string, object>
+                    {
+                        { "Outgoing", petTypeAndName.Item1 },
+                        { "Incoming", victimPetTypeAndName.Item1 }
+                    };
+                    if (match.Groups["special"].Success)
+                    {
+                        foreach (String specialAttack in SpecialAttack)
+                                if (match.Groups["special"].Value.Contains(specialAttack))
+                                    tags.Add(specialAttack, match.Groups["special"].Value.Contains(specialAttack));
+                    }
+                        AddMasterSwing(
+                                   EverQuestSwingType.Spell
+                                   , match.Groups["special"].Value.Contains(Properties.EQDPSPlugin.Critical)
+                                   , new Dnum(Int64.Parse(match.Groups["damagePoints"].Value), "spell focus")
+                                   , dateTimeOfParse
+                                   , match.Groups["damageEffect"].Value
+                                   , CharacterNamePersonaReplace(petTypeAndName.Item2)
+                                   , "Hitpoints"
+                                   , CharacterNamePersonaReplace(victimPetTypeAndName.Item2)
+                                   , tags
+                               );
+                    }
+                }));
+            ActGlobals.oFormEncounterLogs.LogTypeToColorMapping.Add(ActGlobals.oFormEncounterLogs.LogTypeToColorMapping.Count, onLogLineRead[onLogLineRead.Count - 1].Item1);
+            beforeLogLineRead.Add(new Tuple<Color, Regex, Action<Match>>(Color.DarkOliveGreen, new Regex(RegexString(Properties.EQDPSPlugin.DamageShieldUnknownOrigin), RegexOptions.Compiled),
+                (match) =>
+                {
+                    DateTime dateTimeOfParse = ParseDateTime(match.Groups[Properties.EQDPSPlugin.dateTimeOfLogLine].Value);
+                    Tuple<String, String> petTypeAndName = GetTypeAndNameForPet(CharacterNamePersonaReplace(match.Groups["attacker"].Value));
+                    Tuple<String, String> victimPetTypeAndName = GetTypeAndNameForPet(match.Groups["victim"].Value);
+                    if (ActGlobals.oFormActMain.SetEncounter(ActGlobals.oFormActMain.LastKnownTime, CharacterNamePersonaReplace(petTypeAndName.Item2), CharacterNamePersonaReplace(victimPetTypeAndName.Item2))){
+                        Dictionary<string, object> tags = new Dictionary<string, object>
+                    {
+                        { "Outgoing", petTypeAndName.Item1 },
+                        { "Incoming", victimPetTypeAndName.Item1 }
+                    };
+                    if (match.Groups["special"].Success)
+                    {
+                        foreach (String specialAttack in SpecialAttack)
+                                if (match.Groups["special"].Value.Contains(specialAttack))
+                                    tags.Add(specialAttack, match.Groups["special"].Value.Contains(specialAttack));
+                        }
+                        AddMasterSwing(
+                                   EverQuestSwingType.DamageShield
+                                   , match.Groups["special"].Value.Contains(Properties.EQDPSPlugin.Critical)
+                                   , new Dnum(Int64.Parse(match.Groups["damagePoints"].Value), "damage shield")
+                                   , dateTimeOfParse
+                                   , match.Groups["damageShieldResponse"].Value
+                                   , String.Empty
+                                   , "Hitpoints"
+                                   , CharacterNamePersonaReplace(victimPetTypeAndName.Item2)
+                                   , tags
+                               );
+                    }
+                }));
+            ActGlobals.oFormEncounterLogs.LogTypeToColorMapping.Add(ActGlobals.oFormEncounterLogs.LogTypeToColorMapping.Count, onLogLineRead[onLogLineRead.Count - 1].Item1);
+            onLogLineRead.Add(new Tuple<Color, Regex, Action<Match>>(Color.SaddleBrown, new Regex(RegexString(Properties.EQDPSPlugin.zoneChange)), (match) =>
+            {
+                String zoneName = match.Groups["zoneName"].Value;
+                ActGlobals.oFormActMain.ChangeZone(zoneName);
+            }));
+            ActGlobals.oFormEncounterLogs.LogTypeToColorMapping.Add(ActGlobals.oFormEncounterLogs.LogTypeToColorMapping.Count, onLogLineRead[onLogLineRead.Count - 1].Item1);
+            onLogLineRead.Add(new Tuple<Color, Regex, Action<Match>>(Color.Tan, new Regex(RegexString(Properties.EQDPSPlugin.spellResist), RegexOptions.Compiled), (match) =>
+            {
+                DateTime dateTimeOfParse = ParseDateTime(match.Groups[Properties.EQDPSPlugin.dateTimeOfLogLine].Value);
+                Tuple<String, String> petTypeAndName = GetTypeAndNameForPet(CharacterNamePersonaReplace(match.Groups["attacker"].Value));
+                Tuple<String, String> victimPetTypeAndName = GetTypeAndNameForPet(match.Groups["victim"].Value);
+                if (ActGlobals.oFormActMain.SetEncounter(ActGlobals.oFormActMain.LastKnownTime, CharacterNamePersonaReplace(petTypeAndName.Item2), CharacterNamePersonaReplace(victimPetTypeAndName.Item2))){
+                    Dictionary<string, object> tags = new Dictionary<string, object>
+                {
+                    { "Outgoing", petTypeAndName.Item1 },
+                    { "Incoming", victimPetTypeAndName.Item1 }
+                };
+                if (match.Groups["special"].Success)
+                {
+                    foreach (String specialAttack in SpecialAttack)
+                            if (match.Groups["special"].Value.Contains(specialAttack))
+                                tags.Add(specialAttack, match.Groups["special"].Value.Contains(specialAttack));
+                    }
+                    AddMasterSwing(
+                                   EverQuestSwingType.Spell
+                                   , match.Groups["special"].Value.Contains(Properties.EQDPSPlugin.Critical)
+                                   , new Dnum(Dnum.NoDamage, "spell")
+                                   , dateTimeOfParse
+                                   , match.Groups["spellName"].Value
+                                   , CharacterNamePersonaReplace(petTypeAndName.Item2)
+                                   , "Hitpoints"
+                                   , CharacterNamePersonaReplace(victimPetTypeAndName.Item2)
+                                   , tags
+                               );
+                }
+            }));
+            ActGlobals.oFormEncounterLogs.LogTypeToColorMapping.Add(ActGlobals.oFormEncounterLogs.LogTypeToColorMapping.Count, onLogLineRead[onLogLineRead.Count - 1].Item1);
+            onLogLineRead.Add(new Tuple<Color, Regex, Action<Match>>(Color.Black, new Regex(RegexString(Properties.EQDPSPlugin.SlainMessage1), RegexOptions.Compiled), (match) =>
+            {
+                ParseDeathMessage(match);
+            }));
+            ActGlobals.oFormEncounterLogs.LogTypeToColorMapping.Add(ActGlobals.oFormEncounterLogs.LogTypeToColorMapping.Count, onLogLineRead[onLogLineRead.Count - 1].Item1);
+            onLogLineRead.Add(new Tuple<Color, Regex, Action<Match>>(Color.Black, new Regex(RegexString(Properties.EQDPSPlugin.SlainMessage2), RegexOptions.Compiled), (match) =>
+            {
+                ParseDeathMessage(match);
+            }));
+            ActGlobals.oFormEncounterLogs.LogTypeToColorMapping.Add(ActGlobals.oFormEncounterLogs.LogTypeToColorMapping.Count, onLogLineRead[onLogLineRead.Count - 1].Item1);
+            onLogLineRead.Add(new Tuple<Color, Regex, Action<Match>>(Color.Black, new Regex(RegexString(Properties.EQDPSPlugin.SlainMessage3), RegexOptions.Compiled), (match) =>
+            {
+                ParseDeathMessage(match);
+            }));
+            ActGlobals.oFormEncounterLogs.LogTypeToColorMapping.Add(ActGlobals.oFormEncounterLogs.LogTypeToColorMapping.Count, onLogLineRead[onLogLineRead
+                .Count - 1].Item1);
+            beforeLogLineRead.Add(new Tuple<Color, Regex, Action<Match>>(Color.ForestGreen
+            , new Regex(RegexString(Properties.EQDPSPlugin.DamageShield)
+            , RegexOptions.Compiled), (match) =>
+            {
+                DateTime dateTimeOfParse = ParseDateTime(match.Groups[Properties.EQDPSPlugin.dateTimeOfLogLine].Value);
+                Tuple<String, String> petTypeAndName = GetTypeAndNameForPet(CharacterNamePersonaReplace(match.Groups["attacker"].Value));
+                Tuple<String, String> victimPetTypeAndName = GetTypeAndNameForPet(match.Groups["victim"].Value);
+                if (ActGlobals.oFormActMain.SetEncounter(ActGlobals.oFormActMain.LastKnownTime, CharacterNamePersonaReplace(petTypeAndName.Item2), CharacterNamePersonaReplace(victimPetTypeAndName.Item2))){
+                    Dnum nonMeleeDamage = new Dnum(Int64.Parse(match.Groups["damagePoints"].Value), "damage shield");
+                Dictionary<string, object> tags = new Dictionary<string, object>
+                {
+                        { "Outgoing", petTypeAndName.Item1 },
+                        { "Incoming", victimPetTypeAndName.Item1 }
+                };
+                if (match.Groups["special"].Success)
+                {
+                    foreach (String specialAttack in SpecialAttack)
+                        if (match.Groups["special"].Value.Contains(specialAttack))
+                            tags.Add(specialAttack, match.Groups["special"].Value.Contains(specialAttack));
+                    }
+                    AddMasterSwing(EverQuestSwingType.DamageShield,
+                            match.Groups["special"].Value.Contains(Properties.EQDPSPlugin.Critical),
+                            nonMeleeDamage,
+                            dateTimeOfParse,
+                            match.Groups["damageShieldType"].Value,
+                            CharacterNamePersonaReplace(petTypeAndName.Item2),
+                            "Hitpoints",
+                            CharacterNamePersonaReplace(victimPetTypeAndName.Item2),
+                            tags);
+                }
+            }));
+            ActGlobals.oFormEncounterLogs.LogTypeToColorMapping.Add(ActGlobals.oFormEncounterLogs.LogTypeToColorMapping.Count, beforeLogLineRead[beforeLogLineRead.Count - 1].Item1);
+            beforeLogLineRead.Add(new Tuple<Color, Regex, Action<Match>>(Color.ForestGreen
+                , new Regex(RegexString(Properties.EQDPSPlugin.chilledDamageShield)
+                , RegexOptions.Compiled)
+                , (match) =>
+                {
+                    DateTime dateTimeOfParse = ParseDateTime(match.Groups[Properties.EQDPSPlugin.dateTimeOfLogLine].Value);
+                    Tuple<String, String> petTypeAndName = GetTypeAndNameForPet(CharacterNamePersonaReplace(match.Groups["attacker"].Value));
+                    Tuple<String, String> victimPetTypeAndName = GetTypeAndNameForPet(match.Groups["victim"].Value);
+                    Dictionary<string, object> tags = new Dictionary<string, object>
+                {
+                    { "Outgoing", petTypeAndName.Item1 },
+                    { "Incoming", victimPetTypeAndName.Item1 }
+                };
+                    if (match.Groups["special"].Success)
+                        chilled = new MasterSwing(EverQuestSwingType.DamageShield.GetEverQuestSwingTypeExtensionIntValue(),
+                            match.Groups["special"].Success && match.Groups["special"].Value.Contains("Critical"),
+                            new Dnum(Int64.Parse(match.Groups["damageAmount"].Value), "damage shield"),
+                            dateTimeOfParse,
+                            ActGlobals.oFormActMain.GlobalTimeSorter,
+                            "chilled",
+                            String.Empty,
+                            "Hitpoints",
+                            match.Groups["victim"].Value)
+                        { Tags = tags };
+                }));
+            ActGlobals.oFormEncounterLogs.LogTypeToColorMapping.Add(ActGlobals.oFormEncounterLogs.LogTypeToColorMapping.Count, beforeLogLineRead[beforeLogLineRead.Count - 1].Item1);
         }
 
         private void FormActMain_BeforeLogLineRead(bool isImport, LogLineEventArgs logInfo)
         {
-            if (chilled != default)
+            Tuple<Color, Regex, Action<Match>> tupleFirstOrDefault = beforeLogLineRead.FirstOrDefault((tuple) =>
             {
-                meleeMatch = regexTupleList[0].Item2.Match(logInfo.logLine);
-                Tuple<String, String> petTypeAndName = GetTypeAndNameForPet(CharacterNamePersonaReplace(meleeMatch.Groups["attacker"].Value));
-                Dictionary<String, object> newPetInfo = chilled.Tags;
-                newPetInfo.Add("Outgoing", petTypeAndName.Item1);
-                AddMasterSwing(chilled.SwingType.GetFromIntEverQuestSwingType(),
-                    chilled.Special,
-                    chilled.Damage,
-                    chilled.Time,
-                    chilled.AttackType,
-                    CharacterNamePersonaReplace(petTypeAndName.Item2),
-                    chilled.DamageType,
-                    chilled.Victim,
-                    newPetInfo
-                    );
-                chilled = default;
+                return tuple.Item2.Match(logInfo.logLine).Success;
+            });
+            if (tupleFirstOrDefault != default) tupleFirstOrDefault.Item3(tupleFirstOrDefault.Item2.Match(logInfo.logLine));
+        }
+
+        private void ParseDeathMessage(Match match)
+        {
+            DateTime dateTimeOfParse = ParseDateTime(match.Groups[Properties.EQDPSPlugin.dateTimeOfLogLine].Value);
+            Tuple<String, String> petTypeAndName = GetTypeAndNameForPet(CharacterNamePersonaReplace(match.Groups["attacker"].Value));
+            Tuple<String, String> victimPetTypeAndName = GetTypeAndNameForPet(match.Groups["victim"].Value);
+            Dictionary<string, object> tags = new Dictionary<string, object>
+            {
+                { "Outgoing", petTypeAndName.Item1 },
+                { "Incoming", victimPetTypeAndName.Item1 }
+            };
+            if (match.Groups["special"].Success)
+            {
+                foreach (String specialAttack in SpecialAttack)
+                    tags.Add(specialAttack, match.Groups["special"].Value.Contains(specialAttack));
             }
+            AddMasterSwing(EverQuestSwingType.NonMelee
+                , false
+                , Dnum.Death
+                , dateTimeOfParse
+                , "Killing"
+                , CharacterNamePersonaReplace(petTypeAndName.Item2)
+                , "Death"
+                , CharacterNamePersonaReplace(victimPetTypeAndName.Item2)
+                , tags);
         }
 
         /// <summary>
@@ -1496,18 +1793,11 @@ namespace EverQuestDPS
         /// <param name="logInfo"></param>
         private void FormActMain_OnLogLineRead(bool isImport, LogLineEventArgs logInfo)
         {
-            for (int i = 0; i < regexTupleList.Count; i++)
+            Tuple<Color, Regex, Action<Match>> tupleFirstOrDefault = onLogLineRead.FirstOrDefault((tuple) =>
             {
-                Match regexMatch = meleeMatch != default ? meleeMatch : regexTupleList[i].Item2.Match(logInfo.logLine);
-                if (regexMatch.Success)
-                {
-                    logInfo.detectedType = i + 1;
-                    ParseEverQuestLogLine(regexMatch, i + 1);
-                    if(meleeMatch != default)
-                        meleeMatch = default;
-                    return;
-                }
-            }
+                return tuple.Item2.Match(logInfo.logLine).Success;
+            });
+            if(tupleFirstOrDefault != default) tupleFirstOrDefault.Item3(tupleFirstOrDefault.Item2.Match(logInfo.logLine));
         }
         /// <summary>
         /// Examines the parameter for summoned entities and provides such type entity back to the parsing method with entity name and character name
@@ -1535,17 +1825,12 @@ namespace EverQuestDPS
             return m.Success;
         }
 
-        private static Tuple<bool, string> GetCriticalAndSpecialString(String special)
-        {
-            return new Tuple<bool, String>(special.Contains("Critical"), special.Replace("Critical", "").Replace("  ", " "));
-        }
-
         /// <summary>
         /// Construct Master Swing object
         /// </summary>
         internal static void AddMasterSwing(
             EverQuestSwingType eqst
-            , String attackSpecial
+            , bool criticalAttack
             , Dnum damage
             , DateTime dateTimeOfAttack
             , String attackName
@@ -1555,11 +1840,9 @@ namespace EverQuestDPS
             , Dictionary<string, Object> tags
             )
         {
-            Tuple<bool, string> specCrit = GetCriticalAndSpecialString(attackSpecial);
             ActGlobals.oFormActMain.AddCombatAction(new MasterSwing(
                 eqst.GetEverQuestSwingTypeExtensionIntValue()
-                , specCrit.Item1
-                , specCrit.Item2
+                , criticalAttack
                 , damage
                 , dateTimeOfAttack
                 , ActGlobals.oFormActMain.GlobalTimeSorter
@@ -1570,277 +1853,6 @@ namespace EverQuestDPS
             { Tags = tags });
         }
 
-        /// <summary>
-        /// Parses if the line is a matched action read in the log file and provides a combat action entry with the swingtype method
-        /// </summary>
-        /// <param name="regexMatch"></param>
-        /// <param name="logMatched"></param>
-        private void ParseEverQuestLogLine(Match regexMatch, int logMatched)
-        {
-            DateTime dateTimeOfParse = ParseDateTime(regexMatch.Groups[Properties.EQDPSPlugin.dateTimeOfLogLine].Value);
-            Tuple<String, String> petTypeAndName = GetTypeAndNameForPet(CharacterNamePersonaReplace(regexMatch.Groups["attacker"].Value));
-            Tuple<String, String> victimPetTypeAndName = GetTypeAndNameForPet(regexMatch.Groups["victim"].Value);
-            Dictionary<string, Object> tags = new Dictionary<string, Object>();
-
-            try
-            {
-                if(logMatched != 15)
-                    tags.Add("Outgoing", petTypeAndName.Item1);
-                tags.Add("Incoming", victimPetTypeAndName.Item1);
-            }
-            catch(Exception ex)
-            {
-                ActGlobals.oFormActMain.WriteExceptionLog(ex, regexMatch.Value);
-            }
-            if (logMatched != 17 && logMatched != 4 && logMatched != 16 && logMatched != 15 && logMatched != 13 && logMatched != 6 && ActGlobals.oFormActMain.SetEncounter(ActGlobals.oFormActMain.LastKnownTime, CharacterNamePersonaReplace(petTypeAndName.Item2), CharacterNamePersonaReplace(victimPetTypeAndName.Item2)))
-            {
-                switch (logMatched)
-                {
-                    //Melee attack
-                    case 1:
-                        Dnum damage = new Dnum(Int64.Parse(regexMatch.Groups["damageAmount"].Value), "melee");
-                        String attackName = regexMatch.Groups["attackType"].Value == "frenzies on" ? "frenzy" : regexMatch.Groups["attackType"].Value;
-                        AddMasterSwing(
-                                EverQuestSwingType.Melee
-                                , regexMatch.Groups["damageSpecial"].Success ? regexMatch.Groups["damageSpecial"].Value : String.Empty
-                                , damage
-                                , dateTimeOfParse
-                                , attackName
-                                , CharacterNamePersonaReplace(petTypeAndName.Item2)
-                                , "Hitpoints"
-                                , CharacterNamePersonaReplace(victimPetTypeAndName.Item2)
-                                , tags
-                            );
-                        break;
-                    //Non-melee damage shield
-                    case 2:
-                        Dnum nonMeleeDamage = new Dnum(Int64.Parse(regexMatch.Groups["damagePoints"].Value), "damage shield");
-                        AddMasterSwing(EverQuestSwingType.DamageShield,
-                            regexMatch.Groups["damageSpecial"].Success ? regexMatch.Groups["damageSpecial"].Value : String.Empty,
-                            nonMeleeDamage,
-                            dateTimeOfParse,
-                            regexMatch.Groups["damageShieldType"].Value,
-                            CharacterNamePersonaReplace(petTypeAndName.Item2),
-                            "Hitpoints",
-                            CharacterNamePersonaReplace(victimPetTypeAndName.Item2),
-                            tags);
-                        break;
-                    //Missed melee
-                    case 3:
-                        Dnum miss = new Dnum(Dnum.Miss, "melee");
-                        AddMasterSwing(
-                                EverQuestSwingType.Melee
-                                , regexMatch.Groups["damageSpecial"].Success ? regexMatch.Groups["damageSpecial"].Value : String.Empty
-                                , miss
-                                , dateTimeOfParse
-                                , regexMatch.Groups["attackType"].Value
-                                , CharacterNamePersonaReplace(petTypeAndName.Item2)
-                                , "Hitpoints"
-                                , CharacterNamePersonaReplace(victimPetTypeAndName.Item2)
-                                , tags
-                            );
-                        break;
-                    //Spell Cast
-                    case 5:
-                        Dnum spellCastDamage = new Dnum(Int64.Parse(regexMatch.Groups["damagePoints"].Value), regexMatch.Groups["typeOfDamage"].Value);
-                        AddMasterSwing(
-                                EverQuestSwingType.Spell | EverQuestSwingType.Instant
-                                , regexMatch.Groups["damageSpecial"].Success ? regexMatch.Groups["damageSpecial"].Value : String.Empty
-                                , spellCastDamage
-                                , dateTimeOfParse
-                                , regexMatch.Groups["attackType"].Value
-                                , CharacterNamePersonaReplace(petTypeAndName.Item2)
-                                , "Hitpoints"
-                                , CharacterNamePersonaReplace(victimPetTypeAndName.Item2)
-                                , tags
-                            );
-                        break;
-                    //Unknown
-                    case 7:
-                        MasterSwing msUnknown = new MasterSwing(
-                            EverQuestSwingType.NonMelee.GetEverQuestSwingTypeExtensionIntValue()
-                            , false
-                            , new Dnum(Dnum.Unknown)
-                            {
-                                DamageString2 = regexMatch.Value
-                            },
-                            dateTimeOfParse,
-                            ActGlobals.oFormActMain.GlobalTimeSorter,
-                            "Unknown",
-                            "Unknown",
-                            "Unknown",
-                            "Unknown")
-                        { Tags = tags };
-                        ActGlobals.oFormActMain.AddCombatAction(msUnknown);
-                        break;
-                    //Evasion
-                    case 8:
-                        AddMasterSwing(
-                               EverQuestSwingType.Melee
-                               , regexMatch.Groups["evasionSpecial"].Success ? regexMatch.Groups["evasionSpecial"].Value : String.Empty
-                               , new Dnum(Dnum.Miss, regexMatch.Groups["evasionType"].Value)
-                               , dateTimeOfParse
-                               , regexMatch.Groups["attackType"].Value
-                               , CharacterNamePersonaReplace(petTypeAndName.Item2)
-                               , "Hitpoints"
-                               , CharacterNamePersonaReplace(victimPetTypeAndName.Item2)
-                               , tags
-                           );
-                        break;
-                    //Bane damage
-                    case 9:
-                        AddMasterSwing(
-                               EverQuestSwingType.Bane
-                               , regexMatch.Groups["baneSpecial"].Success ? regexMatch.Groups["baneSpecial"].Value : String.Empty
-                               , new Dnum(Int64.Parse(regexMatch.Groups["baneDamage"].Value), "bane")
-                               , dateTimeOfParse
-                               , regexMatch.Groups["typeOfDamage"].Value
-                               , CharacterNamePersonaReplace(petTypeAndName.Item2)
-                               , "Hitpoints"
-                               , CharacterNamePersonaReplace(victimPetTypeAndName.Item2)
-                               , tags
-                           );
-                        break;
-                    //Damage over time
-                    case 10:
-                        Dnum spellDamageOverTimeDamage = new Dnum(Int64.Parse(regexMatch.Groups["damagePoints"].Value), "spell dot");
-                        AddMasterSwing(
-                               EverQuestSwingType.Spell | EverQuestSwingType.OverTime
-                               , regexMatch.Groups["spellSpecial"].Success ? regexMatch.Groups["spellSpecial"].Value : String.Empty
-                               , spellDamageOverTimeDamage
-                               , dateTimeOfParse
-                               , regexMatch.Groups["damageEffect"].Value
-                               , CharacterNamePersonaReplace(petTypeAndName.Item2)
-                               , "Hitpoints"
-                               , CharacterNamePersonaReplace(victimPetTypeAndName.Item2)
-                               , tags
-                           );
-                        break;
-                    //Focus Direct Damage Spell
-                    case 11:
-                        AddMasterSwing(
-                               EverQuestSwingType.Spell
-                               , regexMatch.Groups["focusSpecial"].Success ? regexMatch.Groups["focusSpecial"].Value : String.Empty
-                               , new Dnum(Int64.Parse(regexMatch.Groups["damagePoints"].Value), "spell focus")
-                               , dateTimeOfParse
-                               , regexMatch.Groups["damageEffect"].Value
-                               , CharacterNamePersonaReplace(petTypeAndName.Item2)
-                               , "Hitpoints"
-                               , CharacterNamePersonaReplace(victimPetTypeAndName.Item2)
-                               , tags
-                           );
-                        break;
-                    //Unknown damage shield
-                    case 12:
-                        AddMasterSwing(
-                               EverQuestSwingType.DamageShield
-                               , regexMatch.Groups["damageSpecial"].Success ? regexMatch.Groups["damageSpecial"].Value : String.Empty
-                               , new Dnum(Int64.Parse(regexMatch.Groups["damagePoints"].Value), "damage shield")
-                               , dateTimeOfParse
-                               , regexMatch.Groups["damageShieldResponse"].Value
-                               , String.Empty
-                               , "Hitpoints"
-                               , CharacterNamePersonaReplace(victimPetTypeAndName.Item2)
-                               , tags
-                           );
-                        break;
-                    //Spell resist
-                    case 14:
-                        AddMasterSwing(
-                               EverQuestSwingType.Spell
-                               , regexMatch.Groups["damageSpecial"].Success ? regexMatch.Groups["damageSpecial"].Value : String.Empty
-                               , new Dnum(Dnum.NoDamage, "spell")
-                               , dateTimeOfParse
-                               , regexMatch.Groups["spellName"].Value
-                               , CharacterNamePersonaReplace(petTypeAndName.Item2)
-                               , "Hitpoints"
-                               , CharacterNamePersonaReplace(victimPetTypeAndName.Item2)
-                               , tags
-                           );
-                        break;
-                    case 16:
-                        AddMasterSwing(
-                                EverQuestSwingType.NonMelee
-                                , String.Empty
-                                , Dnum.Death
-                                , dateTimeOfParse
-                                , "Killing"
-                                , CharacterNamePersonaReplace(petTypeAndName.Item2)
-                                , "Death"
-                                , CharacterNamePersonaReplace(victimPetTypeAndName.Item2)
-                                , tags
-                            );
-                        break;
-                    default:
-                        ArgumentOutOfRangeException argumentOutOfRangeException = new ArgumentOutOfRangeException(logMatched.GetType().Name, "Match found but no case to assign to");
-                        ActGlobals.oFormActMain.WriteExceptionLog(argumentOutOfRangeException, "Method invoked with no matching case");
-                        break;
-                }
-            }
-            else if ((logMatched == 13 || logMatched == 6) && logMatched != 15)
-            {
-                switch (logMatched)
-                {
-                    case 6:
-                        if (ActGlobals.oFormActMain.InCombat)
-                        {
-                            if (regexMatch.Groups["overHealPoints"].Success)
-                                tags["overheal"] = Int64.Parse(regexMatch.Groups["overHealPoints"].Value);
-                            AddMasterSwing(
-                                        EverQuestSwingType.Healing | ( regexMatch.Groups["overTime"].Success ? EverQuestSwingType.OverTime : EverQuestSwingType.Instant),
-                                        regexMatch.Groups["healingSpecial"].Success ? regexMatch.Groups["healingSpecial"].Value : String.Empty,
-                                        new Dnum(Int64.Parse(regexMatch.Groups["pointsOfHealing"].Value), "healing"),
-                                        dateTimeOfParse,
-                                        regexMatch.Groups["healingSpellName"].Success ? regexMatch.Groups["healingSpellName"].Value : new String("unnamed heal".ToCharArray()),
-                                        CharacterNamePersonaReplace(petTypeAndName.Item2),
-                                        "Hitpoints",
-                                        CheckIfSelf(victimPetTypeAndName.Item2) ? CharacterNamePersonaReplace(petTypeAndName.Item2) : CharacterNamePersonaReplace(victimPetTypeAndName.Item2),
-                                        tags);
-                        }
-                        break;
-                    case 13:
-                        String zoneName = regexMatch.Groups["zoneName"].Value;
-                        if (ignoreStringsForZoneParse.Contains(zoneName))
-                            break;
-                        ActGlobals.oFormActMain.ChangeZone(zoneName);
-                        break;
-                    default:
-                        break;
-                }
-            }
-            else if(logMatched == 15 && ActGlobals.oFormActMain.SetEncounter(ActGlobals.oFormActMain.LastKnownTime, CharacterNamePersonaReplace(petTypeAndName.Item2), CharacterNamePersonaReplace(victimPetTypeAndName.Item2)))
-            {
-                chilled = new MasterSwing(EverQuestSwingType.DamageShield.GetEverQuestSwingTypeExtensionIntValue(),
-                    regexMatch.Groups["damageShieldSpecial"].Success ? regexMatch.Groups["damageShieldSpecial"].Value.Contains("Critical") : false,
-                    regexMatch.Groups["damageShieldSpecial"].Success ? regexMatch.Groups["damageShieldSpecial"].Value : String.Empty,
-                    new Dnum(Int64.Parse(regexMatch.Groups["damageAmount"].Value), "damage shield"),
-                    dateTimeOfParse,
-                    ActGlobals.oFormActMain.GlobalTimeSorter,
-                    "chilled",
-                    String.Empty,
-                    "Hitpoints",
-                    regexMatch.Groups["victim"].Value)
-                { Tags = tags };
-            }
-            else if(logMatched.Equals(4) || logMatched.Equals(16) || logMatched.Equals(17))
-            {
-
-                AddMasterSwing(EverQuestSwingType.NonMelee
-                    , String.Empty
-                    , Dnum.Death
-                    , dateTimeOfParse
-                    , "Killing"
-                    , CharacterNamePersonaReplace(petTypeAndName.Item2)
-                    , "Death"
-                    , CharacterNamePersonaReplace(victimPetTypeAndName.Item2)
-                    , tags);
-
-                }
-            else
-            {
-                ActGlobals.oFormActMain.WriteExceptionLog(new Exception($"{logMatched} matched but case not set for parsing"), "Case not set for parsing but match was found");
-            }
-        }
         /// <summary>
         /// returns the charater's name from the log file if there is a match to the persona's listed in the regex used
         /// </summary>
@@ -1860,16 +1872,18 @@ namespace EverQuestDPS
 
                 if (File.Exists(dbgFilePath))
                 {
-                    watcherForDebugFile = new FileSystemWatcher(Path.GetDirectoryName(dbgFilePath), "dbg.txt");
-                    watcherForDebugFile.EnableRaisingEvents = true;
-                    watcherForDebugFile.NotifyFilter = NotifyFilters.LastWrite | NotifyFilters.Attributes | NotifyFilters.CreationTime;
+                    watcherForDebugFile = new FileSystemWatcher(Path.GetDirectoryName(dbgFilePath), "dbg.txt")
+                    {
+                        EnableRaisingEvents = true,
+                        NotifyFilter = NotifyFilters.LastWrite | NotifyFilters.Attributes | NotifyFilters.CreationTime
+                    };
                     watcherForDebugFile.Changed += Watcher_Changed;
                     watcherForDebugFile.Created += Watcher_CreatedForDebugFile;
                     sr = new StreamReader(new FileStream(dbgFilePath, FileMode.Open, FileAccess.Read, FileShare.ReadWrite));
                 }
                 else
                 {
-                    ActGlobals.oFormActMain.WriteInfoLog($"{dbgFilePath.ToString()} does not exist for reading.");
+                    ActGlobals.oFormActMain.WriteInfoLog($"{dbgFilePath} does not exist for reading.");
                     return;
                 }
 
@@ -1889,29 +1903,6 @@ namespace EverQuestDPS
         }
         #endregion
 
-        #region Statistical processing
-        Func<AttackType, double> varianceCalc = default;
-        Func<AttackType, double> populationVariance = new Func<AttackType, double>((Data) =>
-        {
-            List<MasterSwing> masterSwingList = Data.Items.ToList().Where((item) => item.Damage.Number >= 0).ToList();
-            if (Data.Swings < 1)
-                return double.NaN;
-            return (masterSwingList.Sum((item) =>
-            {
-                return Math.Pow(Data.Average - item.Damage.Number, 2.0);
-            }) / Data.Swings);
-        });
-        Func<AttackType, double> sampleVariance = new Func<AttackType, double>((Data) =>
-        {
-            List<MasterSwing> masterSwingList = Data.Items.ToList().Where((item) => item.Damage.Number >= 0).ToList();
-            if (Data.Swings < 2)
-                return double.NaN;
-            return (masterSwingList.Sum((item) =>
-            {
-                return Math.Pow(Data.Average - item.Damage.Number, 2.0);
-            }) / (Data.Swings - 1));
-        });
-
         //Variance calculation for attack damage
         /// <summary>
         /// gets the variance of the attack type for display in the ACT application
@@ -1920,18 +1911,20 @@ namespace EverQuestDPS
         /// <returns></returns>
         private double AttackTypeGetVariance(AttackType Data)
         {
-             
             if (Data.Swings > 0)
             {
-                lock(varianceMethodChangeLockObj)
-                    return varianceCalc(Data);
+                lock (varianceMethodChangeLockObj)
+                    if (StatisticalProcessors.Variance.varianceCalc != default)
+                        return StatisticalProcessors.Variance.varianceCalc(Data);
+                    else
+                        return double.NaN;
             }
             else
             {
                 return default;
             }
         }
-        #endregion
+        
         /// <summary>
         /// gets the color associated with the type of action in the log file
         /// </summary>
@@ -1977,18 +1970,6 @@ namespace EverQuestDPS
             }
         }
 
-        private void ChangeEditabilityOfLogFileTextValue(bool enabled)
-        {
-            if (directoryPathTB.InvokeRequired)
-            {
-                this.directoryPathTB.Invoke(new Action(() =>
-                {
-                    this.directoryPathTB.Enabled = enabled;
-                }));
-            }
-            else
-                this.directoryPathTB.Enabled = enabled;
-        }
         /// <summary>
         /// updates the status label with thread safety based on whether the plugin needs to invoke the codes in separate thread to update the user interface control
         /// </summary>
@@ -2013,109 +1994,8 @@ namespace EverQuestDPS
         }
 
         #endregion
-        /// <summary>
-        /// Gets the attack type crit types percentages for special attacks in the log lines
-        /// </summary>
-        /// <param name="Data"></param>
-        /// <returns>string attack crit type percentage information</returns>
-        internal string AttackTypeGetCritTypes(AttackType Data)
-        {
-            List<MasterSwing> ms = Data.Items.ToList().Where((item) => item.Damage >= 0).ToList();
-            int CripplingBlowCount = default;
-            int LockedCount = default;
-            int CriticalCount = default;
-            int StrikethroughCount = default;
-            int RiposteCount = default;
-            int NonDefinedCount = default;
-            int FlurryCount = default;
-            int LuckyCount = default;
-            int DoubleBowShotCount = default;
-            int TwincastCount = default;
-            int WildRampageCount = default;
-            int FinishingBlowCount = default;
-            int count = ms.Count;
 
-            FinishingBlowCount = ms.Where((finishingBlow) =>
-            {
-                return finishingBlow.Special.Contains(Properties.EQDPSPlugin.FinishingBlow);
-            }).Count();
-            CriticalCount = ms.Where((critital) =>
-            {
-                return critital.Critical;
-            }).Count();
-            FlurryCount = ms.Where((flurry) =>
-            {
-                return flurry.Special.Contains(Properties.EQDPSPlugin.Flurry);
-            }).Count();
-            LuckyCount = ms.Where((lucky) =>
-            {
-                return lucky.Special.Contains(Properties.EQDPSPlugin.Lucky);
-            }).Count();
-            CripplingBlowCount = ms.Where((cripplingBlow) =>
-            {
-                return cripplingBlow.Special.Contains(Properties.EQDPSPlugin.CripplingBlow);
-            }).Count();
-            LockedCount = ms.Where((locked) =>
-            {
-                return locked.Special.Contains(Properties.EQDPSPlugin.Locked);
-            }).Count();
-            StrikethroughCount = ms.Where((srikethrough) =>
-            {
-                return srikethrough.Special.Contains(Properties.EQDPSPlugin.Strikethrough);
-            }).Count();
-            RiposteCount = ms.Where((riposte) =>
-            {
-                return riposte.Special.Contains(Properties.EQDPSPlugin.Riposte);
-            }).Count();
-            DoubleBowShotCount = ms.Where((doubleBowShot) =>
-            {
-                return doubleBowShot.Special.Contains(Properties.EQDPSPlugin.DoubleBowShot);
-            }).Count();
-            TwincastCount = ms.Where((twincast) =>
-            {
-                return twincast.Special.Contains(Properties.EQDPSPlugin.Twincast);
-            }).Count();
-            WildRampageCount = ms.Where((twincast) =>
-            {
-                return twincast.Special.Contains(Properties.EQDPSPlugin.WildRampage);
-            }).Count();
-            NonDefinedCount = ms.Where((nondefined) =>
-            {
-                return !nondefined.Special.Contains(Properties.EQDPSPlugin.Twincast) &&
-                    !nondefined.Special.Contains(Properties.EQDPSPlugin.DoubleBowShot) &&
-                    !nondefined.Special.Contains(Properties.EQDPSPlugin.Riposte) &&
-                    !nondefined.Special.Contains(Properties.EQDPSPlugin.CripplingBlow) &&
-                    !nondefined.Special.Contains(Properties.EQDPSPlugin.Lucky) &&
-                    !nondefined.Special.Contains(Properties.EQDPSPlugin.Flurry) &&
-                    !nondefined.Special.Contains(Properties.EQDPSPlugin.Critical) &&
-                    !nondefined.Special.Contains(Properties.EQDPSPlugin.WildRampage) &&
-                    !nondefined.Special.Contains(Properties.EQDPSPlugin.CripplingBlow) &&
-                    !nondefined.Special.Contains(Properties.EQDPSPlugin.Strikethrough) &&
-                    !nondefined.Special.Contains(Properties.EQDPSPlugin.FinishingBlow)
-                    && nondefined.Special.Length > ActGlobals.ActLocalization.LocalizationStrings["specialAttackTerm-none"].DisplayedText.Length;
-
-            }).Count();
-
-            if (count > 0)
-            {
-                float CripplingBlowPerc = ((float)CripplingBlowCount / (float)count) * 100f;
-                float LockedPerc = ((float)LockedCount / (float)count) * 100f;
-                float CriticalPerc = ((float)CriticalCount / (float)count) * 100f;
-                float NonDefinedPerc = ((float)NonDefinedCount / (float)count) * 100f;
-                float StrikethroughPerc = ((float)StrikethroughCount / (float)count) * 100f;
-                float RipostePerc = ((float)RiposteCount / (float)count) * 100f;
-                float FlurryPerc = ((float)FlurryCount / (float)count) * 100f;
-                float LuckyPerc = ((float)LuckyCount / (float)count) * 100f;
-                float DoubleBowShotPerc = ((float)DoubleBowShotCount / (float)count) * 100f;
-                float TwincastPerc = ((float)TwincastCount / (float)count) * 100f;
-                float WildRampagePerc = ((float)WildRampageCount / (float)count) * 100f;
-                float FinishingBlowPerc = ((float)FinishingBlowCount / (float)count) * 100f;
-                return $"{CripplingBlowPerc:000.0}%CB-{LockedPerc:000.0}%Locked-{CriticalPerc:000.0}%C-{StrikethroughPerc:000.0}%S-{RipostePerc:000.0}%R-{FlurryPerc:000.0}%F-{LuckyPerc:000.0}%Lucky-{DoubleBowShotPerc:000.0}%DB-{TwincastPerc:000.0}%TC-{WildRampagePerc:000.0}%WR-{FinishingBlowPerc:000.0}%FB-{NonDefinedPerc:000.0}%ND";
-            }
-            return $"---";
-        }
-
-        private void selectDirectory_Click(object sender, EventArgs e)
+        private void SelectDirectoryClick(object sender, EventArgs e)
         {
             using (var EverQuestInstallPath = new FolderBrowserDialog())
             {
@@ -2133,27 +2013,27 @@ namespace EverQuestDPS
                 }
             }
         }
-        Object varianceMethodChangeLockObj = new Object();
+        
+        readonly Object varianceMethodChangeLockObj = new Object();
 
-        private void varianceType_CheckedChanged(object sender, EventArgs e)
+        private void VarianceTypeCheckedChanged(object sender, EventArgs e)
         {
             lock (varianceMethodChangeLockObj)
             {
-
                 if (sender.Equals(populVariance))
                 {
                     ChangeLblStatus("population variance radio button selected");
-                    varianceCalc = populationVariance;
+                    StatisticalProcessors.Variance.varianceCalc = StatisticalProcessors.Variance.populationVariance;
                 }
                 else if (sender.Equals(sampVariance))
                 {
                     ChangeLblStatus("sample variance radio button selected");
-                    varianceCalc = sampleVariance;
+                    StatisticalProcessors.Variance.varianceCalc = StatisticalProcessors.Variance.sampleVariance;
                 }
                 else
                 {
                     ChangeLblStatus("off variance radio button selected");
-                    varianceCalc = default;
+                    StatisticalProcessors.Variance.varianceCalc = default;
                 }
             }
         }

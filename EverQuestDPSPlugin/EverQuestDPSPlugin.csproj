@@ -23,7 +23,7 @@
     <Prefer32Bit>false</Prefer32Bit>
   </PropertyGroup>
   <PropertyGroup>
-    <TargetFrameworkVersion>v4.8</TargetFrameworkVersion>
+    <TargetFrameworkVersion>v4.7.2</TargetFrameworkVersion>
     <TargetFrameworkProfile />
     <ProjectGuid>{9B9301A0-40EA-4DA2-A2A4-CA46FC46A673}</ProjectGuid>
     <NuGetPackageImportStamp>
@@ -69,12 +69,19 @@
     </Compile>
     <Compile Include="Enums\EverQuestSwingType.cs" />
     <Compile Include="Localization\EverQuestDPSPluginLocalization.cs" />
+    <Compile Include="ParserObjectGenerators\AttackTypeColumnDefGenerator.cs" />
+    <Compile Include="ParserObjectGenerators\CombatantDataColumnDefGenerator.cs" />
+    <Compile Include="ParserObjectGenerators\DamageTypeDataColumnDefGenerator.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Properties\EQDPSPlugin.Designer.cs">
       <AutoGen>True</AutoGen>
       <DesignTime>True</DesignTime>
       <DependentUpon>EQDPSPlugin.resx</DependentUpon>
     </Compile>
+    <Compile Include="StatisticalProcessors\CalculatePercentageOnCriticalAttackType.cs" />
+    <Compile Include="StatisticalProcessors\CalculatePercentageOnCriticalCombatantData.cs" />
+    <Compile Include="StatisticalProcessors\CalculatePercentageOnCriticalDamageTypeData.cs" />
+    <Compile Include="StatisticalProcessors\Variance.cs" />
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="EverQuestDPSPlugin.resx">
@@ -83,10 +90,8 @@
     <EmbeddedResource Include="Properties\EQDPSPlugin.resx">
       <Generator>ResXFileCodeGenerator</Generator>
       <LastGenOutput>EQDPSPlugin.Designer.cs</LastGenOutput>
+      <SubType>Designer</SubType>
     </EmbeddedResource>
-  </ItemGroup>
-  <ItemGroup>
-    <Folder Include="Structs\" />
   </ItemGroup>
   <PropertyGroup>
     <PostBuildEvent>IF NOT EXIST "$(APPDATA)\Advanced Combat Tracker\Plugins" mkdir "$(APPDATA)\Advanced Combat Tracker\Plugins"

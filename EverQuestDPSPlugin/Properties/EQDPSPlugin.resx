@@ -121,10 +121,10 @@
     <value>backstab|throw|pierce|gore|crush|slash|hit|kick|slam|bash|shoot|strike|bite|grab|punch|scratch|rake|swipe|claw|maul|smash|frenzies on|frenzy</value>
   </data>
   <data name="Banestrike" xml:space="preserve">
-    <value>(?&lt;attacker&gt;.+) hit(|s) (?&lt;victim&gt;.+) for (?&lt;baneDamage&gt;[\d]+) points of (?&lt;typeOfDamage&gt;.+) by Banestrike (?&lt;baneAbilityRank&gt;.+\.)(?:\s\((?&lt;baneSpecial&gt;.+)\)){0,1}</value>
+    <value>(?&lt;attacker&gt;.+) hit(|s) (?&lt;victim&gt;.+) for (?&lt;baneDamage&gt;[\d]+) points of (?&lt;typeOfDamage&gt;.+) by Banestrike (?&lt;baneAbilityRank&gt;.+\.)(?:\s\((?&lt;special&gt;.+)\)){0,1}</value>
   </data>
   <data name="chilledDamageShield" xml:space="preserve">
-    <value>(?&lt;victim&gt;.+) (was|is) chilled to the bone for (?&lt;damageAmount&gt;[\d]+) point(|s) of non-melee damage.(?:[\s][\(](?&lt;damageShieldSpecial&gt;.+)[\)]){0,1}</value>
+    <value>(?&lt;victim&gt;.+) (was|is) chilled to the bone for (?&lt;damageAmount&gt;[\d]+) point(|s) of non-melee damage.(?:[\s][\(](?&lt;special&gt;.+)[\)]){0,1}</value>
   </data>
   <data name="CripplingBlow" xml:space="preserve">
     <value>Crippling Blow</value>
@@ -166,10 +166,10 @@
     <value>Flurry</value>
   </data>
   <data name="FocusDamageEffect" xml:space="preserve">
-    <value>(?&lt;victim&gt;.+) has taken (?&lt;damagePoints&gt;[\d]+) damage from (?&lt;attacker&gt;(your)+) (?&lt;damageEffect&gt;.[^.]+)\.(?:[\s][\(](?&lt;focusSpecial&gt;.+)[\)]){0,1}</value>
+    <value>(?&lt;victim&gt;.+) has taken (?&lt;damagePoints&gt;[\d]+) damage from (?&lt;attacker&gt;(your)+) (?&lt;damageEffect&gt;.[^.]+)\.(?:[\s][\(](?&lt;special&gt;.+)[\)]){0,1}</value>
   </data>
   <data name="Heal" xml:space="preserve">
-    <value>(?&lt;attacker&gt;.+?) (?:has been\s){0,1}healed (?&lt;victim&gt;^[over time]|.+?)(?:\s(?&lt;overTime&gt;over time)){0,1} for (?&lt;pointsOfHealing&gt;[\d]+)(?:\s\((?&lt;pointsOfDamage&gt;[\d]+)\)){0,1} hit point(|s)(?:\sby(?&lt;healingSpellName&gt;.+)){0,1}\.(?:[\s][\(](?&lt;damageSpecial&gt;.+)[\)]){0,1}</value>
+    <value>(?&lt;attacker&gt;.+?) (?:has been\s){0,1}healed (?&lt;victim&gt;^[over time]|.+?)(?:\s(?&lt;overTime&gt;over time)){0,1} for (?&lt;pointsOfHealing&gt;[\d]+)(?:\s\((?&lt;pointsOfDamage&gt;[\d]+)\)){0,1} hit point(|s)(?:\sby(?&lt;healingSpellName&gt;.+)){0,1}\.(?:[\s][\(](?&lt;special&gt;.+)[\)]){0,1}</value>
   </data>
   <data name="Locked" xml:space="preserve">
     <value>Locked</value>
@@ -181,7 +181,7 @@
     <value>Lucky</value>
   </data>
   <data name="MissedMeleeAttack" xml:space="preserve">
-    <value>(?&lt;attacker&gt;.+) (?:tr(?:ies|y)) to (?&lt;attackType&gt;(\S+|frenzy on)) (?&lt;victim&gt;.+), but (?:miss(?:|es))!(?:\s\((?&lt;damageSpecial&gt;.+)\)){0,1}</value>
+    <value>(?&lt;attacker&gt;.+) (?:tr(?:ies|y)) to (?&lt;attackType&gt;(\S+|frenzy on)) (?&lt;victim&gt;.+), but (?:miss(?:|es))!(?:\s\((?&lt;special&gt;.+)\)){0,1}</value>
   </data>
   <data name="petAndPlayerName" xml:space="preserve">
     <value>(?&lt;playerName&gt;.+)`s\s(?&lt;petName&gt;(pet|familiar|ward|warder))</value>
@@ -222,14 +222,17 @@
   <data name="SlainMessage3" xml:space="preserve">
     <value>(?&lt;victim&gt;.+) died.</value>
   </data>
+  <data name="specialAttackNoneLocalization" xml:space="preserve">
+    <value>specialAttackTerm-none</value>
+  </data>
   <data name="SpellDamage" xml:space="preserve">
-    <value>(?&lt;attacker&gt;.+) hit (?&lt;victim&gt;.*) for (?&lt;damagePoints&gt;[\d]+) (?:point[|s]) of (?&lt;typeOfDamage&gt;.+) damage by (?&lt;attackType&gt;.*)\.(?:[\s][\(](?&lt;damageSpecial&gt;.+)[\)]){0,1}</value>
+    <value>(?&lt;attacker&gt;.+) hit (?&lt;victim&gt;.*) for (?&lt;damagePoints&gt;[\d]+) (?:point[|s]) of (?&lt;typeOfDamage&gt;.+) damage by (?&lt;attackType&gt;.*)\.(?:[\s][\(](?&lt;special&gt;.+)[\)]){0,1}</value>
   </data>
   <data name="SpellDamageOverTime" xml:space="preserve">
-    <value>(?&lt;victim&gt;.+) has taken (?&lt;damagePoints&gt;[\d]+) damage from (?&lt;damageEffect&gt;.*) by (?&lt;attacker&gt;.*)\.(?:[\s][\(](?&lt;spellSpecial&gt;.+)[\)]){0,1}</value>
+    <value>(?&lt;victim&gt;.+) has taken (?&lt;damagePoints&gt;[\d]+) damage from (?&lt;damageEffect&gt;.*) by (?&lt;attacker&gt;.*)\.(?:[\s][\(](?&lt;special&gt;.+)[\)]){0,1}</value>
   </data>
   <data name="spellResist" xml:space="preserve">
-    <value>(?&lt;victim&gt;.+) resisted (?&lt;attacker&gt;.+) (?&lt;spellName&gt;.+)\!(?:\s\((?&lt;damageSpecial&gt;.+)\)){0,1}</value>
+    <value>(?&lt;victim&gt;.+) resisted (?&lt;attacker&gt;.+) (?&lt;spellName&gt;.+)\!(?:\s\((?&lt;special&gt;.+)\)){0,1}</value>
   </data>
   <data name="Strikethrough" xml:space="preserve">
     <value>Strikethrough</value>
@@ -245,9 +248,6 @@
   </data>
   <data name="WildRampage" xml:space="preserve">
     <value>Wild Rampage</value>
-  </data>
-  <data name="youDied" xml:space="preserve">
-    <value>(?&lt;victim&gt;.+) died.</value>
   </data>
   <data name="zoneChange" xml:space="preserve">
     <value>You have entered (?!.*an area where levitation effects do not function)(?!.*the Drunken Monkey stance adequately)(?&lt;zoneName&gt;.*).</value>
