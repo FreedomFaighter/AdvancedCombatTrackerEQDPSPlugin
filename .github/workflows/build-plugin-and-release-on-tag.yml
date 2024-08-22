@@ -5,11 +5,9 @@ name: ACT EverQuest DPS Plugin
 
 on:
   push:
-    branches-ignore: [ 'EQPlugins' ]
+    branches-ignore: [ 'main' ]
     tags:
     - "2.*.*"
-  pull_request:
-    branches: [ EQPlugins ]
   
 jobs:
   build:
