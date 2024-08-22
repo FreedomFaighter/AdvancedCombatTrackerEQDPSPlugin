@@ -1315,7 +1315,7 @@ namespace EverQuestDPS
                     , match.Groups[specialMatchGroup].Value.Contains(Properties.EQDPSPlugin.Critical)
                     , damage
                     , dateTimeOfParse
-                    , match.Groups[attackTypeMatchGroup].Success ? match.Groups["healingSpellName"].Value : new String("unnamed heal".ToCharArray())
+                    , match.Groups[attackTypeMatchGroup].Success ? match.Groups[attackTypeMatchGroup].Value : new String("unnamed heal".ToCharArray())
                     , CharacterNamePersonaReplace(petTypeAndName.Item2)
                     , typeOfResource
                     , CheckIfSelf(victimPetTypeAndName.Item2) ? CharacterNamePersonaReplace(petTypeAndName.Item2) : CharacterNamePersonaReplace(victimPetTypeAndName.Item2)
@@ -1438,7 +1438,7 @@ namespace EverQuestDPS
                         EverQuestSwingType.Healing | (match.Groups["overTime"].Success ? EverQuestSwingType.OverTime : EverQuestSwingType.Instant),
                         "special",
                         new Dnum(Int64.Parse(match.Groups["pointsOfHealing"].Value), "healing"),
-                        match.Groups["healingSpellName"].Success ? match.Groups["healingSpellName"].Value : new String("unnamed heal".ToCharArray()),
+                        "healingSpellName",
                         "Hitpoints",
                         tagsAction);
                     
