@@ -1,6 +1,7 @@
 ﻿using Advanced_Combat_Tracker;
 using System;
 using System.Linq;
+using System.Collections.Generic;
 
 namespace EverQuestDPS.StatisticalProcessors
 {
@@ -8,7 +9,7 @@ namespace EverQuestDPS.StatisticalProcessors
     {
         internal static int GetCount(this AttackType attackTypeData)
         {
-            return attackTypeData.Items.Count(item => item.Damage != Dnum.Death);
+            return attackTypeData.Items.Count(item => !(new List<Dnum> { Dnum.Death, Dnum.ThreatPosition }).Contains(item.Damage));
         }
 
         internal static int GetCountCritType(this AttackType attackTypeData, String attackTypeCritType)

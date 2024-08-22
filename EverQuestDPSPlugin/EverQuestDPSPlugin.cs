@@ -1369,18 +1369,8 @@ namespace EverQuestDPS
 
                     if (chilled != default)
                     {
-                        Dictionary<String, object> newPetInfo = chilled.Tags;
-                        newPetInfo.Add("Outgoing", petTypeAndName.Item1);
-                        AddMasterSwing(chilled.SwingType.GetFromIntEverQuestSwingType(),
-                            false,
-                            chilled.Damage,
-                            chilled.Time,
-                            chilled.AttackType,
-                            CharacterNamePersonaReplace(victimPetTypeAndName.Item2),
-                            chilled.DamageType,
-                            chilled.Victim,
-                            newPetInfo
-                            );
+                        chilled.Tags.Add("Outgoing", petTypeAndName.Item1);
+                        ActGlobals.oFormActMain.AddCombatAction(chilled);
                         chilled = default;
                     }
                     Dnum damage = new Dnum(Int64.Parse(match.Groups["damageAmount"].Value), "melee");
@@ -1588,7 +1578,6 @@ namespace EverQuestDPS
                     { "Outgoing", petTypeAndName.Item1 },
                     { "Incoming", victimPetTypeAndName.Item1 }
                 };
-                    if (match.Groups["special"].Success)
                         chilled = new MasterSwing(EverQuestSwingType.DamageShield.GetEverQuestSwingTypeExtensionIntValue(),
                             match.Groups["special"].Success && match.Groups["special"].Value.Contains("Critical"),
                             new Dnum(Int64.Parse(match.Groups["damageAmount"].Value), "damage shield"),
