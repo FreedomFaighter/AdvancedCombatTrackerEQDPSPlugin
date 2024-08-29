@@ -7,7 +7,7 @@ on:
   push:
     branches-ignore: [ 'main' ]
     tags:
-    - "2.*.*"
+    - "v2.*.*"
   
 jobs:
   build:
@@ -61,7 +61,7 @@ jobs:
             text: ACT EverQuest DPS Plugin
             webhookUrl: ${{ secrets.ACT_EQ_DISCORD_WEBHOOK }}
       - name: Upload dll file to artifact repository
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v4
         if: github.ref_type == 'tag'
         with:
           name: EQDPSPluginPath
@@ -83,7 +83,7 @@ jobs:
           release_name: Release ${{ github.ref }}
           draft: false
           prerelease: false
-      - uses: actions/download-artifact@v2
+      - uses: actions/download-artifact@v4
         with:
           name: EQDPSPluginPath
       - name: Upload Release Asset
