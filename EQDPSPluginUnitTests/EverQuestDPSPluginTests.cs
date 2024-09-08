@@ -12,10 +12,10 @@ namespace GenericStringsUnitTests
     [TestClass]
     public sealed class EverQuestDPSPluginTests
     {
-        EverQuestDPSPlugin plugin;
+        EQDPSParser plugin;
         [TestInitialize] 
         public void Init() { 
-            plugin = new EverQuestDPSPlugin();
+            plugin = new EQDPSParser();
         }
 
         [DataTestMethod]
@@ -40,13 +40,6 @@ namespace GenericStringsUnitTests
             Assert.IsFalse(plugin.CheckIfSelf(selfTest));
         }
 
-        [TestMethod]
-        [TestCategory("null arguement")]
-        public void RegexStringTestExceptionOnNullString()
-        {
-            Assert.ThrowsException<ArgumentNullException>(new Action(() => plugin.RegexString(null)));
-        }
-
         [DataTestMethod]
         [TestCategory("array contains object")]
         [DataRow("Flurry")]
@@ -61,7 +54,7 @@ namespace GenericStringsUnitTests
         [DataRow("Finishing Blow")]
         public void CriticalListContains(string str)
         {
-            Assert.IsTrue(EverQuestDPS.EverQuestDPSPlugin.SpecialAttack.Contains(str));
+            Assert.IsTrue(EverQuestDPS.EQDPSParser.SpecialAttack.Contains(str));
         }
     }
 }

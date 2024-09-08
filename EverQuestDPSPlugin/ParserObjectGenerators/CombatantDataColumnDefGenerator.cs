@@ -21,7 +21,7 @@ namespace EverQuestDPS.ParserObjectGenerators
                 },
                 (Left, Right) =>
                 {
-                    return Left.GetPercentage(ColumnName).CompareTo(ColumnName);
+                    return Left.GetPercentage(ColumnName).CompareTo(Right.GetPercentage(ColumnName));
                 }
                 );
         }
