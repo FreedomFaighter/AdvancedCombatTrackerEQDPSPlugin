@@ -5,7 +5,7 @@ using System;
 
 namespace EverQuestDPS.Localization
 {
-    internal class EverQuestDPSPluginLocalization
+    internal class EQLocalization
     {
         internal static bool TryEditLocalization(string Key, string Value)
         {
@@ -20,7 +20,7 @@ namespace EverQuestDPS.Localization
 
         internal static void EditLocalizations()
         {
-            TryEditLocalization(Properties.EQDPSPlugin.specialAttackNoneLocalization, String.Empty); // What appears in the Special column of an attack when there is no data
+            TryEditLocalization(Properties.GenericObjects.specialAttackNoneLocalization, String.Empty); // What appears in the Special column of an attack when there is no data
         }
     }
 }
