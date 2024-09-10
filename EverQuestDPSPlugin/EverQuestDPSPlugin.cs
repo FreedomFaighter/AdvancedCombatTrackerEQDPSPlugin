@@ -501,6 +501,7 @@ namespace EverQuestDPS
             EncounterData.ExportVariables.Add("encdps", new EncounterData.TextExportFormatter("encdps", "Encounter DPS", "The damage total of the combatant divided by the duration of the encounter, formatted as 12.34 -- This is more commonly used than DPS", (Data, SelectiveAllies, Extra) => { return EncounterFormatSwitch(Data, SelectiveAllies, "encdps", Extra); }));
             EncounterData.ExportVariables.Add("encdps-*", new EncounterData.TextExportFormatter("encdps-*", "Encounter DPS w/suffix", "The damage total of the combatant divided by the duration of the encounter, formatted as 12.34 -- This is more commonly used than DPS", (Data, SelectiveAllies, Extra) => { return EncounterFormatSwitch(Data, SelectiveAllies, "encdps-*", Extra); }));
             EncounterData.ExportVariables.Add("ENCDPS", new EncounterData.TextExportFormatter("ENCDPS", "Short Encounter DPS", "The damage total of the combatant divided by the duration of the encounter, formatted as 12 -- This is more commonly used than DPS", (Data, SelectiveAllies, Extra) => { return EncounterFormatSwitch(Data, SelectiveAllies, "ENCDPS", Extra); }));
+            EncounterData.ExportVariables.Add("ENCDPS-*", new EncounterData.TextExportFormatter("ENCDPS-*", "Short Encounter DPS", "The damage total of the combatant divided by the duration of the encounter, formatted as 12 -- This is more commonly used than DPS", (Data, SelectiveAllies, Extra) => { return EncounterFormatSwitch(Data, SelectiveAllies, "ENCDPS-*", Extra); }));
             EncounterData.ExportVariables.Add("hits", new EncounterData.TextExportFormatter("hits", "Hits", "The number of attack attempts that produced damage.  IE a spell successfully doing damage.", (Data, SelectiveAllies, Extra) => { return EncounterFormatSwitch(Data, SelectiveAllies, "hits", Extra); }));
             EncounterData.ExportVariables.Add("crithits", new EncounterData.TextExportFormatter("crithits", "Critical Hit Count", "The number of damaging attacks that were critical.", (Data, SelectiveAllies, Extra) => { return EncounterFormatSwitch(Data, SelectiveAllies, "crithits", Extra); }));
             EncounterData.ExportVariables.Add("crithit%", new EncounterData.TextExportFormatter("crithit%", "Critical Hit Percentage", "The percentage of damaging attacks that were critical.", (Data, SelectiveAllies, Extra) => { return EncounterFormatSwitch(Data, SelectiveAllies, "crithit%", Extra); }));
@@ -629,6 +630,7 @@ namespace EverQuestDPS
             CombatantData.ExportVariables.Add("PetDPS", new CombatantData.TextExportFormatter("PetDPS", "Pet DPS", "The damage total of the combatant's pets divided by their personal duration", (Data, Extra) => { return CombatantFormatSwitch(Data, "PetDPS", Extra); }));
             CombatantData.ExportVariables.Add("encdps", new CombatantData.TextExportFormatter("encdps", "Encounter DPS", "The damage total of the combatant divided by the duration of the encounter, formatted as 12.34 -- This is more commonly used than DPS", (Data, Extra) => { return CombatantFormatSwitch(Data, "encdps", Extra); }));
             CombatantData.ExportVariables.Add("ENCDPS", new CombatantData.TextExportFormatter("ENCDPS", "Short Encounter DPS", "The damage total of the combatant divided by the duration of the encounter, formatted as 12 -- This is more commonly used than DPS", (Data, Extra) => { return CombatantFormatSwitch(Data, "ENCDPS", Extra); }));
+            CombatantData.ExportVariables.Add("ENCDPS-*", new CombatantData.TextExportFormatter("ENCDPS", "Short Encounter DPS", "The damage total of the combatant divided by the duration of the encounter, formatted as 12 -- This is more commonly used than DPS", (Data, Extra) => { return CombatantFormatSwitch(Data, "ENCDPS-*", Extra); }));
             CombatantData.ExportVariables.Add("encdps-*", new CombatantData.TextExportFormatter("encdps-*", "Encounter DPS", "The damage total of the combatant divided by the duration of the encounter, formatted as 12.34 -- This is more commonly used than DPS", (Data, Extra) => { return CombatantFormatSwitch(Data, "encdps-*", Extra); }));
             CombatantData.ExportVariables.Add("ENCPetDPS", new CombatantData.TextExportFormatter("ENCPetDPS", "Encounter Pet DPS", "Pet DPS for the combatant dividied by the duration of the encounter", (Data, Extra) => { return CombatantFormatSwitch(Data, "ENCPetDPS", Extra); }));
             CombatantData.ExportVariables.Add("hits", new CombatantData.TextExportFormatter("hits", "Hits", "The number of attack attempts that produced damage.  IE a spell successfully doing damage.", (Data, Extra) => { return CombatantFormatSwitch(Data, "hits", Extra); }));
@@ -1165,14 +1167,15 @@ namespace EverQuestDPS
                 case "TOHIT":
                     return (SelectiveAllies.Sum((cd) => cd.ToHit) / SelectiveAllies.Count).ToString("0");
                 case "DPS":
-
+                    return String.Empty;
                 case "ENCDPS":
                     return SelectiveAllies.Sum((cd) => cd.Damage / Data.Duration.TotalSeconds).ToString("0");
                 case "DPS-*":
-
+                    return String.Empty;
                 case "ENCDPS-*":
                     return ActGlobals.oFormActMain.CreateDamageString((long)(SelectiveAllies.Sum((cd) => cd.Damage) / Data.Duration.TotalSeconds), true, false);
                 case "DPS-k":
+                    return String.Empty;
                 case "ENCDPS-k":
                     return ((SelectiveAllies.Sum((cd) => cd.Damage / Data.Duration.TotalSeconds)) / 1000.0).ToString("0");
                 case "ENCDPS-m":
@@ -1189,10 +1192,12 @@ namespace EverQuestDPS
                     lock(precisionObject)
                         return (SelectiveAllies.Sum((cd) => cd.ToHit) / SelectiveAllies.Count).ToString(precisionForDPS);
                 case "dps":
+                    return String.Empty;
                 case "encdps":
                     lock(precisionObject)
                         return (SelectiveAllies.Sum(cd => cd.Damage) / Data.Duration.TotalSeconds).ToString(precisionForDPS);
                 case "dps-k":
+                    return String.Empty;
                 case "encdps-k":
                     lock(precisionObject)
                         return ((SelectiveAllies.Sum(cd => cd.Damage) / Data.Duration.TotalSeconds) / 1000.0).ToString(precisionForDPS);
@@ -1618,7 +1623,7 @@ namespace EverQuestDPS
 
         private string NameFormatChange(CombatantData Data, int len)
         {
-            return (Data.Name.ToCharArray().Skip(len).ToString() != String.Empty || Data.Name.Length > len) ? Data.Name.Except(Data.Name.ToCharArray().Skip(len).ToString()).ToString() : Data.Name;
+            return Data.Name.Length > len ? Data.Name.Remove(len, Data.Name.Length - len).Trim() : Data.Name;
         }
 
         /// <summary>
