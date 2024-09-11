@@ -1324,7 +1324,7 @@ namespace EverQuestDPS
             onLogLineRead.Add(new Tuple<Color, Regex, Action<Match>>(Color.Red, new Regex(RegexString(Properties.PluginRegex.SpellDamage), RegexOptions.Compiled), (match) =>
             {
                 CombatMasterSwingAdd(match,
-                        EQSwingType.Spell
+                        EQSwingType.DirectDamageSpell
                         , "special"
                         , new Dnum(Int64.Parse(match.Groups["damagePoints"].Value), match.Groups["typeOfDamage"].Value)
                         , "attackType"
@@ -1401,7 +1401,7 @@ namespace EverQuestDPS
                 (match) =>
                 {
                     CombatMasterSwingAdd(match,
-                           EQSwingType.Spell
+                           EQSwingType.SpellOverTime
                            , "special"
                            , new Dnum(Int64.Parse(match.Groups["damagePoints"].Value), "spell dot")
                            , "damageEffect"
