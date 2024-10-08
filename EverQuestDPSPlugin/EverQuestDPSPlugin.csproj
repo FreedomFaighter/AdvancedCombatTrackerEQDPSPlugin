@@ -64,12 +64,12 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Classes\EQSwingType.cs" />
     <Compile Include="Properties\CombatData.Designer.cs">
       <AutoGen>True</AutoGen>
       <DesignTime>True</DesignTime>
       <DependentUpon>CombatData.resx</DependentUpon>
     </Compile>
-    <Compile Include="Enums\EQSwingType.cs" />
     <Compile Include="Enums\Specials.cs" />
     <Compile Include="Enums\SummonedEntity.cs" />
     <Compile Include="EverQuestDPSPlugin.cs">
@@ -121,6 +121,7 @@
   <ItemGroup>
     <Resource Include="Resources\logo.png" />
   </ItemGroup>
+  <ItemGroup />
   <PropertyGroup>
     <PostBuildEvent>IF NOT EXIST "$(APPDATA)\Advanced Combat Tracker\Plugins" mkdir "$(APPDATA)\Advanced Combat Tracker\Plugins"
 IF Debug==$(ConfigurationName) copy /Y $(TargetPath) "$(APPDATA)\Advanced Combat Tracker\Plugins"</PostBuildEvent>
