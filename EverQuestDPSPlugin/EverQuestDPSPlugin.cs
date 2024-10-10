@@ -13,6 +13,7 @@ using EverQuestDPS.Enums;
 using EverQuestDPS.ParserObjectGenerators;
 using EverQuestDPS.Extensions;
 using EverQuestDPS.Properties;
+using EverQuestDPS.Classes;
 
 /*
 * Project: EverQuest DPS Plugin
@@ -215,7 +216,7 @@ namespace EverQuestDPS
         private NumericUpDown UpDownForPrecision;
         private Label digitsForPrecision;
         String EverQuestDirectoryPath;
-        String precisionForDPS = default;
+        long precisionForDPS;
         readonly object precisionObject = new object();
         #endregion
 
@@ -259,9 +260,9 @@ namespace EverQuestDPS
                             AutoSize = true,
                             Text = "Find the applicable options in the Options tab, Data Correction section."
                         };
-                        Image img = new Bitmap(Properties.GenericObjects.logo);
+                        //Image img = new Bitmap(Properties.GenericObjects.logo);
 
-                        lblConfig.Image = img;
+                        //lblConfig.Image = img;
                         lblConfig.ImageAlign = ContentAlignment.MiddleLeft;
                         lblConfig.TextAlign = ContentAlignment.MiddleCenter;
 
@@ -398,13 +399,8 @@ namespace EverQuestDPS
                         StatisticalProcessors.Variance.varianceCalc = default;
                     if (!Directory.Exists(directoryPathTB.Text))
                     {
-                        MessageBox.Show($"directory path for EQ Game directory {directoryPathTB.Text}");
-                    }
-                    else
-                    {
-                        EverQuestDirectoryPath = directoryPathTB.Text;
-                    }
-                    
+                        MessageBox.Show($"directory path for EQ Game does not exist");
+                    }                   
                 }
                 else
                 {
@@ -413,7 +409,7 @@ namespace EverQuestDPS
                     varianceOff.Checked = true;
                     StatisticalProcessors.Variance.varianceCalc = default;
                     VarianceTypeCheckedChanged(this, EventArgs.Empty);
-                    SetPrecisionForDPS();
+                    OnUpDownValueChanged(this, EventArgs.Empty);
                 }
             });
 
@@ -468,7 +464,7 @@ namespace EverQuestDPS
         private void SetupEverQuestEnvironment()
         {
             CultureInfo usCulture = new CultureInfo(Properties.GenericObjects.cultureSetting);   // This is for SQL syntax; do not change
-            ActGlobals.blockIsHit = true;
+            //ActGlobals.blockIsHit = true;
             EncounterData.ColumnDefs.Clear();
             //Do not change the SqlDataName while doing localization
             EncounterData.ColumnDefs.Add("EncId", new EncounterData.ColumnDef("EncId", false, "CHAR(8)", "EncId", (Data) => { return string.Empty; }, (Data) => { return Data.EncId; }));
@@ -573,7 +569,7 @@ namespace EverQuestDPS
         {
             {GenerateCombatDataStringOut(CombatData.AutoAttack), new CombatantData.DamageTypeDef(GenerateCombatDataStringOut(CombatData.AutoAttack), -1, Color.DarkGoldenrod)},
             {GenerateCombatDataStringOut(CombatData.SkillAbility), new CombatantData.DamageTypeDef(GenerateCombatDataStringOut(CombatData.SkillAbility), -1, Color.DarkOrange)},
-            {"Outgoing Damage", new CombatantData.DamageTypeDef("Outgoing Damage", -1, Color.Orange)},
+            {"Outgoing Damage", new CombatantData.DamageTypeDef("Outgoing Damage", 0, Color.Orange)},
             {GenerateCombatDataStringOut(CombatData.DirectDamageSpell), new CombatantData.DamageTypeDef(GenerateCombatDataStringOut(CombatData.DirectDamageSpell), -1, Color.LightCyan) },
             {GenerateCombatDataStringOut(CombatData.Bane), new CombatantData.DamageTypeDef(GenerateCombatDataStringOut(CombatData.Bane), -1, Color.LightGreen) },
                 {GenerateCombatDataStringOut(CombatData.DamageShield), new CombatantData.DamageTypeDef(GenerateCombatDataStringOut(CombatData.DamageShield), -1, Color.Brown) },
@@ -592,39 +588,39 @@ namespace EverQuestDPS
         };
             CombatantData.SwingTypeToDamageTypeDataLinksOutgoing = new SortedDictionary<int, List<string>>
         {
-            {EQSwingType.Melee.GetEQSwingTypeExtensionIntValue(), new List<string> { "Auto-Attack (Out)" } },
-            {EQSwingType.NonMelee.GetEQSwingTypeExtensionIntValue(), new List<string> { "Skill/Ability (Out)" } },
-            {(EQSwingType.DirectDamageSpell).GetEQSwingTypeExtensionIntValue(), new List<string> { "Direct Damage Spell (Out)"} },
-                {EQSwingType.Bane.GetEQSwingTypeExtensionIntValue(), new List<string>{"Bane (Out)"} },
-            {EQSwingType.InstantHealing.GetEQSwingTypeExtensionIntValue(), new List<string> { "Instant Heal (Out)" } },
-            {EQSwingType.HealingOverTime.GetEQSwingTypeExtensionIntValue(), new List<string> { "Heal Over Time (Out)" } },
-                {EQSwingType.DamageShield.GetEQSwingTypeExtensionIntValue(), new List<string> { "Damage Shield (Out)"} },
+            {EQSwingType.Melee, new List<string> { "Auto-Attack (Out)" } },
+            {EQSwingType.NonMelee, new List<string> { "Skill/Ability (Out)" } },
+            {EQSwingType.DirectDamageSpell, new List<string> { "Direct Damage Spell (Out)"} },
+                {EQSwingType.Bane, new List<string>{"Bane (Out)"} },
+            {EQSwingType.InstantHealing, new List<string> { "Instant Heal (Out)" } },
+            {EQSwingType.HealingOverTime, new List<string> { "Heal Over Time (Out)" } },
+                {EQSwingType.DamageShield, new List<string> { "Damage Shield (Out)"} },
         };
             CombatantData.SwingTypeToDamageTypeDataLinksIncoming = new SortedDictionary<int, List<string>>
         {
-            {EQSwingType.Melee.GetEQSwingTypeExtensionIntValue(), new List<string> { "Incoming Damage" } },
-            {EQSwingType.NonMelee.GetEQSwingTypeExtensionIntValue(), new List<string> { "Incoming NonMelee Damage", "Incoming Damage" } },
-            {(EQSwingType.DirectDamageSpell).GetEQSwingTypeExtensionIntValue(), new List<string> { "Direct Damage Spell (Inc)", "Incoming Damage" } },
-            {(EQSwingType.InstantHealing).GetEQSwingTypeExtensionIntValue(), new List<string> { "Instant Heal (Inc)" } },
-            {(EQSwingType.SpellOverTime).GetEQSwingTypeExtensionIntValue(), new List<string> {"Damage Over Time Spell (Inc)", "Incoming Damage" } },
-            {EQSwingType.HealingOverTime.GetEQSwingTypeExtensionIntValue(), new List<string> { "Heal Over Time (Inc)" } },
-                {EQSwingType.DamageShield.GetEQSwingTypeExtensionIntValue(), new List<string> { "Damage Shield (Inc)"} },
+            {EQSwingType.Melee, new List<string> { "Incoming Damage" } },
+            {EQSwingType.NonMelee, new List<string> { "Incoming NonMelee Damage", "Incoming Damage" } },
+            {EQSwingType.DirectDamageSpell, new List<string> { "Direct Damage Spell (Inc)", "Incoming Damage" } },
+            {EQSwingType.InstantHealing, new List<string> { "Instant Heal (Inc)" } },
+            {EQSwingType.SpellOverTime, new List<string> {"Damage Over Time Spell (Inc)", "Incoming Damage" } },
+            {EQSwingType.HealingOverTime, new List<string> { "Heal Over Time (Inc)" } },
+                {EQSwingType.DamageShield, new List<string> { "Damage Shield (Inc)"} },
         };
 
             CombatantData.DamageSwingTypes = new List<int>()
             {
-                EQSwingType.Bane.GetEQSwingTypeExtensionIntValue(),
-                EQSwingType.DamageShield.GetEQSwingTypeExtensionIntValue(),
-                EQSwingType.DirectDamageSpell.GetEQSwingTypeExtensionIntValue(),
-                EQSwingType.SpellOverTime.GetEQSwingTypeExtensionIntValue(),
-                EQSwingType.Melee.GetEQSwingTypeExtensionIntValue(),
-                EQSwingType.NonMelee.GetEQSwingTypeExtensionIntValue()
+                EQSwingType.Bane,
+                EQSwingType.DamageShield,
+                EQSwingType.DirectDamageSpell,
+                EQSwingType.SpellOverTime,
+                EQSwingType.Melee,
+                EQSwingType.NonMelee
             };
 
             CombatantData.HealingSwingTypes = new List<int>()
             {
-                EQSwingType.HealingOverTime.GetEQSwingTypeExtensionIntValue(),
-                EQSwingType.Instant.GetEQSwingTypeExtensionIntValue()
+                EQSwingType.HealingOverTime,
+                EQSwingType.InstantHealing
             };
 
             CombatantData.ExportVariables.Clear();
@@ -698,7 +694,7 @@ namespace EverQuestDPS
             DamageTypeData.ColumnDefs.Add("EncDPS", new DamageTypeData.ColumnDef("EncDPS", true, "DOUBLE", "EncDPS", (Data) => { return Data.EncDPS.ToString(); }, (Data) => { return Data.EncDPS.ToString(usCulture); }));
             DamageTypeData.ColumnDefs.Add("CharDPS", new DamageTypeData.ColumnDef("CharDPS", false, "DOUBLE", "CharDPS", (Data) => { return Data.CharDPS.ToString(); }, (Data) => { return Data.CharDPS.ToString(usCulture); }));
             DamageTypeData.ColumnDefs.Add("DPS", new DamageTypeData.ColumnDef("DPS", false, "DOUBLE", "DPS", (Data) => { return Data.DPS.ToString(); }, (Data) => { return Data.DPS.ToString(usCulture); }));
-            DamageTypeData.ColumnDefs.Add("Average", new DamageTypeData.ColumnDef("Average", true, "DOUBLE", "Average", (Data) => { return Data.Average.ToString(precisionForDPS); }, (Data) => { return Data.Average.ToString(precisionForDPS); }));
+            DamageTypeData.ColumnDefs.Add("Average", new DamageTypeData.ColumnDef("Average", true, "DOUBLE", "Average", (Data) => { return Data.Average.ToString(); }, (Data) => { return Data.Average.ToString(); }));
             DamageTypeData.ColumnDefs.Add("Median", new DamageTypeData.ColumnDef("Median", false, "BIGINT", "Median", (Data) => { return Data.Median.ToString(); }, (Data) => { return Data.Median.ToString(); }));
             DamageTypeData.ColumnDefs.Add("MinHit", new DamageTypeData.ColumnDef("MinHit", true, "BIGINT", "MinHit", (Data) => { return Data.Swings == 0 ? String.Empty : Data.MinHit.ToString(); }, (Data) => { return Data.Swings == 0 ? String.Empty : Data.MinHit.ToString(); }));
             DamageTypeData.ColumnDefs.Add("MaxHit", new DamageTypeData.ColumnDef("MaxHit", true, "BIGINT", "MaxHit", (Data) => { return Data.Swings == 0 ? String.Empty : Data.MaxHit.ToString(); }, (Data) => { return Data.Swings == 0 ? String.Empty : Data.MaxHit.ToString(); }));
@@ -708,7 +704,7 @@ namespace EverQuestDPS
             DamageTypeData.ColumnDefs.Add("Misses", new DamageTypeData.ColumnDef("Misses", false, "INT", "Misses", (Data) => { return Data.Misses.ToString(); }, (Data) => { return Data.Misses.ToString(); }));
             DamageTypeData.ColumnDefs.Add("Swings", new DamageTypeData.ColumnDef("Swings", true, "INT", "Swings", (Data) => { return Data.Swings.ToString(); }, (Data) => { return Data.Swings.ToString(); }));
             DamageTypeData.ColumnDefs.Add("ToHit", new DamageTypeData.ColumnDef("ToHit", false, "FLOAT", "ToHit", (Data) => { return Data.ToHit.ToString(); }, (Data) => { return Data.ToHit.ToString(); }));
-            DamageTypeData.ColumnDefs.Add("AvgDelay", new DamageTypeData.ColumnDef("AvgDelay", false, "FLOAT", "AverageDelay", (Data) => { return Data.AverageDelay.ToString(precisionForDPS); }, (Data) => { return Data.AverageDelay.ToString(precisionForDPS); }));
+            DamageTypeData.ColumnDefs.Add("AvgDelay", new DamageTypeData.ColumnDef("AvgDelay", false, "FLOAT", "AverageDelay", (Data) => { return Data.AverageDelay.ToString(); }, (Data) => { return Data.AverageDelay.ToString(); }));
             DamageTypeData.ColumnDefs.Add("Crit%", new DamageTypeData.ColumnDef("Crit%", false, "VARCHAR(8)", "CritPerc", (Data) => { return Data.CritPerc.ToString("0'%"); }, (Data) => { return Data.CritPerc.ToString("0'%"); }));
 
             AttackType.ColumnDefs.Clear();
@@ -729,9 +725,9 @@ namespace EverQuestDPS
             AttackType.ColumnDefs.Add("EncDPS", new AttackType.ColumnDef("EncDPS", true, "DOUBLE", "EncDPS", (Data) => { return Data.EncDPS.ToString(); }, (Data) => { return Data.EncDPS.ToString(usCulture); }, (Left, Right) => { return Left.EncDPS.CompareTo(Right.EncDPS); }));
             AttackType.ColumnDefs.Add("CharDPS", new AttackType.ColumnDef("CharDPS", false, "DOUBLE", "CharDPS", (Data) => { return Data.CharDPS.ToString(); }, (Data) => { return Data.CharDPS.ToString(usCulture); }, (Left, Right) => { return Left.CharDPS.CompareTo(Right.CharDPS); }));
             AttackType.ColumnDefs.Add("DPS", new AttackType.ColumnDef("DPS", false, "DOUBLE", "DPS", (Data) => { return Data.DPS.ToString(); }, (Data) => { return Data.DPS.ToString(usCulture); }, (Left, Right) => { return Left.DPS.CompareTo(Right.DPS); }));
-            AttackType.ColumnDefs.Add("Average", new AttackType.ColumnDef("Average", true, "DOUBLE", "Average", (Data) => { return Data.Average.ToString(precisionForDPS); }, (Data) => { return Data.Average.ToString(precisionForDPS); }, (Left, Right) => { return Left.Average.CompareTo(Right.Average); }));
+            AttackType.ColumnDefs.Add("Average", new AttackType.ColumnDef("Average", true, "DOUBLE", "Average", (Data) => { return Data.Average.ToString(); }, (Data) => { return Data.Average.ToString(); }, (Left, Right) => { return Left.Average.CompareTo(Right.Average); }));
             AttackType.ColumnDefs.Add("Median", new AttackType.ColumnDef("Median", true, "BIGINT", "Median", (Data) => { return Data.Median.ToString(); }, (Data) => { return Data.Median.ToString(); }, (Left, Right) => { return Left.Median.CompareTo(Right.Median); }));
-            AttackType.ColumnDefs.Add("StdDev", new AttackType.ColumnDef("StdDev", true, "DOUBLE", "StdDev", (Data) => { return Math.Sqrt(AttackTypeGetVariance(Data)).ToString(precisionForDPS); }, (Data) => { return Math.Sqrt(AttackTypeGetVariance(Data)).ToString(precisionForDPS); }, (Left, Right) => { return Math.Sqrt(AttackTypeGetVariance(Left)).CompareTo(Math.Sqrt(AttackTypeGetVariance(Right))); }));
+            AttackType.ColumnDefs.Add("StdDev", new AttackType.ColumnDef("StdDev", true, "DOUBLE", "StdDev", (Data) => { return Math.Sqrt(AttackTypeGetVariance(Data)).ToString(); }, (Data) => { return Math.Sqrt(AttackTypeGetVariance(Data)).ToString(); }, (Left, Right) => { return Math.Sqrt(AttackTypeGetVariance(Left)).CompareTo(Math.Sqrt(AttackTypeGetVariance(Right))); }));
             AttackType.ColumnDefs.Add("Max", new AttackType.ColumnDef("Max", true, "BIGINT", "Max", (Data) => { return Data.MaxHit.ToString(); }, (Data) => { return Data.MaxHit.ToString(); }, (Left, Right) => { return Left.MaxHit.CompareTo(Right.MaxHit); }));
             AttackType.ColumnDefs.Add("Min", new AttackType.ColumnDef("Min", true, "BIGINT", "Min", (Data) => { return Data.MinHit.ToString(); }, (Data) => { return Data.MinHit.ToString(); }, (Left, Right) => { return Left.MinHit.CompareTo(Right.MinHit); }));
             SetupCritPercentage(SpecialAttack);
@@ -799,7 +795,7 @@ namespace EverQuestDPS
             );
             SetupSpecialTypeForMasterSwing();
             foreach (KeyValuePair<string, MasterSwing.ColumnDef> pair in MasterSwing.ColumnDefs)
-                pair.Value.GetCellForeColor = (Data) => { return GetSwingTypeColor((EQSwingType)Data.SwingType); };
+                pair.Value.GetCellForeColor = (Data) => { return GetSwingTypeColor(Data.SwingType); };
 
             ActGlobals.oFormActMain.ValidateLists();
             ActGlobals.oFormActMain.ValidateTableSetup();
@@ -985,34 +981,34 @@ namespace EverQuestDPS
                     return ActGlobals.oFormActMain.CreateDamageString((long)Data.EncHPS, true, false);
                 case "tohit":
                     lock(precisionObject)
-                        return Data.ToHit.ToString(precisionForDPS);
+                        return Data.ToHit.ToString($"F{precisionForDPS}");
                 case "dps":
                     lock(precisionObject)
-                        return Data.DPS.ToString(precisionForDPS);
+                        return Data.DPS.ToString($"F{precisionForDPS}");
                 case "dps-k":
                     lock(precisionObject)
-                        return (Data.DPS / 1000.0).ToString(precisionForDPS);
+                        return (Data.DPS / 1000.0).ToString($"F{precisionForDPS}");
                 case "dps-*":
                     return ActGlobals.oFormActMain.CreateDamageString((long)Data.DPS, true, true);
                 case "encdps":
                     lock(precisionObject)
-                       return Data.EncDPS.ToString(precisionForDPS);
+                       return Data.EncDPS.ToString($"F{precisionForDPS}");
                 case "encdps-k":
                     lock(precisionObject)
-                       return (Data.EncDPS / 1000.0).ToString(precisionForDPS);
+                       return (Data.EncDPS / 1000.0).ToString($"F{precisionForDPS}");
                 case "encdps-m":
                     lock(precisionObject)
-                        return (Data.EncDPS / 1000000.0).ToString(precisionForDPS);
+                        return (Data.EncDPS / 1000000.0).ToString($"F{precisionForDPS}");
                 case "encdps-*":
                     return ActGlobals.oFormActMain.CreateDamageString((long)Data.EncDPS, true, true);
                 case "enchps":
-                    return Data.EncHPS.ToString(precisionForDPS);
+                    return Data.EncHPS.ToString($"F{precisionForDPS}");
                 case "enchps-k":
                     lock(precisionObject)
-                        return (Data.EncHPS / 1000.0).ToString(precisionForDPS);
+                        return (Data.EncHPS / 1000.0).ToString($"F{precisionForDPS}");
                 case "enchps-m":
                     lock(precisionObject)
-                        return (Data.EncHPS / 1000000.0).ToString(precisionForDPS);
+                        return (Data.EncHPS / 1000000.0).ToString($"F{precisionForDPS}");
                 case "enchps-*":
                     return ActGlobals.oFormActMain.CreateDamageString((long)Data.EncHPS, true, true);
                 case "healstaken":
@@ -1199,29 +1195,29 @@ namespace EverQuestDPS
                     return ActGlobals.oFormActMain.CreateDamageString((long)(SelectiveAllies.Sum((cd) => cd.Healed) / Data.Duration.TotalSeconds), true, false);
                 case "tohit":
                     lock(precisionObject)
-                        return (SelectiveAllies.Sum((cd) => cd.ToHit) / SelectiveAllies.Count).ToString(precisionForDPS);
+                        return (SelectiveAllies.Sum((cd) => cd.ToHit) / SelectiveAllies.Count).ToString($"F{precisionForDPS}");
                 case "dps":
                 case "encdps":
                     lock(precisionObject)
-                        return (SelectiveAllies.Sum(cd => cd.Damage) / Data.Duration.TotalSeconds).ToString(precisionForDPS);
+                        return (SelectiveAllies.Sum(cd => cd.Damage) / Data.Duration.TotalSeconds).ToString($"F{precisionForDPS}");
                 case "dps-k":
                 case "encdps-k":
                     lock(precisionObject)
-                        return ((SelectiveAllies.Sum(cd => cd.Damage) / Data.Duration.TotalSeconds) / Math.Pow(1, 4)).ToString(precisionForDPS);
+                        return ((SelectiveAllies.Sum(cd => cd.Damage) / Data.Duration.TotalSeconds) / Math.Pow(1, 4)).ToString($"F{precisionForDPS}");
                 case "encdps-m":
                     lock(precisionObject)
-                        return ((SelectiveAllies.Sum(cd => cd.Damage) / Data.Duration.TotalSeconds) / Math.Pow(1, 7)).ToString(precisionForDPS);
+                        return ((SelectiveAllies.Sum(cd => cd.Damage) / Data.Duration.TotalSeconds) / Math.Pow(1, 7)).ToString($"F{precisionForDPS}");
                 case "encdps-*":
                     return ActGlobals.oFormActMain.CreateDamageString((long)(SelectiveAllies.Sum(cd => cd.Damage) / Data.Duration.TotalSeconds), true, true);
                 case "enchps":
                     lock(precisionObject)
-                       return (SelectiveAllies.Sum((cd) => cd.Healed) / Data.Duration.TotalSeconds).ToString(precisionForDPS);
+                       return (SelectiveAllies.Sum((cd) => cd.Healed) / Data.Duration.TotalSeconds).ToString($"F{precisionForDPS}");
                 case "enchps-k":
                     lock(precisionObject)
-                        return ((SelectiveAllies.Sum((cd) => cd.Healed) / Data.Duration.TotalSeconds) / Math.Pow(1, 4)).ToString(precisionForDPS);
+                        return ((SelectiveAllies.Sum((cd) => cd.Healed) / Data.Duration.TotalSeconds) / Math.Pow(1, 4)).ToString($"F{precisionForDPS}");
                 case "enchps-m":
                     lock(precisionObject)
-                        return ((SelectiveAllies.Sum((cd) => cd.Healed) / Data.Duration.TotalSeconds) / Math.Pow(1, 7)).ToString(precisionForDPS);
+                        return ((SelectiveAllies.Sum((cd) => cd.Healed) / Data.Duration.TotalSeconds) / Math.Pow(1, 7)).ToString($"F{precisionForDPS}");
                 case "enchps-*":
                     return ActGlobals.oFormActMain.CreateDamageString((long)(SelectiveAllies.Sum((cd) => cd.Healed) / Data.Duration.TotalSeconds), true, true);
                 case "healstaken":
@@ -1278,13 +1274,12 @@ namespace EverQuestDPS
             String MeleeAttack = @"(?<attacker>.+) (?<attackType>" + $@"{Properties.GenericObjects.attackTypes}" + @")(|s|es|bed) (?<victim>.+)(\sfor\s)(?<damageAmount>[\d]+) ((?:point)(?:s|)) of damage.(?:\s\((?<" + $@"{ Properties.GenericObjects.DamageSpecial}" + @">.+)\)){0,1}";
             String Evasion = @"(?<attacker>.*) tries to (?<attackType>\S+) (?:(?<victim>(.+)), but \1) (?:(?<evasionType>" + $@"{Properties.PluginRegex.evasionTypes}" + @"))(?:\swith (your|his|hers|its) (shield|staff)){0,1}!(?:[\s][\(](?<evasionSpecial>.+)[\)]){0,1}";
             ActGlobals.oFormEncounterLogs.LogTypeToColorMapping.Clear();
-            onLogLineRead.Clear();
             onLogLineRead.Add(new Tuple<Color, Regex, Action<Match>>(Color.Red, new Regex(RegexString(MeleeAttack), RegexOptions.Compiled), (match) =>
             {
                 Tuple<String, String> petTypeAndName = GetPetTypeAndPlayerName(ReplaceSelfWithCharacterName(match.Groups["attacker"].Value));
                 Tuple<String, String> victimPetTypeAndName = GetPetTypeAndPlayerName(match.Groups["victim"].Value);
                 DateTime dateTimeOfLogLine = ParseEQTimeStampFromLog(match.Groups[Properties.GenericObjects.dateTimeOfLogLine].Value);
-
+                
                 if (ActGlobals.oFormActMain.SetEncounter(ActGlobals.oFormActMain.LastKnownTime, ReplaceSelfWithCharacterName(petTypeAndName.Item2), ReplaceSelfWithCharacterName(victimPetTypeAndName.Item2)))
                 {
                     if (chilled != default)
@@ -1293,7 +1288,7 @@ namespace EverQuestDPS
                         ActGlobals.oFormActMain.AddCombatAction(chilled);
                         chilled = default;
                     }
-                    Dnum damage = new Dnum(Int64.Parse(match.Groups["damageAmount"].Value));
+                    Dnum damage = new Dnum(Int64.Parse(match.Groups["damageAmount"].Value), "melee");
                     String attackName = match.Groups["attackType"].Value == "frenzies on" ? "frenzy" : match.Groups["attackType"].Value;
                     Dictionary<string, object> tags = new Dictionary<string, object>
                     {
@@ -1358,7 +1353,7 @@ namespace EverQuestDPS
                 Tuple<String, String> petTypeAndName = GetPetTypeAndPlayerName(ReplaceSelfWithCharacterName(match.Groups["attacker"].Value));
                 Tuple<String, String> victimPetTypeAndName = GetPetTypeAndPlayerName(match.Groups["victim"].Value);
                 MasterSwing msUnknown = new MasterSwing(
-                            EQSwingType.NonMelee.GetEQSwingTypeExtensionIntValue()
+                            EQSwingType.NonMelee
                             , false
                             , new Dnum(Dnum.Unknown)
                             {
@@ -1486,13 +1481,13 @@ namespace EverQuestDPS
                     { Properties.GenericObjects.OutgoingTag, petTypeAndName.Item1 },
                     { Properties.GenericObjects.IncomingTag, victimPetTypeAndName.Item1 }
                 };
-                    chilled = new MasterSwing(EQSwingType.NonMelee.GetEQSwingTypeExtensionIntValue(),
+                    chilled = new MasterSwing(EQSwingType.NonMelee,
                         match.Groups["special"].Success && match.Groups["special"].Value.Contains("Critical"),
                         new Dnum(Int64.Parse(match.Groups["damageAmount"].Value), "damage shield"),
                         dateTimeOfParse,
                         ActGlobals.oFormActMain.GlobalTimeSorter,
                         "chilled",
-                        String.Empty,
+                        null,
                         "Hitpoints",
                         match.Groups["victim"].Value)
                     { Tags = tags };
@@ -1505,7 +1500,7 @@ namespace EverQuestDPS
         /// </summary>
         /// <param name="eqst"></param>
         /// <returns></returns>
-        private Color GetSwingTypeColor(EQSwingType eqst)
+        private Color GetSwingTypeColor(int eqst)
         {
             switch (eqst)
             {
@@ -1573,7 +1568,7 @@ namespace EverQuestDPS
         }
 
         #region String Parsing
-        private void CombatMasterSwingAdd(Match match, EQSwingType eqst, String specialMatchGroup, Dnum damage, String attackTypeMatchGroup, String typeOfResource, Action<Dictionary<string, object>> tagsAction)
+        private void CombatMasterSwingAdd(Match match, int eqst, String specialMatchGroup, Dnum damage, String attackTypeMatchGroup, String typeOfResource, Action<Dictionary<string, object>> tagsAction)
         {
             DateTime dateTimeOfLogLine = ParseEQTimeStampFromLog(match.Groups[Properties.GenericObjects.dateTimeOfLogLine].Value);
             Tuple<String, String> petTypeAndName = GetPetTypeAndPlayerName(ReplaceSelfWithCharacterName(match.Groups["attacker"].Value));
@@ -1586,7 +1581,7 @@ namespace EverQuestDPS
             tags[Properties.GenericObjects.SpecialStringTag] = SpecialsParse(match.Groups["special"]);
             if (tagsAction != default)
                 tagsAction(tags);
-            if (eqst.HasFlag(EQSwingType.Healing))
+            if (EQSwingType.Healing.Equals(eqst))
             {
                 if (ActGlobals.oFormActMain.InCombat)
                 {
@@ -1666,7 +1661,7 @@ namespace EverQuestDPS
         /// Construct Master Swing object
         /// </summary>
         internal static void AddMasterSwing(
-            EQSwingType eqst
+            int eqst
             , bool criticalAttack
             , Dnum damage
             , String attackName
@@ -1678,7 +1673,7 @@ namespace EverQuestDPS
             )
         {
             ActGlobals.oFormActMain.AddCombatAction(new MasterSwing(
-                eqst.GetEQSwingTypeExtensionIntValue()
+                eqst
                 , criticalAttack
                 , damage
                 , dateTimeofLogline
@@ -1752,17 +1747,11 @@ namespace EverQuestDPS
         #endregion
 
         #region UI Elements
-
-        private void SetPrecisionForDPS()
-        {
-            lock (precisionObject)
-                precisionForDPS = $"F{(uint)(UpDownForPrecision).Value}";
-        }
-
         #region Control Event Methods
         private void OnUpDownValueChanged(object sender, EventArgs e)
         {
-            SetPrecisionForDPS();
+            lock (precisionObject)
+                precisionForDPS = ((long)UpDownForPrecision.Value);
         }
         private void OnMouseHoverVarianceGroupBox(object sender, EventArgs e)
         {

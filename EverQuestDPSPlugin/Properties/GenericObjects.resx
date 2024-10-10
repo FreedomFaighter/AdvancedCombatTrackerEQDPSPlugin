@@ -159,16 +159,6 @@
   <data name="logFilter" xml:space="preserve">
     <value>eqlog_*.txt</value>
   </data>
-  <assembly alias="System.Drawing" name="System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a" />
-  <data name="logo" type="System.Drawing.Bitmap, System.Drawing" mimetype="application/x-microsoft.net.object.bytearray.base64">
-    <value>
-        iVBORw0KGgoAAAANSUhEUgAAADAAAAAwCAIAAADYYG7QAAAABGdBTUEAALGPC/xhBQAAAAlwSFlzAAAO
-        wgAADsIBFShKgAAAAM5JREFUWEftkssNAkEMQ+lm+6+DooaVspiQxGsJ8Tv4aQ4Zk7EeiMv6MyyksJDC
-        QgoLKSyksJDCQgoLKSykGISu23ZMd/YkTp6RjIw7Y1jQQvmK+aQx6AsntZkqFHt5e3zJ6kBfKAlr+KAQ
-        DpIYgnIFT0J5iRUFrA70hZKwhiqUD8IYMmOY6QslYQ0PIVaRc8ysDrA2wBq0UAxx4rrTlwt4Ul71sFD/
-        1F+Dab1BCF8a5/jgJX72CzEspLCQwkIKCykspLCQwkIKCyksdM5aN/1BQCfMGvXmAAAAAElFTkSuQmCC
-</value>
-  </data>
   <data name="Lucky" xml:space="preserve">
     <value>Lucky</value>
   </data>

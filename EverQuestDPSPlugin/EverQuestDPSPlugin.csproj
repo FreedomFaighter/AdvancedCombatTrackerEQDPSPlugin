@@ -23,7 +23,7 @@
     <Prefer32Bit>false</Prefer32Bit>
   </PropertyGroup>
   <PropertyGroup>
-    <TargetFrameworkVersion>v4.8</TargetFrameworkVersion>
+    <TargetFrameworkVersion>v4.7.2</TargetFrameworkVersion>
     <TargetFrameworkProfile />
     <ProjectGuid>{9B9301A0-40EA-4DA2-A2A4-CA46FC46A673}</ProjectGuid>
     <NuGetPackageImportStamp>
