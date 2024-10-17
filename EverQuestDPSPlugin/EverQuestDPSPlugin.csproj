@@ -118,9 +118,6 @@
       <LastGenOutput>PluginRegex.Designer.cs</LastGenOutput>
     </EmbeddedResource>
   </ItemGroup>
-  <ItemGroup>
-    <Resource Include="Resources\logo.png" />
-  </ItemGroup>
   <ItemGroup />
   <PropertyGroup>
     <PostBuildEvent>IF NOT EXIST "$(APPDATA)\Advanced Combat Tracker\Plugins" mkdir "$(APPDATA)\Advanced Combat Tracker\Plugins"

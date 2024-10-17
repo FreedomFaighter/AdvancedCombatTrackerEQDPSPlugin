@@ -575,6 +575,7 @@ namespace EverQuestDPS
                 {GenerateCombatDataStringOut(CombatData.DamageShield), new CombatantData.DamageTypeDef(GenerateCombatDataStringOut(CombatData.DamageShield), -1, Color.Brown) },
             {GenerateCombatDataStringOut(CombatData.InstantHealed), new CombatantData.DamageTypeDef(GenerateCombatDataStringOut(CombatData.InstantHealed), 1, Color.Blue)},
             {GenerateCombatDataStringOut(CombatData.HealOverTime), new CombatantData.DamageTypeDef(GenerateCombatDataStringOut(CombatData.HealOverTime), 1, Color.Blue)},
+            {"All Outgoing (Ref)", new CombatantData.DamageTypeDef("All Outgoing (Ref)", 0, Color.Black)}
         };
             CombatantData.IncomingDamageTypeDataObjects = new Dictionary<string, CombatantData.DamageTypeDef>
         {
@@ -1581,7 +1582,7 @@ namespace EverQuestDPS
             tags[Properties.GenericObjects.SpecialStringTag] = SpecialsParse(match.Groups["special"]);
             if (tagsAction != default)
                 tagsAction(tags);
-            if (EQSwingType.Healing.Equals(eqst))
+            if (EQSwingType.HealingOverTime.Equals(eqst) || EQSwingType.InstantHealing.Equals(eqst))
             {
                 if (ActGlobals.oFormActMain.InCombat)
                 {
@@ -1593,7 +1594,7 @@ namespace EverQuestDPS
                     , dateTimeOfLogLine
                     , ReplaceSelfWithCharacterName(petTypeAndName.Item2)
                     , typeOfResource
-                    , CheckIfSelf(victimPetTypeAndName.Item2) ? ReplaceSelfWithCharacterName(petTypeAndName.Item2) : ReplaceSelfWithCharacterName(victimPetTypeAndName.Item2)
+                    , CheckIfSelf(victimPetTypeAndName.Item2) ? petTypeAndName.Item2 : ReplaceSelfWithCharacterName(victimPetTypeAndName.Item2)
                     , tags);
                 }
             }
