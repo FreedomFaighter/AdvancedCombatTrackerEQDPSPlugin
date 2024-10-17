@@ -217,6 +217,7 @@ namespace EverQuestDPS
         private Label digitsForPrecision;
         String EverQuestDirectoryPath;
         long precisionForDPS;
+        Regex regexSelf;
         readonly object precisionObject = new object();
         #endregion
 
@@ -1263,6 +1264,7 @@ namespace EverQuestDPS
         {
             possesive = new Regex(Properties.PluginRegex.petAndPlayerName, RegexOptions.Compiled);
             selfCheck = new Regex(Properties.PluginRegex.selfMatch, RegexOptions.Compiled);
+            regexSelf = new Regex(@"(you|your|it|her|him|them)(s|sel(f|ves))", RegexOptions.Compiled);
         }
 
         /// <summary>
@@ -1653,7 +1655,6 @@ namespace EverQuestDPS
         /// <returns>true if self type action, false otherwise</returns>
         internal bool CheckIfSelf(String nameOfCharacter)
         {
-            Regex regexSelf = new Regex(@"(you|your|it|her|him|them)(s|sel(f|ves))", RegexOptions.Compiled);
             Match m = regexSelf.Match(nameOfCharacter);
             return m.Success;
         }
