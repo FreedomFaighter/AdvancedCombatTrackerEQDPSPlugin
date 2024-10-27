@@ -627,6 +627,8 @@ namespace EverQuestDPS
                 EQSwingType.Instant.GetEQSwingTypeExtensionIntValue()
             };
 
+            CombatantData.HealingSwingTypes = new List<int>();
+
             CombatantData.ExportVariables.Clear();
             CombatantData.ExportVariables.Add("n", new CombatantData.TextExportFormatter("n", "New Line", "Formatting after this element will appear on a new line.", (Data, Extra) => { return "\n"; }));
             CombatantData.ExportVariables.Add("t", new CombatantData.TextExportFormatter("t", "Tab Character", "Formatting after this element will appear in a relative column arrangement.  (The formatting example cannot display this properly)", (Data, Extra) => { return "\t"; }));
@@ -838,10 +840,15 @@ namespace EverQuestDPS
             return GenerateCombatDataString(s, true);
         }
 
-        //private string GenerateCombatDataStringIn(String s)
-        //{
-        //    return GenerateCombatDataString(s, false);
-        //}
+        private string GenerateCombatDataString(String s, bool outgoing)
+        {
+            return $"{s} ({(outgoing ? CombatData.Out : CombatData.In)})";
+        }
+
+        private string GenerateCombatDataStringOut(String s)
+        {
+            return GenerateCombatDataString(s, true);
+        }
 
         private void SetupCritPercentage(String[] critTypes)
         {
@@ -1657,7 +1664,6 @@ namespace EverQuestDPS
         /// <returns>true if self type action, false otherwise</returns>
         internal bool CheckIfSelf(String nameOfCharacter)
         {
-            Regex regexSelf = new Regex(@"(you|your|it|her|him|them)(s|sel(f|ves))", RegexOptions.Compiled);
             Match m = regexSelf.Match(nameOfCharacter);
             return m.Success;
         }
