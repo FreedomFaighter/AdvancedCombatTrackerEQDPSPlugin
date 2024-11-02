@@ -9,7 +9,7 @@ using System.Runtime.InteropServices;
 [assembly: AssemblyProduct("EQ Damage Per Second Plugin for ACT")]
 [assembly: AssemblyCopyright("John H. Freeman © 2024")]
 [assembly: AssemblyTitle("EQ Damage Per Second Parsing")]
-[assembly: AssemblyDescription("https://github.com/FreedomFaighter/AdvancedCombatTrackerEQDPSPlugin")]
+[assembly: AssemblyDescription("EverQuest DPS Plugin for ACT Application")]
 [assembly: AssemblyCulture("en-US")]
 [assembly: NeutralResourcesLanguage("en-US")]
 
@@ -25,5 +25,5 @@ using System.Runtime.InteropServices;
 //      Build Number
 //      Revision
 //
-[assembly: AssemblyVersion("2.3.0.*")]
+[assembly: AssemblyVersion("2.4.3.*")]
 [assembly: InternalsVisibleTo("EQDPSPluginUnitTests")]

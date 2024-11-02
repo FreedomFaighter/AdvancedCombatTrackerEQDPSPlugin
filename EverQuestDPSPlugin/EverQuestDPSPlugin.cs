@@ -217,6 +217,7 @@ namespace EverQuestDPS
         String EverQuestDirectoryPath;
         String precisionForDPS = default;
         readonly object precisionObject = new object();
+        Regex selfMatch = new Regex(@"(You|you|yourself|Yourself|YOURSELF|YOU|your|YOUR)");
         #endregion
 
         /// <summary>
@@ -571,63 +572,61 @@ namespace EverQuestDPS
 
             CombatantData.OutgoingDamageTypeDataObjects = new Dictionary<string, CombatantData.DamageTypeDef>
         {
-            {GenerateCombatDataStringOut(CombatData.AutoAttack), new CombatantData.DamageTypeDef(GenerateCombatDataStringOut(CombatData.AutoAttack), -1, Color.DarkGoldenrod)},
-            {GenerateCombatDataStringOut(CombatData.SkillAbility), new CombatantData.DamageTypeDef(GenerateCombatDataStringOut(CombatData.SkillAbility), -1, Color.DarkOrange)},
-            {"Outgoing Damage", new CombatantData.DamageTypeDef("Outgoing Damage", -1, Color.Orange)},
-            {GenerateCombatDataStringOut(CombatData.DirectDamageSpell), new CombatantData.DamageTypeDef(GenerateCombatDataStringOut(CombatData.DirectDamageSpell), -1, Color.LightCyan) },
-            {GenerateCombatDataStringOut(CombatData.Bane), new CombatantData.DamageTypeDef(GenerateCombatDataStringOut(CombatData.Bane), -1, Color.LightGreen) },
-                {GenerateCombatDataStringOut(CombatData.DamageShield), new CombatantData.DamageTypeDef(GenerateCombatDataStringOut(CombatData.DamageShield), -1, Color.Brown) },
-            {GenerateCombatDataStringOut(CombatData.InstantHealed), new CombatantData.DamageTypeDef(GenerateCombatDataStringOut(CombatData.InstantHealed), 1, Color.Blue)},
-            {GenerateCombatDataStringOut(CombatData.HealOverTime), new CombatantData.DamageTypeDef(GenerateCombatDataStringOut(CombatData.HealOverTime), 1, Color.Blue)},
+            {"Auto-Attack (Out)", new CombatantData.DamageTypeDef("Auto-Attack (Out)", -1, Color.DarkGoldenrod)},
+            {"Skill/Ability (Out)", new CombatantData.DamageTypeDef("Skill/Ability (Out)", -1, Color.DarkOrange)},
+            {"Outgoing Damage", new CombatantData.DamageTypeDef("Outgoing Damage", 0, Color.Orange)},
+            {"Direct Damage Spell (Out)", new CombatantData.DamageTypeDef("Direct Damage Spell (Out)", -1, Color.LightCyan) },
+            {"Damage Over Time Spell (Out)", new CombatantData.DamageTypeDef("Damage Over Time Spell (Out)", -1, Color.ForestGreen) },
+            {"Bane (Out)", new CombatantData.DamageTypeDef("Bane (Out)", -1, Color.LightGreen) },
+                {"Damage Shield (Out)", new CombatantData.DamageTypeDef("Damage Shield (Out)", -1, Color.Brown) },
+            {"Instant Healed (Out)", new CombatantData.DamageTypeDef("Instant Healed (Out)", 1, Color.Blue)},
+            {"Heal Over Time (Out)", new CombatantData.DamageTypeDef("Heal Over Time (Out)", 1, Color.DarkBlue)},
+            {"All Outgoing (Ref)", new CombatantData.DamageTypeDef("All Outgoing (Ref)", 0, Color.Black)}
         };
             CombatantData.IncomingDamageTypeDataObjects = new Dictionary<string, CombatantData.DamageTypeDef>
         {
             {"Incoming Damage", new CombatantData.DamageTypeDef("Incoming Damage", -1, Color.Red)},
             {"Incoming NonMelee Damage", new CombatantData.DamageTypeDef("Incoming NonMelee Damage", -1 , Color.DarkRed) },
             {"Direct Damage Spell (Inc)", new CombatantData.DamageTypeDef("Direct Damage Spell (Inc)", -1, Color.LightCyan) },
+            {"Damage Over Time Spell (Inc)", new CombatantData.DamageTypeDef("Damage Over Time Spell (Inc)", -1, Color.Orchid) },
             {"Damage Shield (Inc)", new CombatantData.DamageTypeDef("Damage Shield (Inc)", -1, Color.Brown) },
-            {"Instant Heal (Inc)",new CombatantData.DamageTypeDef("Instant Heal (Inc)", 1, Color.LimeGreen)},
-            {"Heal Over Time (Inc)",new CombatantData.DamageTypeDef("Heal Over Time (Inc)", 1, Color.LimeGreen)},
+            {"Instant Healed (Inc)",new CombatantData.DamageTypeDef("Instant Healed (Inc)", 1, Color.LimeGreen)},
+            {"Heal Over Time (Inc)",new CombatantData.DamageTypeDef("Heal Over Time (Inc)", 1, Color.DarkGreen)},
             {"All Incoming (Ref)",new CombatantData.DamageTypeDef("All Incoming (Ref)", 0, Color.Black)}
         };
             CombatantData.SwingTypeToDamageTypeDataLinksOutgoing = new SortedDictionary<int, List<string>>
         {
-            {EQSwingType.Melee.GetEQSwingTypeExtensionIntValue(), new List<string> { "Auto-Attack (Out)" } },
-            {EQSwingType.NonMelee.GetEQSwingTypeExtensionIntValue(), new List<string> { "Skill/Ability (Out)" } },
-            {(EQSwingType.DirectDamageSpell).GetEQSwingTypeExtensionIntValue(), new List<string> { "Direct Damage Spell (Out)"} },
-                {EQSwingType.Bane.GetEQSwingTypeExtensionIntValue(), new List<string>{"Bane (Out)"} },
-            {EQSwingType.InstantHealing.GetEQSwingTypeExtensionIntValue(), new List<string> { "Instant Heal (Out)" } },
-            {EQSwingType.HealingOverTime.GetEQSwingTypeExtensionIntValue(), new List<string> { "Heal Over Time (Out)" } },
+            {EQSwingType.Melee.GetEQSwingTypeExtensionIntValue(), new List<string> { "Auto-Attack (Out)", "Outgoing Damage" } },
+            {EQSwingType.NonMelee.GetEQSwingTypeExtensionIntValue(), new List<string> { "Skill/Ability (Out)", "Outgoing Damage" } },
+            {(EQSwingType.Spell | EQSwingType.Instant).GetEQSwingTypeExtensionIntValue(), new List<string> { "Direct Damage Spell (Out)" , "Outgoing Damage"} },
+            {(EQSwingType.Spell | EQSwingType.OverTime).GetEQSwingTypeExtensionIntValue(), new List<string>{"Damage Over Time Spell (Out)", "Outgoing Damage"} },
+            {(EQSwingType.Healing | EQSwingType.Instant).GetEQSwingTypeExtensionIntValue(), new List<string> { "Instant Healed (Out)" } },
+            {(EQSwingType.Healing | EQSwingType.OverTime).GetEQSwingTypeExtensionIntValue(), new List<string> { "Heal Over Time (Out)" } },
                 {EQSwingType.DamageShield.GetEQSwingTypeExtensionIntValue(), new List<string> { "Damage Shield (Out)"} },
         };
             CombatantData.SwingTypeToDamageTypeDataLinksIncoming = new SortedDictionary<int, List<string>>
         {
             {EQSwingType.Melee.GetEQSwingTypeExtensionIntValue(), new List<string> { "Incoming Damage" } },
             {EQSwingType.NonMelee.GetEQSwingTypeExtensionIntValue(), new List<string> { "Incoming NonMelee Damage", "Incoming Damage" } },
-            {(EQSwingType.DirectDamageSpell).GetEQSwingTypeExtensionIntValue(), new List<string> { "Direct Damage Spell (Inc)", "Incoming Damage" } },
-            {(EQSwingType.InstantHealing).GetEQSwingTypeExtensionIntValue(), new List<string> { "Instant Heal (Inc)" } },
-            {(EQSwingType.SpellOverTime).GetEQSwingTypeExtensionIntValue(), new List<string> {"Damage Over Time Spell (Inc)", "Incoming Damage" } },
-            {EQSwingType.HealingOverTime.GetEQSwingTypeExtensionIntValue(), new List<string> { "Heal Over Time (Inc)" } },
+            {(EQSwingType.Spell | EQSwingType.Instant).GetEQSwingTypeExtensionIntValue(), new List<string> { "Direct Damage Spell (Inc)", "Incoming Damage" } },
+            {(EQSwingType.Healing | EQSwingType.Instant).GetEQSwingTypeExtensionIntValue(), new List<string> { "Instant Healed (Inc)" } },
+            {(EQSwingType.Spell | EQSwingType.OverTime).GetEQSwingTypeExtensionIntValue(), new List<string> {"Damage Over Time Spell (Inc)", "Incoming Damage" } },
+            {(EQSwingType.Healing | EQSwingType.OverTime).GetEQSwingTypeExtensionIntValue(), new List<string> { "Heal Over Time (Inc)" } },
                 {EQSwingType.DamageShield.GetEQSwingTypeExtensionIntValue(), new List<string> { "Damage Shield (Inc)"} },
         };
 
-            CombatantData.DamageSwingTypes = new List<int>()
-            {
-                EQSwingType.Bane.GetEQSwingTypeExtensionIntValue(),
-                EQSwingType.DamageShield.GetEQSwingTypeExtensionIntValue(),
-                EQSwingType.DirectDamageSpell.GetEQSwingTypeExtensionIntValue(),
-                EQSwingType.SpellOverTime.GetEQSwingTypeExtensionIntValue(),
+            CombatantData.DamageSwingTypes = new List<int> {
                 EQSwingType.Melee.GetEQSwingTypeExtensionIntValue(),
-                EQSwingType.NonMelee.GetEQSwingTypeExtensionIntValue()
+                EQSwingType.NonMelee.GetEQSwingTypeExtensionIntValue(),
+                (EQSwingType.Spell | EQSwingType.Instant).GetEQSwingTypeExtensionIntValue(),
+                (EQSwingType.Spell | EQSwingType.OverTime).GetEQSwingTypeExtensionIntValue(),
+                EQSwingType.DamageShield.GetEQSwingTypeExtensionIntValue(),
+                EQSwingType.Bane.GetEQSwingTypeExtensionIntValue(),
             };
-
-            CombatantData.HealingSwingTypes = new List<int>()
-            {
-                EQSwingType.HealingOverTime.GetEQSwingTypeExtensionIntValue(),
-                EQSwingType.Instant.GetEQSwingTypeExtensionIntValue()
+            CombatantData.HealingSwingTypes = new List<int> {
+                (EQSwingType.Healing | EQSwingType.Instant).GetEQSwingTypeExtensionIntValue(),
+                (EQSwingType.Healing | EQSwingType.OverTime).GetEQSwingTypeExtensionIntValue(),
             };
-
-            CombatantData.HealingSwingTypes = new List<int>();
 
             CombatantData.ExportVariables.Clear();
             CombatantData.ExportVariables.Add("n", new CombatantData.TextExportFormatter("n", "New Line", "Formatting after this element will appear on a new line.", (Data, Extra) => { return "\n"; }));
@@ -833,21 +832,6 @@ namespace EverQuestDPS
         private string GenerateCombatDataString(String s, bool outgoing)
         {
             return $"{s} ({(outgoing ? CombatData.Out : CombatData.In)})";
-        }
-
-        private string GenerateCombatDataStringOut(String s)
-        {
-            return GenerateCombatDataString(s, true);
-        }
-
-        private string GenerateCombatDataString(String s, bool outgoing)
-        {
-            return $"{s} ({(outgoing ? CombatData.Out : CombatData.In)})";
-        }
-
-        private string GenerateCombatDataStringOut(String s)
-        {
-            return GenerateCombatDataString(s, true);
         }
 
         private void SetupCritPercentage(String[] critTypes)
@@ -1664,7 +1648,7 @@ namespace EverQuestDPS
         /// <returns>true if self type action, false otherwise</returns>
         internal bool CheckIfSelf(String nameOfCharacter)
         {
-            Match m = regexSelf.Match(nameOfCharacter);
+            Match m = selfMatch.Match(nameOfCharacter);
             return m.Success;
         }
 
