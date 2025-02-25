@@ -217,7 +217,7 @@ namespace EverQuestDPS
         private Label digitsForPrecision;
         String EverQuestDirectoryPath;
         long precisionForDPS;
-        Regex regexSelf;
+        static Regex regexSelf = new Regex(@"(you|your|it|her|him|them)(s|sel(f|ves))", RegexOptions.Compiled);
         readonly object precisionObject = new object();
         #endregion
 
@@ -838,16 +838,6 @@ namespace EverQuestDPS
             return GenerateCombatDataString(s, true);
         }
 
-        private string GenerateCombatDataString(String s, bool outgoing)
-        {
-            return $"{s} ({(outgoing ? CombatData.Out : CombatData.In)})";
-        }
-
-        private string GenerateCombatDataStringOut(String s)
-        {
-            return GenerateCombatDataString(s, true);
-        }
-
         private void SetupCritPercentage(String[] critTypes)
         {
             foreach (String critType in critTypes)
@@ -1270,8 +1260,7 @@ namespace EverQuestDPS
         private void PopulateRegexNonCombat()
         {
             possesive = new Regex(Properties.PluginRegex.petAndPlayerName, RegexOptions.Compiled);
-            selfCheck = new Regex(Properties.PluginRegex.selfMatch, RegexOptions.Compiled);
-            regexSelf = new Regex(@"(you|your|it|her|him|them)(s|sel(f|ves))", RegexOptions.Compiled);
+            selfCheck = new Regex(Properties.PluginRegex.selfMatch, RegexOptions.Compiled); 
         }
 
         /// <summary>
@@ -1660,7 +1649,7 @@ namespace EverQuestDPS
         /// </summary>
         /// <param name="nameOfCharacter"></param>
         /// <returns>true if self type action, false otherwise</returns>
-        internal bool CheckIfSelf(String nameOfCharacter)
+        internal static bool CheckIfSelf(String nameOfCharacter)
         {
             Match m = regexSelf.Match(nameOfCharacter);
             return m.Success;

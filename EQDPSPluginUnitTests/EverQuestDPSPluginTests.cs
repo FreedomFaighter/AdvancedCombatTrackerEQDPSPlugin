@@ -1,10 +1,5 @@
 ﻿using EverQuestDPS;
-using EverQuestDPS.Enums;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using System;
-using Advanced_Combat_Tracker;
-using System.Collections.Generic;
-using System.Resources;
 using System.Linq;
 
 namespace GenericStringsUnitTests
@@ -12,11 +7,11 @@ namespace GenericStringsUnitTests
     [TestClass]
     public sealed class EverQuestDPSPluginTests
     {
-        EQDPSParser plugin;
-        [TestInitialize] 
-        public void Init() { 
-            plugin = new EQDPSParser();
-        }
+        //EQDPSParser plugin;
+        //[TestInitialize] 
+        //public void Init() { 
+        //    plugin = new EQDPSParser();
+        //}
 
         [DataTestMethod]
         [DataRow("himself")]
@@ -26,7 +21,7 @@ namespace GenericStringsUnitTests
         [TestCategory("Self check")]
         public void selfIsTrue(string selfTest)
         {
-            Assert.IsTrue(plugin.CheckIfSelf(selfTest));
+            Assert.IsTrue(EQDPSParser.CheckIfSelf(selfTest));
         }
 
         [DataTestMethod]
@@ -37,7 +32,7 @@ namespace GenericStringsUnitTests
         [TestCategory("Self check")]
         public void selfIsFalse(string selfTest)
         {
-            Assert.IsFalse(plugin.CheckIfSelf(selfTest));
+            Assert.IsFalse(EQDPSParser.CheckIfSelf(selfTest));
         }
 
         [DataTestMethod]
