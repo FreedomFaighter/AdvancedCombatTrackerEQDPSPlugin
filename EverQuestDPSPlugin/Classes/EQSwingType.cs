@@ -2,9 +2,10 @@
 {
     public static class EQSwingType
     {
-        public  const int Melee = 1;
+        public const int None = 0;
+        public const int Melee = 1;
         public const int NonMelee = 2;
-        public  const int Healing = 4;
+        public const int Healing = 4;
         public const int Spell = 8;
         public const int Bane = 16;
         public const int DamageShield = 32;

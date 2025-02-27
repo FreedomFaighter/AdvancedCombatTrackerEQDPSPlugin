@@ -1685,7 +1685,7 @@ namespace EverQuestDPS
 
         private void ParseDeathMessage(Match match)
         {
-            CombatMasterSwingAdd(match, EQSwingType.NonMelee,
+            CombatMasterSwingAdd(match, EQSwingType.None,
                 String.Empty
                 , Dnum.Death
                 , "Killing"
