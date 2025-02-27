@@ -838,16 +838,6 @@ namespace EverQuestDPS
             return GenerateCombatDataString(s, true);
         }
 
-        private string GenerateCombatDataString(String s, bool outgoing)
-        {
-            return $"{s} ({(outgoing ? CombatData.Out : CombatData.In)})";
-        }
-
-        private string GenerateCombatDataStringOut(String s)
-        {
-            return GenerateCombatDataString(s, true);
-        }
-
         private void SetupCritPercentage(String[] critTypes)
         {
             foreach (String critType in critTypes)
