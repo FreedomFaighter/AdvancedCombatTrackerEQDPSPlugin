@@ -7,7 +7,7 @@ using System.Runtime.InteropServices;
 // set of attributes. Change these attribute values to modify the information
 // associated with an assembly.
 [assembly: AssemblyProduct("EQ Damage Per Second Plugin for ACT")]
-[assembly: AssemblyCopyright("John H. Freeman © 2024")]
+[assembly: AssemblyCopyright("John H. Freeman © 2025")]
 [assembly: AssemblyTitle("EQ Damage Per Second Parsing")]
 [assembly: AssemblyDescription("https://github.com/FreedomFaighter/AdvancedCombatTrackerEQDPSPlugin")]
 [assembly: AssemblyCulture("en-US")]
@@ -25,5 +25,5 @@ using System.Runtime.InteropServices;
 //      Build Number
 //      Revision
 //
-[assembly: AssemblyVersion("2.4.1.*")]
+[assembly: AssemblyVersion("2.4.5.*")]
 [assembly: InternalsVisibleTo("EQDPSPluginUnitTests")]
