@@ -14,4 +14,3 @@ Uses ACT's plugin capabilities to load the parsing plugin into the application a
 
 Requires [Advanced Combat Tracker](https://advancedcombattracker.com/) to be installed
 
-[ACT_EQ Discord](https://discord.gg/waZY3txkvV)
