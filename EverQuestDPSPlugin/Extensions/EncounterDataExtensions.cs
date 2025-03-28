@@ -18,7 +18,7 @@ namespace EverQuestDPS.Extensions
 
         internal static long GetPetDamageTotal(this EncounterData encounterData)
         {
-            return encounterData.Items.Sum(x => x.Value.GetDamageByTag(Properties.GenericObjects.pet));
+            return encounterData.Items.Sum(x => x.Value.GetDamageByTag(Properties.PluginRegex.pet));
         }
 
         internal static double GetPetDPS(this EncounterData encounterData)

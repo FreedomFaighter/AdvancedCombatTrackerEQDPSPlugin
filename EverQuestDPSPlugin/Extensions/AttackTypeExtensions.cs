@@ -14,19 +14,19 @@ namespace EverQuestDPS.Extensions
 
             if(pet)
             {
-                summonedEntities.Append(Properties.GenericObjects.pet);
+                summonedEntities.Append(Properties.PluginRegex.pet);
             }
             if(ward)
             {
-                summonedEntities.Append(Properties.GenericObjects.ward);
+                summonedEntities.Append(Properties.PluginRegex.ward);
             }
             if (warder)
             {
-                summonedEntities.Append(Properties.GenericObjects.warder);
+                summonedEntities.Append(Properties.PluginRegex.warder);
             }
             if(familiar)
             {
-                summonedEntities.Append(Properties.GenericObjects.familiar);
+                summonedEntities.Append(Properties.PluginRegex.familiar);
             }
             if (summonedEntities.DefaultIfEmpty() == default)
             {
@@ -35,7 +35,7 @@ namespace EverQuestDPS.Extensions
 
             bool predicate(MasterSwing masterSwing)
             {
-                return summonedEntities.Contains(masterSwing.Tags[Properties.GenericObjects.OutgoingTag]);
+                return summonedEntities.Contains(masterSwing.Tags[Properties.PluginRegex.OutgoingTag]);
             }
 
             return attackType.GetListOfMasterSwingWithPredicate(predicate);
@@ -87,7 +87,7 @@ namespace EverQuestDPS.Extensions
 
         internal static int GetCountCritType(this AttackType attackTypeData, Specials attackTypeCritType)
         {
-            return attackTypeData.Items.Where(item => item.Damage >= 0).Sum((item) => ((Specials)item.Tags[Properties.GenericObjects.SpecialStringTag]).HasFlag(attackTypeCritType) ? 1 : 0);
+            return attackTypeData.Items.Where(item => item.Damage >= 0).Sum((item) => ((Specials)item.Tags[Properties.PluginRegex.SpecialStringTag]).HasFlag(attackTypeCritType) ? 1 : 0);
         }
 
         internal static long GetPetDamageTotalFromAttackType(this AttackType attackType)

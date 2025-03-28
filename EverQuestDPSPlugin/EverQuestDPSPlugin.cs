@@ -202,16 +202,16 @@ namespace EverQuestDPS
         //NumericUpDown nud;
         private MasterSwing chilled;
         readonly static internal string[] SpecialAttack = new string[] {
-                Properties.GenericObjects.CripplingBlow
-                , Properties.GenericObjects.WildRampage
-                , Properties.GenericObjects.Twincast
-                , Properties.GenericObjects.Strikethrough
-                , Properties.GenericObjects.Riposte
-                , Properties.GenericObjects.Lucky
-                , Properties.GenericObjects.Locked
-                , Properties.GenericObjects.Flurry
-                , Properties.GenericObjects.DoubleBowShot
-                , Properties.GenericObjects.FinishingBlow
+                Properties.PluginRegex.CripplingBlow
+                , Properties.PluginRegex.WildRampage
+                , Properties.PluginRegex.Twincast
+                , Properties.PluginRegex.Strikethrough
+                , Properties.PluginRegex.Riposte
+                , Properties.PluginRegex.Lucky
+                , Properties.PluginRegex.Locked
+                , Properties.PluginRegex.Flurry
+                , Properties.PluginRegex.DoubleBowShot
+                , Properties.PluginRegex.FinishingBlow
         };
         private NumericUpDown UpDownForPrecision;
         private Label digitsForPrecision;
@@ -252,16 +252,16 @@ namespace EverQuestDPS
                 {
                     Action optionsControlSetsAdd = () =>
                     {
-                        optionsNode = tn.Nodes.Add($"{Properties.GenericObjects.pluginName}");
+                        optionsNode = tn.Nodes.Add($"{Properties.PluginRegex.pluginName}");
                         // Register our user control(this) to our newly create node path.  All controls added to the list will be laid out left to right, top to bottom
-                        ActGlobals.oFormActMain.OptionsControlSets.Add($@"Data Correction\{Properties.GenericObjects.pluginName}",
+                        ActGlobals.oFormActMain.OptionsControlSets.Add($@"Data Correction\{Properties.PluginRegex.pluginName}",
                             new List<Control> { this });
                         Label lblConfig = new Label
                         {
                             AutoSize = true,
                             Text = "Find the applicable options in the Options tab, Data Correction section."
                         };
-                        //Image img = new Bitmap(Properties.GenericObjects.logo);
+                        //Image img = new Bitmap(Properties.PluginRegex.logo);
 
                         //lblConfig.Image = img;
                         lblConfig.ImageAlign = ContentAlignment.MiddleLeft;
@@ -287,10 +287,10 @@ namespace EverQuestDPS
             PopulateRegexNonCombat();
             PopulateRegexCombat();
             SetupEverQuestEnvironment();
-            ActGlobals.oFormActMain.LogFileFilter = Properties.GenericObjects.logFilter;
+            ActGlobals.oFormActMain.LogFileFilter = Properties.PluginRegex.logFilter;
             ActGlobals.oFormActMain.CharacterFileNameRegex = new Regex(Properties.PluginRegex.fileNameForLog, RegexOptions.Compiled);
             ActGlobals.oFormActMain.ZoneChangeRegex = new Regex($@"\[(?:.+)\] {Properties.PluginRegex.zoneChange}", RegexOptions.Compiled);
-            ChangePluginStatusLabel($"{Properties.GenericObjects.pluginName} {Properties.GenericObjects.pluginStarted}");
+            ChangePluginStatusLabel($"{Properties.PluginRegex.pluginName} {Properties.PluginRegex.pluginStarted}");
             SetEventsForParsing();
         }
 
@@ -323,7 +323,7 @@ namespace EverQuestDPS
                 if (!(optionsNode == null))    // If we added our user control to the Options tab, remove it
                 {
                     optionsNode.Remove();
-                    ActGlobals.oFormActMain.OptionsControlSets.Remove($@"Data Correction\{Properties.GenericObjects.pluginName}");
+                    ActGlobals.oFormActMain.OptionsControlSets.Remove($@"Data Correction\{Properties.PluginRegex.pluginName}");
                 }
             };
 
@@ -349,7 +349,7 @@ namespace EverQuestDPS
                 runDeInitActions();
             }
             SaveSettings();
-            ChangePluginStatusLabel($"{Properties.GenericObjects.pluginName} {Properties.GenericObjects.pluginExited}");
+            ChangePluginStatusLabel($"{Properties.PluginRegex.pluginName} {Properties.PluginRegex.pluginExited}");
         }
         #endregion
 
@@ -405,7 +405,7 @@ namespace EverQuestDPS
                 }
                 else
                 {
-                    ChangePluginStatusLabel($"{settingsFile} does not exist and no settings were loaded, first time loading {Properties.GenericObjects.pluginName}?");
+                    ChangePluginStatusLabel($"{settingsFile} does not exist and no settings were loaded, first time loading {Properties.PluginRegex.pluginName}?");
                     SaveSettings();
                     varianceOff.Checked = true;
                     StatisticalProcessors.Variance.varianceCalc = default;
@@ -464,7 +464,7 @@ namespace EverQuestDPS
         /// </summary>
         private void SetupEverQuestEnvironment()
         {
-            CultureInfo usCulture = new CultureInfo(Properties.GenericObjects.cultureSetting);   // This is for SQL syntax; do not change
+            CultureInfo usCulture = new CultureInfo(Properties.PluginRegex.cultureSetting);   // This is for SQL syntax; do not change
             //ActGlobals.blockIsHit = true;
             EncounterData.ColumnDefs.Clear();
             //Do not change the SqlDataName while doing localization
@@ -568,14 +568,14 @@ namespace EverQuestDPS
 
             CombatantData.OutgoingDamageTypeDataObjects = new Dictionary<string, CombatantData.DamageTypeDef>
         {
-            {GenerateCombatDataStringOut(CombatData.AutoAttack), new CombatantData.DamageTypeDef(GenerateCombatDataStringOut(CombatData.AutoAttack), -1, Color.DarkGoldenrod)},
-            {GenerateCombatDataStringOut(CombatData.SkillAbility), new CombatantData.DamageTypeDef(GenerateCombatDataStringOut(CombatData.SkillAbility), -1, Color.DarkOrange)},
+            {GenerateCombatDataStringOut(Properties.PluginRegex.AutoAttack), new CombatantData.DamageTypeDef(GenerateCombatDataStringOut(Properties.PluginRegex.AutoAttack), -1, Color.DarkGoldenrod)},
+            {GenerateCombatDataStringOut(Properties.PluginRegex.SkillAbility), new CombatantData.DamageTypeDef(GenerateCombatDataStringOut(Properties.PluginRegex.SkillAbility), -1, Color.DarkOrange)},
             {"Outgoing Damage", new CombatantData.DamageTypeDef("Outgoing Damage", 0, Color.Orange)},
-            {GenerateCombatDataStringOut(CombatData.DirectDamageSpell), new CombatantData.DamageTypeDef(GenerateCombatDataStringOut(CombatData.DirectDamageSpell), -1, Color.LightCyan) },
-            {GenerateCombatDataStringOut(CombatData.Bane), new CombatantData.DamageTypeDef(GenerateCombatDataStringOut(CombatData.Bane), -1, Color.LightGreen) },
-                {GenerateCombatDataStringOut(CombatData.DamageShield), new CombatantData.DamageTypeDef(GenerateCombatDataStringOut(CombatData.DamageShield), -1, Color.Brown) },
-            {GenerateCombatDataStringOut(CombatData.InstantHealed), new CombatantData.DamageTypeDef(GenerateCombatDataStringOut(CombatData.InstantHealed), 1, Color.Blue)},
-            {GenerateCombatDataStringOut(CombatData.HealOverTime), new CombatantData.DamageTypeDef(GenerateCombatDataStringOut(CombatData.HealOverTime), 1, Color.Blue)},
+            {GenerateCombatDataStringOut(Properties.PluginRegex.DirectDamageSpell), new CombatantData.DamageTypeDef(GenerateCombatDataStringOut(Properties.PluginRegex.DirectDamageSpell), -1, Color.LightCyan) },
+            {GenerateCombatDataStringOut(Properties.PluginRegex.Bane), new CombatantData.DamageTypeDef(GenerateCombatDataStringOut(Properties.PluginRegex.Bane), -1, Color.LightGreen) },
+                {GenerateCombatDataStringOut(Properties.PluginRegex.DamageShield), new CombatantData.DamageTypeDef(GenerateCombatDataStringOut(Properties.PluginRegex.DamageShield), -1, Color.Brown) },
+            {GenerateCombatDataStringOut(Properties.PluginRegex.InstantHealed), new CombatantData.DamageTypeDef(GenerateCombatDataStringOut(Properties.PluginRegex.InstantHealed), 1, Color.Blue)},
+            {GenerateCombatDataStringOut(Properties.PluginRegex.HealOverTime), new CombatantData.DamageTypeDef(GenerateCombatDataStringOut(Properties.PluginRegex.HealOverTime), 1, Color.Blue)},
             {"All Outgoing (Ref)", new CombatantData.DamageTypeDef("All Outgoing (Ref)", 0, Color.Black)}
         };
             CombatantData.IncomingDamageTypeDataObjects = new Dictionary<string, CombatantData.DamageTypeDef>
@@ -590,39 +590,39 @@ namespace EverQuestDPS
         };
             CombatantData.SwingTypeToDamageTypeDataLinksOutgoing = new SortedDictionary<int, List<string>>
         {
-            {EQSwingType.Melee, new List<string> { "Auto-Attack (Out)" } },
-            {EQSwingType.NonMelee, new List<string> { "Skill/Ability (Out)" } },
-            {EQSwingType.DirectDamageSpell, new List<string> { "Direct Damage Spell (Out)"} },
-                {EQSwingType.Bane, new List<string>{"Bane (Out)"} },
-            {EQSwingType.InstantHealing, new List<string> { "Instant Heal (Out)" } },
-            {EQSwingType.HealingOverTime, new List<string> { "Heal Over Time (Out)" } },
-                {EQSwingType.DamageShield, new List<string> { "Damage Shield (Out)"} },
+            {(int)EQSwingType.Melee, new List<string> { "Auto-Attack (Out)" } },
+            {(int)EQSwingType.NonMelee, new List<string> { "Skill/Ability (Out)" } },
+            {(int)EQSwingType.DirectDamageSpell, new List<string> { "Direct Damage Spell (Out)"} },
+                {(int)EQSwingType.Bane, new List<string>{"Bane (Out)"} },
+            {(int)EQSwingType.InstantHealing, new List<string> { "Instant Heal (Out)" } },
+            {(int)EQSwingType.HealingOverTime, new List<string> { "Heal Over Time (Out)" } },
+                {(int)EQSwingType.DamageShield, new List<string> { "Damage Shield (Out)"} },
         };
             CombatantData.SwingTypeToDamageTypeDataLinksIncoming = new SortedDictionary<int, List<string>>
         {
-            {EQSwingType.Melee, new List<string> { "Incoming Damage" } },
-            {EQSwingType.NonMelee, new List<string> { "Incoming NonMelee Damage", "Incoming Damage" } },
-            {EQSwingType.DirectDamageSpell, new List<string> { "Direct Damage Spell (Inc)", "Incoming Damage" } },
-            {EQSwingType.InstantHealing, new List<string> { "Instant Heal (Inc)" } },
-            {EQSwingType.SpellOverTime, new List<string> {"Damage Over Time Spell (Inc)", "Incoming Damage" } },
-            {EQSwingType.HealingOverTime, new List<string> { "Heal Over Time (Inc)" } },
-                {EQSwingType.DamageShield, new List<string> { "Damage Shield (Inc)"} },
+            {(int)EQSwingType.Melee, new List<string> { "Incoming Damage" } },
+            {(int)EQSwingType.NonMelee, new List<string> { "Incoming NonMelee Damage", "Incoming Damage" } },
+            {(int)EQSwingType.DirectDamageSpell, new List<string> { "Direct Damage Spell (Inc)", "Incoming Damage" } },
+            {(int)EQSwingType.InstantHealing, new List<string> { "Instant Heal (Inc)" } },
+            {(int)EQSwingType.SpellOverTime, new List<string> {"Damage Over Time Spell (Inc)", "Incoming Damage" } },
+            {(int)EQSwingType.HealingOverTime, new List<string> { "Heal Over Time (Inc)" } },
+                {(int)EQSwingType.DamageShield, new List<string> { "Damage Shield (Inc)"} },
         };
 
             CombatantData.DamageSwingTypes = new List<int>()
             {
-                EQSwingType.Bane,
-                EQSwingType.DamageShield,
-                EQSwingType.DirectDamageSpell,
-                EQSwingType.SpellOverTime,
-                EQSwingType.Melee,
-                EQSwingType.NonMelee
+                (int)EQSwingType.Bane,
+                (int)EQSwingType.DamageShield,
+                (int)EQSwingType.DirectDamageSpell,
+                (int)EQSwingType.SpellOverTime,
+                (int)EQSwingType.Melee,
+                (int)EQSwingType.NonMelee
             };
 
             CombatantData.HealingSwingTypes = new List<int>()
             {
-                EQSwingType.HealingOverTime,
-                EQSwingType.InstantHealing
+                (int)EQSwingType.HealingOverTime,
+                (int)EQSwingType.InstantHealing
             };
 
             CombatantData.HealingSwingTypes = new List<int>();
@@ -783,18 +783,18 @@ namespace EverQuestDPS
             {
                 return (Left.Tags.ContainsKey("overheal") && Right.Tags.ContainsKey("overheal")) ? ((long)Left.Tags["overheal"]).CompareTo((long)Right.Tags["overheal"]) : 0;
             }));
-            MasterSwing.ColumnDefs.Add(Properties.GenericObjects.OutgoingTag, new MasterSwing.ColumnDef(Properties.GenericObjects.OutgoingTag, true, "VARCHAR2(16)", Properties.GenericObjects.OutgoingTag,
-                (Data) => { return Data.Tags.ContainsKey(Properties.GenericObjects.OutgoingTag) ? Data.Tags[Properties.GenericObjects.OutgoingTag].ToString() : String.Empty; },
-                (Data) => { return Data.Tags.ContainsKey(Properties.GenericObjects.OutgoingTag) ? Data.Tags[Properties.GenericObjects.OutgoingTag].ToString() : String.Empty; }, (Left, Right) =>
+            MasterSwing.ColumnDefs.Add(Properties.PluginRegex.OutgoingTag, new MasterSwing.ColumnDef(Properties.PluginRegex.OutgoingTag, true, "VARCHAR2(16)", Properties.PluginRegex.OutgoingTag,
+                (Data) => { return Data.Tags.ContainsKey(Properties.PluginRegex.OutgoingTag) ? Data.Tags[Properties.PluginRegex.OutgoingTag].ToString() : String.Empty; },
+                (Data) => { return Data.Tags.ContainsKey(Properties.PluginRegex.OutgoingTag) ? Data.Tags[Properties.PluginRegex.OutgoingTag].ToString() : String.Empty; }, (Left, Right) =>
                 {
-                    return (Left.Tags.ContainsKey(Properties.GenericObjects.OutgoingTag) && Right.Tags.ContainsKey(Properties.GenericObjects.OutgoingTag)) ? Left.Tags[Properties.GenericObjects.OutgoingTag].ToString().CompareTo(Right.Tags[Properties.GenericObjects.OutgoingTag].ToString()) : 0;
+                    return (Left.Tags.ContainsKey(Properties.PluginRegex.OutgoingTag) && Right.Tags.ContainsKey(Properties.PluginRegex.OutgoingTag)) ? Left.Tags[Properties.PluginRegex.OutgoingTag].ToString().CompareTo(Right.Tags[Properties.PluginRegex.OutgoingTag].ToString()) : 0;
                 })
             );
-            MasterSwing.ColumnDefs.Add(Properties.GenericObjects.IncomingTag, new MasterSwing.ColumnDef(Properties.GenericObjects.IncomingTag, true, "VARCHAR2(16)", Properties.GenericObjects.IncomingTag,
-                (Data) => { return Data.Tags.ContainsKey(Properties.GenericObjects.IncomingTag) ? Data.Tags[Properties.GenericObjects.IncomingTag].ToString() : String.Empty; },
-                (Data) => { return Data.Tags.ContainsKey(Properties.GenericObjects.IncomingTag) ? Data.Tags[Properties.GenericObjects.IncomingTag].ToString() : String.Empty; }, (Left, Right) =>
+            MasterSwing.ColumnDefs.Add(Properties.PluginRegex.IncomingTag, new MasterSwing.ColumnDef(Properties.PluginRegex.IncomingTag, true, "VARCHAR2(16)", Properties.PluginRegex.IncomingTag,
+                (Data) => { return Data.Tags.ContainsKey(Properties.PluginRegex.IncomingTag) ? Data.Tags[Properties.PluginRegex.IncomingTag].ToString() : String.Empty; },
+                (Data) => { return Data.Tags.ContainsKey(Properties.PluginRegex.IncomingTag) ? Data.Tags[Properties.PluginRegex.IncomingTag].ToString() : String.Empty; }, (Left, Right) =>
                 {
-                    return (Left.Tags.ContainsKey(Properties.GenericObjects.IncomingTag) && Right.Tags.ContainsKey(Properties.GenericObjects.IncomingTag)) ? Left.Tags[Properties.GenericObjects.IncomingTag].ToString().CompareTo(Right.Tags[Properties.GenericObjects.IncomingTag].ToString()) : 0;
+                    return (Left.Tags.ContainsKey(Properties.PluginRegex.IncomingTag) && Right.Tags.ContainsKey(Properties.PluginRegex.IncomingTag)) ? Left.Tags[Properties.PluginRegex.IncomingTag].ToString().CompareTo(Right.Tags[Properties.PluginRegex.IncomingTag].ToString()) : 0;
                 })
             );
             SetupSpecialTypeForMasterSwing();
@@ -819,18 +819,18 @@ namespace EverQuestDPS
                     },
                     (Left, Right) =>
                     {
-                        return ((Specials)Left.Tags[Properties.GenericObjects.SpecialStringTag]).HasFlag(SpecialParsers.GetSpecialByString(s)).CompareTo(((Specials)Right.Tags[Properties.GenericObjects.SpecialStringTag]).HasFlag(SpecialParsers.GetSpecialByString(s)));
+                        return ((Specials)Left.Tags[Properties.PluginRegex.SpecialStringTag]).HasFlag(SpecialParsers.GetSpecialByString(s)).CompareTo(((Specials)Right.Tags[Properties.PluginRegex.SpecialStringTag]).HasFlag(SpecialParsers.GetSpecialByString(s)));
                     })
                 { GetCellBackColor = (Data) =>
 
-                    ((Specials)Data.Tags[Properties.GenericObjects.SpecialStringTag]).HasFlag(SpecialParsers.GetSpecialByString(s)) ? Color.Black : Color.White
+                    ((Specials)Data.Tags[Properties.PluginRegex.SpecialStringTag]).HasFlag(SpecialParsers.GetSpecialByString(s)) ? Color.Black : Color.White
                  }
                     );
         }
 
         private string GenerateCombatDataString(String s, bool outgoing)
         {
-            return $"{s} ({(outgoing ? CombatData.Out : CombatData.In)})";
+            return $"{s} ({(outgoing ? Properties.PluginRegex.Out : Properties.PluginRegex.In)})";
         }
 
         private string GenerateCombatDataStringOut(String s)
@@ -903,9 +903,9 @@ namespace EverQuestDPS
                 case "MAXHEAL-*":
                     return Data.GetMaxHeal(false, false, true);
                 case "maxhealward":
-                    return Data.GetTag(Properties.GenericObjects.ward).GetMaxHeal(true, UseSuffix: false);
+                    return Data.GetTag(Properties.PluginRegex.ward).GetMaxHeal(true, UseSuffix: false);
                 case "MAXHEALWARD":
-                    return Data.GetTag(Properties.GenericObjects.ward).GetMaxHeal(false, UseSuffix: false);
+                    return Data.GetTag(Properties.PluginRegex.ward).GetMaxHeal(false, UseSuffix: false);
                 case "maxhealward-*":
                     return Data.GetMaxHeal(true, true, true);
                 case "MAXHEALWARD-*":
@@ -1249,7 +1249,7 @@ namespace EverQuestDPS
             if (regex == null)
                 throw new ArgumentNullException("Missing value for regex");
             else
-                return $@"\[(?<{Properties.GenericObjects.dateTimeOfLogLine}>.+)\] {regex}";
+                return $@"\[(?<{Properties.PluginRegex.dateTimeOfLogLine}>.+)\] {regex}";
         }
 
         #region Regex Population Methods
@@ -1270,20 +1270,20 @@ namespace EverQuestDPS
         {
             onLogLineRead = new List<Tuple<Color, Regex, Action<Match>>>();
             beforeLogLineRead = new List<Tuple<Color, Regex, Action<Match>>>();
-            String MeleeAttack = @"(?<attacker>.+) (?<attackType>" + $@"{Properties.GenericObjects.attackTypes}" + @")(|s|es|bed) (?<victim>.+)(\sfor\s)(?<damageAmount>[\d]+) ((?:point)(?:s|)) of damage.(?:\s\((?<" + $@"{ Properties.GenericObjects.DamageSpecial}" + @">.+)\)){0,1}";
+            String MeleeAttack = @"(?<attacker>.+) (?<attackType>" + $@"{Properties.PluginRegex.attackTypes}" + @")(|s|es|bed) (?<victim>.+)(\sfor\s)(?<damageAmount>[\d]+) ((?:point)(?:s|)) of damage.(?:\s\((?<" + $@"{ Properties.PluginRegex.DamageSpecial}" + @">.+)\)){0,1}";
             String Evasion = @"(?<attacker>.*) tries to (?<attackType>\S+) (?:(?<victim>(.+)), but \1) (?:(?<evasionType>" + $@"{Properties.PluginRegex.evasionTypes}" + @"))(?:\swith (your|his|hers|its) (shield|staff)){0,1}!(?:[\s][\(](?<evasionSpecial>.+)[\)]){0,1}";
             ActGlobals.oFormEncounterLogs.LogTypeToColorMapping.Clear();
             onLogLineRead.Add(new Tuple<Color, Regex, Action<Match>>(Color.Red, new Regex(RegexString(MeleeAttack), RegexOptions.Compiled), (match) =>
             {
                 Tuple<String, String> petTypeAndName = GetPetTypeAndPlayerName(ReplaceSelfWithCharacterName(match.Groups["attacker"].Value));
                 Tuple<String, String> victimPetTypeAndName = GetPetTypeAndPlayerName(match.Groups["victim"].Value);
-                DateTime dateTimeOfLogLine = ParseEQTimeStampFromLog(match.Groups[Properties.GenericObjects.dateTimeOfLogLine].Value);
+                DateTime dateTimeOfLogLine = ParseEQTimeStampFromLog(match.Groups[Properties.PluginRegex.dateTimeOfLogLine].Value);
                 
                 if (ActGlobals.oFormActMain.SetEncounter(ActGlobals.oFormActMain.LastKnownTime, ReplaceSelfWithCharacterName(petTypeAndName.Item2), ReplaceSelfWithCharacterName(victimPetTypeAndName.Item2)))
                 {
                     if (chilled != default)
                     {
-                        chilled.Tags.Add(Properties.GenericObjects.OutgoingTag, petTypeAndName.Item1);
+                        chilled.Tags.Add(Properties.PluginRegex.OutgoingTag, petTypeAndName.Item1);
                         ActGlobals.oFormActMain.AddCombatAction(chilled);
                         chilled = default;
                     }
@@ -1291,13 +1291,13 @@ namespace EverQuestDPS
                     String attackName = match.Groups["attackType"].Value == "frenzies on" ? "frenzy" : match.Groups["attackType"].Value;
                     Dictionary<string, object> tags = new Dictionary<string, object>
                     {
-                        [Properties.GenericObjects.OutgoingTag] = petTypeAndName.Item1,
-                        [Properties.GenericObjects.IncomingTag] = victimPetTypeAndName.Item1,
-                        [Properties.GenericObjects.SpecialStringTag] = SpecialsParse(match.Groups[Properties.GenericObjects.DamageSpecial])
+                        [Properties.PluginRegex.OutgoingTag] = petTypeAndName.Item1,
+                        [Properties.PluginRegex.IncomingTag] = victimPetTypeAndName.Item1,
+                        [Properties.PluginRegex.SpecialStringTag] = SpecialsParse(match.Groups[Properties.PluginRegex.DamageSpecial])
                     };
                     AddMasterSwing(
-                            EQSwingType.Melee
-                            , match.Groups[Properties.GenericObjects.DamageSpecial].Value.Contains(Properties.GenericObjects.Critical)
+                            (int)EQSwingType.Melee
+                            , match.Groups[Properties.PluginRegex.DamageSpecial].Value.Contains(Properties.PluginRegex.Critical)
                             , damage
                             , attackName
                             , dateTimeOfLogLine
@@ -1312,14 +1312,14 @@ namespace EverQuestDPS
             ActGlobals.oFormEncounterLogs.LogTypeToColorMapping.Add(ActGlobals.oFormEncounterLogs.LogTypeToColorMapping.Count, onLogLineRead[onLogLineRead.Count - 1].Item1);
             onLogLineRead.Add(new Tuple<Color, Regex, Action<Match>>(Color.Plum, new Regex(RegexString(Properties.PluginRegex.MissedMeleeAttack), RegexOptions.Compiled), (match) =>
             {
-                CombatMasterSwingAdd(match, EQSwingType.Melee,
+                CombatMasterSwingAdd(match, (int)EQSwingType.Melee,
                     "special", Dnum.Miss, "attackType", "Hitpoints", default);
             }));
             ActGlobals.oFormEncounterLogs.LogTypeToColorMapping.Add(ActGlobals.oFormEncounterLogs.LogTypeToColorMapping.Count, onLogLineRead[onLogLineRead.Count - 1].Item1);
             onLogLineRead.Add(new Tuple<Color, Regex, Action<Match>>(Color.Red, new Regex(RegexString(Properties.PluginRegex.SpellDamage), RegexOptions.Compiled), (match) =>
             {
                 CombatMasterSwingAdd(match,
-                        EQSwingType.Spell
+                        (int)EQSwingType.Spell
                         , "special"
                         , new Dnum(Int64.Parse(match.Groups["damagePoints"].Value), match.Groups["typeOfDamage"].Value)
                         , "attackType"
@@ -1338,7 +1338,7 @@ namespace EverQuestDPS
                     }
 
                     CombatMasterSwingAdd(match,
-                        match.Groups["overTime"].Success ? EQSwingType.HealingOverTime : EQSwingType.InstantHealing,
+                        (int)(match.Groups["overTime"].Success ? EQSwingType.HealingOverTime : EQSwingType.InstantHealing),
                         "special",
                         heal,
                         "healingSpellName",
@@ -1348,11 +1348,11 @@ namespace EverQuestDPS
             ActGlobals.oFormEncounterLogs.LogTypeToColorMapping.Add(ActGlobals.oFormEncounterLogs.LogTypeToColorMapping.Count, onLogLineRead[onLogLineRead.Count - 1].Item1);
             onLogLineRead.Add(new Tuple<Color, Regex, Action<Match>>(Color.Silver, new Regex(RegexString(Properties.PluginRegex.Unknown), RegexOptions.Compiled), (match) =>
             {
-                DateTime dateTimeOfParse = ParseEQTimeStampFromLog(match.Groups[Properties.GenericObjects.dateTimeOfLogLine].Value);
+                DateTime dateTimeOfParse = ParseEQTimeStampFromLog(match.Groups[Properties.PluginRegex.dateTimeOfLogLine].Value);
                 Tuple<String, String> petTypeAndName = GetPetTypeAndPlayerName(ReplaceSelfWithCharacterName(match.Groups["attacker"].Value));
                 Tuple<String, String> victimPetTypeAndName = GetPetTypeAndPlayerName(match.Groups["victim"].Value);
                 MasterSwing msUnknown = new MasterSwing(
-                            EQSwingType.NonMelee
+                            (int)EQSwingType.NonMelee
                             , false
                             , new Dnum(Dnum.Unknown)
                             {
@@ -1364,7 +1364,7 @@ namespace EverQuestDPS
                             "Unknown",
                             "Unknown",
                             "Unknown")
-                { Tags = new Dictionary<string, object> { { Properties.GenericObjects.OutgoingTag, petTypeAndName.Item1 }, { Properties.GenericObjects.IncomingTag, victimPetTypeAndName.Item1 } } };
+                { Tags = new Dictionary<string, object> { { Properties.PluginRegex.OutgoingTag, petTypeAndName.Item1 }, { Properties.PluginRegex.IncomingTag, victimPetTypeAndName.Item1 } } };
                 ActGlobals.oFormActMain.AddCombatAction(msUnknown);
             }));
             ActGlobals.oFormEncounterLogs.LogTypeToColorMapping.Add(ActGlobals.oFormEncounterLogs.LogTypeToColorMapping.Count, onLogLineRead[onLogLineRead.Count - 1].Item1);
@@ -1372,7 +1372,7 @@ namespace EverQuestDPS
                 (match) =>
                 {
                     CombatMasterSwingAdd(match,
-                               EQSwingType.Melee
+                               (int)EQSwingType.Melee
                                , "evasionSpecial"
                                , new Dnum(Dnum.Miss, match.Groups["evasionType"].Value)
                                , "attackType"
@@ -1384,7 +1384,7 @@ namespace EverQuestDPS
             onLogLineRead.Add(new Tuple<Color, Regex, Action<Match>>(Color.LightBlue, new Regex(RegexString(Properties.PluginRegex.Banestrike), RegexOptions.Compiled), (match) =>
             {
                 CombatMasterSwingAdd(match,
-                               EQSwingType.Bane
+                               (int)EQSwingType.Bane
                                , "special"
                                , new Dnum(Int64.Parse(match.Groups["baneDamage"].Value), "bane")
                                , "typeOfDamage"
@@ -1396,7 +1396,7 @@ namespace EverQuestDPS
                 (match) =>
                 {
                     CombatMasterSwingAdd(match,
-                           EQSwingType.Spell
+                           (int)EQSwingType.Spell
                            , "special"
                            , new Dnum(Int64.Parse(match.Groups["damagePoints"].Value), "spell dot")
                            , "damageEffect"
@@ -1409,7 +1409,7 @@ namespace EverQuestDPS
                 (match) =>
                 {
                     CombatMasterSwingAdd(match,
-                                   EQSwingType.Spell
+                                   (int)EQSwingType.Spell
                                    , "special"
                                    , new Dnum(Int64.Parse(match.Groups["damagePoints"].Value), "spell focus")
                                    , "damageEffect"
@@ -1422,7 +1422,7 @@ namespace EverQuestDPS
                 (match) =>
                 {
                     CombatMasterSwingAdd(match,
-                                  EQSwingType.NonMelee
+                                  (int)EQSwingType.NonMelee
                                   , "special"
                                   , new Dnum(Int64.Parse(match.Groups["damagePoints"].Value), "damage shield")
                                   , "damageShieldResponse"
@@ -1440,7 +1440,7 @@ namespace EverQuestDPS
             onLogLineRead.Add(new Tuple<Color, Regex, Action<Match>>(Color.Tan, new Regex(RegexString(Properties.PluginRegex.spellResist), RegexOptions.Compiled), (match) =>
             {
                 CombatMasterSwingAdd(match,
-                               EQSwingType.Spell
+                               (int)EQSwingType.Spell
                                , "special"
                                , new Dnum(Dnum.NoDamage, "spell")
                                , "spellName"
@@ -1459,7 +1459,7 @@ namespace EverQuestDPS
             , RegexOptions.Compiled), (match) =>
             {
 
-                CombatMasterSwingAdd(match, EQSwingType.NonMelee,
+                CombatMasterSwingAdd(match, (int)EQSwingType.NonMelee,
                         "special",
                         new Dnum(Int64.Parse(match.Groups["damagePoints"].Value), "damage shield"),
                         "damageShieldType",
@@ -1472,15 +1472,15 @@ namespace EverQuestDPS
                 , RegexOptions.Compiled)
                 , (match) =>
                 {
-                    DateTime dateTimeOfParse = ParseEQTimeStampFromLog(match.Groups[Properties.GenericObjects.dateTimeOfLogLine].Value);
+                    DateTime dateTimeOfParse = ParseEQTimeStampFromLog(match.Groups[Properties.PluginRegex.dateTimeOfLogLine].Value);
                     Tuple<String, String> petTypeAndName = GetPetTypeAndPlayerName(ReplaceSelfWithCharacterName(match.Groups["attacker"].Value));
                     Tuple<String, String> victimPetTypeAndName = GetPetTypeAndPlayerName(match.Groups["victim"].Value);
                     Dictionary<string, object> tags = new Dictionary<string, object>
                 {
-                    { Properties.GenericObjects.OutgoingTag, petTypeAndName.Item1 },
-                    { Properties.GenericObjects.IncomingTag, victimPetTypeAndName.Item1 }
+                    { Properties.PluginRegex.OutgoingTag, petTypeAndName.Item1 },
+                    { Properties.PluginRegex.IncomingTag, victimPetTypeAndName.Item1 }
                 };
-                    chilled = new MasterSwing(EQSwingType.NonMelee,
+                    chilled = new MasterSwing((int)EQSwingType.NonMelee,
                         match.Groups["special"].Success && match.Groups["special"].Value.Contains("Critical"),
                         new Dnum(Int64.Parse(match.Groups["damageAmount"].Value), "damage shield"),
                         dateTimeOfParse,
@@ -1501,7 +1501,7 @@ namespace EverQuestDPS
         /// <returns></returns>
         private Color GetSwingTypeColor(int eqst)
         {
-            switch (eqst)
+            switch ((EQSwingType)eqst)
             {
                 case EQSwingType.Melee:
                     return Color.DarkViolet;
@@ -1551,16 +1551,16 @@ namespace EverQuestDPS
             if (specials.Success)
             {
                 return 
-                    ((specials.Value.Contains(Properties.GenericObjects.CripplingBlow) ? Specials.CripplingBlow : Specials.None) |
-                    (specials.Value.Contains(Properties.GenericObjects.WildRampage) ? Specials.WildRampage : Specials.None) |
-                    (specials.Value.Contains(Properties.GenericObjects.Twincast) ? Specials.Twincast : Specials.None) |
-                    (specials.Value.Contains(Properties.GenericObjects.Strikethrough) ? Specials.Strikethrough : Specials.None) |
-                    (specials.Value.Contains(Properties.GenericObjects.Riposte) ? Specials.Riposte : Specials.None) |
-                    (specials.Value.Contains(Properties.GenericObjects.Lucky) ? Specials.Lucky : Specials.None) |
-                    (specials.Value.Contains(Properties.GenericObjects.Locked) ? Specials.Locked : Specials.None) |
-                    (specials.Value.Contains(Properties.GenericObjects.Flurry) ? Specials.Flurry : Specials.None) |
-                    (specials.Value.Contains(Properties.GenericObjects.DoubleBowShot) ? Specials.DoubleBowShot : Specials.None) |
-                    (specials.Value.Contains(Properties.GenericObjects.FinishingBlow) ? Specials.FinishingBlow : Specials.None));
+                    ((specials.Value.Contains(Properties.PluginRegex.CripplingBlow) ? Specials.CripplingBlow : Specials.None) |
+                    (specials.Value.Contains(Properties.PluginRegex.WildRampage) ? Specials.WildRampage : Specials.None) |
+                    (specials.Value.Contains(Properties.PluginRegex.Twincast) ? Specials.Twincast : Specials.None) |
+                    (specials.Value.Contains(Properties.PluginRegex.Strikethrough) ? Specials.Strikethrough : Specials.None) |
+                    (specials.Value.Contains(Properties.PluginRegex.Riposte) ? Specials.Riposte : Specials.None) |
+                    (specials.Value.Contains(Properties.PluginRegex.Lucky) ? Specials.Lucky : Specials.None) |
+                    (specials.Value.Contains(Properties.PluginRegex.Locked) ? Specials.Locked : Specials.None) |
+                    (specials.Value.Contains(Properties.PluginRegex.Flurry) ? Specials.Flurry : Specials.None) |
+                    (specials.Value.Contains(Properties.PluginRegex.DoubleBowShot) ? Specials.DoubleBowShot : Specials.None) |
+                    (specials.Value.Contains(Properties.PluginRegex.FinishingBlow) ? Specials.FinishingBlow : Specials.None));
             }
             else
                 return Specials.None;
@@ -1569,15 +1569,15 @@ namespace EverQuestDPS
         #region String Parsing
         private void CombatMasterSwingAdd(Match match, int eqst, String specialMatchGroup, Dnum damage, String attackTypeMatchGroup, String typeOfResource, Action<Dictionary<string, object>> tagsAction)
         {
-            DateTime dateTimeOfLogLine = ParseEQTimeStampFromLog(match.Groups[Properties.GenericObjects.dateTimeOfLogLine].Value);
+            DateTime dateTimeOfLogLine = ParseEQTimeStampFromLog(match.Groups[Properties.PluginRegex.dateTimeOfLogLine].Value);
             Tuple<String, String> petTypeAndName = GetPetTypeAndPlayerName(ReplaceSelfWithCharacterName(match.Groups["attacker"].Value));
             Tuple<String, String> victimPetTypeAndName = GetPetTypeAndPlayerName(match.Groups["victim"].Value);
             Dictionary<string, Object> tags = new Dictionary<string, Object>
                     {
-                        { Properties.GenericObjects.OutgoingTag, petTypeAndName.Item1 },
-                        { Properties.GenericObjects.IncomingTag, victimPetTypeAndName.Item1 }
+                        { Properties.PluginRegex.OutgoingTag, petTypeAndName.Item1 },
+                        { Properties.PluginRegex.IncomingTag, victimPetTypeAndName.Item1 }
                     };
-            tags[Properties.GenericObjects.SpecialStringTag] = SpecialsParse(match.Groups["special"]);
+            tags[Properties.PluginRegex.SpecialStringTag] = SpecialsParse(match.Groups["special"]);
             if (tagsAction != default)
                 tagsAction(tags);
             if (EQSwingType.HealingOverTime.Equals(eqst) || EQSwingType.InstantHealing.Equals(eqst))
@@ -1586,7 +1586,7 @@ namespace EverQuestDPS
                 {
                     AddMasterSwing(
                     eqst
-                    , match.Groups[specialMatchGroup].Value.Contains(Properties.GenericObjects.Critical)
+                    , match.Groups[specialMatchGroup].Value.Contains(Properties.PluginRegex.Critical)
                     , damage
                     , match.Groups[attackTypeMatchGroup].Success ? match.Groups[attackTypeMatchGroup].Value : "unnamed heal"
                     , dateTimeOfLogLine
@@ -1602,7 +1602,7 @@ namespace EverQuestDPS
                 {
                     AddMasterSwing(
                         eqst
-                    , match.Groups[specialMatchGroup].Value.Contains(Properties.GenericObjects.Critical)
+                    , match.Groups[specialMatchGroup].Value.Contains(Properties.PluginRegex.Critical)
                     , damage
                     , match.Groups[attackTypeMatchGroup].Value
                     , dateTimeOfLogLine
@@ -1626,7 +1626,7 @@ namespace EverQuestDPS
         /// <returns>DateTime</returns>
         internal DateTime ParseEQTimeStampFromLog(String timeStamp)
         {
-            DateTime.TryParseExact(timeStamp, Properties.GenericObjects.eqDateTimeStampFormat, DateTimeFormatInfo.CurrentInfo, DateTimeStyles.AssumeLocal, out DateTime currentEQTimeStamp);
+            DateTime.TryParseExact(timeStamp, Properties.PluginRegex.eqDateTimeStampFormat, DateTimeFormatInfo.CurrentInfo, DateTimeStyles.AssumeLocal, out DateTime currentEQTimeStamp);
             return currentEQTimeStamp;
         }
 
@@ -1685,7 +1685,7 @@ namespace EverQuestDPS
 
         private void ParseDeathMessage(Match match)
         {
-            CombatMasterSwingAdd(match, EQSwingType.None,
+            CombatMasterSwingAdd(match, (int)EQSwingType.None,
                 String.Empty
                 , Dnum.Death
                 , "Killing"
@@ -1732,7 +1732,7 @@ namespace EverQuestDPS
             if (Directory.Exists(EverQuestDirectoryPath))
             {
                 watcherForRaidRoster.Path = Path.GetFullPath(EverQuestDirectoryPath);
-                watcherForRaidRoster.Filter = Properties.GenericObjects.RaidRosterPath;
+                watcherForRaidRoster.Filter = Properties.PluginRegex.RaidRosterPath;
                 watcherForRaidRoster.IncludeSubdirectories = false;
                 watcherForRaidRoster.NotifyFilter = NotifyFilters.FileName | NotifyFilters.LastWrite | NotifyFilters.Attributes | NotifyFilters.CreationTime;
             }
@@ -1763,7 +1763,7 @@ namespace EverQuestDPS
 
         private void OnMouseLeaveButtonArea(object sender, EventArgs e)
         {
-            ChangeSetOptionsHelpText(Properties.GenericObjects.MouseLeave);
+            ChangeSetOptionsHelpText(Properties.PluginRegex.MouseLeave);
         }
 
         private void OnMouseEnterDirectory(object sender, EventArgs e)
