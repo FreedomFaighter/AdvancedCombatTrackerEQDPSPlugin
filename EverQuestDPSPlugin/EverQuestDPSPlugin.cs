@@ -12,8 +12,6 @@ using System.Xml;
 using EverQuestDPS.Enums;
 using EverQuestDPS.ParserObjectGenerators;
 using EverQuestDPS.Extensions;
-using EverQuestDPS.Properties;
-using EverQuestDPS.Classes;
 
 /*
 * Project: EverQuest DPS Plugin

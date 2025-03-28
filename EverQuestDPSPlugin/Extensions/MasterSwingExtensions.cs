@@ -1,7 +1,6 @@
 ﻿using Advanced_Combat_Tracker;
 using System;
 using EverQuestDPS.Enums;
-using EverQuestDPS.Classes;
 
 namespace EverQuestDPS.Extensions
 {

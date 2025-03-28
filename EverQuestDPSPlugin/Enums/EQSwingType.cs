@@ -1,4 +1,4 @@
-﻿namespace EverQuestDPS.Classes
+﻿namespace EverQuestDPS.Enums
 {
     public enum EQSwingType
     {

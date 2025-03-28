@@ -64,7 +64,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Classes\EQSwingType.cs" />
+    <Compile Include="Enums\EQSwingType.cs" />
     <Compile Include="Enums\Specials.cs" />
     <Compile Include="Enums\SummonedEntity.cs" />
     <Compile Include="EverQuestDPSPlugin.cs">
@@ -100,7 +100,9 @@
       <SubType>Designer</SubType>
     </EmbeddedResource>
   </ItemGroup>
-  <ItemGroup />
+  <ItemGroup>
+    <Folder Include="Classes\" />
+  </ItemGroup>
   <PropertyGroup>
     <PostBuildEvent>IF NOT EXIST "$(APPDATA)\Advanced Combat Tracker\Plugins" mkdir "$(APPDATA)\Advanced Combat Tracker\Plugins"
 IF Debug==$(ConfigurationName) copy /Y $(TargetPath) "$(APPDATA)\Advanced Combat Tracker\Plugins"</PostBuildEvent>
