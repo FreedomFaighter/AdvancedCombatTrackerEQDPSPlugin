@@ -16,7 +16,7 @@ namespace EverQuestDPS.StatisticalProcessors
         {
             double percentage = damageTypeData.GetPercentage(damageTypeDataCritType);
             if (percentage == double.NaN)
-                return ActGlobals.ActLocalization.LocalizationStrings[Properties.GenericObjects.specialAttackNoneLocalization].DisplayedText;
+                return ActGlobals.ActLocalization.LocalizationStrings[Properties.PluginRegex.specialAttackNoneLocalization].DisplayedText;
             else
                 return percentage.ToString();
         }
