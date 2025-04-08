@@ -20,7 +20,7 @@ namespace EverQuestDPS.Localization
 
         internal static void EditLocalizations()
         {
-            TryEditLocalization(Properties.GenericObjects.specialAttackNoneLocalization, String.Empty); // What appears in the Special column of an attack when there is no data
+            TryEditLocalization(Properties.PluginRegex.specialAttackNoneLocalization, String.Empty); // What appears in the Special column of an attack when there is no data
         }
     }
 }
