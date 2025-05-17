@@ -28,7 +28,7 @@ namespace EverQuestDPS.Extensions
 
         internal static bool GetWardHealing(this MasterSwing masterSwing)
         {
-            return masterSwing.Tags[EverQuestDPS.Properties.PluginRegex.OutgoingTag].Equals(Properties.PluginRegex.ward) && masterSwing.SwingType.Equals(EQSwingType.Healing);
+            return masterSwing.Tags[EverQuestDPS.Properties.PluginRegex.OutgoingTag].Equals(Properties.PluginRegex.ward) && masterSwing.SwingType.Equals(EQSwingType.Heal);
         }
 
         internal static bool GetWarderDamage(this MasterSwing masterSwing)

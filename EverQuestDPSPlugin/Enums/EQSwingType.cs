@@ -1,19 +1,21 @@
-﻿namespace EverQuestDPS.Enums
+﻿using System.ComponentModel;
+
+namespace EverQuestDPS.Enums
 {
+    [Description("EverQuest Swing Types for ACT Plugin")]
     public enum EQSwingType
     {
+        [Description("None")]
         None = 0,
+        [Description("Melee")]
         Melee = 1,
+        [Description("Non Melee")]
         NonMelee = 2,
-        Healing = 4,
+        [Description("Heal")]
+        Heal = 4,
+        [Description("Spell")]
         Spell = 8,
+        [Description("Bane")]
         Bane = 16,
-        DamageShield = 32,
-        Instant = 64,
-        OverTime = 128,
-        HealingOverTime = Healing + OverTime,
-        InstantHealing = Healing + Instant,
-        DirectDamageSpell = Spell + Instant,
-        SpellOverTime = Spell + OverTime
     }
 }

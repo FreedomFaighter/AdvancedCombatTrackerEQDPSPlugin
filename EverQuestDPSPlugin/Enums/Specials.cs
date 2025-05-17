@@ -9,8 +9,6 @@ namespace EverQuestDPS.Enums
     [Flags]
     internal enum Specials
     {
-        [Description("")]
-        None,
         [Description("Crippling Blow")]
         CripplingBlow = 1,
         [Description("Wild Rampage")]
@@ -46,12 +44,7 @@ namespace EverQuestDPS.Enums
 
         internal static Specials GetSpecialByString(String special)
         {
-            foreach (Specials s in Enum.GetValues(typeof(Specials)))
-            {
-                if (GetString(s) == special)
-                    return s;
-            }
-            return Specials.None;
+            return Enum.GetValues(typeof(Specials)).Cast<Specials>().SingleOrDefault(s => GetString(s) == special);
         }
     }
 }

@@ -102,6 +102,7 @@
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Classes\" />
+    <Folder Include="Structs\" />
   </ItemGroup>
   <PropertyGroup>
     <PostBuildEvent>IF NOT EXIST "$(APPDATA)\Advanced Combat Tracker\Plugins" mkdir "$(APPDATA)\Advanced Combat Tracker\Plugins"

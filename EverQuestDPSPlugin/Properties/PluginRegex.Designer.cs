@@ -61,7 +61,7 @@ namespace EverQuestDPS.Properties {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to backstab|throw|pierce|gore|crush|slash|hit|kick|slam|bash|shoot|strike|bite|grab|punch|scratch|rake|swipe|claw|maul|smash|frenzies on|frenzy.
+        ///   Looks up a localized string similar to backstab|throw|pierce|gore|crush|slash|hit|kick|slam|bash|shoot|strike|bite|grab|punch|scratch|rake|swipe|claw|maul|smash|(frenzies on|frenzy).
         /// </summary>
         internal static string attackTypes {
             get {
@@ -376,7 +376,7 @@ namespace EverQuestDPS.Properties {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to (?&lt;playerName&gt;.+)`s\s(?&lt;petName&gt;(pet|familiar|ward|warder)).
+        ///   Looks up a localized string similar to (?&lt;playerName&gt;.+)[`s|]\s(?&lt;petName&gt;(pet|familiar|ward|warder)).
         /// </summary>
         internal static string petAndPlayerName {
             get {

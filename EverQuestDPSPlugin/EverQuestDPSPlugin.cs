@@ -12,6 +12,7 @@ using System.Xml;
 using EverQuestDPS.Enums;
 using EverQuestDPS.ParserObjectGenerators;
 using EverQuestDPS.Extensions;
+using System.Diagnostics;
 
 /*
 * Project: EverQuest DPS Plugin
@@ -597,16 +598,15 @@ namespace EverQuestDPS
             CombatantData.SwingTypeToDamageTypeDataLinksIncoming = new SortedDictionary<int, List<string>>
         {
             {(int)EQSwingType.Melee, new List<string> { "Incoming Damage" } },
-            {(int)EQSwingType.NonMelee, new List<string> { "Incoming NonMelee Damage", "Incoming Damage" } },
-            {(int)EQSwingType.Spell, new List<string> { "Direct Damage Spell (Inc)", "Incoming Damage" } },
-            {(int)EQSwingType.Heal, new List<string> { "Instant Heal (Inc)" } },
+            {(int)EQSwingType.NonMelee, new List<string> { "NonMelee Damage", "Incoming Damage" } },
+            {(int)EQSwingType.Spell, new List<string> { "Spell (Inc)", "Incoming Damage" } },
+            {(int)EQSwingType.Heal, new List<string> { "Heal (Inc)" } },
         };
 
             CombatantData.DamageSwingTypes = new List<int>()
             {
                 (int)EQSwingType.Bane,
-                (int)EQSwingType.DamageShield,
-                (int)EQSwingType.Heal,
+                (int)EQSwingType.Spell,
                 (int)EQSwingType.Melee,
                 (int)EQSwingType.NonMelee
             };
@@ -615,8 +615,6 @@ namespace EverQuestDPS
             {
                 (int)EQSwingType.Heal
             };
-
-            CombatantData.HealingSwingTypes = new List<int>();
 
             CombatantData.ExportVariables.Clear();
             CombatantData.ExportVariables.Add("n", new CombatantData.TextExportFormatter("n", "New Line", "Formatting after this element will appear on a new line.", (Data, Extra) => { return "\n"; }));
@@ -1268,61 +1266,24 @@ namespace EverQuestDPS
             #region Melee Regex
             onLogLineRead.Add(new Tuple<Color, Regex, Action<Match>>(Color.Red, new Regex(RegexString(MeleeAttack), RegexOptions.Compiled), (match) =>
             {
-                Tuple<String, String> petTypeAndName = GetPetTypeAndPlayerName(ReplaceSelfWithCharacterName(match.Groups["attacker"].Value));
-                Tuple<String, String> victimPetTypeAndName = GetPetTypeAndPlayerName(match.Groups["victim"].Value);
-                DateTime dateTimeOfLogLine = ParseEQTimeStampFromLog(match.Groups[Properties.PluginRegex.dateTimeOfLogLine].Value);
-                
-                if (ActGlobals.oFormActMain.SetEncounter(ActGlobals.oFormActMain.LastKnownTime, ReplaceSelfWithCharacterName(petTypeAndName.Item2), ReplaceSelfWithCharacterName(victimPetTypeAndName.Item2)))
-                {
-                    if (chilled != default)
-                    {
-                        chilled.Tags.Add(Properties.PluginRegex.OutgoingTag, petTypeAndName.Item1);
-                        ActGlobals.oFormActMain.AddCombatAction(chilled);
-                        chilled = default;
-                    }
-                    Dnum damage = new Dnum(Int64.Parse(match.Groups["damageAmount"].Value), "melee");
-                    String attackName = match.Groups["attackType"].Value == "frenzies on" ? "frenzy" : match.Groups["attackType"].Value;
-                    Dictionary<string, object> tags = new Dictionary<string, object>
-                    {
-                        [Properties.PluginRegex.OutgoingTag] = petTypeAndName.Item1,
-                        [Properties.PluginRegex.IncomingTag] = victimPetTypeAndName.Item1,
-                        [Properties.PluginRegex.SpecialStringTag] = SpecialsParse(match.Groups[Properties.PluginRegex.DamageSpecial])
-                    };
-                    AddMasterSwing(
-                            (int)EQSwingType.Melee
-                            , match.Groups[Properties.PluginRegex.DamageSpecial].Value.Contains(Properties.PluginRegex.Critical)
-                            , damage
-                            , attackName
-                            , dateTimeOfLogLine
-                            , ReplaceSelfWithCharacterName(petTypeAndName.Item2)
-                            , "Hitpoints"
-                            , ReplaceSelfWithCharacterName(victimPetTypeAndName.Item2)
-                            , tags
-                            );
-                }
-            })
-              );
+                CombatMasterSwingAdd(match, EQSwingType.Melee, Properties.PluginRegex.DamageSpecial, new Dnum(Int64.Parse(match.Groups["damageAmount"].Value)), "attackType", "Hitpoints");
+            }));
             ActGlobals.oFormEncounterLogs.LogTypeToColorMapping.Add(ActGlobals.oFormEncounterLogs.LogTypeToColorMapping.Count, onLogLineRead[onLogLineRead.Count - 1].Item1);
             #endregion
             onLogLineRead.Add(new Tuple<Color, Regex, Action<Match>>(Color.Plum, new Regex(RegexString(Properties.PluginRegex.MissedMeleeAttack), RegexOptions.Compiled), (match) =>
             {
-                CombatMasterSwingAdd(match, (int)EQSwingType.Melee,
-                    "special", Dnum.Miss, "attackType", "Hitpoints", default);
+                CombatMasterSwingAdd(match, EQSwingType.Melee,
+                    "special", Dnum.Miss, "attackType", "Hitpoints");
             }));
             ActGlobals.oFormEncounterLogs.LogTypeToColorMapping.Add(ActGlobals.oFormEncounterLogs.LogTypeToColorMapping.Count, onLogLineRead[onLogLineRead.Count - 1].Item1);
             onLogLineRead.Add(new Tuple<Color, Regex, Action<Match>>(Color.Red, new Regex(RegexString(Properties.PluginRegex.SpellDamage), RegexOptions.Compiled), (match) =>
             {
-                void tagsAction(Dictionary<string, object> tags)
-                {
-                    
-                }
                 CombatMasterSwingAdd(match,
-                        (int)EQSwingType.Spell
+                        EQSwingType.Spell
                         , "special"
                         , new Dnum(Int64.Parse(match.Groups["damagePoints"].Value), match.Groups["typeOfDamage"].Value)
                         , "attackType"
-                        , "Hitpoints", default
-                    );
+                        , "Hitpoints", new Dictionary<string, object>() { { "DamageOvertime", false } });
             }));
             ActGlobals.oFormEncounterLogs.LogTypeToColorMapping.Add(ActGlobals.oFormEncounterLogs.LogTypeToColorMapping.Count, onLogLineRead[onLogLineRead.Count - 1].Item1);
             onLogLineRead.Add(new Tuple<Color, Regex, Action<Match>>(Color.DarkBlue, new Regex(RegexString(Properties.PluginRegex.Heal), RegexOptions.Compiled),
@@ -1336,7 +1297,7 @@ namespace EverQuestDPS
                     tags["healOvertime"] = match.Groups["overTime"].Success;
                     
                     CombatMasterSwingAdd(match,
-                        (int)EQSwingType.Heal,
+                        EQSwingType.Heal,
                         "special",
                         heal,
                         "healingSpellName",
@@ -1370,11 +1331,11 @@ namespace EverQuestDPS
                 (match) =>
                 {
                     CombatMasterSwingAdd(match,
-                               (int)EQSwingType.Melee
+                               EQSwingType.Melee
                                , "evasionSpecial"
-                               , new Dnum(Dnum.Miss, match.Groups["evasionType"].Value)
+                               , new Dnum(Dnum.Miss)
                                , "attackType"
-                               , "Hitpoints", default
+                               , "Hitpoints", new Dictionary<string, object>() { { "EvasionType" , match.Groups["evasionType"].Value } }
                            );
 
                 }));
@@ -1382,7 +1343,7 @@ namespace EverQuestDPS
             onLogLineRead.Add(new Tuple<Color, Regex, Action<Match>>(Color.LightBlue, new Regex(RegexString(Properties.PluginRegex.Banestrike), RegexOptions.Compiled), (match) =>
             {
                 CombatMasterSwingAdd(match,
-                               (int)EQSwingType.Bane
+                               EQSwingType.Bane
                                , "special"
                                , new Dnum(Int64.Parse(match.Groups["baneDamage"].Value), "bane")
                                , "typeOfDamage"
@@ -1394,24 +1355,23 @@ namespace EverQuestDPS
                 (match) =>
                 {
                     CombatMasterSwingAdd(match,
-                           (int)EQSwingType.Spell
+                           EQSwingType.Spell
                            , "special"
-                           , new Dnum(Int64.Parse(match.Groups["damagePoints"].Value), "spell dot")
+                           , new Dnum(Int64.Parse(match.Groups["damagePoints"].Value))
                            , "damageEffect"
-                           , "Hitpoints", default
+                           , "Hitpoints", new Dictionary<string, object>() { {"DamageOvertime", true } }
                        );
-
                 }));
             ActGlobals.oFormEncounterLogs.LogTypeToColorMapping.Add(ActGlobals.oFormEncounterLogs.LogTypeToColorMapping.Count, onLogLineRead[onLogLineRead.Count - 1].Item1);
             onLogLineRead.Add(new Tuple<Color, Regex, Action<Match>>(Color.PaleVioletRed, new Regex(RegexString(Properties.PluginRegex.FocusDamageEffect), RegexOptions.Compiled),
                 (match) =>
                 {
                     CombatMasterSwingAdd(match,
-                                   (int)EQSwingType.Spell
+                                   EQSwingType.Spell
                                    , "special"
                                    , new Dnum(Int64.Parse(match.Groups["damagePoints"].Value), "spell focus")
                                    , "damageEffect"
-                                   , "Hitpoints", default
+                                   , "Hitpoints", new Dictionary<string, object>() { {"Focus", true }}
                                );
 
                 }));
@@ -1420,9 +1380,9 @@ namespace EverQuestDPS
                 (match) =>
                 {
                     CombatMasterSwingAdd(match,
-                                  (int)EQSwingType.NonMelee
+                                  EQSwingType.NonMelee
                                   , "special"
-                                  , new Dnum(Int64.Parse(match.Groups["damagePoints"].Value), "damage shield")
+                                  , new Dnum(Int64.Parse(match.Groups["damagePoints"].Value))
                                   , "damageShieldResponse"
                                   , "Hitpoints", new Dictionary<string, object> { { "damageShield", true } }
                               );
@@ -1437,12 +1397,11 @@ namespace EverQuestDPS
             onLogLineRead.Add(new Tuple<Color, Regex, Action<Match>>(Color.Tan, new Regex(RegexString(Properties.PluginRegex.spellResist), RegexOptions.Compiled), (match) =>
             {
                 CombatMasterSwingAdd(match,
-                               (int)EQSwingType.Spell
+                               EQSwingType.Spell
                                , "special"
-                               , new Dnum(Dnum.NoDamage, "spell")
+                               , new Dnum(Dnum.NoDamage)
                                , "spellName"
-                               , "Hitpoints", default
-                           );
+                               , "Hitpoints");
             }));
             ActGlobals.oFormEncounterLogs.LogTypeToColorMapping.Add(ActGlobals.oFormEncounterLogs.LogTypeToColorMapping.Count, onLogLineRead[onLogLineRead.Count - 1].Item1);
             onLogLineRead.Add(new Tuple<Color, Regex, Action<Match>>(Color.Black, new Regex(RegexString(Properties.PluginRegex.SlainMessages), RegexOptions.Compiled), (match) =>
@@ -1456,11 +1415,11 @@ namespace EverQuestDPS
             , RegexOptions.Compiled), (match) =>
             {
 
-                CombatMasterSwingAdd(match, (int)EQSwingType.NonMelee,
+                CombatMasterSwingAdd(match, EQSwingType.NonMelee,
                         "special",
-                        new Dnum(Int64.Parse(match.Groups["damagePoints"].Value), "damage shield"),
+                        new Dnum(Int64.Parse(match.Groups["damagePoints"].Value)),
                         "damageShieldType",
-                        "Hitpoints", default
+                        "Hitpoints", new Dictionary<string, object>() { { "damageShield", true } }
                 );
             }));
             ActGlobals.oFormEncounterLogs.LogTypeToColorMapping.Add(ActGlobals.oFormEncounterLogs.LogTypeToColorMapping.Count, beforeLogLineRead[beforeLogLineRead.Count - 1].Item1);
@@ -1547,68 +1506,74 @@ namespace EverQuestDPS
         {
             if (specials.Success)
             {
-                return 
-                    ((specials.Value.Contains(Properties.PluginRegex.CripplingBlow) ? Specials.CripplingBlow : Specials.None) |
-                    (specials.Value.Contains(Properties.PluginRegex.WildRampage) ? Specials.WildRampage : Specials.None) |
-                    (specials.Value.Contains(Properties.PluginRegex.Twincast) ? Specials.Twincast : Specials.None) |
-                    (specials.Value.Contains(Properties.PluginRegex.Strikethrough) ? Specials.Strikethrough : Specials.None) |
-                    (specials.Value.Contains(Properties.PluginRegex.Riposte) ? Specials.Riposte : Specials.None) |
-                    (specials.Value.Contains(Properties.PluginRegex.Lucky) ? Specials.Lucky : Specials.None) |
-                    (specials.Value.Contains(Properties.PluginRegex.Locked) ? Specials.Locked : Specials.None) |
-                    (specials.Value.Contains(Properties.PluginRegex.Flurry) ? Specials.Flurry : Specials.None) |
-                    (specials.Value.Contains(Properties.PluginRegex.DoubleBowShot) ? Specials.DoubleBowShot : Specials.None) |
-                    (specials.Value.Contains(Properties.PluginRegex.FinishingBlow) ? Specials.FinishingBlow : Specials.None));
+                return
+                    ((specials.Value.Contains(Properties.PluginRegex.CripplingBlow) ? Specials.CripplingBlow : default) |
+                    (specials.Value.Contains(Properties.PluginRegex.WildRampage) ? Specials.WildRampage : default) |
+                    (specials.Value.Contains(Properties.PluginRegex.Twincast) ? Specials.Twincast : default) |
+                    (specials.Value.Contains(Properties.PluginRegex.Strikethrough) ? Specials.Strikethrough : default) |
+                    (specials.Value.Contains(Properties.PluginRegex.Riposte) ? Specials.Riposte : default) |
+                    (specials.Value.Contains(Properties.PluginRegex.Lucky) ? Specials.Lucky : default) |
+                    (specials.Value.Contains(Properties.PluginRegex.Locked) ? Specials.Locked : default) |
+                    (specials.Value.Contains(Properties.PluginRegex.Flurry) ? Specials.Flurry : default) |
+                    (specials.Value.Contains(Properties.PluginRegex.DoubleBowShot) ? Specials.DoubleBowShot : default) |
+                    (specials.Value.Contains(Properties.PluginRegex.FinishingBlow) ? Specials.FinishingBlow : default));
             }
             else
-                return Specials.None;
+                throw new Exception("No match was successfull should not of been invoked");
+        }
+
+        private void CombatMasterSwingAdd(Match match, EQSwingType eqst, String specialMatchGroup, Dnum damage, String attackTypeMatchGroup, String typeOfResource)
+        {
+            CombatMasterSwingAdd(match, eqst, specialMatchGroup, damage, attackTypeMatchGroup, typeOfResource, new Dictionary<string, object>());
         }
 
         #region String Parsing
-        private void CombatMasterSwingAdd(Match match, int eqst, String specialMatchGroup, Dnum damage, String attackTypeMatchGroup, String typeOfResource, Dictionary<string, object> tagsAction)
+        private void CombatMasterSwingAdd(Match match, EQSwingType eqst, String specialMatchGroup, Dnum damage, String attackTypeMatchGroup, String typeOfResource, Dictionary<string, object> tagsAction)
         {
             DateTime dateTimeOfLogLine = ParseEQTimeStampFromLog(match.Groups[Properties.PluginRegex.dateTimeOfLogLine].Value);
             
             Tuple<String, String> petTypeAndName = GetPetTypeAndPlayerName(match.Groups["attacker"].Value);
+            if (chilled != default)
+            {
+                chilled.Tags.Add(Properties.PluginRegex.OutgoingTag, petTypeAndName.Item1);
+                ActGlobals.oFormActMain.AddCombatAction(chilled);
+                chilled = default;
+            }
             Tuple<String, String> victimPetTypeAndName = GetPetTypeAndPlayerName(match.Groups["victim"].Value);
             Dictionary<string, Object> tags = new Dictionary<string, Object>
                     {
                         { Properties.PluginRegex.OutgoingTag, petTypeAndName.Item1 },
                         { Properties.PluginRegex.IncomingTag, victimPetTypeAndName.Item1 }
                     };
-            tags[Properties.PluginRegex.SpecialStringTag] = SpecialsParse(match.Groups["special"]);
-            
+            if (match.Groups[specialMatchGroup].Success)
+                tags[Properties.PluginRegex.SpecialStringTag] = SpecialsParse(match.Groups[specialMatchGroup]);
+            foreach (KeyValuePair<string, object> kvp in tags)
+            {
+                tagsAction.Append(kvp);
+            }
+
+            String attackName;
+
             if (EQSwingType.Heal.Equals(eqst))
             {
-                if (ActGlobals.oFormActMain.InCombat)
-                {
-                    AddMasterSwing(
-                    eqst
-                    , match.Groups[specialMatchGroup].Value.Contains(Properties.PluginRegex.Critical)
-                    , damage
-                    , match.Groups[attackTypeMatchGroup].Success ? match.Groups[attackTypeMatchGroup].Value : "unnamed heal"
-                    , dateTimeOfLogLine
-                    , ReplaceSelfWithCharacterName(petTypeAndName.Item2)
-                    , typeOfResource
-                    , CheckIfSelf(victimPetTypeAndName.Item2) ? ActGlobals.charName : ReplaceSelfWithCharacterName(victimPetTypeAndName.Item2)
-                    , (Dictionary<String, object>)Enumerable.Union(tags, tagsAction));
-                }
+                attackName = match.Groups[attackTypeMatchGroup].Success ? match.Groups[attackTypeMatchGroup].Value : "unnamed heal";
             }
             else
             {
-                if (ActGlobals.oFormActMain.SetEncounter(ActGlobals.oFormActMain.LastKnownTime, ReplaceSelfWithCharacterName(petTypeAndName.Item2), ReplaceSelfWithCharacterName(victimPetTypeAndName.Item2)))
-                {
-                    AddMasterSwing(
+                attackName = match.Groups[attackTypeMatchGroup].Value;
+            }
+
+            if(ActGlobals.oFormActMain.InCombat ^ ActGlobals.oFormActMain.SetEncounter(ActGlobals.oFormActMain.LastKnownTime, ReplaceSelfWithCharacterName(petTypeAndName.Item2), ReplaceSelfWithCharacterName(victimPetTypeAndName.Item2)))
+            AddMasterSwing(
                         eqst
                     , match.Groups[specialMatchGroup].Value.Contains(Properties.PluginRegex.Critical)
                     , damage
-                    , match.Groups[attackTypeMatchGroup].Value
+                    , attackName
                     , dateTimeOfLogLine
                     , ReplaceSelfWithCharacterName(petTypeAndName.Item2)
                     , typeOfResource
                     , CheckIfSelf(victimPetTypeAndName.Item2) ? ActGlobals.charName : ReplaceSelfWithCharacterName(victimPetTypeAndName.Item2)
-                    , (Dictionary<String, object>)Enumerable.Union(tags, tagsAction));
-                }
-            }
+                    , tagsAction);
         }
 
         private string NameFormatChange(CombatantData Data, int len)
@@ -1656,7 +1621,7 @@ namespace EverQuestDPS
         /// Construct Master Swing object
         /// </summary>
         internal static void AddMasterSwing(
-            int eqst
+            EQSwingType eqst
             , bool criticalAttack
             , Dnum damage
             , String attackName
@@ -1668,7 +1633,7 @@ namespace EverQuestDPS
             )
         {
             ActGlobals.oFormActMain.AddCombatAction(new MasterSwing(
-                eqst
+                (int)eqst
                 , criticalAttack
                 , damage
                 , dateTimeofLogline
