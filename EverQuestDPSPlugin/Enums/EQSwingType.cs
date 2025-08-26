@@ -1,6 +1,9 @@
-﻿namespace EverQuestDPS.Enums
+﻿using System;
+
+namespace EverQuestDPS.Enums
 {
-    public enum EQSwingType
+    [Flags]
+    public enum EQSwingType : uint
     {
         None = 0,
         Melee = 1,
@@ -11,9 +14,9 @@
         DamageShield = 32,
         Instant = 64,
         OverTime = 128,
-        HealingOverTime = Healing + OverTime,
-        InstantHealing = Healing + Instant,
-        DirectDamageSpell = Spell + Instant,
-        SpellOverTime = Spell + OverTime
+        HealingOverTime = Healing | OverTime,
+        InstantHealing = Healing | Instant,
+        DirectDamageSpell = Spell | Instant,
+        SpellOverTime = Spell | OverTime
     }
 }
