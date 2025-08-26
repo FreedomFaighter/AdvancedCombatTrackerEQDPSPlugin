@@ -1,18 +1,13 @@
 ﻿using EverQuestDPS;
+using EverQuestDPS.Enums;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System.Linq;
 
-namespace GenericStringsUnitTests
+namespace EverQuestDPSPluginUnitTests
 {
     [TestClass]
     public sealed class EverQuestDPSPluginTests
     {
-        //EQDPSParser plugin;
-        //[TestInitialize] 
-        //public void Init() { 
-        //    plugin = new EQDPSParser();
-        //}
-
         [DataTestMethod]
         [DataRow("himself")]
         [DataRow("herself")]
