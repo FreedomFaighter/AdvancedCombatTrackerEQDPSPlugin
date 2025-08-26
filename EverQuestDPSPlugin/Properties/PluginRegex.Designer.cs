@@ -601,7 +601,7 @@ namespace EverQuestDPS.Properties {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to You have entered (?!.*an area where levitation effects do not function)(?!.*the Drunken Monkey stance adequately)(?&lt;zoneName&gt;.*)..
+        ///   Looks up a localized string similar to You have entered (?!.*an area where Bind Affinity is allowed)(?!.*an area where levitation effects do not function)(?!.*the Drunken Monkey stance adequately)(?&lt;zoneName&gt;.*)..
         /// </summary>
         internal static string zoneChange {
             get {
