@@ -175,7 +175,7 @@
     <value>(?&lt;Unknown&gt;(u|U)nknown)</value>
   </data>
   <data name="zoneChange" xml:space="preserve">
-    <value>You have entered (?!.*an area where Bind Affinity is allowed)(?!.*an area where levitation effects do not function)(?!.*the Drunken Monkey stance adequately)(?&lt;zoneName&gt;.*).</value>
+    <value>You have entered ((?&lt;zoneName&gt;.*)|(?!((the Drunken Monkey stance adequately)|(an area where levitation effects do not function)|(an area where Bind Affinity is allowed)|(an Arena (PvP) area)))).</value>
   </data>
   <data name="attackTypes" xml:space="preserve">
     <value>backstab|throw|pierce|gore|crush|slash|hit|kick|slam|bash|shoot|strike|bite|grab|punch|scratch|rake|swipe|claw|maul|smash|frenzies on|frenzy</value>
