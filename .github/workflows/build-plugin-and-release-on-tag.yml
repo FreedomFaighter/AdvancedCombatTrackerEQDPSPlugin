@@ -15,7 +15,7 @@ on:
   
 jobs:
   build:
-    runs-on: windows-2019
+    runs-on: windows-latest
     env:
       ACTFileName: 'ACTv3-setup.exe'
       ACTDownloadURI: 'https://advancedcombattracker.com/download.php?id=56'
