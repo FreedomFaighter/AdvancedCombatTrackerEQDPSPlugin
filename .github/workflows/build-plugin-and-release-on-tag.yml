@@ -3,6 +3,8 @@
 
 name: ACT EverQuest DPS Plugin
 
+run-name: Build and testing with @${{ github.actor }}
+
 on:
   push:
     branches-ignore: [ 'main' ]

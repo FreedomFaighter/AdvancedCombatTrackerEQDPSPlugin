@@ -12,6 +12,8 @@ using System.Xml;
 using EverQuestDPS.Enums;
 using EverQuestDPS.ParserObjectGenerators;
 using EverQuestDPS.Extensions;
+using System.Reflection;
+using System.Resources;
 
 /*
 * Project: EverQuest DPS Plugin
@@ -171,7 +173,7 @@ namespace EverQuestDPS
         private NumericUpDown UpDownForPrecision;
         private Label digitsForPrecision;
         long precisionForDPS;
-        static Regex regexSelf = new Regex(@"(you|your|it|her|him|them)(s|sel(f|ves))", RegexOptions.Compiled);
+        Regex regexSelf = new Regex(@"(you|your|it|her|him|them)(s|sel(f|ves))", RegexOptions.Compiled);
         readonly object precisionObject = new object();
         #endregion
 
@@ -411,10 +413,15 @@ namespace EverQuestDPS
         /// <summary>
         /// Sets up the EverQuest environment with the standard information for the ACT application
         /// </summary>
+        /// 
+
         private void SetupEverQuestEnvironment()
         {
-            CultureInfo usCulture = new CultureInfo(Properties.PluginRegex.cultureSetting);   // This is for SQL syntax; do not change
-            //ActGlobals.blockIsHit = true;
+            Assembly curas = Assembly.GetExecutingAssembly();
+            Attribute attribute = curas.GetCustomAttribute(typeof(NeutralResourcesLanguageAttribute));
+            NeutralResourcesLanguageAttribute aca = attribute as NeutralResourcesLanguageAttribute;
+            CultureInfo currentCulture = new CultureInfo(aca.CultureName);
+            ActGlobals.blockIsHit = true;
             EncounterData.ColumnDefs.Clear();
             //Do not change the SqlDataName while doing localization
             EncounterData.ColumnDefs.Add("EncId", new EncounterData.ColumnDef("EncId", false, "CHAR(8)", "EncId", (Data) => { return string.Empty; }, (Data) => { return Data.EncId; }));
@@ -423,7 +430,7 @@ namespace EverQuestDPS
             EncounterData.ColumnDefs.Add("EndTime", new EncounterData.ColumnDef("EndTime", true, "TIMESTAMP", "EndTime", (Data) => { return Data.EndTime == DateTime.MinValue ? "--:--:--" : Data.EndTime.ToString("T"); }, (Data) => { return Data.EndTime == DateTime.MinValue ? "0000-00-00 00:00:00" : Data.EndTime.ToString("u").TrimEnd(new char[] { 'Z' }); }));
             EncounterData.ColumnDefs.Add("Duration", new EncounterData.ColumnDef("Duration", true, "INT", "Duration", (Data) => { return Data.DurationS; }, (Data) => { return Data.Duration.TotalSeconds.ToString("0"); }));
             EncounterData.ColumnDefs.Add("Damage", new EncounterData.ColumnDef("Damage", true, "BIGINT", "Damage", (Data) => { return Data.Damage.ToString(); }, (Data) => { return Data.Damage.ToString(); }));
-            EncounterData.ColumnDefs.Add("EncDPS", new EncounterData.ColumnDef("EncDPS", true, "DOUBLE", "EncDPS", (Data) => { return Data.DPS.ToString(); }, (Data) => { return Data.DPS.ToString(usCulture); }));
+            EncounterData.ColumnDefs.Add("EncDPS", new EncounterData.ColumnDef("EncDPS", true, "DOUBLE", "EncDPS", (Data) => { return Data.DPS.ToString(); }, (Data) => { return Data.DPS.ToString(currentCulture); }));
             EncounterData.ColumnDefs.Add("Zone", new EncounterData.ColumnDef("Zone", false, "VARCHAR(64)", "Zone", (Data) => { return Data.ZoneName; }, (Data) => { return Data.ZoneName; }));
             EncounterData.ColumnDefs.Add("Kills on", new EncounterData.ColumnDef("Kills", true, "INT", "Kills", (Data) => { return Data.AlliedKills.ToString(); }, (Data) => { return Data.AlliedKills.ToString(); }));
             EncounterData.ColumnDefs.Add("Deaths by", new EncounterData.ColumnDef("Deaths", true, "INT", "Deaths", (Data) => { return Data.AlliedDeaths.ToString(); }, (Data) => { return Data.AlliedDeaths.ToString(); }));
@@ -494,8 +501,8 @@ namespace EverQuestDPS
             CombatantData.ColumnDefs.Add("CritHeals", new CombatantData.ColumnDef("CritHeals", false, "INT", "CritHeals", (Data) => { return Data.CritHeals.ToString(); }, (Data) => { return Data.CritHeals.ToString(); }, (Left, Right) => { return Left.CritHeals.CompareTo(Right.CritHeals); }));
             CombatantData.ColumnDefs.Add("Heals", new CombatantData.ColumnDef("Heals", false, "INT", "Heals", (Data) => { return Data.Heals.ToString(); }, (Data) => { return Data.Heals.ToString(); }, (Left, Right) => { return Left.Heals.CompareTo(Right.Heals); }));
             CombatantData.ColumnDefs.Add("Cures", new CombatantData.ColumnDef("Cures", false, "INT", "CureDispels", (Data) => { return Data.CureDispels.ToString(); }, (Data) => { return Data.CureDispels.ToString(); }, (Left, Right) => { return Left.CureDispels.CompareTo(Right.CureDispels); }));
-            CombatantData.ColumnDefs.Add("DPS", new CombatantData.ColumnDef("DPS", false, "DOUBLE", "DPS", (Data) => { return Data.DPS.ToString(); }, (Data) => { return Data.DPS.ToString(usCulture); }, (Left, Right) => { return Left.DPS.CompareTo(Right.DPS); }));
-            CombatantData.ColumnDefs.Add("EncDPS", new CombatantData.ColumnDef("EncDPS", true, "DOUBLE", "EncDPS", (Data) => { return Data.EncDPS.ToString(); }, (Data) => { return Data.EncDPS.ToString(usCulture); }, (Left, Right) => { return Left.EncDPS.CompareTo(Right.EncDPS); }));
+            CombatantData.ColumnDefs.Add("DPS", new CombatantData.ColumnDef("DPS", false, "DOUBLE", "DPS", (Data) => { return Data.DPS.ToString(); }, (Data) => { return Data.DPS.ToString(currentCulture); }, (Left, Right) => { return Left.DPS.CompareTo(Right.DPS); }));
+            CombatantData.ColumnDefs.Add("EncDPS", new CombatantData.ColumnDef("EncDPS", true, "DOUBLE", "EncDPS", (Data) => { return Data.EncDPS.ToString(); }, (Data) => { return Data.EncDPS.ToString(currentCulture); }, (Left, Right) => { return Left.EncDPS.CompareTo(Right.EncDPS); }));
             CombatantData.ColumnDefs.Add("Hits", new CombatantData.ColumnDef("Hits", false, "INT", "Hits", (Data) => { return Data.Hits.ToString(); }, (Data) => { return Data.Hits.ToString(); }, (Left, Right) => { return Left.Hits.CompareTo(Right.Hits); }));
             CombatantData.ColumnDefs.Add("CritHits", new CombatantData.ColumnDef("CritHits", false, "INT", "CritHits", (Data) => { return Data.CritHits.ToString(); }, (Data) => { return Data.CritHits.ToString(); }, (Left, Right) => { return Left.CritHits.CompareTo(Right.CritHits); }));
             CombatantData.ColumnDefs.Add("Avoids", new CombatantData.ColumnDef("Avoids", false, "INT", "Blocked", (Data) => { return Data.Blocked.ToString(); }, (Data) => { return Data.Blocked.ToString(); }, (Left, Right) => { return Left.Blocked.CompareTo(Right.Blocked); }));
@@ -504,7 +511,7 @@ namespace EverQuestDPS
             CombatantData.ColumnDefs.Add("HealingTaken", new CombatantData.ColumnDef("HealingTaken", false, "BIGINT", "HealsTaken", (Data) => { return Data.HealsTaken.ToString(); }, (Data) => { return Data.HealsTaken.ToString(); }, (Left, Right) => { return Left.HealsTaken.CompareTo(Right.HealsTaken); }));
             CombatantData.ColumnDefs.Add("DamageTaken", new CombatantData.ColumnDef("DamageTaken", true, "BIGINT", "DamageTaken", (Data) => { return Data.DamageTaken.ToString(); }, (Data) => { return Data.DamageTaken.ToString(); }, (Left, Right) => { return Left.DamageTaken.CompareTo(Right.DamageTaken); }));
             CombatantData.ColumnDefs.Add("Deaths", new CombatantData.ColumnDef("Deaths", true, "INT", "Deaths", (Data) => { return Data.Deaths.ToString(); }, (Data) => { return Data.Deaths.ToString(); }, (Left, Right) => { return Left.Deaths.CompareTo(Right.Deaths); }));
-            CombatantData.ColumnDefs.Add("ToHit%", new CombatantData.ColumnDef("ToHit%", false, "FLOAT", "ToHit", (Data) => { return Data.ToHit.ToString(); }, (Data) => { return Data.ToHit.ToString(usCulture); }, (Left, Right) => { return Left.ToHit.CompareTo(Right.ToHit); }));
+            CombatantData.ColumnDefs.Add("ToHit%", new CombatantData.ColumnDef("ToHit%", false, "FLOAT", "ToHit", (Data) => { return Data.ToHit.ToString(); }, (Data) => { return Data.ToHit.ToString(currentCulture); }, (Left, Right) => { return Left.ToHit.CompareTo(Right.ToHit); }));
             CombatantData.ColumnDefs.Add("CritDam%", new CombatantData.ColumnDef("CritDam%", false, "VARCHAR(8)", "CritDamPerc", (Data) => { return Data.CritDamPerc.ToString("0'%"); }, (Data) => { return Data.CritDamPerc.ToString("0'%"); }, (Left, Right) => { return Left.CritDamPerc.CompareTo(Right.CritDamPerc); }));
             CombatantData.ColumnDefs.Add("CritHeal%", new CombatantData.ColumnDef("CritHeal%", false, "VARCHAR(8)", "CritHealPerc", (Data) => { return Data.CritHealPerc.ToString("0'%"); }, (Data) => { return Data.CritHealPerc.ToString("0'%"); }, (Left, Right) => { return Left.CritHealPerc.CompareTo(Right.CritHealPerc); }));
 
@@ -642,9 +649,9 @@ namespace EverQuestDPS
             DamageTypeData.ColumnDefs.Add("EndTime", new DamageTypeData.ColumnDef("EndTime", false, "TIMESTAMP", "EndTime", (Data) => { return Data.EndTime == DateTime.MinValue ? "--:--:--" : Data.EndTime.ToString("T"); }, (Data) => { return Data.EndTime == DateTime.MinValue ? "0000-00-00 00:00:00" : Data.EndTime.ToString("u").TrimEnd(new char[] { 'Z' }); }));
             DamageTypeData.ColumnDefs.Add("Duration", new DamageTypeData.ColumnDef("Duration", false, "INT", "Duration", (Data) => { return Data.DurationS; }, (Data) => { return Data.Duration.TotalSeconds.ToString("0"); }));
             DamageTypeData.ColumnDefs.Add("Damage", new DamageTypeData.ColumnDef("Damage", true, "BIGINT", "Damage", (Data) => { return Data.Damage.ToString(); }, (Data) => { return Data.Damage.ToString(); }));
-            DamageTypeData.ColumnDefs.Add("EncDPS", new DamageTypeData.ColumnDef("EncDPS", true, "DOUBLE", "EncDPS", (Data) => { return Data.EncDPS.ToString(); }, (Data) => { return Data.EncDPS.ToString(usCulture); }));
-            DamageTypeData.ColumnDefs.Add("CharDPS", new DamageTypeData.ColumnDef("CharDPS", false, "DOUBLE", "CharDPS", (Data) => { return Data.CharDPS.ToString(); }, (Data) => { return Data.CharDPS.ToString(usCulture); }));
-            DamageTypeData.ColumnDefs.Add("DPS", new DamageTypeData.ColumnDef("DPS", false, "DOUBLE", "DPS", (Data) => { return Data.DPS.ToString(); }, (Data) => { return Data.DPS.ToString(usCulture); }));
+            DamageTypeData.ColumnDefs.Add("EncDPS", new DamageTypeData.ColumnDef("EncDPS", true, "DOUBLE", "EncDPS", (Data) => { return Data.EncDPS.ToString(); }, (Data) => { return Data.EncDPS.ToString(currentCulture); }));
+            DamageTypeData.ColumnDefs.Add("CharDPS", new DamageTypeData.ColumnDef("CharDPS", false, "DOUBLE", "CharDPS", (Data) => { return Data.CharDPS.ToString(); }, (Data) => { return Data.CharDPS.ToString(currentCulture); }));
+            DamageTypeData.ColumnDefs.Add("DPS", new DamageTypeData.ColumnDef("DPS", false, "DOUBLE", "DPS", (Data) => { return Data.DPS.ToString(); }, (Data) => { return Data.DPS.ToString(currentCulture); }));
             DamageTypeData.ColumnDefs.Add("Average", new DamageTypeData.ColumnDef("Average", true, "DOUBLE", "Average", (Data) => { return Data.Average.ToString(); }, (Data) => { return Data.Average.ToString(); }));
             DamageTypeData.ColumnDefs.Add("Median", new DamageTypeData.ColumnDef("Median", false, "BIGINT", "Median", (Data) => { return Data.Median.ToString(); }, (Data) => { return Data.Median.ToString(); }));
             DamageTypeData.ColumnDefs.Add("MinHit", new DamageTypeData.ColumnDef("MinHit", true, "BIGINT", "MinHit", (Data) => { return Data.Swings == 0 ? String.Empty : Data.MinHit.ToString(); }, (Data) => { return Data.Swings == 0 ? String.Empty : Data.MinHit.ToString(); }));
@@ -673,9 +680,9 @@ namespace EverQuestDPS
             AttackType.ColumnDefs.Add("EndTime", new AttackType.ColumnDef("EndTime", false, "TIMESTAMP", "EndTime", (Data) => { return Data.EndTime == DateTime.MinValue ? "--:--:--" : Data.EndTime.ToString("T"); }, (Data) => { return Data.EndTime == DateTime.MinValue ? "0000-00-00 00:00:00" : Data.EndTime.ToString("u").TrimEnd(new char[] { 'Z' }); }, (Left, Right) => { return Left.EndTime.CompareTo(Right.EndTime); }));
             AttackType.ColumnDefs.Add("Duration", new AttackType.ColumnDef("Duration", false, "INT", "Duration", (Data) => { return Data.DurationS; }, (Data) => { return Data.Duration.TotalSeconds.ToString("0"); }, (Left, Right) => { return Left.Duration.CompareTo(Right.Duration); }));
             AttackType.ColumnDefs.Add("Damage", new AttackType.ColumnDef("Damage", true, "BIGINT", "Damage", (Data) => { return Data.Damage.ToString(); }, (Data) => { return Data.Damage.ToString(); }, (Left, Right) => { return Left.Damage.CompareTo(Right.Damage); }));
-            AttackType.ColumnDefs.Add("EncDPS", new AttackType.ColumnDef("EncDPS", true, "DOUBLE", "EncDPS", (Data) => { return Data.EncDPS.ToString(); }, (Data) => { return Data.EncDPS.ToString(usCulture); }, (Left, Right) => { return Left.EncDPS.CompareTo(Right.EncDPS); }));
-            AttackType.ColumnDefs.Add("CharDPS", new AttackType.ColumnDef("CharDPS", false, "DOUBLE", "CharDPS", (Data) => { return Data.CharDPS.ToString(); }, (Data) => { return Data.CharDPS.ToString(usCulture); }, (Left, Right) => { return Left.CharDPS.CompareTo(Right.CharDPS); }));
-            AttackType.ColumnDefs.Add("DPS", new AttackType.ColumnDef("DPS", false, "DOUBLE", "DPS", (Data) => { return Data.DPS.ToString(); }, (Data) => { return Data.DPS.ToString(usCulture); }, (Left, Right) => { return Left.DPS.CompareTo(Right.DPS); }));
+            AttackType.ColumnDefs.Add("EncDPS", new AttackType.ColumnDef("EncDPS", true, "DOUBLE", "EncDPS", (Data) => { return Data.EncDPS.ToString(); }, (Data) => { return Data.EncDPS.ToString(currentCulture); }, (Left, Right) => { return Left.EncDPS.CompareTo(Right.EncDPS); }));
+            AttackType.ColumnDefs.Add("CharDPS", new AttackType.ColumnDef("CharDPS", false, "DOUBLE", "CharDPS", (Data) => { return Data.CharDPS.ToString(); }, (Data) => { return Data.CharDPS.ToString(currentCulture); }, (Left, Right) => { return Left.CharDPS.CompareTo(Right.CharDPS); }));
+            AttackType.ColumnDefs.Add("DPS", new AttackType.ColumnDef("DPS", false, "DOUBLE", "DPS", (Data) => { return Data.DPS.ToString(); }, (Data) => { return Data.DPS.ToString(currentCulture); }, (Left, Right) => { return Left.DPS.CompareTo(Right.DPS); }));
             AttackType.ColumnDefs.Add("Average", new AttackType.ColumnDef("Average", true, "DOUBLE", "Average", (Data) => { return Data.Average.ToString(); }, (Data) => { return Data.Average.ToString(); }, (Left, Right) => { return Left.Average.CompareTo(Right.Average); }));
             AttackType.ColumnDefs.Add("Median", new AttackType.ColumnDef("Median", true, "BIGINT", "Median", (Data) => { return Data.Median.ToString(); }, (Data) => { return Data.Median.ToString(); }, (Left, Right) => { return Left.Median.CompareTo(Right.Median); }));
             AttackType.ColumnDefs.Add("StdDev", new AttackType.ColumnDef("StdDev", true, "DOUBLE", "StdDev", (Data) => { return Math.Sqrt(AttackTypeGetVariance(Data)).ToString(); }, (Data) => { return Math.Sqrt(AttackTypeGetVariance(Data)).ToString(); }, (Left, Right) => { return Math.Sqrt(AttackTypeGetVariance(Left)).CompareTo(Math.Sqrt(AttackTypeGetVariance(Right))); }));
@@ -687,7 +694,7 @@ namespace EverQuestDPS
             MasterSwing.ColumnDefs.Clear();
             MasterSwing.ColumnDefs.Add("EncId", new MasterSwing.ColumnDef("EncId", false, "CHAR(8)", "EncId", (Data) => { return string.Empty; }, (Data) => { return Data.ParentEncounter.EncId; }, (Left, Right) => { return 0; }));
             MasterSwing.ColumnDefs.Add("Time", new MasterSwing.ColumnDef("Time", true, "TIMESTAMP", "STime", (Data) => { return Data.Time.ToString("T"); }, (Data) => { return Data.Time.ToString("u").TrimEnd(new char[] { 'Z' }); }, (Left, Right) => { return Left.Time.CompareTo(Right.Time); }));
-            MasterSwing.ColumnDefs.Add("RelativeTime", new MasterSwing.ColumnDef("RelativeTime", true, "FLOAT", "RelativeTime", (Data) => { return !(Data.ParentEncounter == null) ? (Data.Time - Data.ParentEncounter.StartTime).ToString("g") : String.Empty; }, (Data) => { return !(Data.ParentEncounter == null) ? (Data.Time - Data.ParentEncounter.StartTime).TotalSeconds.ToString(usCulture) : String.Empty; }, (Left, Right) => { return Left.Time.CompareTo(Right.Time); }));
+            MasterSwing.ColumnDefs.Add("RelativeTime", new MasterSwing.ColumnDef("RelativeTime", true, "FLOAT", "RelativeTime", (Data) => { return !(Data.ParentEncounter == null) ? (Data.Time - Data.ParentEncounter.StartTime).ToString("g") : String.Empty; }, (Data) => { return !(Data.ParentEncounter == null) ? (Data.Time - Data.ParentEncounter.StartTime).TotalSeconds.ToString(currentCulture) : String.Empty; }, (Left, Right) => { return Left.Time.CompareTo(Right.Time); }));
             MasterSwing.ColumnDefs.Add("Attacker", new MasterSwing.ColumnDef("Attacker", true, "VARCHAR(64)", "Attacker", (Data) => { return Data.Attacker; }, (Data) => { return Data.Attacker; }, (Left, Right) => { return Left.Attacker.CompareTo(Right.Attacker); }));
             MasterSwing.ColumnDefs.Add("SwingType", new MasterSwing.ColumnDef("SwingType", false, "TINYINT", "SwingType", (Data) => { return Data.SwingType.ToString(); }, (Data) => { return Data.SwingType.ToString(); }, (Left, Right) => { return Left.SwingType.CompareTo(Right.SwingType); }));
             MasterSwing.ColumnDefs.Add("AttackType", new MasterSwing.ColumnDef("AttackType", true, "VARCHAR(64)", "AttackType", (Data) => { return Data.AttackType; }, (Data) => { return Data.AttackType; }, (Left, Right) => { return Left.AttackType.CompareTo(Right.AttackType); }));
@@ -718,7 +725,7 @@ namespace EverQuestDPS
             MasterSwing.ColumnDefs.Add("Critical", 
                 new MasterSwing.ColumnDef("Critical", false, "BOOLEAN", "Critical", 
                 (Data) => { return String.Empty; }, 
-                (Data) => { return String.Empty.ToString(usCulture)[0].ToString(); }, (Left, Right) => { return Left.Critical.CompareTo(Right.Critical); })
+                (Data) => { return String.Empty.ToString(currentCulture)[0].ToString(); }, (Left, Right) => { return Left.Critical.CompareTo(Right.Critical); })
                 {
                     GetCellBackColor = (Data) =>
                     {
@@ -799,7 +806,7 @@ namespace EverQuestDPS
         /// attempts to get attack type and the swing type
         /// </summary>
         /// <param name="Data"></param>
-        /// <returns></returns>
+        /// <returns>String name of attack</returns>
         private string GetAttackTypeSwingType(AttackType Data)
         {
             int? swingType = null;
@@ -824,7 +831,7 @@ namespace EverQuestDPS
         /// <param name="Data"></param>
         /// <param name="VarName"></param>
         /// <param name="Extra"></param>
-        /// <returns></returns>
+        /// <returns>string value of combatand values in parse</returns>
         private string CombatantFormatSwitch(CombatantData Data, string VarName, String Extra)
         {
             switch (VarName)
@@ -1000,7 +1007,7 @@ namespace EverQuestDPS
         /// <param name="SelectiveAllies"></param>
         /// <param name="VarName"></param>
         /// <param name="Extra"></param>
-        /// <returns></returns>
+        /// <returns>string value of encounter values</returns>
         private string EncounterFormatSwitch(EncounterData Data, List<CombatantData> SelectiveAllies, string VarName, String Extra)
         {
             switch (VarName)
@@ -1189,7 +1196,7 @@ namespace EverQuestDPS
         /// Builds a regex string with the timestamp and regex provided
         /// </summary>
         /// <param name="regex"></param>
-        /// <returns></returns>
+        /// <returns>returns regex value of time stamp and regex for log line parse</returns>
         /// <exception cref="ArgumentNullException"></exception>
         internal String RegexString(String regex)
         {
@@ -1206,6 +1213,7 @@ namespace EverQuestDPS
         /// </summary>
         private void PopulateRegexNonCombat()
         {
+            regexSelf = new Regex(@"(you|your|it|her|him|them)(s|sel(f|ves))", RegexOptions.Compiled);
             possesive = new Regex(Properties.PluginRegex.petAndPlayerName, RegexOptions.Compiled);
             selfCheck = new Regex(Properties.PluginRegex.selfMatch, RegexOptions.Compiled); 
         }
@@ -1217,8 +1225,8 @@ namespace EverQuestDPS
         {
             onLogLineRead = new List<Tuple<Color, Regex, Action<Match>>>();
             beforeLogLineRead = new List<Tuple<Color, Regex, Action<Match>>>();
-            String MeleeAttack = @"(?<attacker>.+) (?<attackType>" + $@"{Properties.PluginRegex.attackTypes}" + @")(|s|es|bed) (?<victim>.+)(\sfor\s)(?<damageAmount>[\d]+) ((?:point)(?:s|)) of damage.(?:\s\((?<" + $@"{ Properties.PluginRegex.DamageSpecial}" + @">.+)\)){0,1}";
-            String Evasion = @"(?<attacker>.*) tries to (?<attackType>\S+) (?:(?<victim>(.+)), but \1) (?:(?<evasionType>" + $@"{Properties.PluginRegex.evasionTypes}" + @"))(?:\swith (your|his|hers|its) (shield|staff)){0,1}!(?:[\s][\(](?<evasionSpecial>.+)[\)]){0,1}";
+            String MeleeAttack = RegexString(@"(?<attacker>.+) (?<attackType>" + $@"{Properties.PluginRegex.attackTypes}" + @")(|s|es|bed) (?<victim>.+)(\sfor\s)(?<damageAmount>[\d]+) ((?:point)(?:s|)) of damage.(?:\s\((?<" + $@"{ Properties.PluginRegex.DamageSpecial}" + @">.+)\)){0,1}");
+            String Evasion = RegexString(@"(?<attacker>.*) tries to (?<attackType>\S+) (?:(?<victim>(.+)), but \1) (?:(?<evasionType>" + $@"{Properties.PluginRegex.evasionTypes}" + @"))(?:\swith (your|his|hers|its) (shield|staff)){0,1}!(?:[\s][\(](?<evasionSpecial>.+)[\)]){0,1}");
             ActGlobals.oFormEncounterLogs.LogTypeToColorMapping.Clear();
             onLogLineRead.Add(new Tuple<Color, Regex, Action<Match>>(Color.Red, new Regex(RegexString(MeleeAttack), RegexOptions.Compiled), (match) =>
             {
@@ -1514,7 +1522,15 @@ namespace EverQuestDPS
         }
 
         #region String Parsing
-        private void CombatMasterSwingAdd(Match match, EQSwingType eqst, String specialMatchGroup, Dnum damage, String attackTypeMatchGroup, String typeOfResource, Action<Dictionary<string, object>> tagsAction)
+
+        private void CombatMasterSwingAdd(
+            Match match, 
+            EQSwingType eqst, 
+            String specialMatchGroup, 
+            Dnum damage, 
+            String attackTypeMatchGroup, 
+            String typeOfResource, 
+            Action<Dictionary<string, object>> tagsAction)
         {
             DateTime dateTimeOfLogLine = ParseEQTimeStampFromLog(match.Groups[Properties.PluginRegex.dateTimeOfLogLine].Value);
             Tuple<String, String> attackerPetTypeAndName = GetPetTypeAndPlayerName(ReplaceSelfWithCharacterName(match.Groups["attacker"].Value));
@@ -1547,13 +1563,16 @@ namespace EverQuestDPS
             {
                 if (ActGlobals.oFormActMain.SetEncounter(ActGlobals.oFormActMain.LastKnownTime, ReplaceSelfWithCharacterName(attackerPetTypeAndName.Item2), ReplaceSelfWithCharacterName(victimPetTypeAndName.Item2)))
                 {
+                    bool critical = match.Groups[specialMatchGroup].Value.Contains(Properties.PluginRegex.Critical);
+                    String attackType = match.Groups[attackTypeMatchGroup].Value;
+                    String attacker = ReplaceSelfWithCharacterName(attackerPetTypeAndName.Item2);
                     AddMasterSwing(
                      eqst
-                    , match.Groups[specialMatchGroup].Value.Contains(Properties.PluginRegex.Critical)
+                    , critical
                     , damage
-                    , match.Groups[attackTypeMatchGroup].Value
+                    , attackType
                     , dateTimeOfLogLine
-                    , ReplaceSelfWithCharacterName(attackerPetTypeAndName.Item2)
+                    , attacker
                     , typeOfResource
                     , ReplaceSelfWithCharacterName(victimPetTypeAndName.Item2)
                     , tags);
@@ -1596,7 +1615,7 @@ namespace EverQuestDPS
         /// </summary>
         /// <param name="nameOfCharacter"></param>
         /// <returns>true if self type action, false otherwise</returns>
-        internal static bool CheckIfSelf(String nameOfCharacter)
+        internal bool CheckIfSelf(String nameOfCharacter)
         {
             Match m = regexSelf.Match(nameOfCharacter);
             return m.Success;
