@@ -1225,8 +1225,8 @@ namespace EverQuestDPS
         {
             onLogLineRead = new List<Tuple<Color, Regex, Action<Match>>>();
             beforeLogLineRead = new List<Tuple<Color, Regex, Action<Match>>>();
-            String MeleeAttack = @"(?<attacker>.+) (?<attackType>" + $@"{Properties.PluginRegex.attackTypes}" + @")(|s|es|bed) (?<victim>.+)(\sfor\s)(?<damageAmount>[\d]+) ((?:point)(?:s|)) of damage.(?:\s\((?<" + $@"{ Properties.PluginRegex.DamageSpecial}" + @">.+)\)){0,1}";
-            String Evasion = @"(?<attacker>.*) tries to (?<attackType>\S+) (?:(?<victim>(.+)), but \1) (?:(?<evasionType>" + $@"{Properties.PluginRegex.evasionTypes}" + @"))(?:\swith (your|his|hers|its) (shield|staff)){0,1}!(?:[\s][\(](?<evasionSpecial>.+)[\)]){0,1}";
+            String MeleeAttack = RegexString(@"(?<attacker>.+) (?<attackType>" + $@"{Properties.PluginRegex.attackTypes}" + @")(|s|es|bed) (?<victim>.+)(\sfor\s)(?<damageAmount>[\d]+) ((?:point)(?:s|)) of damage.(?:\s\((?<" + $@"{ Properties.PluginRegex.DamageSpecial}" + @">.+)\)){0,1}");
+            String Evasion = RegexString(@"(?<attacker>.*) tries to (?<attackType>\S+) (?:(?<victim>(.+)), but \1) (?:(?<evasionType>" + $@"{Properties.PluginRegex.evasionTypes}" + @"))(?:\swith (your|his|hers|its) (shield|staff)){0,1}!(?:[\s][\(](?<evasionSpecial>.+)[\)]){0,1}");
             ActGlobals.oFormEncounterLogs.LogTypeToColorMapping.Clear();
             onLogLineRead.Add(new Tuple<Color, Regex, Action<Match>>(Color.Red, new Regex(RegexString(MeleeAttack), RegexOptions.Compiled), (match) =>
             {
