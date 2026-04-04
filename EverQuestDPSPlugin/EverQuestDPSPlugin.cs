@@ -1615,7 +1615,7 @@ namespace EverQuestDPS
         /// </summary>
         /// <param name="nameOfCharacter"></param>
         /// <returns>true if self type action, false otherwise</returns>
-        internal static bool CheckIfSelf(String nameOfCharacter)
+        internal bool CheckIfSelf(String nameOfCharacter)
         {
             Match m = regexSelf.Match(nameOfCharacter);
             return m.Success;
