@@ -45,7 +45,7 @@ jobs:
           path: ${{ env.EQDPSPluginLibraryPath }}
   release:
     needs: build
-    runs-on: windows-2019
+    runs-on: windows-latest
     permissions:
       contents: write
     if: github.ref_type == 'tag'
